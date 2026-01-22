@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model User {
+  id        String  @id
+  email     String  @unique
+  name      String
+  avatarUrl String?
+  role      Role    @default(USER)
+
+  bookings Booking[]
+  reviews  Review[]
+
+  favoriteShops    FavoriteShop[]
+  favoriteServices FavoriteService[]
+
+  createdAt DateTime @default(now())
+  shops     Shop[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model ShopCategory {
+  id   String  @id @default(uuid())
+  name String  @unique
+  icon String?
+
+  shops Shop[]
+}
+
+model Shop {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  logoUrl     String?
+  address     String
+  phone       String?
+
+  categoryId String
+  category   ShopCategory @relation(fields: [categoryId], references: [id])
+
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id])
+
+  isOpen Boolean @default(true)
+
+  services Service[]
+  bookings Booking[]
+  reviews  Review[]
+  blocks   ShopBlock[]
+
+  createdAt     DateTime       @default(now())
+  favoriteShops FavoriteShop[]
+  shopSchedules ShopSchedule[]
+
+  @@index([categoryId])
+  @@index([ownerId])
+}
+
+model Service {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  price       Decimal @db.Decimal(10, 2)
+  durationMin Int // important for scheduling
+  isActive    Boolean @default(true)
+
+  shopId String
+  shop   Shop   @relation(fields: [shopId], references: [id])
+
+  bookings Booking[]
+  reviews  Review[]
+
+  favorites FavoriteService[]
+
+  @@index([shopId])
+}
+
+model Booking {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  shopId String
+  shop   Shop   @relation(fields: [shopId], references: [id])
+
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  startTime DateTime
+  endTime   DateTime
+
+  status BookingStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([shopId])
+  @@index([serviceId])
+  @@index([shopId, startTime])
+  @@index([serviceId, startTime])
+}
+
+enum BookingStatus {
+  PENDING // user booked
+  CONFIRMED // shop accepted
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+model Review {
+  id String @id @default(uuid())
+
+  rating  Int
+  comment String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  shopId String?
+  shop   Shop?   @relation(fields: [shopId], references: [id])
+
+  serviceId String?
+  service   Service? @relation(fields: [serviceId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([shopId])
+  @@index([serviceId])
+}
+
+model FavoriteShop {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  shopId String
+  shop   Shop   @relation(fields: [shopId], references: [id])
+
+  @@unique([userId, shopId])
+  @@index([userId])
+  @@index([shopId])
+}
+
+model FavoriteService {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  @@unique([userId, serviceId])
+  @@index([userId])
+  @@index([serviceId])
+}
+
+model ShopSchedule {
+  id String @id @default(uuid())
+
+  shopId String
+  shop   Shop   @relation(fields: [shopId], references: [id])
+
+  dayOfWeek Int // 0-6
+  openTime  String // HH:mm
+  closeTime String // HH:mm
+
+  @@index([shopId])
+}
+
+model ShopBlock {
+  id String @id @default(uuid())
+
+  shopId String
+  shop   Shop   @relation(fields: [shopId], references: [id])
+
+  startTime DateTime
+  endTime   DateTime
+
+  reason String? // lunch, maintenance, personal
+
+  createdAt DateTime @default(now())
+
+  @@index([shopId])
+}
