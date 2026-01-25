@@ -1,0 +1,97 @@
+# POST requests
+# notice: all POST requests require authorization and test with different ids not just with this one
+POST http://localhost:3001/api/auth/signin
+Content-Type: application/json
+
+body: {
+  "email": "229453m@jdu.uz",
+  "password": "IloveMyself3"
+}
+
+POST http://localhost:3001/api/auth/signup
+Content-Type: application/json
+
+body: {
+  "email": "229453m@jdu.uz",
+  "password": "IloveMyself3",
+  "name": "Abduqayumov Muhammad"
+}
+
+POST http://localhost:3001/api/bookings
+body: {
+  "shopId": "925e1f3b-b646-42a7-8235-1b2c612dee94",
+  "serviceId": "89629de1-2a63-43b2-821a-e84ddf1ce1b8",
+  "startTime": "2023-03-01T06:00:00Z"
+}
+
+POST http://localhost:3001/api/categories
+Content-Type: application/json
+
+body: {
+  "name": "barbershop",
+  "icon": "scissors"
+}
+
+POST http://localhost:3001/api/shops
+
+body: {
+  "name": "Muhammad Cuts",
+  "address": "123 Main St, Anytown",
+  "phone": "+99894101551",
+  "categoryId": "dbf9cfa0-6b2d-4f61-bd0f-5f14464c8420",
+  "description": "A trendy barbershop offering stylish cuts and shaves."
+}
+
+POST http://localhost:3001/api/shops/925e1f3b-b646-42a7-8235-1b2c612dee94/schedule
+
+body: {
+  "dayOfWeek": 7,
+  "openTime": "09:00",
+  "closeTime": "18:00"
+}
+
+POST http://localhost:3001/api/services
+
+body: {
+  "shopId": "925e1f3b-b646-42a7-8235-1b2c612dee94",
+  "name": "Hair cut",
+  "price": 10,
+  "durationMin": 30
+}
+
+POST http://localhost:3001/api/shops/925e1f3b-b646-42a7-8235-1b2c612dee94/block
+
+body: {
+  "startTime": "2023-03-01T08:00:00Z",
+  "endTime": "2023-03-01T09:00:00Z",
+  "reason": "Lunch Break"
+}
+
+POST http://localhost:3001/api/reviews
+
+body: {
+  "shopId": "925e1f3b-b646-42a7-8235-1b2c612dee94",
+  "serviceId": "74ea7c46-c05c-4be9-8726-8393919204b6",
+  "rating": 5,
+  "comment": "Great service!"
+}
+
+POST http://localhost:3001/api/favourites/shop
+
+body: {
+  "shopId": "925e1f3b-b646-42a7-8235-1b2c612dee94"
+}
+
+POST http://localhost:3001/api/favourites/service
+
+body: {
+  "serviceId": "74ea7c46-c05c-4be9-8726-8393919204b6"
+}
+
+POST http://localhost:3001/api/bookings
+
+body: {
+  "shopId": "925e1f3b-b646-42a7-8235-1b2c612dee94",
+  "serviceId": "89629de1-2a63-43b2-821a-e84ddf1ce1b8",
+  "startTime": "2023-03-01T06:00:00Z"
+}

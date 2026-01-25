@@ -1,19 +1,11 @@
 import prisma from "../db/prisma.js";
 import express from "express";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { adminOnly } from "../middlewares/admin.middleware.js";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  try {
-    const users = await prisma.user.findMany();
-    res.status(200).json(users);
-  } catch (error) {
-    return res.status(500).json({ error: "Failed to fetch users" });
-  }
-});
-
-router.get("/all", async (req, res) => {
+router.get("/", authMiddleware, adminOnly, async (req, res) => {
   try {
     const users = await prisma.user.findMany({
       include: {
