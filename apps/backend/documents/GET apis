@@ -1,0 +1,33 @@
+# GET requests
+GET http://localhost:3001/api/auth/me
+
+GET http://localhost:3001/api/bookings/active?shopId=925e1f3b-b646-42a7-8235-1b2c612dee94
+
+GET http://localhost:3001/api/bookings/history?shopId=925e1f3b-b646-42a7-8235-1b2c612dee94
+
+GET http://localhost:3001/api/categories
+
+GET http://localhost:3001/api/favourites/shops
+
+GET http://localhost:3001/api/favourites/services
+
+GET http://localhost:3001/api/reviews
+
+GET http://localhost:3001/api/reviews/925e1f3b-b646-42a7-8235-1b2c612dee94
+
+GET http://localhost:3001/api/services
+
+GET http://localhost:3001/api/services/89629de1-2a63-43b2-821a-e84ddf1ce1b8
+
+GET http://localhost:3001/api/shops?open=true&limit=10&categoryId=""&search=""&cursor=""
+
+GET http://localhost:3001/api/shops/925e1f3b-b646-42a7-8235-1b2c612dee94
+
+GET http://localhost:3001/api/shops/925e1f3b-b646-42a7-8235-1b2c612dee94/services
+
+GET http://localhost:3001/api/shops/925e1f3b-b646-42a7-8235-1b2c612dee94/reviews?limit=10&cursor=""
+
+GET http://localhost:3001/api/shops/925e1f3b-b646-42a7-8235-1b2c612dee94/day-timeline?date=2026-01-21
+
+GET http://localhost:3001/api/users
+

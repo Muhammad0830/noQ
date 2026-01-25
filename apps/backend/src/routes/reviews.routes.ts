@@ -2,8 +2,39 @@ import { Router } from "express";
 import prisma from "../db/prisma.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { getPaginationParams } from "../utils/pagination.js";
+import { adminOnly } from "../middlewares/admin.middleware.js";
 
 const reviewRouter = Router();
+
+reviewRouter.get("/", authMiddleware, adminOnly, async (req: any, res: any) => {
+  try {
+    const { shopId } = req.query;
+
+    const reviews = await prisma.review.findMany({
+      where: {
+        shopId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            avatarUrl: true,
+          },
+        },
+        service: true,
+        shop: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    res.status(200).json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 reviewRouter.get("/:id", authMiddleware, async (req: any, res: any) => {
   try {

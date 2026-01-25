@@ -6,17 +6,11 @@ const bookingRouter = Router();
 
 bookingRouter.get("/active", authMiddleware, async (req: any, res: any) => {
   try {
-    const {
-      shopId = "",
-      serviceId = "",
-      startTime = "",
-      endTime = "",
-    } = req.query as {
-      shopId?: string;
-      serviceId?: string;
-      startTime?: string;
-      endTime?: string;
-    };
+    const { shopId } = req.query;
+
+    if (shopId === undefined) {
+      return res.status(400).json({ message: "shopId is required" });
+    }
 
     const bookings = await prisma.booking.findMany({
       where: {
@@ -24,10 +18,7 @@ bookingRouter.get("/active", authMiddleware, async (req: any, res: any) => {
         status: {
           in: ["PENDING", "CONFIRMED", "IN_PROGRESS"],
         },
-        shopId,
-        serviceId,
-        startTime,
-        endTime,
+        shopId: shopId,
       },
       include: {
         shop: true,
@@ -37,6 +28,7 @@ bookingRouter.get("/active", authMiddleware, async (req: any, res: any) => {
 
     res.status(200).json(bookings);
   } catch (error) {
+    console.log("error", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -62,9 +54,6 @@ bookingRouter.get("/history", authMiddleware, async (req: any, res: any) => {
           in: ["COMPLETED", "CANCELLED", "NO_SHOW"],
         },
         shopId,
-        serviceId,
-        startTime,
-        endTime,
       },
       include: {
         shop: true,
@@ -74,11 +63,12 @@ bookingRouter.get("/history", authMiddleware, async (req: any, res: any) => {
 
     res.status(200).json(bookings);
   } catch (error) {
+    console.error("error", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
 
-bookingRouter.post("/bookings", authMiddleware, async (req: any, res) => {
+bookingRouter.post("/", authMiddleware, async (req: any, res) => {
   try {
     const { shopId, serviceId, startTime } = req.body;
 
