@@ -55,7 +55,7 @@ export default function DiscoverServices() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex gap-8">
           {/* Sidebar Filters */}
-          <aside className="w-64 flex-shrink-0">
+          <aside className="w-64 shrink-0">
             <div className="bg-white rounded-lg shadow-sm p-6 sticky top-24">
               <h3 className="font-bold text-lg mb-4">Categories</h3>
               <div className="space-y-2">
@@ -114,7 +114,7 @@ export default function DiscoverServices() {
               {shops.map((shop) => (
                 <div key={shop.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex gap-4 p-4">
-                    <div className="w-48 h-48 bg-gray-200 rounded-lg flex-shrink-0"></div>
+                    <div className="w-48 h-48 bg-gray-200 rounded-lg shrink-0"></div>
                     <div className="flex-1">
                       <div className="flex justify-between items-start">
                         <div>

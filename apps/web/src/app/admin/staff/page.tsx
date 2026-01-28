@@ -112,7 +112,7 @@ export default function ManageStaff() {
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex gap-3">
-                    <div className="w-16 h-16 bg-gray-300 rounded-full flex-shrink-0"></div>
+                    <div className="w-16 h-16 bg-gray-300 rounded-full shrink-0"></div>
                     <div>
                       <h3 className="font-bold text-lg">{member.name}</h3>
                       <p className="text-sm text-gray-600">{member.role}</p>

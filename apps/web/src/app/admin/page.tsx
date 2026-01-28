@@ -160,14 +160,14 @@ export default function AdminDashboard() {
               <h2 className="text-xl font-bold mb-4">Alerts</h2>
               <div className="space-y-3">
                 <div className="flex gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                  <AlertCircle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-semibold">Pending Approval</p>
                     <p className="text-xs text-gray-600">3 new bookings need confirmation</p>
                   </div>
                 </div>
                 <div className="flex gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <AlertCircle className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-semibold">Staff Availability</p>
                     <p className="text-xs text-gray-600">Update schedule for next week</p>

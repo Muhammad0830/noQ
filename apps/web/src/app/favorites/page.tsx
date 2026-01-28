@@ -73,7 +73,7 @@ export default function MyFavorites() {
             {favorites.map((shop) => (
               <div key={shop.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
                 <div className="flex">
-                  <div className="w-40 h-40 bg-gray-200 flex-shrink-0"></div>
+                  <div className="w-40 h-40 bg-gray-200 shrink-0"></div>
                   <div className="flex-1 p-4">
                     <div className="flex justify-between items-start mb-2">
                       <Link href={`/shop/${shop.id}`} className="font-bold text-lg hover:text-blue-600">
