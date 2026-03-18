@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Clock, MapPin, Star, Heart } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import type { Service, Shop } from '@shared/types/types';
-import Link from 'next/link';
+import React from "react";
+import { Clock, MapPin, Star, Heart } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import type { Service, Shop } from "@shared/types/types";
+import Link from "next/link";
+import Image from "next/image";
 
 interface ServiceCardProps {
   service: Service;
@@ -12,10 +13,10 @@ interface ServiceCardProps {
   isFavorite?: boolean;
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ 
-  service, 
+const ServiceCard: React.FC<ServiceCardProps> = ({
+  service,
   onFavorite,
-  isFavorite = false 
+  isFavorite = false,
 }) => {
   const { t } = useLanguage();
 
@@ -44,7 +45,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               </span>
             </div>
           )}
-          
+
           {/* Favorite Button */}
           <button
             onClick={handleFavoriteClick}
@@ -53,8 +54,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
             <Heart
               className={`w-5 h-5 ${
                 isFavorite
-                  ? 'fill-red-500 text-red-500'
-                  : 'text-gray-600 dark:text-gray-400'
+                  ? "fill-red-500 text-red-500"
+                  : "text-gray-600 dark:text-gray-400"
               }`}
             />
           </button>
@@ -65,11 +66,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               <span
                 className={`px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm ${
                   service.shop.isOpen
-                    ? 'bg-green-500/90 text-white'
-                    : 'bg-gray-500/90 text-white'
+                    ? "bg-green-500/90 text-white"
+                    : "bg-gray-500/90 text-white"
                 }`}
               >
-                {service.shop.isOpen ? t('filter.openNow') : 'Closed'}
+                {service.shop.isOpen ? t("filter.openNow") : "Closed"}
               </span>
             </div>
           )}
@@ -101,9 +102,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
               <Clock className="w-4 h-4 mr-1" />
-              <span>{service.durationMin} {t('services.duration')}</span>
+              <span>
+                {service.durationMin} {t("services.duration")}
+              </span>
             </div>
-            
+
             {service.shop?.rating && (
               <div className="flex items-center text-sm">
                 <Star className="w-4 h-4 mr-1 fill-yellow-400 text-yellow-400" />
@@ -118,15 +121,15 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <span className="text-xs text-gray-500 dark:text-gray-400">
-                {t('services.price')}
+                {t("services.price")}
               </span>
               <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                {Number(service.price).toLocaleString()} {t('currency.som')}
+                {Number(service.price).toLocaleString()} {t("currency.som")}
               </div>
             </div>
-            
+
             <button className="px-6 py-2.5 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg">
-              {t('services.book')}
+              {t("services.book")}
             </button>
           </div>
         </div>
