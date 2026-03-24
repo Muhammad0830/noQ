@@ -262,7 +262,7 @@ shopRouter.get("/trending/7days", authMiddleware, async (req, res) => {
     const updated_shops = shops.map((shop, i) => {
       return {
         ...shop,
-        usage_count_last_week: trendingShops[i]?._count.shopId,
+        booking_count_last_week: trendingShops[i]?._count.shopId,
       };
     });
 
@@ -340,8 +340,6 @@ shopRouter.post(
       if (!shop) return res.status(404).json({ message: "Shop not found" });
 
       const day = new Date(startTime).getDay();
-      console.log("day", day);
-      console.log("shop", shop.shopSchedules);
 
       const schedule = shop.shopSchedules.find((s) => s.dayOfWeek === day);
 
