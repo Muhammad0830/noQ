@@ -5,7 +5,8 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import BottomNav from "@/components/BottomNav";
+import ConditionalBottomNav from "@/components/ConditionalBottomNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,10 +37,10 @@ export default function RootLayout({
           <LanguageProvider>
             <AuthProvider>
               <Header />
-              <main className="min-h-screen">
+              <main className="min-h-screen pb-16 md:pb-0">
                 {children}
               </main>
-              <Footer />
+              <ConditionalBottomNav />
             </AuthProvider>
           </LanguageProvider>
         </ThemeProvider>
