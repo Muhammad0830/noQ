@@ -9,6 +9,13 @@ export const translations = {
     'nav.signin': 'Kirish',
     'nav.signup': "Ro'yxatdan o'tish",
     
+    // Bottom Navigation
+    'bottomNav.home': 'Bosh sahifa',
+    'bottomNav.search': 'Qidiruv',
+    'bottomNav.services': 'Xizmatlar',
+    'bottomNav.history': 'Tarix',
+    'bottomNav.profile': 'Profil',
+    
     // Hero
     'hero.title': 'Navbatsiz xizmat',
     'hero.subtitle': 'O\'zingizga kerakli xizmatni toping va onlayn band qiling',
@@ -102,6 +109,13 @@ export const translations = {
     'nav.signin': 'Кириш',
     'nav.signup': 'Рўйхатдан ўтиш',
     
+    // Bottom Navigation
+    'bottomNav.home': 'Бош саҳифа',
+    'bottomNav.search': 'Қидирув',
+    'bottomNav.services': 'Хизматлар',
+    'bottomNav.history': 'Тарих',
+    'bottomNav.profile': 'Профил',
+    
     // Hero
     'hero.title': 'Навбатсиз хизмат',
     'hero.subtitle': 'Ўзингизга керакли хизматни топинг ва онлайн банд қилинг',
@@ -194,6 +208,13 @@ export const translations = {
     'nav.profile': 'Профиль',
     'nav.signin': 'Войти',
     'nav.signup': 'Регистрация',
+    
+    // Bottom Navigation
+    'bottomNav.home': 'Главная',
+    'bottomNav.search': 'Поиск',
+    'bottomNav.services': 'Услуги',
+    'bottomNav.history': 'История',
+    'bottomNav.profile': 'Профиль',
     
     // Hero
     'hero.title': 'Услуги без очереди',
