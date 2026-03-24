@@ -106,10 +106,10 @@ model Booking {
   createdAt DateTime @default(now())
 
   @@index([userId])
-  @@index([shopId])
-  @@index([serviceId])
   @@index([shopId, startTime])
   @@index([serviceId, startTime])
+  @@index([status, createdAt, shopId])
+  @@index([status, createdAt, serviceId])
 }
 
 enum BookingStatus {

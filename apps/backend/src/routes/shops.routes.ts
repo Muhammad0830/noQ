@@ -175,7 +175,7 @@ shopRouter.get("/:id/reviews", authMiddleware, async (req: any, res: any) => {
 });
 
 // GET /shops/:id/day-timeline?date=2026-01-20
-shopRouter.get("/:id/day-timeline", async (req, res) => {
+shopRouter.get("/:id/day-timeline", authMiddleware, async (req, res) => {
   const { id } = req.params;
   const { date } = req.query;
 
@@ -228,6 +228,48 @@ shopRouter.get("/:id/day-timeline", async (req, res) => {
     close: schedule.closeTime,
     busy,
   });
+});
+
+shopRouter.get("/trending/7days", authMiddleware, async (req, res) => {
+  try {
+    const trendingShops = await prisma.booking.groupBy({
+      by: ["shopId"],
+      where: {
+        status: "COMPLETED",
+        createdAt: {
+          gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // last 7 days
+        },
+      },
+      _count: {
+        shopId: true,
+      },
+      orderBy: {
+        _count: {
+          shopId: "desc",
+        },
+      },
+      take: 10,
+    });
+
+    const shopIds = trendingShops.map((t) => t.shopId);
+
+    const shops = await prisma.shop.findMany({
+      where: {
+        id: { in: shopIds },
+      },
+    });
+
+    const updated_shops = shops.map((shop, i) => {
+      return {
+        ...shop,
+        usage_count_last_week: trendingShops[i]?._count.shopId,
+      };
+    });
+
+    return res.status(200).json(updated_shops);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 shopRouter.post("/", authMiddleware, async (req: any, res) => {
