@@ -1,4 +1,4 @@
-@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc0MzQ4MzAxLCJpYXQiOjE3NzQzNDQ3MDEsImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3NDM0NDcwMX1dLCJzZXNzaW9uX2lkIjoiNWYzODYyMTctNWZmYS00MDZiLTlkOGUtNjcwMjVmYjFkNDVjIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.JiENMh-fnh8GP4R74cPUjSZZXz_sXLXmepuezFl38_fgGhMcxyFKZb23ZuVMF0XDm852gTCbq7qmNhjuxYMcUQ
+@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc0NDI1MjM5LCJpYXQiOjE3NzQ0MjE2MzksImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3NDQyMTYzOX1dLCJzZXNzaW9uX2lkIjoiNTFiMTJiOTctYzNjNy00YWY5LThlNDUtMDIyNjBiMjY2ZGRkIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.jV9Chcfk4IGlt5wv47cNeBQpztjK5xP8_DlQnS9KVHuD0qE2XWODQaaHNHYQ0tREazFRG_JCGGcn6xhR052HWg
 
 POST http://localhost:3001/api/auth/signup
 Content-Type: application/json
@@ -24,8 +24,8 @@ Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 
 {
-  "name": "dentist",
-  "icon": "plus"
+  "name": "Nail Salon",
+  "icon": "palette"
 }
 
 ###
@@ -38,7 +38,8 @@ Authorization: Bearer {{bearer_token}}
   "address": "93 Main St, Sometown",
   "phone": "+998928392363",
   "categoryId": "a85dbfa6-7c8f-4ffc-a7ad-b3a85a5503e8",
-  "description": "A modern electrician with a passion for providing top-notch service and expertise. We pride ourselves on offering personalized attention and exceptional customer service. Our team is dedicated to ensuring that every customer is satisfied with their electrical needs. Whether you need help with wiring, installing new equipment, or troubleshooting technical issues, we are here to assist you. Contact us today to schedule a consultation and learn more about our services."
+  "description": "A modern electrician with a passion for providing top-notch service and expertise. We pride ourselves on offering personalized attention and exceptional customer service. Our team is dedicated to ensuring that every customer is satisfied with their electrical needs. Whether you need help with wiring, installing new equipment, or troubleshooting technical issues, we are here to assist you. Contact us today to schedule a consultation and learn more about our services.",
+  "shopImageFile": "File"
 }
 
 ###

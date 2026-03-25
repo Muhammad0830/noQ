@@ -67,7 +67,7 @@ reviewRouter.get("/:id", authMiddleware, async (req: any, res: any) => {
 
 reviewRouter.post("/", authMiddleware, async (req: any, res: any) => {
   try {
-    const { shopId, serviceId, rating, comment } = req.body;
+    const { shopId, serviceId, rating, comment = "" } = req.body;
 
     const shop = await prisma.shop.findUnique({
       where: { id: shopId },
@@ -77,23 +77,25 @@ reviewRouter.post("/", authMiddleware, async (req: any, res: any) => {
       return res.status(404).json({ message: "Shop not found" });
     }
 
-    const service = await prisma.service.findUnique({
-      where: { id: serviceId },
-    });
+    if (serviceId) {
+      const service = await prisma.service.findUnique({
+        where: { id: serviceId },
+      });
 
-    if (!service) {
-      return res.status(404).json({ message: "Service not found" });
+      if (!service) {
+        return res.status(404).json({ message: "Service not found" });
+      }
     }
 
-    if (!comment || !rating) {
-      return res.status(400).json({ message: "Comment or Rating is missing" });
+    if (!rating) {
+      return res.status(400).json({ message: "Rating is missing" });
     }
 
     const review = await prisma.review.create({
       data: {
         userId: req.user.id,
         shopId,
-        serviceId,
+        serviceId: serviceId || null,
         rating,
         comment,
       },

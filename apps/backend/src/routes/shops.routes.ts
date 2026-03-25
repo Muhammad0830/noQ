@@ -3,72 +3,72 @@ import prisma from "../db/prisma.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { getPaginationParams } from "../utils/pagination.js";
 import { adminOnly } from "../middlewares/admin.middleware.js";
+import multer from "multer";
+import { supabaseServer } from "../services/supabaseServer.js";
 
 const shopRouter = Router();
+const upload = multer({ storage: multer.memoryStorage() }); // store in memory
 
 shopRouter.get("/", authMiddleware, async (req, res) => {
   try {
-    const {
-      categoryId = "",
-      open = "true",
-      search = "",
-    } = req.query as {
-      categoryId?: string;
-      open?: string;
-      search?: string;
-    };
+    const { categoryId = "", open = "true", search = "" } = req.query as any;
     const { limit, cursor } = getPaginationParams(req);
 
     const where: any = {};
-
-    if (categoryId) {
-      where.categoryId = categoryId;
-    }
-
-    if (open === "true") {
-      where.isOpen = true;
-    }
-
+    if (categoryId) where.categoryId = categoryId;
+    if (open === "true") where.isOpen = true;
     if (search) {
-      where.name = {
-        contains: search,
-        mode: "insensitive",
-      };
+      where.name = { contains: search, mode: "insensitive" };
     }
 
     const shops = await prisma.shop.findMany({
       take: limit + 1,
       skip: cursor ? 1 : 0,
       ...(cursor && { cursor: { id: cursor } }),
-
       where,
-
       include: {
         category: true,
-        _count: {
+        reviews: {
           select: {
-            services: true,
-            reviews: true,
+            rating: true,
           },
         },
+        _count: {
+          select: { services: true, reviews: true },
+        },
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
     });
 
     let nextCursor = null;
+    let dataToFormat = [...shops];
 
-    if (shops.length > limit) {
-      const nextItem = shops.pop();
+    if (dataToFormat.length > limit) {
+      const nextItem = dataToFormat.pop();
       nextCursor = nextItem?.id;
     }
 
+    // Transform data
+    const formattedShops = dataToFormat.map((shop: any) => {
+      const total = shop.reviews.reduce(
+        (acc: number, rev: { rating: number }) => acc + rev.rating,
+        0,
+      );
+      const avg = shop.reviews.length > 0 ? total / shop.reviews.length : 0;
+
+      const { reviews, ...rest } = shop;
+      return {
+        ...rest,
+        averageRating: parseFloat(avg.toFixed(1)),
+      };
+    });
+
     res.status(200).json({
-      data: shops,
+      data: formattedShops, // Make sure to send the formatted ones!
       nextCursor,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -272,32 +272,38 @@ shopRouter.get("/trending/7days", authMiddleware, async (req, res) => {
   }
 });
 
-shopRouter.post("/", authMiddleware, async (req: any, res) => {
-  try {
-    const { name, address, phone, categoryId, description } = req.body;
+shopRouter.post(
+  "/",
+  authMiddleware,
+  upload.single("file"),
+  async (req: any, res) => {
+    try {
+      const { name, address, phone, categoryId, description, shopImageFile } =
+        req.body;
 
-    const shop = await prisma.shop.create({
-      data: {
-        name,
-        address,
-        phone,
-        description,
-        categoryId,
-        ownerId: req.user.id,
-      },
-    });
+      const shop = await prisma.shop.create({
+        data: {
+          name,
+          address,
+          phone,
+          description,
+          categoryId,
+          ownerId: req.user.id,
+        },
+      });
 
-    // upgrade user to ADMIN
-    await prisma.user.update({
-      where: { id: req.user.id },
-      data: { role: "ADMIN" },
-    });
+      // upgrade user to ADMIN
+      await prisma.user.update({
+        where: { id: req.user.id },
+        data: { role: "ADMIN" },
+      });
 
-    res.status(200).json(shop);
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
+      res.status(200).json(shop);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
 
 shopRouter.post(
   "/:id/schedule",
