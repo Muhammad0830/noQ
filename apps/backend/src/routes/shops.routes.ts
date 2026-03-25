@@ -4,10 +4,11 @@ import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { getPaginationParams } from "../utils/pagination.js";
 import { adminOnly } from "../middlewares/admin.middleware.js";
 import multer from "multer";
+import { upload } from "../middlewares/upload.js";
+import { v4 as uuidv4 } from "uuid";
 import { supabaseServer } from "../services/supabaseServer.js";
 
 const shopRouter = Router();
-const upload = multer({ storage: multer.memoryStorage() }); // store in memory
 
 shopRouter.get("/", authMiddleware, async (req, res) => {
   try {
@@ -277,30 +278,71 @@ shopRouter.post(
   authMiddleware,
   upload.single("file"),
   async (req: any, res) => {
+    const file = req.file;
+
+    const { name, address, phone, categoryId, description } = req.body;
+
+    let uploadedFilePath: string | null = null;
+
+    if (file) {
+      const fileExt = file.originalname.split(".").pop();
+      const fileName = `${uuidv4()}.${fileExt}`;
+
+      const { error } = await supabaseServer.storage
+        .from("shop_images")
+        .upload(fileName, file.buffer, {
+          contentType: file.mimetype,
+          upsert: false,
+        });
+
+      if (error) {
+        console.error("Supabase upload error:", error);
+        throw new Error(error.message);
+      }
+
+      uploadedFilePath = fileName;
+    }
+
     try {
-      const { name, address, phone, categoryId, description, shopImageFile } =
-        req.body;
+      const result = await prisma.$transaction(async (tx) => {
+        const shop = await tx.shop.create({
+          data: {
+            name,
+            address,
+            phone,
+            description,
+            categoryId,
+            ownerId: req.user.id,
+          },
+        });
 
-      const shop = await prisma.shop.create({
-        data: {
-          name,
-          address,
-          phone,
-          description,
-          categoryId,
-          ownerId: req.user.id,
-        },
+        await tx.user.update({
+          where: { id: req.user.id },
+          data: { role: "ADMIN" },
+        });
+
+        await tx.shop.update({
+          where: { id: shop.id },
+          data: { backgroundImageUrl: uploadedFilePath },
+        });
+
+        return shop;
       });
 
-      // upgrade user to ADMIN
-      await prisma.user.update({
-        where: { id: req.user.id },
-        data: { role: "ADMIN" },
+      return res.json({
+        message: "Shop created successfully",
+        course: result,
       });
+    } catch (error: any) {
+      console.error("Error:", error);
 
-      res.status(200).json(shop);
-    } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      if (uploadedFilePath) {
+        await supabaseServer.storage.from("courses").remove([uploadedFilePath]);
+      }
+
+      return res.status(500).json({
+        error: error.message || "Failed to create course",
+      });
     }
   },
 );
