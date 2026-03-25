@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import HeroSection from "@/components/HeroSection";
 import CategoriesSection from "@/components/CategoriesSection";
 import ServicesList from "@/components/ServicesList";
+import { getImageUrl } from "@/lib/supabaseClient";
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -62,12 +63,55 @@ export default function Home() {
         .catch((error) => {
           console.error("Error:", error);
         });
+      setSuccess(true);
     } else {
       console.log("No file selected");
+      setSuccess(false);
     }
   };
 
   console.log("file", file);
+  const [shopsData, setShopsData] = useState<any>([]);
+  const [success, setSuccess] = useState(true);
+
+  const getShopsData = async () => {
+    try {
+      const token =
+        "eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc0NDM4NDQ3LCJpYXQiOjE3NzQ0MzQ4NDcsImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3NDQzNDg0N31dLCJzZXNzaW9uX2lkIjoiYzcxMDBiZDgtY2ZjNS00YzgyLWE3ZTAtYTE4ZTZiZTg1OWJkIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.ShvfUQBRKxHALw3NLs8H5EhBqrHZazs-ygO_fx_6FfNRyWe-tTJKWMZEXIbKwDJoEVHcCtc_AGdxAg0RPFCO-Q";
+      const response = await fetch("http://localhost:3001/api/shops", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Usually where this goes
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        console.error("API Error:", data.error);
+      } else {
+        setShopsData(data);
+        return data;
+      }
+    } catch (error) {
+      console.error("Failed to fetch shops:", error);
+    }
+  };
+
+  console.log("shopData", shopsData);
+
+  useEffect(() => {
+    getShopsData();
+
+    setTimeout(() => {
+      setSuccess(false);
+    }, 1000);
+  }, [success]);
 
   return (
     <div className="bg-white dark:bg-gray-900">
@@ -116,6 +160,21 @@ export default function Home() {
           >
             Submit
           </button>
+
+          {shopsData.data?.map((shop: any) => {
+            if (shop.backgroundImageUrl) {
+              const imageUrl = getImageUrl(shop.backgroundImageUrl);
+              console.log("imageUrl", imageUrl);
+              return (
+                <div key={shop.id}>
+                  <div>{shop.name}</div>
+                  <div className="w-40 h-20 bg-red-500">
+                    <img src={imageUrl ?? "no_url"} alt="image" />
+                  </div>
+                </div>
+              );
+            }
+          })}
         </div>
       </div>
 
