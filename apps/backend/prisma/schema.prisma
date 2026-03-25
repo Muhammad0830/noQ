@@ -40,12 +40,13 @@ model ShopCategory {
 }
 
 model Shop {
-  id          String  @id @default(uuid())
-  name        String
-  description String?
-  logoUrl     String?
-  address     String
-  phone       String?
+  id                 String  @id @default(uuid())
+  name               String
+  description        String?
+  logoUrl            String?
+  backgroundImageUrl String?
+  address            String
+  phone              String?
 
   categoryId String
   category   ShopCategory @relation(fields: [categoryId], references: [id])
