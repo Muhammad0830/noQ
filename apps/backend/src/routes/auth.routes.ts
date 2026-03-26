@@ -45,7 +45,7 @@ router.post("/signup", async (req, res) => {
   }
 
   try {
-    // Create Prisma profile
+    // Keep local Prisma profile in sync, but do not block auth if this fails.
     await prisma.user.upsert({
       where: { id: data.user.id },
       update: {
@@ -54,18 +54,21 @@ router.post("/signup", async (req, res) => {
       create: {
         id: data.user.id,
         email: normalizedEmail,
-        name: name ?? "",
+        name: name ?? normalizedEmail.split("@")[0],
       },
     });
+  } catch (profileError) {
+    console.error("Signup profile sync failed:", profileError);
+  }
 
-    res.status(201).json({
+  res.status(201).json({
+    user: {
       id: data.user.id,
       email: data.user.email,
-    });
-  } catch (error) {
-    await supabase.auth.admin.deleteUser(data.user.id);
-    res.status(500).json({ error: "Failed to create user profile" });
-  }
+    },
+    access_token: data.session?.access_token ?? null,
+    refresh_token: data.session?.refresh_token ?? null,
+  });
 });
 
 router.post("/signin", async (req, res) => {
@@ -87,6 +90,28 @@ router.post("/signin", async (req, res) => {
 
   if (!data.session || !data.user) {
     return res.status(500).json({ error: "Login failed" });
+  }
+
+  const userMetadataName =
+    typeof data.user.user_metadata?.name === "string"
+      ? data.user.user_metadata.name.trim()
+      : "";
+
+  try {
+    await prisma.user.upsert({
+      where: { id: data.user.id },
+      update: {
+        email: data.user.email ?? email,
+        ...(userMetadataName ? { name: userMetadataName } : {}),
+      },
+      create: {
+        id: data.user.id,
+        email: data.user.email ?? email,
+        name: userMetadataName || email.split("@")[0],
+      },
+    });
+  } catch (profileError) {
+    console.error("Signin profile sync failed:", profileError);
   }
 
   res.json({

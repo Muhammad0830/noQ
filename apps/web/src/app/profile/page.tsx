@@ -1,18 +1,40 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { User, Mail, Phone, MapPin, Calendar, Camera, Lock, Bell, CreditCard } from 'lucide-react'
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Camera,
+  Lock,
+  Bell,
+  CreditCard,
+} from "lucide-react";
 
 export default function UserProfile() {
-  const [isEditing, setIsEditing] = useState(false)
+  const { user } = useAuth();
+  const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '+998 90 123 45 67',
-    birthdate: '1990-01-15',
-    address: 'Tashkent, Uzbekistan',
-    bio: 'Love trying new salons and styles!'
-  })
+    name: "",
+    email: "",
+    phone: "",
+    birthdate: "1990-01-15",
+    address: "Tashkent, Uzbekistan",
+    bio: "Love trying new salons and styles!",
+  });
+
+  useEffect(() => {
+    if (!user) return;
+
+    setProfile((prev) => ({
+      ...prev,
+      name: user.name || "",
+      email: user.email || "",
+    }));
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -30,9 +52,11 @@ export default function UserProfile() {
                     <Camera className="w-4 h-4" />
                   </button>
                 </div>
-                <h2 className="text-xl font-bold mb-1">{profile.name}</h2>
-                <p className="text-gray-600 mb-4">{profile.email}</p>
-                
+                <h2 className="text-xl font-bold mb-1">
+                  {profile.name || "User"}
+                </h2>
+                <p className="text-gray-600 mb-4">{profile.email || "-"}</p>
+
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-center gap-2 text-gray-600">
                     <Calendar className="w-4 h-4" />
@@ -71,22 +95,26 @@ export default function UserProfile() {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold">Personal Information</h2>
-                <button 
+                <button
                   onClick={() => setIsEditing(!isEditing)}
                   className="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50"
                 >
-                  {isEditing ? 'Cancel' : 'Edit Profile'}
+                  {isEditing ? "Cancel" : "Edit Profile"}
                 </button>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name
+                  </label>
                   {isEditing ? (
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={profile.name}
-                      onChange={(e) => setProfile({...profile, name: e.target.value})}
+                      onChange={(e) =>
+                        setProfile({ ...profile, name: e.target.value })
+                      }
                       className="w-full border rounded-lg px-4 py-2"
                     />
                   ) : (
@@ -98,12 +126,16 @@ export default function UserProfile() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address
+                  </label>
                   {isEditing ? (
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       value={profile.email}
-                      onChange={(e) => setProfile({...profile, email: e.target.value})}
+                      onChange={(e) =>
+                        setProfile({ ...profile, email: e.target.value })
+                      }
                       className="w-full border rounded-lg px-4 py-2"
                     />
                   ) : (
@@ -115,46 +147,60 @@ export default function UserProfile() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number
+                  </label>
                   {isEditing ? (
-                    <input 
-                      type="tel" 
+                    <input
+                      type="tel"
                       value={profile.phone}
-                      onChange={(e) => setProfile({...profile, phone: e.target.value})}
+                      onChange={(e) =>
+                        setProfile({ ...profile, phone: e.target.value })
+                      }
                       className="w-full border rounded-lg px-4 py-2"
                     />
                   ) : (
                     <div className="flex items-center gap-2 text-gray-700">
                       <Phone className="w-5 h-5 text-gray-400" />
-                      <span>{profile.phone}</span>
+                      <span>{profile.phone || "-"}</span>
                     </div>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Birth Date</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Birth Date
+                  </label>
                   {isEditing ? (
-                    <input 
-                      type="date" 
+                    <input
+                      type="date"
                       value={profile.birthdate}
-                      onChange={(e) => setProfile({...profile, birthdate: e.target.value})}
+                      onChange={(e) =>
+                        setProfile({ ...profile, birthdate: e.target.value })
+                      }
                       className="w-full border rounded-lg px-4 py-2"
                     />
                   ) : (
                     <div className="flex items-center gap-2 text-gray-700">
                       <Calendar className="w-5 h-5 text-gray-400" />
-                      <span>{new Date(profile.birthdate).toLocaleDateString()}</span>
+                      <span>
+                        {new Date(profile.birthdate).toLocaleDateString()}
+                      </span>
                     </div>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Address
+                  </label>
                   {isEditing ? (
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={profile.address}
-                      onChange={(e) => setProfile({...profile, address: e.target.value})}
+                      onChange={(e) =>
+                        setProfile({ ...profile, address: e.target.value })
+                      }
                       className="w-full border rounded-lg px-4 py-2"
                     />
                   ) : (
@@ -166,11 +212,15 @@ export default function UserProfile() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Bio
+                  </label>
                   {isEditing ? (
-                    <textarea 
+                    <textarea
                       value={profile.bio}
-                      onChange={(e) => setProfile({...profile, bio: e.target.value})}
+                      onChange={(e) =>
+                        setProfile({ ...profile, bio: e.target.value })
+                      }
                       className="w-full border rounded-lg px-4 py-2 h-24"
                     />
                   ) : (
@@ -195,7 +245,9 @@ export default function UserProfile() {
                     <Lock className="w-5 h-5 text-gray-400" />
                     <div className="text-left">
                       <p className="font-semibold">Change Password</p>
-                      <p className="text-sm text-gray-600">Update your password regularly</p>
+                      <p className="text-sm text-gray-600">
+                        Update your password regularly
+                      </p>
                     </div>
                   </div>
                   <span className="text-gray-400">→</span>
@@ -206,7 +258,9 @@ export default function UserProfile() {
                     <Bell className="w-5 h-5 text-gray-400" />
                     <div className="text-left">
                       <p className="font-semibold">Notification Preferences</p>
-                      <p className="text-sm text-gray-600">Manage email and push notifications</p>
+                      <p className="text-sm text-gray-600">
+                        Manage email and push notifications
+                      </p>
                     </div>
                   </div>
                   <span className="text-gray-400">→</span>
@@ -216,8 +270,13 @@ export default function UserProfile() {
 
             {/* Danger Zone */}
             <div className="bg-white rounded-lg shadow-sm p-6 border-2 border-red-200">
-              <h2 className="text-xl font-bold text-red-600 mb-4">Danger Zone</h2>
-              <p className="text-gray-600 mb-4">Once you delete your account, there is no going back. Please be certain.</p>
+              <h2 className="text-xl font-bold text-red-600 mb-4">
+                Danger Zone
+              </h2>
+              <p className="text-gray-600 mb-4">
+                Once you delete your account, there is no going back. Please be
+                certain.
+              </p>
               <button className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
                 Delete Account
               </button>
@@ -226,5 +285,5 @@ export default function UserProfile() {
         </div>
       </div>
     </div>
-  )
+  );
 }
