@@ -4,9 +4,10 @@ POST http://localhost:3001/api/auth/signup
 Content-Type: application/json
 
 {
-  "email": "229453m@jdu.uz",
+  "email": "hawehawhe@jdu.uz",
   "password": "IloveMyself3",
-  "name": "Abduqayumov Muhammad"
+  "name": "Abduqayumov b",
+  "phoneNumber": "9930123456"
 }
 
 ###
@@ -14,7 +15,7 @@ POST http://localhost:3001/api/auth/signin
 Content-Type: application/json
 
 {
-  "email": "229453m@jdu.uz",
+  "email": "hawehawhe@jdu.uz",
   "password": "IloveMyself3"
 }
 

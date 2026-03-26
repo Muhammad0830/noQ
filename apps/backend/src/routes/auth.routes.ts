@@ -28,6 +28,7 @@ router.post("/signup", async (req, res) => {
   const email = req.body.email?.trim().toLowerCase();
   const password = req.body.password;
   const name = req.body.name?.trim();
+  const phoneNumber = req.body.phoneNumber?.trim();
 
   if (!email || !password) {
     return res.status(400).json({ error: "Email and password required" });
@@ -55,6 +56,7 @@ router.post("/signup", async (req, res) => {
         id: data.user.id,
         email: normalizedEmail,
         name: name ?? normalizedEmail.split("@")[0],
+        phoneNumber: phoneNumber,
       },
     });
   } catch (profileError) {
@@ -65,6 +67,8 @@ router.post("/signup", async (req, res) => {
     user: {
       id: data.user.id,
       email: data.user.email,
+      phoneNumber: phoneNumber,
+      name: name ?? normalizedEmail.split("@")[0],
     },
     access_token: data.session?.access_token ?? null,
     refresh_token: data.session?.refresh_token ?? null,
