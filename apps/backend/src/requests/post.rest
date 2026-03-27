@@ -1,10 +1,10 @@
-@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc0NDI1MjM5LCJpYXQiOjE3NzQ0MjE2MzksImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3NDQyMTYzOX1dLCJzZXNzaW9uX2lkIjoiNTFiMTJiOTctYzNjNy00YWY5LThlNDUtMDIyNjBiMjY2ZGRkIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.jV9Chcfk4IGlt5wv47cNeBQpztjK5xP8_DlQnS9KVHuD0qE2XWODQaaHNHYQ0tREazFRG_JCGGcn6xhR052HWg
+@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc0NjA4ODAxLCJpYXQiOjE3NzQ2MDUyMDEsImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3NDYwNTIwMX1dLCJzZXNzaW9uX2lkIjoiMGU4NTYxMWEtMGQzZC00MTMyLThhOTItNGRkMThlZDFkMmVkIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.pvqazG872uIRXth-QD92Ulkv4ef3qci_m32DNJy5LRooYVcIyvCFTHDfWl3qnizGyUOEtL9N_PMjZZl3HlkBBw
 
 POST http://localhost:3001/api/auth/signup
 Content-Type: application/json
 
 {
-  "email": "hawehawhe@jdu.uz",
+  "email": "229453m@jdu.uz",
   "password": "IloveMyself3",
   "name": "Abduqayumov b",
   "phoneNumber": "9930123456"
@@ -15,7 +15,7 @@ POST http://localhost:3001/api/auth/signin
 Content-Type: application/json
 
 {
-  "email": "hawehawhe@jdu.uz",
+  "email": "229453m@jdu.uz",
   "password": "IloveMyself3"
 }
 
@@ -61,9 +61,9 @@ Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 
 {
-  "shopId": "3b8d25fe-677e-4d6b-836d-0babef7b3d80",
-  "name": "Setting a lamps",
-  "price": 19.99,
+  "shopId": "4c953f8f-f7c8-4860-962d-21a2f06bcb89",
+  "name": "Hair styling",
+  "price": 9.99,
   "durationMin": 60
 }
 
@@ -83,13 +83,12 @@ Authorization: Bearer {{bearer_token}}
 POST http://localhost:3001/api/reviews
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
--dU5_PdbRtkrN3INUMn-lMN7ACpqpxbw
 
 {
-  "shopId": "925e1f3b-b646-42a7-8235-1b2c612dee94",
-  "serviceId": "74ea7c46-c05c-4be9-8726-8393919204b6",
-  "rating": 5,
-  "comment": "Great service!"
+  "shopId": "4c953f8f-f7c8-4860-962d-21a2f06bcb89",
+  "serviceId": "67210056-d8e3-4ea4-a917-72d2455215a2",
+  "rating": 4.7,
+  "comment": "Wow!"
 }
 
 ###
@@ -117,7 +116,7 @@ Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 
 {
-  "shopId": "3b8d25fe-677e-4d6b-836d-0babef7b3d80",
-  "serviceId": "07abf769-24ab-455c-a2bb-6e9c252f7df0",
+  "shopId": "4c953f8f-f7c8-4860-962d-21a2f06bcb89",
+  "serviceId": "67210056-d8e3-4ea4-a917-72d2455215a2",
   "startTime": "2026-03-20T06:00:00Z"
 }
