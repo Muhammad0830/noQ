@@ -1,199 +1,169 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Filter } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import ServiceCard from './ServiceCard';
-import API_ENDPOINTS from '@/lib/api';
-import type { Service, Shop, ShopCategory } from '@shared/types/types';
+import React, { useMemo, useRef, useState } from "react";
+import { Filter } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import ServiceCard from "./ServiceCard";
+import { Skeleton } from "@/components/ui/skeleton";
+import API_ENDPOINTS from "@/lib/api";
+import type { Service, ShopCategory } from "@shared/types/types";
+import useApiQuery from "@/hooks/useApiQuery";
 
 interface ServicesListProps {
   initialServices?: Service[];
   categories?: ShopCategory[];
   selectedCategory?: string | null;
   searchQuery?: string;
-  locationQuery?: string;
 }
 
 const ServicesList: React.FC<ServicesListProps> = ({
-  initialServices = [],
-  categories = [],
   selectedCategory = null,
-  searchQuery = '',
-  locationQuery = '',
+  searchQuery = "",
 }) => {
   const { t } = useLanguage();
-  const [services, setServices] = useState<Service[]>(initialServices);
-  const [loading, setLoading] = useState(false);
-  const [fetchError, setFetchError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [activeDot, setActiveDot] = useState(0);
 
-  // Fetch services from backend
-useEffect(() => {
-  let mounted = true;
+  // 🔥 QUERY BUILD
+  const queryParams = useMemo(() => {
+    const query = new URLSearchParams({
+      open: "true",
+      limit: "12",
+    });
 
-  const fetchServices = async () => {
-    setLoading(true);
-    setFetchError(null);
-
-    try {
-      const token = localStorage.getItem('token');
-      const headers: HeadersInit = token
-        ? { Authorization: `Bearer ${token}` }
-        : {};
-
-      const query = new URLSearchParams({
-        open: 'true',
-        limit: '12',
-      });
-
-      if (selectedCategory) {
-        query.set('categoryId', selectedCategory);
-      }
-
-      if (searchQuery.trim()) {
-        query.set('search', searchQuery.trim());
-      }
-
-      const shopsResponse = await fetch(
-        `${API_ENDPOINTS.shops_trending}?${query.toString()}`,
-        { headers, cache: 'no-store' }
-      );
-
-      if (!shopsResponse.ok) throw new Error();
-
-      const shopsPayload = await shopsResponse.json();
-      const shops = shopsPayload ?? [];
-
-    
-
-      if (!mounted) return;
-
-      setServices(shops.flat());
-    } catch (err) {
-      if (!mounted) return;
-      setFetchError('failed');
-      setServices([]);
-    } finally {
-      if (mounted) setLoading(false);
+    if (selectedCategory) {
+      query.set("categoryId", selectedCategory);
     }
-  };
 
-  fetchServices();
+    if (searchQuery.trim()) {
+      query.set("search", searchQuery.trim());
+    }
 
-  return () => {
-    mounted = false;
-  };
-}, [searchQuery, selectedCategory]);
+    return query.toString();
+  }, [selectedCategory, searchQuery]);
 
+  // 🔥 API CALL
+  const {
+    data: services = [],
+    isLoading,
+    isError,
+    error
+  } = useApiQuery<Service[]>(
+    `${API_ENDPOINTS.shops_trending}?${queryParams}`,
+    {
+      key: ["services", searchQuery],
+    }
+  );
+
+  // 🔥 FILTER
   const filteredServices = services.filter((service) => {
-    // Filter by search query
-    if (searchQuery && !service.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+    if (
+      searchQuery &&
+      !service.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) {
       return false;
     }
-
     return true;
   });
 
-  const indicatorCount = useMemo(() => {
-    return Math.max(1, filteredServices.length);
-  }, [filteredServices.length]);
+  const indicatorCount = Math.max(1, filteredServices.length);
 
   const updateActiveDot = () => {
     const el = scrollRef.current;
     if (!el) return;
 
     const maxScroll = el.scrollWidth - el.clientWidth;
-    if (maxScroll <= 0) {
-      setActiveDot(0);
-      return;
-    }
+    if (maxScroll <= 0) return;
 
     const progress = el.scrollLeft / maxScroll;
-    const nextActive = Math.round(progress * (indicatorCount - 1));
-    setActiveDot(nextActive);
+    setActiveDot(Math.round(progress * (indicatorCount - 1)));
   };
-
-  useEffect(() => {
-    updateActiveDot();
-    const el = scrollRef.current;
-    if (!el) return;
-
-    const onScroll = () => updateActiveDot();
-    const onResize = () => updateActiveDot();
-
-    el.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onResize);
-
-    return () => {
-      el.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onResize);
-    };
-  }, [indicatorCount]);
 
   const scrollToDot = (index: number) => {
     const el = scrollRef.current;
     if (!el) return;
 
     const maxScroll = el.scrollWidth - el.clientWidth;
-    if (maxScroll <= 0) return;
-
     const target = (maxScroll * index) / Math.max(1, indicatorCount - 1);
-    el.scrollTo({ left: target, behavior: 'smooth' });
+
+    el.scrollTo({ left: target, behavior: "smooth" });
   };
 
-  const handleFavorite = (serviceId: string) => {
-    // TODO: Implement favorite functionality
-    console.log('Toggle favorite:', serviceId);
+  const handleFavorite = (id: string) => {
+    console.log("fav:", id);
   };
+
+  const skeletonCountMobile = 3;
+  const skeletonCountDesktop = 8;
 
   return (
     <section className="py-12 sm:py-16 bg-gray-50 dark:bg-gray-800">
+      {error?.message ?? ""}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3">
-            {t('services.homePopularPurchases')}
+        {/* HEADER */}
+        <div className="text-left mb-8 sm:mb-10">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
+            {t("services.homePopularPurchases")}
           </h2>
-          <div className="w-20 h-1 bg-linear-to-r from-blue-600 to-purple-600 mx-auto rounded-full"></div>
+          <div className="w-20 h-1 bg-linear-to-r from-blue-600 to-purple-600 rounded-full"></div>
         </div>
 
-        {/* Services Grid */}
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="inline-block w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">{t('common.loading')}</p>
-          </div>
+        {/* LOADING */}
+        {isLoading ? (
+          <>
+            <div className="sm:hidden">
+              <div className="overflow-x-auto flex gap-4">
+                {Array.from({ length: skeletonCountMobile }).map((_, i) => (
+                  <div key={`mobile-skeleton-${i}`} className="max-w-85 min-w-65 w-[70vw] shrink-0">
+                    <div className="rounded-3xl border border-border bg-card p-4">
+                      <Skeleton className="h-52 w-full rounded-2xl" />
+                      <Skeleton className="mt-4 h-5 w-3/4" />
+                      <Skeleton className="mt-2 h-4 w-1/2" />
+                      <Skeleton className="mt-4 h-10 w-full rounded-xl" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {Array.from({ length: skeletonCountDesktop }).map((_, i) => (
+                <div key={`desktop-skeleton-${i}`} className="rounded-3xl border border-border bg-card p-4">
+                  <Skeleton className="h-52 w-full rounded-2xl" />
+                  <Skeleton className="mt-4 h-5 w-3/4" />
+                  <Skeleton className="mt-2 h-4 w-1/2" />
+                  <Skeleton className="mt-4 h-10 w-full rounded-xl" />
+                </div>
+              ))}
+            </div>
+          </>
         ) : filteredServices.length > 0 ? (
           <>
-            {/* Mobile: Swipe cards */}
+            {/* MOBILE */}
             <div className="sm:hidden">
               <div
                 ref={scrollRef}
-                className="overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                onScroll={updateActiveDot}
+                className="overflow-x-auto flex gap-4"
               >
-                <div className="flex flex-nowrap gap-4 w-max min-w-full">
-                  {filteredServices.map((service) => (
-                    <div key={service.id} className="w-[84vw] max-w-sm shrink-0">
-                      <ServiceCard service={service} onFavorite={handleFavorite} />
-                    </div>
-                  ))}
-                </div>
+                {filteredServices.map((service) => (
+                  <div key={service.id} className="max-w-85 min-w-65 w-[70vw] shrink-0">
+                    <ServiceCard
+                      service={service}
+                      onFavorite={handleFavorite}
+                    />
+                  </div>
+                ))}
               </div>
 
               {indicatorCount > 1 && (
-                <div className="mt-3 flex items-center justify-center gap-2">
+                <div className="flex justify-center gap-2 mt-3">
                   {Array.from({ length: indicatorCount }).map((_, i) => (
                     <button
-                      key={`service-dot-${i}`}
-                      type="button"
+                      key={i}
                       onClick={() => scrollToDot(i)}
-                      aria-label={`Go to service ${i + 1}`}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        i === activeDot
-                          ? 'bg-blue-600 dark:bg-blue-400'
-                          : 'bg-gray-300 dark:bg-gray-600'
+                      className={`w-2 h-2 rounded-full ${
+                        i === activeDot ? "bg-blue-500" : "bg-gray-300"
                       }`}
                     />
                   ))}
@@ -201,7 +171,7 @@ useEffect(() => {
               )}
             </div>
 
-            {/* Desktop: Grid */}
+            {/* DESKTOP */}
             <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredServices.map((service) => (
                 <ServiceCard
@@ -214,15 +184,8 @@ useEffect(() => {
           </>
         ) : (
           <div className="text-center py-12">
-            <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Filter className="w-12 h-12 text-gray-400 dark:text-gray-500" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              {t('services.noResults')}
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              {fetchError ? t('common.error') : 'Try adjusting your filters'}
-            </p>
+            <Filter className="mx-auto mb-4 text-muted-foreground" />
+            <p>{isError ? "Error" : "No results"}</p>
           </div>
         )}
       </div>

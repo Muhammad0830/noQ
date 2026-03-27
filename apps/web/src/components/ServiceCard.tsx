@@ -1,7 +1,15 @@
 "use client";
 
 import React from "react";
-import { Star } from "lucide-react";
+import {
+  Star,
+  Scissors,
+  Sparkles,
+  Heart,
+  Coffee,
+  Dumbbell,
+  Palette,
+} from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Service } from "@shared/types/types";
 import Link from "next/link";
@@ -12,19 +20,71 @@ interface ServiceCardProps {
   isFavorite?: boolean;
 }
 
+const ToothIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M7 5.5c1.5-1 2.9-1.5 5-1.5s3.5.5 5 1.5c1.8 1.2 2.3 3.4 1.9 5.4-.4 2.2-1.4 4.2-2.5 6.2-.8 1.4-1.4 2.9-2.8 2.9-1.2 0-1.6-1.1-1.6-2.3V16c0-.6-.4-1-1-1s-1 .4-1 1v1.7c0 1.2-.4 2.3-1.6 2.3-1.4 0-2-1.5-2.8-2.9-1.1-2-2.1-4-2.5-6.2-.4-2 .1-4.2 1.9-5.4Z" />
+  </svg>
+);
+
+const getCategoryIcon = (iconOrName?: string) => {
+  const key = iconOrName?.toLowerCase().trim() ?? "";
+
+  if (!key) return <Sparkles className="w-5 h-5" />;
+  if (key.includes("barber") || key.includes("hair") || key.includes("scissor")) {
+    return <Scissors className="w-5 h-5" />;
+  }
+  if (key.includes("beauty") || key.includes("spa") || key.includes("massage")) {
+    return <Heart className="w-5 h-5" />;
+  }
+  if (key.includes("nail") || key.includes("makeup") || key.includes("palette")) {
+    return <Palette className="w-5 h-5" />;
+  }
+  if (key.includes("gym") || key.includes("fit")) {
+    return <Dumbbell className="w-5 h-5" />;
+  }
+  if (key.includes("coffee") || key.includes("cafe")) {
+    return <Coffee className="w-5 h-5" />;
+  }
+  if (key.includes("dentist") || key.includes("dental") || key.includes("tooth") || key.includes("teeth")) {
+    return <ToothIcon className="w-5 h-5" />;
+  }
+
+  if (key === "scissors") return <Scissors className="w-5 h-5" />;
+  if (key === "heart") return <Heart className="w-5 h-5" />;
+  if (key === "palette") return <Palette className="w-5 h-5" />;
+  if (key === "dumbbell") return <Dumbbell className="w-5 h-5" />;
+  if (key === "coffee") return <Coffee className="w-5 h-5" />;
+
+  return <Sparkles className="w-5 h-5" />;
+};
+
 const ServiceCard: React.FC<ServiceCardProps> = ({
   service,
   onFavorite: _onFavorite,
   isFavorite: _isFavorite = false,
 }) => {
   const { t } = useLanguage();
-  const rating = service.shop?.rating?.toFixed(1) ?? "4.9";
+  const backendRating = service.averageRating ?? service.shop?.rating;
+  const rating = typeof backendRating === "number" ? backendRating.toFixed(1) : "0.0";
   const distance = "0.8 km";
   const driveTime = `12 ${t("serviceCard.minDrive")}`;
   const nextSlot = `2:00 PM ${t("serviceCard.today")}`;
   const title = service.name;
-  console.log(service);
-  
+  const categoryIcon = getCategoryIcon(service.category?.icon || service.category?.name);
+  const serviceNames = Array.isArray(service.services)
+    ? service.services
+        .map((item) => (typeof item === "string" ? item : String(item)))
+        .join(" — ")
+    : "";
 
   return (
     <Link href={`/shop/${service.shopId}`}>
@@ -50,6 +110,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
             {rating}
           </div>
 
+          <div className="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/95 text-blue-600 dark:text-blue-300 flex items-center justify-center shadow-sm">
+            {categoryIcon}
+          </div>
+
           <div className="absolute bottom-3 left-3 rounded-full bg-emerald-500 px-2.5 py-1 text-[10px] sm:text-xs font-semibold text-white">
             {t("serviceCard.availableNow")}
           </div>
@@ -63,8 +127,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                 {title}
               </h3>
               <p className="mt-1 text-xs sm:text-sm text-gray-500 dark:text-gray-400 line-clamp-1">
-                {service.services && service.services.length >0 && service.services?.map((s) => s.name).join(", ")}
-
+                {serviceNames}
               </p>
             </div>
             <div className="text-right shrink-0">

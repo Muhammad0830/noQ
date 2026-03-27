@@ -4,7 +4,7 @@ import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { adminOnly } from "../middlewares/admin.middleware.js";
 const categoryRouter = Router();
 
-categoryRouter.get("/", authMiddleware, async (req, res) => {
+categoryRouter.get("/", async (req, res) => {
   const categories = await prisma.shopCategory.findMany({
     include: {
       _count: {
