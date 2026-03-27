@@ -83,6 +83,7 @@ shopRouter.get("/:id", authMiddleware, async (req: any, res: any) => {
       include: {
         category: true,
         services: true,
+        reviews: true,
         shopSchedules: true,
         _count: {
           select: {
@@ -231,7 +232,7 @@ shopRouter.get("/:id/day-timeline", authMiddleware, async (req, res) => {
   });
 });
 
-shopRouter.get("/trending/7days", authMiddleware, async (req, res) => {
+shopRouter.get("/trending/7days", async (req, res) => {
   try {
     const trendingShops = await prisma.booking.groupBy({
       by: ["shopId"],
@@ -258,16 +259,54 @@ shopRouter.get("/trending/7days", authMiddleware, async (req, res) => {
       where: {
         id: { in: shopIds },
       },
+      include: {
+        reviews: {
+          select: {
+            rating: true,
+          },
+        },
+        services: {
+          select: {
+            name: true,
+          },
+        },
+        category: true,
+        _count: {
+          select: { services: true, reviews: true },
+        },
+      },
     });
 
-    const updated_shops = shops.map((shop, i) => {
-      return {
-        ...shop,
-        booking_count_last_week: trendingShops[i]?._count.shopId,
-      };
-    });
+    const result = shopIds
+      .map((id) => {
+        const shop = shops.find((s) => s.id === id);
 
-    return res.status(200).json(updated_shops);
+        if (!shop) return null;
+
+        const bookingCount =
+          trendingShops.find((t) => t.shopId === id)?._count.shopId || 0;
+
+        const total = shop.reviews.reduce(
+          (acc: number, rev: { rating: number }) => acc + rev.rating,
+          0,
+        );
+
+        const avg = shop.reviews.length > 0 ? total / shop.reviews.length : 0;
+
+        const servicesArray = shop.services.map((s) => s.name);
+
+        const { reviews, ...rest } = shop;
+
+        return {
+          ...rest,
+          services: servicesArray,
+          booking_count_last_week: bookingCount,
+          averageRating: parseFloat(avg.toFixed(1)),
+        };
+      })
+      .filter(Boolean);
+
+    return res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
