@@ -1,8 +1,8 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
-import type { User } from "@shared/types/types";
-import API_ENDPOINTS from "@/lib/api";
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { User } from '@shared/types/types';
+import API_ENDPOINTS from '@/lib/api';
 
 interface AuthContextType {
   user: User | null;
@@ -118,46 +118,65 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const response = await fetch(API_ENDPOINTS.auth.signin, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
-        throw new Error(await parseErrorMessage(response));
+        const errorPayload = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorPayload?.error || 'Login failed');
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as {
+        access_token?: string;
+        user?: { id: string; email: string };
+      };
 
-      if (!data.access_token) {
-        throw new Error("Token qaytmadi");
+      if (!data.access_token || !data.user) {
+        throw new Error('Invalid login response');
       }
 
-      const profileResponse = await fetch(API_ENDPOINTS.auth.me, {
-        headers: {
-          Authorization: `Bearer ${data.access_token}`,
-        },
-      });
-
-      let userData: User;
-      if (profileResponse.ok) {
-        const profileData = await profileResponse.json();
-        userData = mapApiUserToUser(profileData);
-      } else {
-        userData = {
-          id: data.user?.id || email,
-          email: data.user?.email || email,
-          name: data.user?.email?.split("@")[0] || email.split("@")[0],
-          role: "USER",
-          createdAt: new Date().toISOString(),
-        };
-      }
+      const userData: User = {
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.email.split('@')[0],
+        role: 'USER',
+        createdAt: new Date().toISOString(),
+      };
 
       setUser(userData);
-      persistAuth(data.access_token, data.refresh_token ?? null, userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('token', data.access_token);
     } catch (error) {
-      clearPersistedAuth();
-      setUser(null);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginWithGoogle = async () => {
+    setIsLoading(true);
+    try {
+      // TODO: Implement Google OAuth
+      // For now, mock Google login
+      const mockUser: User = {
+        id: 'google-' + Date.now(),
+        email: 'user@gmail.com',
+        name: 'Google User',
+        avatarUrl: 'https://i.pravatar.cc/150?img=1',
+        role: 'USER',
+        createdAt: new Date().toISOString(),
+      };
+      
+      setUser(mockUser);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      localStorage.setItem('token', 'google-mock-token');
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    } catch (error) {
+      console.error('Google login failed', error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -173,47 +192,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const response = await fetch(API_ENDPOINTS.auth.signup, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name, phone }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name }),
       });
 
       if (!response.ok) {
-        throw new Error(await parseErrorMessage(response));
-      }
-
-      const data = await response.json();
-
-      if (data.access_token) {
-        const profileResponse = await fetch(API_ENDPOINTS.auth.me, {
-          headers: {
-            Authorization: `Bearer ${data.access_token}`,
-          },
-        });
-
-        let userData: User;
-        if (profileResponse.ok) {
-          const profileData = await profileResponse.json();
-          userData = mapApiUserToUser(profileData);
-        } else {
-          userData = {
-            id: data.user?.id || email,
-            email,
-            name,
-            role: "USER",
-            createdAt: new Date().toISOString(),
-          };
-        }
-
-        setUser(userData);
-        persistAuth(data.access_token, data.refresh_token ?? null, userData);
-        return;
+        const errorPayload = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorPayload?.error || 'Signup failed');
       }
 
       await login(email, password);
     } catch (error) {
-      clearPersistedAuth();
-      setUser(null);
       throw error;
     } finally {
       setIsLoading(false);

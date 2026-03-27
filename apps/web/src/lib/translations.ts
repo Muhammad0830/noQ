@@ -32,10 +32,17 @@ export const translations = {
     'services.popular': 'Mashhur',
     'services.nearby': 'Yaqin atrofda',
     'services.all': 'Barcha xizmatlar',
+    'services.homePopularPurchases': 'Mashxur xaridlar',
     'services.duration': 'daqiqa',
     'services.price': 'dan',
     'services.book': 'Band qilish',
     'services.noResults': 'Xizmat topilmadi',
+
+    // Service Card
+    'serviceCard.availableNow': 'HOZIR OCHIQ',
+    'serviceCard.nextSlot': 'Keyingi vaqt',
+    'serviceCard.today': 'bugun',
+    'serviceCard.minDrive': 'min yo\'l',
     
     // Filters
     'filter.title': 'Filtrlar',
@@ -132,10 +139,17 @@ export const translations = {
     'services.popular': 'Машҳур',
     'services.nearby': 'Яқин атрофда',
     'services.all': 'Барча хизматлар',
+    'services.homePopularPurchases': 'Машҳур харидлар',
     'services.duration': 'дақиқа',
     'services.price': 'дан',
     'services.book': 'Банд қилиш',
     'services.noResults': 'Хизмат топилмади',
+
+    // Service Card
+    'serviceCard.availableNow': 'ҲОЗИР ОЧИҚ',
+    'serviceCard.nextSlot': 'Кейинги вақт',
+    'serviceCard.today': 'бугун',
+    'serviceCard.minDrive': 'дақ йўл',
     
     // Filters
     'filter.title': 'Фильтрлар',
@@ -232,10 +246,17 @@ export const translations = {
     'services.popular': 'Популярные',
     'services.nearby': 'Рядом',
     'services.all': 'Все услуги',
+    'services.homePopularPurchases': 'Популярные покупки',
     'services.duration': 'мин',
     'services.price': 'от',
     'services.book': 'Забронировать',
     'services.noResults': 'Услуги не найдены',
+
+    // Service Card
+    'serviceCard.availableNow': 'ОТКРЫТО СЕЙЧАС',
+    'serviceCard.nextSlot': 'Следующий слот',
+    'serviceCard.today': 'сегодня',
+    'serviceCard.minDrive': 'мин в пути',
     
     // Filters
     'filter.title': 'Фильтры',

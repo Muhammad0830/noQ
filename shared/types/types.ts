@@ -43,6 +43,7 @@ export interface Service {
   isActive: boolean;
   shopId: string;
   shop?: Shop;
+  services?: any[]; // Add this line to include the services array 
 }
 
 // Booking
