@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import {
   Home,
   Search,
-  Grid2X2,
+  LayoutList,
   History,
   User,
 } from 'lucide-react';
@@ -39,7 +39,7 @@ export default function BottomNav() {
     {
       href: '/services',
       label: t('bottomNav.services'),
-      icon: <Grid2X2 className="w-6 h-6" />,
+      icon: <LayoutList className="w-6 h-6" />,
       activePatterns: ['^/services', '^/shop'],
     },
     {

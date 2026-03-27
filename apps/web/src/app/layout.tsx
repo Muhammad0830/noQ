@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import ConditionalBottomNav from "@/components/ConditionalBottomNav";
+import Providers from "@/contexts/ReactQueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,17 +34,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider>
-          <LanguageProvider>
-            <AuthProvider>
-              <Header />
-              <main className="min-h-screen pb-16 md:pb-0">
-                {children}
-              </main>
-              <ConditionalBottomNav />
-            </AuthProvider>
-          </LanguageProvider>
-        </ThemeProvider>
+        <Providers>
+          <ThemeProvider>
+            <LanguageProvider>
+              <AuthProvider>
+                <Header />
+                <main className="min-h-screen pb-16 md:pb-0">{children}</main>
+                <ConditionalBottomNav />
+              </AuthProvider>
+            </LanguageProvider>
+          </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );

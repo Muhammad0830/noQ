@@ -5,15 +5,17 @@ import HeroSection from "@/components/HeroSection";
 import CategoriesSection from "@/components/CategoriesSection";
 import ServicesList from "@/components/ServicesList";
 import { getImageUrl } from "@/lib/supabaseClient";
+import API_ENDPOINTS from "@/lib/api";
+import type { ShopCategory } from "@shared/types/types";
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [locationQuery, setLocationQuery] = useState("");
+  const [categories, setCategories] = useState<ShopCategory[]>([]);
+  const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
 
   const handleSearch = (query: string, location: string) => {
     setSearchQuery(query);
-    setLocationQuery(location);
     // Scroll to services section
     const servicesSection = document.getElementById("services");
     if (servicesSection) {
@@ -30,159 +32,65 @@ export default function Home() {
     }
   };
 
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [phone, setPhone] = useState("");
-  const [description, setDscription] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const categoryId = "a85dbfa6-7c8f-4ffc-a7ad-b3a85a5503e8";
-
-  const formData = new FormData();
-
-  const handleSubmit = async () => {
-    if (file) {
-      formData.append("name", name);
-      formData.append("address", address);
-      formData.append("phone", phone);
-      formData.append("description", description);
-      formData.append("categoryId", categoryId);
-      formData.append("file", file);
-
-      await fetch("http://localhost:3001/api/shops", {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization:
-            "Bearer eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc0NDM0MzM1LCJpYXQiOjE3NzQ0MzA3MzUsImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3NDQzMDczNX1dLCJzZXNzaW9uX2lkIjoiYjU4NjNlZjMtYzA5Mi00ZDlhLTk1ZWYtNzAzOGRhZWVlNmZiIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.Ek-oo8M5voj1SUhSsZE1Qz0lLuUfcQnIwPfeEL7e4nRxt6SdRS12o53njvf_pYdg3DsWtAbq7Qs8lTLA5jM1jg",
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Data:", data);
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-      setSuccess(true);
-    } else {
-      console.log("No file selected");
-      setSuccess(false);
-    }
-  };
-
-  console.log("file", file);
-  const [shopsData, setShopsData] = useState<any>([]);
-  const [success, setSuccess] = useState(true);
-
-  const getShopsData = async () => {
-    try {
-      const token =
-        "eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI5MjRkN2M1ZC04ZWE2LTQxNWEtYjY2Yy0zOGVhNGY2NDA1MWQiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc0NTI3NzQ1LCJpYXQiOjE3NzQ1MjQxNDUsImVtYWlsIjoiaGF3ZWhhd2hlQGpkdS51eiIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWwiOiJoYXdlaGF3aGVAamR1LnV6IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwic3ViIjoiOTI0ZDdjNWQtOGVhNi00MTVhLWI2NmMtMzhlYTRmNjQwNTFkIn0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3NzQ1MjQxNDV9XSwic2Vzc2lvbl9pZCI6IjdhNDAyZTY3LTgwMWYtNGI4Yi1iNmUwLWY5YjlkY2JlMmZlOCIsImlzX2Fub255bW91cyI6ZmFsc2V9.Ofn0xHBxPaMlaDc5VcZa898hlESaFiQ5dbMAnfs38vdGywGRU92dxUU1tI0Hf-X90o-JY_0MBv4ipF4hBcGJnw";
-      const response = await fetch("http://localhost:3001/api/shops", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Usually where this goes
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.error) {
-        console.error("API Error:", data.error);
-      } else {
-        setShopsData(data);
-        return data;
-      }
-    } catch (error) {
-      console.error("Failed to fetch shops:", error);
-    }
-  };
-
-  console.log("shopData", shopsData);
-
   useEffect(() => {
-    getShopsData();
+    let mounted = true;
 
-    setTimeout(() => {
-      setSuccess(false);
-    }, 1000);
-  }, [success]);
+    const fetchCategories = async () => {
+      try {
+        if (mounted) setIsCategoriesLoading(true);
+        const token = localStorage.getItem("token");
+        const headers: HeadersInit = token
+          ? { Authorization: `Bearer ${token}` }
+          : {};
+
+        const response = await fetch(API_ENDPOINTS.categories, {
+          headers,
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          if (mounted) {
+            setCategories([]);
+            setIsCategoriesLoading(false);
+          }
+          return;
+        }
+
+        const payload: unknown = await response.json();
+        if (!mounted || !Array.isArray(payload)) return;
+
+        const normalized: ShopCategory[] = payload.map((item: any) => ({
+          id: String(item.id),
+          name: String(item.name),
+          icon: item.icon ? String(item.icon) : undefined,
+        }));
+
+        setCategories(normalized);
+        setIsCategoriesLoading(false);
+      } catch {
+        if (mounted) {
+          setCategories([]);
+          setIsCategoriesLoading(false);
+        }
+      }
+    };
+
+    fetchCategories();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <div className="bg-white dark:bg-gray-900">
-      <div className="w-screen h-screen bg-red-black flex justify-center items-center">
-        <div className="flex min-w-70 flex-col gap-2">
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="border rounded pl-1"
-            placeholder="Name"
-          />
-          <input
-            type="text"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            className="border rounded pl-1"
-            placeholder="Address"
-          />
-          <input
-            type="text"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="border rounded pl-1"
-            placeholder="Phone"
-          />
-          <input
-            type="text"
-            value={description}
-            onChange={(e) => setDscription(e.target.value)}
-            className="border rounded pl-1"
-            placeholder="Description"
-          />
-          <input
-            type="file"
-            accept="image/*"
-            className="border rounded pl-1 cursor-pointer"
-            onChange={(e) => e.target.files && setFile(e.target.files[0])}
-          />
-          <button
-            onClick={() => {
-              console.log("Submit");
-              handleSubmit();
-            }}
-            className="border rounded px-2 py-1 cursor-pointer"
-          >
-            Submit
-          </button>
-
-          {shopsData.data?.map((shop: any) => {
-            if (shop.backgroundImageUrl) {
-              const imageUrl = getImageUrl(shop.backgroundImageUrl);
-              console.log("imageUrl", imageUrl);
-              return (
-                <div key={shop.id}>
-                  <div>{shop.name}</div>
-                  <div className="w-40 h-20 bg-red-500">
-                    <img src={imageUrl ?? "no_url"} alt="image" />
-                  </div>
-                </div>
-              );
-            }
-          })}
-        </div>
-      </div>
-
       {/* Hero Section */}
       <HeroSection onSearch={handleSearch} />
 
       {/* Categories Section */}
       <CategoriesSection
+        categories={categories}
+        isLoading={isCategoriesLoading}
         onCategorySelect={handleCategorySelect}
         selectedCategory={selectedCategory}
       />
@@ -192,7 +100,7 @@ export default function Home() {
         <ServicesList
           selectedCategory={selectedCategory}
           searchQuery={searchQuery}
-          locationQuery={locationQuery}
+          // locationQuery={locationQuery}
         />
       </div>
     </div>

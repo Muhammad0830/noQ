@@ -1,11 +1,18 @@
 "use client";
 
 import React from "react";
-import { Clock, MapPin, Star, Heart } from "lucide-react";
+import {
+  Star,
+  Scissors,
+  Sparkles,
+  Heart,
+  Coffee,
+  Dumbbell,
+  Palette,
+} from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { Service, Shop } from "@shared/types/types";
+import type { Service } from "@shared/types/types";
 import Link from "next/link";
-import Image from "next/image";
 
 interface ServiceCardProps {
   service: Service;
@@ -13,122 +20,131 @@ interface ServiceCardProps {
   isFavorite?: boolean;
 }
 
+const ToothIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M7 5.5c1.5-1 2.9-1.5 5-1.5s3.5.5 5 1.5c1.8 1.2 2.3 3.4 1.9 5.4-.4 2.2-1.4 4.2-2.5 6.2-.8 1.4-1.4 2.9-2.8 2.9-1.2 0-1.6-1.1-1.6-2.3V16c0-.6-.4-1-1-1s-1 .4-1 1v1.7c0 1.2-.4 2.3-1.6 2.3-1.4 0-2-1.5-2.8-2.9-1.1-2-2.1-4-2.5-6.2-.4-2 .1-4.2 1.9-5.4Z" />
+  </svg>
+);
+
+const getCategoryIcon = (iconOrName?: string) => {
+  const key = iconOrName?.toLowerCase().trim() ?? "";
+
+  if (!key) return <Sparkles className="w-5 h-5" />;
+  if (key.includes("barber") || key.includes("hair") || key.includes("scissor")) {
+    return <Scissors className="w-5 h-5" />;
+  }
+  if (key.includes("beauty") || key.includes("spa") || key.includes("massage")) {
+    return <Heart className="w-5 h-5" />;
+  }
+  if (key.includes("nail") || key.includes("makeup") || key.includes("palette")) {
+    return <Palette className="w-5 h-5" />;
+  }
+  if (key.includes("gym") || key.includes("fit")) {
+    return <Dumbbell className="w-5 h-5" />;
+  }
+  if (key.includes("coffee") || key.includes("cafe")) {
+    return <Coffee className="w-5 h-5" />;
+  }
+  if (key.includes("dentist") || key.includes("dental") || key.includes("tooth") || key.includes("teeth")) {
+    return <ToothIcon className="w-5 h-5" />;
+  }
+
+  if (key === "scissors") return <Scissors className="w-5 h-5" />;
+  if (key === "heart") return <Heart className="w-5 h-5" />;
+  if (key === "palette") return <Palette className="w-5 h-5" />;
+  if (key === "dumbbell") return <Dumbbell className="w-5 h-5" />;
+  if (key === "coffee") return <Coffee className="w-5 h-5" />;
+
+  return <Sparkles className="w-5 h-5" />;
+};
+
 const ServiceCard: React.FC<ServiceCardProps> = ({
   service,
-  onFavorite,
-  isFavorite = false,
+  onFavorite: _onFavorite,
+  isFavorite: _isFavorite = false,
 }) => {
   const { t } = useLanguage();
-
-  const handleFavoriteClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (onFavorite) {
-      onFavorite(service.id);
-    }
-  };
+  const backendRating = service.averageRating ?? service.shop?.rating;
+  const rating = typeof backendRating === "number" ? backendRating.toFixed(1) : "0.0";
+  const distance = "0.8 km";
+  const driveTime = `12 ${t("serviceCard.minDrive")}`;
+  const nextSlot = `2:00 PM ${t("serviceCard.today")}`;
+  const title = service.name;
+  const categoryIcon = getCategoryIcon(service.category?.icon || service.category?.name);
+  const serviceNames = Array.isArray(service.services)
+    ? service.services
+        .map((item) => (typeof item === "string" ? item : String(item)))
+        .join(" — ")
+    : "";
 
   return (
     <Link href={`/shop/${service.shopId}`}>
-      <div className="group bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 overflow-hidden transition-all duration-300 hover:shadow-xl">
+      <div className="group overflow-hidden rounded-3xl bg-linear-to-br from-blue-50 via-white to-purple-50 dark:from-blue-900/20 dark:via-gray-900 dark:to-purple-900/20 border border-blue-100 dark:border-blue-800/40 shadow-sm hover:shadow-lg transition-all duration-300">
         {/* Image Section */}
-        <div className="relative h-48 bg-linear-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 overflow-hidden">
+        <div className="relative h-52 overflow-hidden">
           {service.shop?.logoUrl ? (
             <img
               src={service.shop.logoUrl}
-              alt={service.shop.name}
+              alt={title}
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <span className="text-6xl font-bold text-gray-300 dark:text-gray-600">
+            <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-amber-200 via-orange-200 to-amber-300 dark:from-amber-900/40 dark:via-orange-900/40 dark:to-amber-800/40">
+              <span className="text-6xl font-bold text-white/80">
                 {service.name.charAt(0)}
               </span>
             </div>
           )}
 
-          {/* Favorite Button */}
-          <button
-            onClick={handleFavoriteClick}
-            className="absolute top-3 right-3 w-10 h-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-700 transition-colors shadow-lg"
-          >
-            <Heart
-              className={`w-5 h-5 ${
-                isFavorite
-                  ? "fill-red-500 text-red-500"
-                  : "text-gray-600 dark:text-gray-400"
-              }`}
-            />
-          </button>
+          <div className="absolute top-3 right-3 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-gray-800 flex items-center gap-1">
+            <Star className="w-4 h-4 fill-cyan-400 text-cyan-400" />
+            {rating}
+          </div>
 
-          {/* Shop Status Badge */}
-          {service.shop && (
-            <div className="absolute bottom-3 left-3">
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm ${
-                  service.shop.isOpen
-                    ? "bg-green-500/90 text-white"
-                    : "bg-gray-500/90 text-white"
-                }`}
-              >
-                {service.shop.isOpen ? t("filter.openNow") : "Closed"}
-              </span>
-            </div>
-          )}
+          <div className="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/95 text-blue-600 dark:text-blue-300 flex items-center justify-center shadow-sm">
+            {categoryIcon}
+          </div>
+
+          <div className="absolute bottom-3 left-3 rounded-full bg-emerald-500 px-2.5 py-1 text-[10px] sm:text-xs font-semibold text-white">
+            {t("serviceCard.availableNow")}
+          </div>
         </div>
 
         {/* Content Section */}
-        <div className="p-5">
-          {/* Service Name */}
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-1">
-            {service.name}
-          </h3>
-
-          {/* Shop Name */}
-          {service.shop && (
-            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-3">
-              <MapPin className="w-4 h-4 mr-1 shrink-0" />
-              <span className="line-clamp-1">{service.shop.name}</span>
+        <div className="p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white line-clamp-1">
+                {title}
+              </h3>
+              <p className="mt-1 text-xs sm:text-sm text-gray-500 dark:text-gray-400 line-clamp-1">
+                {serviceNames}
+              </p>
             </div>
-          )}
-
-          {/* Description */}
-          {service.description && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
-              {service.description}
-            </p>
-          )}
-
-          {/* Service Details */}
-          <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-              <Clock className="w-4 h-4 mr-1" />
-              <span>
-                {service.durationMin} {t("services.duration")}
-              </span>
+            <div className="text-right shrink-0">
+              <p className="text-sm sm:text-base font-bold text-cyan-500">{distance}</p>
+              <p className="text-[11px] sm:text-xs text-gray-400">{driveTime}</p>
             </div>
-
-            {service.shop?.rating && (
-              <div className="flex items-center text-sm">
-                <Star className="w-4 h-4 mr-1 fill-yellow-400 text-yellow-400" />
-                <span className="font-semibold text-gray-900 dark:text-white">
-                  {service.shop.rating.toFixed(1)}
-                </span>
-              </div>
-            )}
           </div>
 
-          {/* Price and Book Button */}
-          <div className="flex items-center justify-between">
+          <div className="my-4 h-px bg-linear-to-r from-blue-100 via-purple-100 to-pink-100 dark:from-blue-800/40 dark:via-purple-800/40 dark:to-pink-800/40" />
+
+          <div className="flex items-center justify-between gap-3">
             <div>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {t("services.price")}
-              </span>
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                {Number(service.price).toLocaleString()} {t("currency.som")}
-              </div>
+              <p className="text-[11px] font-semibold tracking-wide text-gray-400 uppercase">{t("serviceCard.nextSlot")}</p>
+              <p className="mt-1 text-sm sm:text-base font-bold text-gray-800 dark:text-gray-200">{nextSlot}</p>
             </div>
 
-            <button className="px-6 py-2.5 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg">
+            <button className="px-5 py-2 rounded-full bg-linear-to-r from-blue-500/15 to-purple-500/15 text-blue-600 dark:text-blue-300 text-xs sm:text-sm font-semibold hover:from-blue-500/25 hover:to-purple-500/25 transition-colors">
               {t("services.book")}
             </button>
           </div>

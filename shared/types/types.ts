@@ -43,6 +43,9 @@ export interface Service {
   isActive: boolean;
   shopId: string;
   shop?: Shop;
+  services?: string[];
+  averageRating?: number;
+  category?: ShopCategory;
 }
 
 // Booking
