@@ -137,11 +137,12 @@ model ShopSchedule {
   id        String @id @default(uuid())
   shopId    String
   dayOfWeek Int
-  openTime  String
-  closeTime String
-  shop      Shop   @relation(fields: [shopId], references: [id])
+  startTime String // "09:00"
+  endTime   String // "11:00"
 
-  @@index([shopId])
+  shop Shop @relation(fields: [shopId], references: [id])
+
+  @@index([shopId, dayOfWeek])
 }
 
 model ShopBlock {

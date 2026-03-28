@@ -226,8 +226,8 @@ shopRouter.get("/:id/day-timeline", authMiddleware, async (req, res) => {
   ];
 
   res.json({
-    open: schedule.openTime,
-    close: schedule.closeTime,
+    open: schedule.startTime,
+    close: schedule.endTime,
     busy,
   });
 });
@@ -392,19 +392,55 @@ shopRouter.post(
   adminOnly,
   async (req: any, res) => {
     try {
-      const { dayOfWeek, openTime, closeTime } = req.body;
+      const { schedule } = req.body;
+      const { id: shopId } = req.params;
 
-      const schedule = await prisma.shopSchedule.create({
-        data: {
-          shopId: req.params.id,
-          dayOfWeek,
-          openTime,
-          closeTime,
-        },
+      const shop = await prisma.shop.findUnique({
+        where: { id: shopId },
       });
 
-      res.status(200).json(schedule);
+      // check shop exists
+      if (!shop) return res.status(404).json({ message: "Shop not found" });
+
+      // validate schedule
+      for (const day of schedule) {
+        if (schedule.length !== 7 || day.dayOfWeek < 0 || day.dayOfWeek > 6) {
+          return res.status(400).json({ message: "Invalid day" });
+        }
+
+        for (const slot of day.slots) {
+          if (slot.startTime < "00:00" || slot.startTime > "23:59") {
+            return res.status(400).json({ message: "Invalid start time" });
+          }
+          if (slot.endTime < "00:00" || slot.endTime > "23:59") {
+            return res.status(400).json({ message: "Invalid end time" });
+          }
+          if (slot.startTime >= slot.endTime) {
+            return res.status(400).json({ message: "Invalid time range" });
+          }
+        }
+      }
+
+      await prisma.shopSchedule.deleteMany({
+        where: { shopId },
+      });
+
+      const data = schedule.flatMap((day: any) =>
+        day.slots.map((slot: any) => ({
+          shopId,
+          dayOfWeek: day.dayOfWeek,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+        })),
+      );
+
+      await prisma.shopSchedule.createMany({
+        data,
+      });
+
+      return res.status(200).json({ message: "Schedule saved" });
     } catch (error) {
+      console.error(error);
       res.status(500).json({ message: "Internal server error" });
     }
   },

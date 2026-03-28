@@ -1,4 +1,4 @@
-@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc0NjEzNjY4LCJpYXQiOjE3NzQ2MTAwNjgsImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3NDYxMDA2OH1dLCJzZXNzaW9uX2lkIjoiNmZiMzBiMGQtYTY3Ny00MGI0LTk2NzctYjY0ODQ5MmI5MzFkIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.X8VQyRjXekdOnG29WDJyYzP1NFSJ5pEorYFbi1LxQnbywuSIw7wpD9PdyaBRuqe3jUC-njGTwWcXakvN9Z_WtA
+@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc0Njk4NjIyLCJpYXQiOjE3NzQ2OTUwMjIsImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3NDY5NTAyMn1dLCJzZXNzaW9uX2lkIjoiMGZhNGJiNzgtYWZkOC00N2RlLWJhOTgtZmQ0ZGVmMzMwNGJkIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.TUUafIBXigRkRjYjLhnGuVExvo-WlKmacshUKAzFIHO_xmS-cuIe_BtUZUa3KB2Hyug24Zjk0zKHF_fJ6J-6zQ
 
 POST http://localhost:3001/api/auth/signup
 Content-Type: application/json
@@ -44,15 +44,56 @@ Authorization: Bearer {{bearer_token}}
 }
 
 ###
-POST http://localhost:3001/api/shops/925e1f3b-b646-42a7-8235-1b2c612dee94/schedule
+POST http://localhost:3001/api/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89/schedule
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
--24nbEHw_i7mSSyKfKMWe0_ZGkB6dkXGPbVzGFIEWp-dU5_PdbRtkrN3INUMn-lMN7ACpqpxbw
 
 {
-  "dayOfWeek": 7,
-  "openTime": "09:00",
-  "closeTime": "18:00"
+  "schedule": [
+    {
+      "dayOfWeek": 0,
+      "slots": [
+        { "startTime": "09:00", "endTime": "18:00" }
+      ]
+    },
+    {
+      "dayOfWeek": 1,
+      "slots": [
+        { "startTime": "09:00", "endTime": "11:00" },
+        { "startTime": "15:00", "endTime": "18:00" }
+      ]
+    },
+    {
+      "dayOfWeek": 2,
+      "slots": [
+        { "startTime": "09:00", "endTime": "18:00" }
+      ]
+    },
+    {
+      "dayOfWeek": 3,
+      "slots": [
+        { "startTime": "09:00", "endTime": "18:00" }
+      ]
+    },
+    {
+      "dayOfWeek": 4,
+      "slots": [
+        { "startTime": "09:00", "endTime": "18:00" }
+      ]
+    },
+    {
+      "dayOfWeek": 5,
+      "slots": [
+        { "startTime": "09:00", "endTime": "18:00" }
+      ]
+    },
+    {
+      "dayOfWeek": 6,
+      "slots": [
+        { "startTime": "09:00", "endTime": "18:00" }
+      ]
+    }
+  ]
 }
 
 ###
