@@ -1,14 +1,14 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { User } from '@shared/types/types';
-import API_ENDPOINTS from '@/lib/api';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import type { User } from "@shared/types/types";
+import API_ENDPOINTS from "@/lib/api";
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, remember?: boolean) => Promise<void>;
   signup: (
     email: string,
     password: string,
@@ -16,6 +16,10 @@ interface AuthContextType {
     phone?: string,
   ) => Promise<void>;
   logout: () => void;
+  updateProfile: (data: {
+    name?: string;
+    phoneNumber?: string;
+  }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,10 +28,40 @@ const USER_STORAGE_KEY = "user";
 const ACCESS_TOKEN_STORAGE_KEY = "token";
 const REFRESH_TOKEN_STORAGE_KEY = "refresh_token";
 
+type AuthStorageSource = "local" | "session";
+
+const getStorageBySource = (source: AuthStorageSource) =>
+  source === "local" ? localStorage : sessionStorage;
+
+const getStoredAuth = () => {
+  const localToken = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  if (localToken) {
+    return {
+      source: "local" as const,
+      token: localToken,
+      refreshToken: localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
+      savedUser: localStorage.getItem(USER_STORAGE_KEY),
+    };
+  }
+
+  const sessionToken = sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  if (sessionToken) {
+    return {
+      source: "session" as const,
+      token: sessionToken,
+      refreshToken: sessionStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
+      savedUser: sessionStorage.getItem(USER_STORAGE_KEY),
+    };
+  }
+
+  return null;
+};
+
 type ApiUserPayload = {
   id: string;
   email: string;
   name?: string;
+  phoneNumber?: string | null;
   avatarUrl?: string | null;
   role?: "USER" | "ADMIN";
   createdAt?: string;
@@ -37,6 +71,7 @@ const mapApiUserToUser = (apiUser: ApiUserPayload): User => ({
   id: apiUser.id,
   email: apiUser.email,
   name: apiUser.name || apiUser.email?.split("@")[0] || "User",
+  phoneNumber: apiUser.phoneNumber || undefined,
   avatarUrl: apiUser.avatarUrl || undefined,
   role: apiUser.role || "USER",
   createdAt: apiUser.createdAt || new Date().toISOString(),
@@ -55,20 +90,33 @@ const persistAuth = (
   token: string,
   refreshToken: string | null,
   userData: User,
+  source: AuthStorageSource = "local",
 ) => {
-  localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
+  const targetStorage = getStorageBySource(source);
+  const otherStorage = getStorageBySource(
+    source === "local" ? "session" : "local",
+  );
+
+  targetStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
   if (refreshToken) {
-    localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, refreshToken);
+    targetStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, refreshToken);
   } else {
-    localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+    targetStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
   }
-  localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+  targetStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+
+  otherStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+  otherStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+  otherStorage.removeItem(USER_STORAGE_KEY);
 };
 
 const clearPersistedAuth = () => {
   localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
   localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
   localStorage.removeItem(USER_STORAGE_KEY);
+  sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+  sessionStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+  sessionStorage.removeItem(USER_STORAGE_KEY);
 };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -77,8 +125,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const token = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
-      const savedUser = localStorage.getItem(USER_STORAGE_KEY);
+      const storedAuth = getStoredAuth();
+      const token = storedAuth?.token ?? null;
+      const savedUser = storedAuth?.savedUser ?? null;
 
       if (!token) {
         if (savedUser) {
@@ -102,7 +151,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const profileData = await profileResponse.json();
         const mappedUser = mapApiUserToUser(profileData);
         setUser(mappedUser);
-        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mappedUser));
+        const activeStorage = getStorageBySource(storedAuth?.source ?? "local");
+        activeStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mappedUser));
       } catch {
         clearPersistedAuth();
         setUser(null);
@@ -114,40 +164,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initializeAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, remember = true) => {
     setIsLoading(true);
     try {
       const response = await fetch(API_ENDPOINTS.auth.signin, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
-        const errorPayload = (await response.json().catch(() => null)) as { error?: string } | null;
-        throw new Error(errorPayload?.error || 'Login failed');
+        const errorPayload = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        throw new Error(errorPayload?.error || "Login failed");
       }
 
       const data = (await response.json()) as {
         access_token?: string;
-        user?: { id: string; email: string };
+        refresh_token?: string;
+        user?: {
+          id: string;
+          email: string;
+          name?: string;
+          phoneNumber?: string;
+        };
       };
 
       if (!data.access_token || !data.user) {
-        throw new Error('Invalid login response');
+        throw new Error("Invalid login response");
       }
 
       const userData: User = {
         id: data.user.id,
         email: data.user.email,
-        name: data.user.email.split('@')[0],
-        role: 'USER',
+        name: data.user.name || data.user.email.split("@")[0],
+        phoneNumber: data.user.phoneNumber || undefined,
+        role: "USER",
         createdAt: new Date().toISOString(),
       };
 
       setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
-      localStorage.setItem('token', data.access_token);
+      persistAuth(
+        data.access_token,
+        data.refresh_token ?? null,
+        userData,
+        remember ? "local" : "session",
+      );
     } catch (error) {
       throw error;
     } finally {
@@ -161,22 +224,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // TODO: Implement Google OAuth
       // For now, mock Google login
       const mockUser: User = {
-        id: 'google-' + Date.now(),
-        email: 'user@gmail.com',
-        name: 'Google User',
-        avatarUrl: 'https://i.pravatar.cc/150?img=1',
-        role: 'USER',
+        id: "google-" + Date.now(),
+        email: "user@gmail.com",
+        name: "Google User",
+        avatarUrl: "https://i.pravatar.cc/150?img=1",
+        role: "USER",
         createdAt: new Date().toISOString(),
       };
-      
+
       setUser(mockUser);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      localStorage.setItem('token', 'google-mock-token');
-      
+      localStorage.setItem("user", JSON.stringify(mockUser));
+      localStorage.setItem("token", "google-mock-token");
+
       // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (error) {
-      console.error('Google login failed', error);
+      console.error("Google login failed", error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -192,14 +255,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const response = await fetch(API_ENDPOINTS.auth.signup, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name }),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          name,
+          ...(phone ? { phoneNumber: phone } : {}),
+        }),
       });
 
       if (!response.ok) {
-        const errorPayload = (await response.json().catch(() => null)) as { error?: string } | null;
-        throw new Error(errorPayload?.error || 'Signup failed');
+        const errorPayload = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        throw new Error(errorPayload?.error || "Signup failed");
       }
 
       await login(email, password);
@@ -207,6 +277,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw error;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const updateProfile = async (data: {
+    name?: string;
+    phoneNumber?: string;
+  }) => {
+    if (!user) {
+      throw new Error("User not authenticated");
+    }
+
+    try {
+      const token = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+      if (!token) {
+        throw new Error("No authentication token");
+      }
+
+      const response = await fetch(API_ENDPOINTS.users.profile, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorPayload = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        throw new Error(errorPayload?.error || "Failed to update profile");
+      }
+
+      const updatedData = await response.json();
+      const updatedUser = mapApiUserToUser(updatedData);
+      setUser(updatedUser);
+      const storedAuth = getStoredAuth();
+      if (!storedAuth) {
+        throw new Error("No active session");
+      }
+
+      persistAuth(
+        storedAuth.token,
+        storedAuth.refreshToken,
+        updatedUser,
+        storedAuth.source,
+      );
+    } catch (error) {
+      throw error;
     }
   };
 
@@ -224,6 +343,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         signup,
         logout,
+        updateProfile,
       }}
     >
       {children}

@@ -5,6 +5,25 @@ import { supabase } from "../config/supabase.js";
 
 const router = express.Router();
 
+router.get("/check-email", async (req, res) => {
+  try {
+    const email = req.query.email?.toString().trim().toLowerCase();
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+
+    return res.status(200).json({ exists: !!existingUser });
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to check email" });
+  }
+});
+
 router.get("/me", authMiddleware, async (req: any, res: any) => {
   try {
     const user = await prisma.user.findUnique({
@@ -118,13 +137,31 @@ router.post("/signin", async (req, res) => {
     console.error("Signin profile sync failed:", profileError);
   }
 
+  let userData = {
+    id: data.user.id,
+    email: data.user.email,
+    name: userMetadataName || email.split("@")[0],
+    phoneNumber: "" as string | undefined,
+  };
+
+  // Try to get phone number from Prisma
+  try {
+    const prismaUser = await prisma.user.findUnique({
+      where: { id: data.user.id },
+      select: { phoneNumber: true, name: true },
+    });
+    if (prismaUser) {
+      userData.phoneNumber = prismaUser.phoneNumber || undefined;
+      userData.name = prismaUser.name;
+    }
+  } catch (err) {
+    // Silently fail, not critical
+  }
+
   res.json({
     access_token: data.session.access_token,
     refresh_token: data.session.refresh_token,
-    user: {
-      id: data.user.id,
-      email: data.user.email,
-    },
+    user: userData,
   });
 });
 
