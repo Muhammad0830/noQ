@@ -19,6 +19,28 @@ router.get("/", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
+router.put("/profile", authMiddleware, async (req: any, res) => {
+  try {
+    const { name, phoneNumber } = req.body;
+    const userId = req.user.id;
+
+    // Build update data object with only provided fields
+    const updateData: any = {};
+    if (name !== undefined) updateData.name = name;
+    if (phoneNumber !== undefined) updateData.phoneNumber = phoneNumber;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    return res.status(500).json({ error: "Failed to update profile" });
+  }
+});
+
 router.post("/", authMiddleware, async (req: any, res) => {
   try {
     const { shopId, serviceId, rating, comment } = req.body;

@@ -26,7 +26,7 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      await login(formData.email, formData.password);
+      await login(formData.email, formData.password, formData.remember);
       router.push("/");
     } catch (err) {
       setError(
@@ -66,7 +66,11 @@ export default function Login() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6"
+            autoComplete="off"
+          >
             {/* Email */}
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
@@ -77,6 +81,7 @@ export default function Login() {
                 <input
                   type="email"
                   required
+                  autoComplete="new-password"
                   value={formData.email}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
@@ -98,6 +103,7 @@ export default function Login() {
                 <input
                   type={showPassword ? "text" : "password"}
                   required
+                  autoComplete="new-password"
                   value={formData.password}
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })

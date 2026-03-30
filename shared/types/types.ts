@@ -3,6 +3,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  phoneNumber?: string;
   avatarUrl?: string;
   role: 'USER' | 'ADMIN';
   createdAt: string;
@@ -61,7 +62,7 @@ export interface Booking {
   createdAt: string;
 }
 
-export type BookingStatus = 
+export type BookingStatus =
   | 'PENDING'
   | 'CONFIRMED'
   | 'IN_PROGRESS'

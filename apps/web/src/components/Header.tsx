@@ -2,216 +2,127 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { useTheme } from "@/contexts/ThemeContext";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  Sun,
-  Moon,
-  User,
-  Heart,
-  Calendar,
-  LogIn,
-  LogOut,
-  Bell,
-  Globe,
-  MapPin,
-  ChevronDown,
-} from "lucide-react";
-import type { Language } from "@shared/types/types";
+import { User, LogIn, LogOut, Bell, MapPin, ChevronDown } from "lucide-react";
 
 export default function Header() {
-  const { t, language, setLanguage } = useLanguage();
-  const { theme, toggleTheme } = useTheme();
+  const pathname = usePathname();
   const { user, isAuthenticated, logout } = useAuth();
-  // const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [locationMenuOpen, setLocationMenuOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] =
     useState("Downtown Manhab an");
 
-  const languages: { code: Language; label: string }[] = [
-    { code: "uz-latn", label: "O'zbekcha" },
-    { code: "uz-cyrl", label: "Ўзбекча" },
-    { code: "ru", label: "Русский" },
-  ];
-
-  const navLinks = [
-    { href: "/", label: t("nav.home") },
-    { href: "/discover", label: t("nav.services") },
-    {
-      href: "/bookings",
-      label: t("nav.bookings"),
-      icon: Calendar,
-      authRequired: true,
-    },
-    {
-      href: "/favorites",
-      label: t("nav.favorites"),
-      icon: Heart,
-      authRequired: true,
-    },
-  ];
-
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+      <div
+        className={`mx-auto w-full px-4 sm:px-6 lg:px-8 ${
+          pathname.startsWith("/profile") ? "max-w-4xl" : "max-w-6xl"
+        }`}
+      >
+        <div className="flex h-16 items-center justify-between gap-2 sm:gap-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-linear-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+          <Link href="/" className="flex shrink-0 items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-blue-600 to-purple-600">
               <span className="text-white font-bold text-lg">N</span>
             </div>
-            <span className="text-xl font-bold text-gray-900 dark:text-white">
+            <span className="text-lg font-bold text-gray-900 dark:text-white sm:text-xl">
               NoQ
             </span>
           </Link>
 
           {/* Location Selector */}
-          <div className="md:hidden py-3 border-t border-gray-200 dark:border-gray-800 px-4">
-            <div className="relative">
-              <button
-                onClick={() => setLocationMenuOpen(!locationMenuOpen)}
-                className="w-full flex items-center space-x-2 px-3 py-2 rounded-lg  transition-colors"
-              >
-                <MapPin className="w-4 h-4 shrink-0 text-blue-600 dark:text-blue-400" />
-                <div className="flex flex-col items-start flex-1 min-w-0">
-                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                    Location
+          <div className="relative min-w-0 flex-1 max-w-40 sm:max-w-64 md:max-w-80">
+            <button
+              onClick={() => setLocationMenuOpen(!locationMenuOpen)}
+              className="flex w-full items-center gap-2 rounded-xl border border-transparent px-2 py-1.5 transition-colors hover:border-gray-200 hover:bg-gray-50 dark:hover:border-gray-700 dark:hover:bg-gray-800"
+            >
+              <MapPin className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
+              <div className="min-w-0 flex-1 text-left">
+                <span className="hidden text-[11px] font-medium leading-none text-gray-500 dark:text-gray-400 sm:block">
+                  Location
+                </span>
+                <div className="flex items-center gap-1">
+                  <span className="truncate text-sm font-semibold text-gray-900 dark:text-white">
+                    {selectedLocation}
                   </span>
-                  <div className="flex items-center space-x-1">
-                    <span className="font-semibold text-gray-900 dark:text-white text-sm truncate">
-                      {selectedLocation}
-                    </span>
-                    <ChevronDown className="w-3 h-3 shrink-0 text-gray-600 dark:text-gray-300" />
-                  </div>
+                  <ChevronDown className="h-3 w-3 shrink-0 text-gray-600 dark:text-gray-300" />
                 </div>
-              </button>
+              </div>
+            </button>
 
-              {locationMenuOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setLocationMenuOpen(false)}
-                  />
-                  <div className="absolute left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-20">
-                    <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
-                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
-                        Select Location
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setSelectedLocation("Downtown Manhab an");
-                        setLocationMenuOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 text-sm transition-colors ${
-                        selectedLocation === "Downtown Manhab an"
-                          ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      }`}
-                    >
-                      Downtown Manhab an
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedLocation("Tashkent City");
-                        setLocationMenuOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 text-sm transition-colors ${
-                        selectedLocation === "Tashkent City"
-                          ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      }`}
-                    >
-                      Tashkent City
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedLocation("Samarqand");
-                        setLocationMenuOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 text-sm transition-colors ${
-                        selectedLocation === "Samarqand"
-                          ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      }`}
-                    >
-                      Samarqand
-                    </button>
+            {locationMenuOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setLocationMenuOpen(false)}
+                />
+                <div className="absolute left-0 right-0 z-20 mt-2 rounded-lg border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                  <div className="border-b border-gray-200 px-3 py-2 dark:border-gray-700">
+                    <p className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
+                      Select Location
+                    </p>
                   </div>
-                </>
-              )}
-            </div>
+                  <button
+                    onClick={() => {
+                      setSelectedLocation("Downtown Manhab an");
+                      setLocationMenuOpen(false);
+                    }}
+                    className={`w-full px-3 py-2 text-left text-sm transition-colors ${
+                      selectedLocation === "Downtown Manhab an"
+                        ? "bg-blue-50 font-medium text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                        : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    Downtown Manhab an
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedLocation("Tashkent City");
+                      setLocationMenuOpen(false);
+                    }}
+                    className={`w-full px-3 py-2 text-left text-sm transition-colors ${
+                      selectedLocation === "Tashkent City"
+                        ? "bg-blue-50 font-medium text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                        : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    Tashkent City
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedLocation("Samarqand");
+                      setLocationMenuOpen(false);
+                    }}
+                    className={`w-full px-3 py-2 text-left text-sm transition-colors ${
+                      selectedLocation === "Samarqand"
+                        ? "bg-blue-50 font-medium text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                        : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    Samarqand
+                  </button>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Right Side Actions */}
-          <div className="flex items-center space-x-2">
-            {/* Language Selector */}
-            <div className="relative">
-              <button
-                onClick={() => setLangMenuOpen(!langMenuOpen)}
-                className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                aria-label="Change language"
-              >
-                <Globe className="w-5 h-5" />
-              </button>
-
-              {langMenuOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setLangMenuOpen(false)}
-                  />
-                  <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-20">
-                    {languages.map((lang) => (
-                      <button
-                        key={lang.code}
-                        onClick={() => {
-                          setLanguage(lang.code);
-                          setLangMenuOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                          language === lang.code
-                            ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium"
-                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                        }`}
-                      >
-                        {lang.label}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Toggle theme"
-            >
-              {theme === "light" ? (
-                <Moon className="w-5 h-5" />
-              ) : (
-                <Sun className="w-5 h-5" />
-              )}
-            </button>
-
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             {/* Auth Buttons / Profile */}
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
                 <button
-                  className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 sm:h-11 sm:w-11"
                   aria-label="Notifications"
                 >
-                  <Bell className="w-6 h-6" />
+                  <Bell className="h-5 w-5" />
                 </button>
                 <div className="relative">
                   <button
                     onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                    className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center overflow-hidden"
+                    className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-amber-100 dark:bg-amber-900/30 sm:h-11 sm:w-11"
                     aria-label="Profile menu"
                   >
                     {user?.avatarUrl ? (
@@ -231,7 +142,7 @@ export default function Header() {
                         className="fixed inset-0 z-10"
                         onClick={() => setProfileMenuOpen(false)}
                       />
-                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-20">
+                      <div className="absolute right-0 z-20 mt-2 w-48 rounded-lg border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-gray-800">
                         <Link
                           href="/profile"
                           onClick={() => setProfileMenuOpen(false)}
@@ -261,10 +172,10 @@ export default function Header() {
             ) : (
               <Link
                 href="/login"
-                className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-linear-to-r from-blue-600 to-purple-600 text-white font-medium hover:shadow-lg transition-shadow"
+                className="flex items-center space-x-2 rounded-lg bg-linear-to-r from-blue-600 to-purple-600 px-3 py-2 text-sm font-medium text-white transition-shadow hover:shadow-lg sm:px-4 sm:text-base"
               >
                 <LogIn className="w-4 h-4" />
-                <span>{t("nav.signin")}</span>
+                <span>Sign in</span>
               </Link>
             )}
           </div>
