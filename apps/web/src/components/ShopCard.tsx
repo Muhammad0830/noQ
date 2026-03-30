@@ -11,16 +11,19 @@ import {
   Palette,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { Service } from "@shared/types/types";
+import type { Shop } from "@shared/types/types";
 import Link from "next/link";
+import { getImageUrl } from "@/lib/supabaseClient";
 
-interface ServiceCardProps {
-  service: Service;
-  onFavorite?: (serviceId: string) => void;
+interface ShopCardProps {
+  shop: Shop;
+  onFavorite?: (shopId: string) => void;
   isFavorite?: boolean;
 }
 
-const ToothIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
+const ToothIcon: React.FC<{ className?: string }> = ({
+  className = "w-5 h-5",
+}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
@@ -39,13 +42,25 @@ const getCategoryIcon = (iconOrName?: string) => {
   const key = iconOrName?.toLowerCase().trim() ?? "";
 
   if (!key) return <Sparkles className="w-5 h-5" />;
-  if (key.includes("barber") || key.includes("hair") || key.includes("scissor")) {
+  if (
+    key.includes("barber") ||
+    key.includes("hair") ||
+    key.includes("scissor")
+  ) {
     return <Scissors className="w-5 h-5" />;
   }
-  if (key.includes("beauty") || key.includes("spa") || key.includes("massage")) {
+  if (
+    key.includes("beauty") ||
+    key.includes("spa") ||
+    key.includes("massage")
+  ) {
     return <Heart className="w-5 h-5" />;
   }
-  if (key.includes("nail") || key.includes("makeup") || key.includes("palette")) {
+  if (
+    key.includes("nail") ||
+    key.includes("makeup") ||
+    key.includes("palette")
+  ) {
     return <Palette className="w-5 h-5" />;
   }
   if (key.includes("gym") || key.includes("fit")) {
@@ -54,7 +69,12 @@ const getCategoryIcon = (iconOrName?: string) => {
   if (key.includes("coffee") || key.includes("cafe")) {
     return <Coffee className="w-5 h-5" />;
   }
-  if (key.includes("dentist") || key.includes("dental") || key.includes("tooth") || key.includes("teeth")) {
+  if (
+    key.includes("dentist") ||
+    key.includes("dental") ||
+    key.includes("tooth") ||
+    key.includes("teeth")
+  ) {
     return <ToothIcon className="w-5 h-5" />;
   }
 
@@ -67,40 +87,62 @@ const getCategoryIcon = (iconOrName?: string) => {
   return <Sparkles className="w-5 h-5" />;
 };
 
-const ServiceCard: React.FC<ServiceCardProps> = ({
-  service,
+const shopCard: React.FC<ShopCardProps> = ({
+  shop,
   onFavorite: _onFavorite,
   isFavorite: _isFavorite = false,
 }) => {
   const { t } = useLanguage();
-  const backendRating = service.averageRating ?? service.shop?.rating;
-  const rating = typeof backendRating === "number" ? backendRating.toFixed(1) : "0.0";
+  const rootShop = shop as Partial<Shop> & {
+    id?: string;  
+    logoUrl?: string;
+    backgroundImageUrl?: string;
+    isOpen?: boolean;
+  };
+
+  const backendRating = shop.averageRating ?? shop?.averageRating;
+  const rating =
+    typeof backendRating === "number" ? backendRating.toFixed(1) : "0.0";
   const distance = "0.8 km";
-  const driveTime = `12 ${t("serviceCard.minDrive")}`;
-  const nextSlot = `2:00 PM ${t("serviceCard.today")}`;
-  const title = service.name;
-  const categoryIcon = getCategoryIcon(service.category?.icon || service.category?.name);
-  const serviceNames = Array.isArray(service.services)
-    ? service.services
+  const driveTime = `12 ${t("shopCard.minDrive")}`;
+  const nextSlot = `2:00 PM ${t("shopCard.today")}`;
+  console.log(shop);
+  const title = shop.name;
+  const shopId = shop.id || rootShop.id || "";
+  const categoryIcon = getCategoryIcon(
+    shop.category?.icon || shop.category?.name,
+  );
+  const serviceNamesSource =
+    (Array.isArray(shop.services) && shop.services) ||
+    (Array.isArray((rootShop as any).services) && (rootShop as any).services) ||
+    [];
+    console.log("shop", shop);
+    
+  const serviceNames = Array.isArray(serviceNamesSource)
+    ? serviceNamesSource
         .map((item) => (typeof item === "string" ? item : String(item)))
         .join(" — ")
     : "";
+  const isCurrentlyOpen = shop?.isOpen ?? rootShop.isOpen ?? true;
+  const rawImage = rootShop.backgroundImageUrl;
+  const imageUrl = rawImage ? getImageUrl(rawImage) : null;
+
 
   return (
-    <Link href={`/shop/${service.shopId}`}>
+    <Link href={`/shop/${shopId}`} className="block">
       <div className="group overflow-hidden rounded-3xl bg-linear-to-br from-blue-50 via-white to-purple-50 dark:from-blue-900/20 dark:via-gray-900 dark:to-purple-900/20 border border-blue-100 dark:border-blue-800/40 shadow-sm hover:shadow-lg transition-all duration-300">
         {/* Image Section */}
         <div className="relative h-52 overflow-hidden">
-          {service.shop?.logoUrl ? (
+          {imageUrl ? (
             <img
-              src={service.shop.logoUrl}
+              src={imageUrl}
               alt={title}
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-amber-200 via-orange-200 to-amber-300 dark:from-amber-900/40 dark:via-orange-900/40 dark:to-amber-800/40">
               <span className="text-6xl font-bold text-white/80">
-                {service.name.charAt(0)}
+                {shop.name.charAt(0)}
               </span>
             </div>
           )}
@@ -114,8 +156,14 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
             {categoryIcon}
           </div>
 
-          <div className="absolute bottom-3 left-3 rounded-full bg-emerald-500 px-2.5 py-1 text-[10px] sm:text-xs font-semibold text-white">
-            {t("serviceCard.availableNow")}
+          <div
+            className={`absolute bottom-3 left-3 rounded-full px-2.5 py-1 text-[10px] sm:text-xs font-semibold text-white ${
+              isCurrentlyOpen ? "bg-emerald-500" : "bg-red-500"
+            }`}
+          >
+            {isCurrentlyOpen
+              ? t("shopCard.availableNow")
+              : t("shopCard.closedNow")}
           </div>
         </div>
 
@@ -131,8 +179,12 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               </p>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-sm sm:text-base font-bold text-cyan-500">{distance}</p>
-              <p className="text-[11px] sm:text-xs text-gray-400">{driveTime}</p>
+              <p className="text-sm sm:text-base font-bold text-cyan-500">
+                {distance}
+              </p>
+              <p className="text-[11px] sm:text-xs text-gray-400">
+                {driveTime}
+              </p>
             </div>
           </div>
 
@@ -140,12 +192,16 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-[11px] font-semibold tracking-wide text-gray-400 uppercase">{t("serviceCard.nextSlot")}</p>
-              <p className="mt-1 text-sm sm:text-base font-bold text-gray-800 dark:text-gray-200">{nextSlot}</p>
+              <p className="text-[11px] font-semibold tracking-wide text-gray-400 uppercase">
+                {t("shopCard.nextSlot")}
+              </p>
+              <p className="mt-1 text-sm sm:text-base font-bold text-gray-800 dark:text-gray-200">
+                {nextSlot}
+              </p>
             </div>
 
             <button className="px-5 py-2 rounded-full bg-linear-to-r from-blue-500/15 to-purple-500/15 text-blue-600 dark:text-blue-300 text-xs sm:text-sm font-semibold hover:from-blue-500/25 hover:to-purple-500/25 transition-colors">
-              {t("services.book")}
+              {t("shops.book")}
             </button>
           </div>
         </div>
@@ -154,4 +210,4 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   );
 };
 
-export default ServiceCard;
+export default shopCard;

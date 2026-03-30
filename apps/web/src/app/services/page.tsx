@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import ServicesList from '@/components/ServicesList';
+import ServicesList from '@/components/ShopList';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function ServicesPage() {

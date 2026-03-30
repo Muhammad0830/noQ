@@ -21,6 +21,7 @@ export interface Shop {
   name: string;
   description?: string;
   logoUrl?: string;
+  backgroundImageUrl?: string;
   address: string;
   phone?: string;
   categoryId: string;
@@ -29,23 +30,15 @@ export interface Shop {
   owner?: User;
   isOpen: boolean;
   createdAt: string;
-  rating?: number;
+  averageRating?: number;
   reviewCount?: number;
+  services: string[];
 }
 
-// Service
 export interface Service {
   id: string;
   name: string;
   description?: string;
-  price: number;
-  durationMin: number;
-  isActive: boolean;
-  shopId: string;
-  shop?: Shop;
-  services?: string[];
-  averageRating?: number;
-  category?: ShopCategory;
 }
 
 // Booking

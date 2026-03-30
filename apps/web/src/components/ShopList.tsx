@@ -3,14 +3,14 @@
 import React, { useMemo, useRef, useState } from "react";
 import { Filter } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import ServiceCard from "./ServiceCard";
+import ShopCard from "./ShopCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import API_ENDPOINTS from "@/lib/api";
-import type { Service, ShopCategory } from "@shared/types/types";
+import type { Shop, ShopCategory } from "@shared/types/types";
 import useApiQuery from "@/hooks/useApiQuery";
 
 interface ServicesListProps {
-  initialServices?: Service[];
+  initialShops?: Shop[];
   categories?: ShopCategory[];
   selectedCategory?: string | null;
   searchQuery?: string;
@@ -24,42 +24,28 @@ const ServicesList: React.FC<ServicesListProps> = ({
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [activeDot, setActiveDot] = useState(0);
 
-  // 🔥 QUERY BUILD
-  const queryParams = useMemo(() => {
-    const query = new URLSearchParams({
-      open: "true",
-      limit: "12",
-    });
-
-    if (selectedCategory) {
-      query.set("categoryId", selectedCategory);
-    }
-
-    if (searchQuery.trim()) {
-      query.set("search", searchQuery.trim());
-    }
-
-    return query.toString();
-  }, [selectedCategory, searchQuery]);
 
   // 🔥 API CALL
   const {
-    data: services = [],
+    data: shops = [],
     isLoading,
     isError,
     error
-  } = useApiQuery<Service[]>(
-    `${API_ENDPOINTS.shops_trending}?${queryParams}`,
+  } = useApiQuery<Shop[]>(
+    `${API_ENDPOINTS.shops_trending}`,
     {
-      key: ["services", searchQuery],
+      key: ["shops", searchQuery],
     }
   );
 
+  
+  
+
   // 🔥 FILTER
-  const filteredServices = services.filter((service) => {
+  const filteredServices = shops.filter((shop) => {
     if (
       searchQuery &&
-      !service.name.toLowerCase().includes(searchQuery.toLowerCase())
+      !shop.name.toLowerCase().includes(searchQuery.toLowerCase())
     ) {
       return false;
     }
@@ -95,6 +81,7 @@ const ServicesList: React.FC<ServicesListProps> = ({
 
   const skeletonCountMobile = 3;
   const skeletonCountDesktop = 8;
+
 
   return (
     <section className="py-12 sm:py-16 bg-gray-50 dark:bg-gray-800">
@@ -146,12 +133,13 @@ const ServicesList: React.FC<ServicesListProps> = ({
                 onScroll={updateActiveDot}
                 className="overflow-x-auto flex gap-4"
               >
-                {filteredServices.map((service) => (
-                  <div key={service.id} className="max-w-85 min-w-65 w-[70vw] shrink-0">
-                    <ServiceCard
-                      service={service}
+                {filteredServices.map((shop) => (
+                  <div key={shop.id} className="max-w-85 min-w-65 w-[70vw] shrink-0">
+                    <ShopCard
+                      shop={shop}
                       onFavorite={handleFavorite}
                     />
+                    
                   </div>
                 ))}
               </div>
@@ -173,10 +161,10 @@ const ServicesList: React.FC<ServicesListProps> = ({
 
             {/* DESKTOP */}
             <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredServices.map((service) => (
-                <ServiceCard
-                  key={service.id}
-                  service={service}
+              {filteredServices.map((shop) => (
+                <ShopCard
+                  key={shop.id}
+                  shop={shop}
                   onFavorite={handleFavorite}
                 />
               ))}
