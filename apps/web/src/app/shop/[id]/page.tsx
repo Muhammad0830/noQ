@@ -1,256 +1,303 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, use } from 'react'
 import Link from 'next/link'
-import { Star, MapPin, Clock, Phone, Globe, Heart, Share2, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Star, MapPin, Clock, Phone, Heart, Share2, ChevronLeft, Map } from 'lucide-react'
+import useApiQuery from '@/hooks/useApiQuery'
+import API_ENDPOINTS from '@/lib/api'
+import type { Shop, Service, Review } from '@shared/types/types'
+import { getImageUrl } from '@/lib/supabaseClient'
+import { Skeleton } from '@/components/ui/skeleton'
 
-export default function ShopProfile({ params }: { params: { id: string } }) {
+interface ShopDetailResponse extends Omit<Shop, 'services'> {
+  services: Service[]
+}
+
+export default function ShopProfile({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
   const [activeTab, setActiveTab] = useState('services')
   const [isFavorite, setIsFavorite] = useState(false)
 
-  const services = [
-    { id: 1, name: 'Haircut', duration: '30 min', price: 50000 },
-    { id: 2, name: 'Hair Coloring', duration: '90 min', price: 150000 },
-    { id: 3, name: 'Styling', duration: '45 min', price: 70000 },
-    { id: 4, name: 'Beard Trim', duration: '20 min', price: 30000 },
-    { id: 5, name: 'Hair Treatment', duration: '60 min', price: 100000 },
-  ]
+  // 🔥 FETCH SHOP DETAILS
+  const { data: shop, isLoading: shopLoading, error: shopError } = useApiQuery<ShopDetailResponse>(
+    API_ENDPOINTS.shopById(id),
+    {
+      key: ['shop', id],
+    }
+  )
 
-  const staff = [
-    { id: 1, name: 'Sarah Johnson', role: 'Senior Stylist', rating: 4.9, experience: '8 years' },
-    { id: 2, name: 'Mike Davis', role: 'Master Barber', rating: 4.8, experience: '6 years' },
-    { id: 3, name: 'Emma Wilson', role: 'Colorist', rating: 4.9, experience: '5 years' },
-  ]
+  // 🔥 FETCH SERVICES
+  const { data: servicesData = [] } = useApiQuery<Service[]>(
+    API_ENDPOINTS.shopServices(id),
+    {
+      key: ['services', id],
+    }
+  )
 
-  const reviews = [
-    { id: 1, author: 'John Doe', rating: 5, date: '2 days ago', text: 'Excellent service! Very professional and friendly staff.' },
-    { id: 2, author: 'Jane Smith', rating: 5, date: '1 week ago', text: 'Amazing haircut! Will definitely come back.' },
-    { id: 3, author: 'Bob Wilson', rating: 4, date: '2 weeks ago', text: 'Good service, clean place. Slightly expensive but worth it.' },
-  ]
+  // 🔥 FETCH REVIEWS
+  const { data: reviewsData = [] } = useApiQuery<Review[]>(
+    API_ENDPOINTS.shopReviews(id),
+    {
+      key: ['reviews', id],
+    }
+  )
+
+  const services = useMemo(() => {
+    return (servicesData?.length > 0 ? servicesData : shop?.services) || []
+  }, [servicesData, shop?.services])
+
+  const reviews = useMemo(() => {
+    return reviewsData || []
+  }, [reviewsData])
+
+  const shopData = shop || {
+    id: id,
+    name: 'Loading...',
+    description: '',
+    address: '',
+    phone: '',
+    isOpen: true,
+    averageRating: 0,
+    reviewCount: 0,
+    categoryId: '',
+    ownerId: '',
+    category: undefined,
+    backgroundImageUrl: undefined,
+    createdAt: new Date().toISOString(),
+  }
+
+  const backgroundImage = shopData.backgroundImageUrl ? getImageUrl(shopData.backgroundImageUrl) : null
+  const distance = '1.2 miles'
+  const hours = '9AM - 8PM'
+  const hasPhone = Boolean(shopData.phone && shopData.phone.trim().length > 0)
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Image Gallery */}
-      <div className="relative h-96 bg-gray-300">
-        <div className="absolute inset-0 flex items-center justify-between px-4">
-          <button className="p-2 bg-white/80 rounded-full hover:bg-white">
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          <button className="p-2 bg-white/80 rounded-full hover:bg-white">
-            <ChevronRight className="w-6 h-6" />
-          </button>
+    <div className="min-h-screen bg-white">
+      {/* Error Message */}
+      {shopError && (
+        <div className="bg-red-50 border border-red-200 p-4 m-4 rounded-lg">
+          <p className="text-red-800 font-semibold">Error loading shop details</p>
+          <p className="text-red-600 text-sm">{shopError.data?.message || shopError.message}</p>
         </div>
-        <div className="absolute top-4 right-4 flex gap-2">
-          <button 
-            onClick={() => setIsFavorite(!isFavorite)}
-            className="p-2 bg-white rounded-full hover:bg-gray-100"
-          >
-            <Heart className={`w-6 h-6 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
-          </button>
-          <button className="p-2 bg-white rounded-full hover:bg-gray-100">
-            <Share2 className="w-6 h-6" />
-          </button>
+      )}
+
+      {/* Top Bar */}
+      <div className="max-w-3xl mx-auto px-4 pt-3 pb-2 flex items-center gap-2 sm:gap-3">
+        <button
+          type="button"
+          onClick={() => window.history.back()}
+          className="shrink-0 p-1.5 sm:p-2 bg-white rounded-full border border-gray-200 hover:bg-gray-50"
+        >
+          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
+        </button>
+
+        <div className="flex-1 text-center min-w-0">
+          <h1 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{shopData.name}</h1>
+          <div className="flex items-center justify-center gap-1 mt-0.5">
+            <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400" />
+            <span className="font-semibold text-xs sm:text-sm">{shopData.averageRating?.toFixed(1) || '0.0'}</span>
+            <span className="text-xs sm:text-sm text-gray-600">({shopData.reviewCount || 0} reviews)</span>
+          </div>
+        </div>
+
+        <button type="button" className="shrink-0 p-1.5 sm:p-2 bg-white rounded-full border border-gray-200 hover:bg-gray-50">
+          <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsFavorite(!isFavorite)}
+          className="shrink-0 p-1.5 sm:p-2 bg-white rounded-full border border-gray-200 hover:bg-gray-50"
+        >
+          <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-700'}`} />
+        </button>
+      </div>
+
+      {/* Hero Image Section */}
+      <div className="max-w-3xl mx-auto px-4 mt-1">
+        <div className="relative h-64 sm:h-80 bg-gray-300 overflow-hidden rounded-3xl">
+          {shopLoading ? (
+            <Skeleton className="h-full w-full rounded-3xl" />
+          ) : (
+            <>
+              {backgroundImage ? (
+                <img
+                  src={backgroundImage}
+                  alt={shopData.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-linear-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+                  <span className="text-6xl font-bold text-gray-300">{shopData.name.charAt(0)}</span>
+                </div>
+              )}
+
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-linear-to-t from-black/65 via-black/20 to-transparent" />
+
+              {/* Status + Address */}
+              <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 pr-4">
+                <span className={`px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold text-white ${shopData.isOpen ? 'bg-teal-500' : 'bg-red-500'}`}>
+                  {shopData.isOpen ? 'OPEN NOW' : 'CLOSED'}
+                </span>
+                <p className="mt-1.5 sm:mt-2 text-white text-base sm:text-2xl font-medium leading-tight drop-shadow-md line-clamp-2">
+                  {shopData.address || 'Address not available'}
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h1 className="text-3xl font-bold mb-2">Elite Hair Salon</h1>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center gap-1 text-yellow-500">
-                  <Star className="w-5 h-5 fill-current" />
-                  <span className="font-semibold text-lg">4.9</span>
-                </div>
-                <span className="text-gray-600">(320 reviews)</span>
-                <span className="text-gray-400">•</span>
-                <span className="text-gray-600">Hair Salon</span>
+      {/* Main Content */}
+      <div className="max-w-3xl mx-auto px-4 py-6">
+        {/* Header Info */}
+        {!shopLoading && (
+          <div className="mb-6">
+            {/* Quick Info Grid */}
+            <div className={`grid ${hasPhone ? 'grid-cols-4' : 'grid-cols-3'} gap-2 sm:gap-3`}>
+              <div className="flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-3 bg-blue-50 rounded-lg">
+                <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                <span className="text-[11px] sm:text-xs font-medium text-gray-700">{distance}</span>
               </div>
-
-              <div className="space-y-3 mb-6 text-gray-700">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-gray-400" />
-                  <span>123 Main Street, Downtown, Tashkent</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-gray-400" />
-                  <span>Open now • Mon-Sun: 9:00 AM - 9:00 PM</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="w-5 h-5 text-gray-400" />
-                  <span>+998 90 123 45 67</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Globe className="w-5 h-5 text-gray-400" />
-                  <a href="#" className="text-blue-600 hover:underline">www.elitesalon.uz</a>
-                </div>
+              <div className="flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-3 bg-orange-50 rounded-lg">
+                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
+                <span className="text-[11px] sm:text-xs font-medium text-gray-700">{hours}</span>
               </div>
-
-              <p className="text-gray-700 mb-6">
-                Welcome to Elite Hair Salon, where style meets excellence. Our team of experienced professionals 
-                is dedicated to providing you with the best hair care and styling services. We use only premium 
-                products and the latest techniques to ensure you leave looking and feeling your best.
-              </p>
-
-              {/* Tabs */}
-              <div className="border-b mb-6">
-                <div className="flex gap-8">
-                  {['services', 'staff', 'reviews', 'gallery'].map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`pb-4 font-semibold capitalize ${
-                        activeTab === tab 
-                          ? 'border-b-2 border-blue-600 text-blue-600' 
-                          : 'text-gray-600 hover:text-gray-900'
-                      }`}
-                    >
-                      {tab}
-                    </button>
-                  ))}
-                </div>
+              <div className="flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-3 bg-blue-50 rounded-lg">
+                <Map className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                <span className="text-[11px] sm:text-xs font-medium text-gray-700">View Map</span>
               </div>
-
-              {/* Tab Content */}
-              {activeTab === 'services' && (
-                <div className="space-y-4">
-                  {services.map((service) => (
-                    <div key={service.id} className="flex justify-between items-center p-4 border rounded-lg hover:bg-gray-50">
-                      <div>
-                        <h3 className="font-semibold text-lg">{service.name}</h3>
-                        <p className="text-gray-600">{service.duration}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-lg">{service.price.toLocaleString()} UZS</p>
-                        <Link 
-                          href={`/book/${params.id}?service=${service.id}`}
-                          className="text-blue-600 hover:underline text-sm"
-                        >
-                          Book now
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {activeTab === 'staff' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {staff.map((member) => (
-                    <div key={member.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                      <div className="flex gap-4">
-                        <div className="w-20 h-20 bg-gray-300 rounded-full flex-shrink-0"></div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-lg">{member.name}</h3>
-                          <p className="text-gray-600 text-sm">{member.role}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <div className="flex items-center gap-1 text-yellow-500">
-                              <Star className="w-4 h-4 fill-current" />
-                              <span className="text-sm font-semibold">{member.rating}</span>
-                            </div>
-                            <span className="text-gray-600 text-sm">• {member.experience}</span>
-                          </div>
-                          <Link 
-                            href={`/book/${params.id}?staff=${member.id}`}
-                            className="text-blue-600 hover:underline text-sm mt-2 inline-block"
-                          >
-                            Book with {member.name.split(' ')[0]}
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {activeTab === 'reviews' && (
-                <div className="space-y-4">
-                  {reviews.map((review) => (
-                    <div key={review.id} className="border-b pb-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h4 className="font-semibold">{review.author}</h4>
-                          <div className="flex items-center gap-1 text-yellow-500">
-                            {[...Array(review.rating)].map((_, i) => (
-                              <Star key={i} className="w-4 h-4 fill-current" />
-                            ))}
-                          </div>
-                        </div>
-                        <span className="text-gray-500 text-sm">{review.date}</span>
-                      </div>
-                      <p className="text-gray-700">{review.text}</p>
-                    </div>
-                  ))}
-                  <button className="w-full py-3 border rounded-lg hover:bg-gray-50 font-semibold">
-                    Load More Reviews
-                  </button>
-                </div>
-              )}
-
-              {activeTab === 'gallery' && (
-                <div className="grid grid-cols-3 gap-4">
-                  {[...Array(9)].map((_, i) => (
-                    <div key={i} className="aspect-square bg-gray-200 rounded-lg"></div>
-                  ))}
-                </div>
+              {hasPhone && (
+                <a
+                  href={`tel:${shopData.phone}`}
+                  className="flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition"
+                >
+                  <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
+                  <span className="text-[11px] sm:text-xs font-medium text-gray-700">Qo'ng'iroq</span>
+                </a>
               )}
             </div>
           </div>
+        )}
 
-          {/* Sidebar - Booking Card */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-4">
-              <h3 className="font-bold text-xl mb-4">Book an Appointment</h3>
-              
-              <div className="space-y-4 mb-6">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Select Service</label>
-                  <select className="w-full border rounded-lg px-4 py-2">
-                    <option>Choose a service...</option>
-                    {services.map(s => (
-                      <option key={s.id} value={s.id}>{s.name} - {s.price.toLocaleString()} UZS</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Select Staff</label>
-                  <select className="w-full border rounded-lg px-4 py-2">
-                    <option>Any available staff</option>
-                    {staff.map(s => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Select Date</label>
-                  <input type="date" className="w-full border rounded-lg px-4 py-2" />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Select Time</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {['9:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00'].map(time => (
-                      <button key={time} className="border rounded-lg py-2 hover:border-blue-600 hover:bg-blue-50">
-                        {time}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <Link 
-                href={`/book/${params.id}`}
-                className="block w-full py-3 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700 font-semibold"
+        {/* Tabs */}
+        <div className="border-b border-gray-200 mb-6">
+          <div className="flex gap-4 sm:gap-8 overflow-x-auto no-scrollbar">
+            {['services', 'gallery', 'reviews', 'about'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`pb-3 font-medium text-xs sm:text-sm capitalize transition-colors whitespace-nowrap ${
+                  activeTab === tab
+                    ? 'text-teal-600 border-b-2 border-teal-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
               >
-                Continue to Book
-              </Link>
-            </div>
+                {tab}
+              </button>
+            ))}
           </div>
         </div>
+
+        {/* Services Tab */}
+        {activeTab === 'services' && !shopLoading && (
+          <div className="space-y-4">
+            {services.length > 0 ? (
+              services.map((service) => (
+                <div key={service.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900">{service.name}</h3>
+                    <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
+                      {service.durationMin && (
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          {service.durationMin} min
+                        </span>
+                      )}
+                      {service.description && (
+                        <span>{service.description}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="text-xl font-bold text-teal-600">
+                        ${(service.price || 0).toLocaleString()}
+                      </p>
+                    </div>
+                    <Link
+                      href={`/book/${id}?service=${service.id}`}
+                      className="px-6 py-2 bg-teal-500 text-white rounded-full font-medium hover:bg-teal-600 transition"
+                    >
+                      Book
+                    </Link>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 text-center py-8">No services available</p>
+            )}
+          </div>
+        )}
+
+        {/* Gallery Tab */}
+        {activeTab === 'gallery' && (
+          <div className="grid grid-cols-3 gap-4">
+            {backgroundImage ? (
+              <div className="col-span-3">
+                <img 
+                  src={backgroundImage} 
+                  alt={shopData.name}
+                  className="w-full h-64 object-cover rounded-lg"
+                />
+              </div>
+            ) : (
+              <>
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="aspect-square bg-gray-200 rounded-lg"></div>
+                ))}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Reviews Tab */}
+        {activeTab === 'reviews' && (
+          <div className="space-y-4">
+            {reviews.length > 0 ? (
+              reviews.map((review) => (
+                <div key={review.id} className="p-4 bg-gray-50 rounded-lg">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <h4 className="font-semibold text-gray-900">{review.user?.name || 'Anonymous'}</h4>
+                      <div className="flex items-center gap-1 text-yellow-400 mt-1">
+                        {[...Array(review.rating)].map((_, i) => (
+                          <Star key={i} className="w-4 h-4 fill-current" />
+                        ))}
+                      </div>
+                    </div>
+                    <span className="text-xs text-gray-500">
+                      {new Date(review.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p className="text-gray-700 text-sm">{review.comment || 'No comment'}</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 text-center py-8">No reviews yet</p>
+            )}
+          </div>
+        )}
+
+        {/* About Tab */}
+        {activeTab === 'about' && (
+          <div className="mt-8 p-6 bg-gray-50 rounded-lg">
+            <h3 className="font-semibold text-gray-900 mb-2">About</h3>
+            <p className="text-gray-700 text-sm">
+              {shopData.description || 'No description yet'}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
