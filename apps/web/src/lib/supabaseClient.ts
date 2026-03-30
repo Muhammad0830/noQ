@@ -6,7 +6,6 @@ const supabase = createClient(
 );
 
 export const getImageUrl = (fileName: string) => {
-  console.log("fileName", fileName);
   const { publicUrl } = supabase.storage
     .from("shop_images")
     .getPublicUrl(`${fileName}`).data;
@@ -14,8 +13,6 @@ export const getImageUrl = (fileName: string) => {
   if (!publicUrl) {
     console.error("Error getting public URL:", publicUrl);
   }
-
-  console.log("Public URL:", publicUrl);
 
   return publicUrl;
 };

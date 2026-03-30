@@ -35,14 +35,15 @@ export const translations = {
     'services.homePopularPurchases': 'Mashxur xaridlar',
     'services.duration': 'daqiqa',
     'services.price': 'dan',
-    'services.book': 'Band qilish',
+    'shops.book': 'Band qilish',
     'services.noResults': 'Xizmat topilmadi',
 
     // Service Card
-    'serviceCard.availableNow': 'HOZIR OCHIQ',
-    'serviceCard.nextSlot': 'Keyingi vaqt',
-    'serviceCard.today': 'bugun',
-    'serviceCard.minDrive': 'min yo\'l',
+    'shopCard.availableNow': 'HOZIR OCHIQ',
+    'shopCard.closedNow': 'HOZIR YOPIQ',
+    'shopCard.nextSlot': 'Keyingi vaqt',
+    'shopCard.today': 'bugun',
+    'shopCard.minDrive': 'min yo\'l',
     
     // Filters
     'filter.title': 'Filtrlar',
@@ -142,11 +143,12 @@ export const translations = {
     'services.homePopularPurchases': 'Машҳур харидлар',
     'services.duration': 'дақиқа',
     'services.price': 'дан',
-    'services.book': 'Банд қилиш',
+    'shops.book': 'Банд қилиш',
     'services.noResults': 'Хизмат топилмади',
 
     // Service Card
     'serviceCard.availableNow': 'ҲОЗИР ОЧИҚ',
+    'serviceCard.closedNow': 'ҲОЗИР ЁПИҚ',
     'serviceCard.nextSlot': 'Кейинги вақт',
     'serviceCard.today': 'бугун',
     'serviceCard.minDrive': 'дақ йўл',
@@ -249,11 +251,12 @@ export const translations = {
     'services.homePopularPurchases': 'Популярные покупки',
     'services.duration': 'мин',
     'services.price': 'от',
-    'services.book': 'Забронировать',
+    'shops.book': 'Забронировать',
     'services.noResults': 'Услуги не найдены',
 
     // Service Card
     'serviceCard.availableNow': 'ОТКРЫТО СЕЙЧАС',
+    'serviceCard.closedNow': 'СЕЙЧАС ЗАКРЫТО',
     'serviceCard.nextSlot': 'Следующий слот',
     'serviceCard.today': 'сегодня',
     'serviceCard.minDrive': 'мин в пути',

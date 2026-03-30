@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import HeroSection from "@/components/HeroSection";
 import CategoriesSection from "@/components/CategoriesSection";
-import ServicesList from "@/components/ServicesList";
+import ServicesList from "@/components/ShopList";
 import { getImageUrl } from "@/lib/supabaseClient";
 import API_ENDPOINTS from "@/lib/api";
 import type { ShopCategory } from "@shared/types/types";

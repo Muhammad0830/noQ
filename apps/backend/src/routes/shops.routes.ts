@@ -74,7 +74,7 @@ shopRouter.get("/", authMiddleware, async (req, res) => {
   }
 });
 
-shopRouter.get("/:id", authMiddleware, async (req: any, res: any) => {
+shopRouter.get("/:id", async (req: any, res: any) => {
   try {
     const { id } = req.params;
 
@@ -82,9 +82,35 @@ shopRouter.get("/:id", authMiddleware, async (req: any, res: any) => {
       where: { id },
       include: {
         category: true,
-        services: true,
-        reviews: true,
-        shopSchedules: true,
+        services: {
+          include: {
+            _count: {
+              select: {
+                reviews: true,
+              },
+            },
+          },
+        },
+        reviews: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                avatarUrl: true,
+              },
+            },
+          },
+        },
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatarUrl: true,
+          },
+        },
         _count: {
           select: {
             reviews: true,
@@ -97,13 +123,25 @@ shopRouter.get("/:id", authMiddleware, async (req: any, res: any) => {
       return res.status(404).json({ message: "Shop not found" });
     }
 
-    res.status(200).json(shop);
+    // Calculate average rating
+    const averageRating = shop.reviews.length > 0
+      ? shop.reviews.reduce((sum, review) => sum + review.rating, 0) / shop.reviews.length
+      : 0;
+
+    const response = {
+      ...shop,
+      averageRating: parseFloat(averageRating.toFixed(1)),
+      reviewCount: shop._count.reviews,
+    };
+
+    res.status(200).json(response);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Error fetching shop:", error);
+    res.status(500).json({ message: "Internal server error", error: error instanceof Error ? error.message : "Unknown error" });
   }
 });
 
-shopRouter.get("/:id/services", authMiddleware, async (req: any, res: any) => {
+shopRouter.get("/:id/services", async (req: any, res: any) => {
   try {
     const { id } = req.params;
 
@@ -131,7 +169,7 @@ shopRouter.get("/:id/services", authMiddleware, async (req: any, res: any) => {
   }
 });
 
-shopRouter.get("/:id/reviews", authMiddleware, async (req: any, res: any) => {
+shopRouter.get("/:id/reviews", async (req: any, res: any) => {
   try {
     const { id } = req.params;
     const { limit, cursor } = getPaginationParams(req);
