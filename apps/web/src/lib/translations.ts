@@ -8,25 +8,25 @@ export const translations = {
     'nav.profile': 'Profil',
     'nav.signin': 'Kirish',
     'nav.signup': "Ro'yxatdan o'tish",
-    
+
     // Bottom Navigation
     'bottomNav.home': 'Bosh sahifa',
     'bottomNav.search': 'Qidiruv',
     'bottomNav.services': 'Xizmatlar',
     'bottomNav.history': 'Tarix',
     'bottomNav.profile': 'Profil',
-    
+
     // Hero
     'hero.title': 'Navbatsiz xizmat',
     'hero.subtitle': 'O\'zingizga kerakli xizmatni toping va onlayn band qiling',
     'hero.search.placeholder': 'Xizmat yoki do\'kon qidiring...',
     'hero.location.placeholder': 'Manzil',
     'hero.search.button': 'Qidirish',
-    
+
     // Categories
     'categories.title': 'Kategoriyalar',
     'categories.all': 'Barchasi',
-    
+
     // Services
     'services.title': 'Mashhur xizmatlar',
     'services.popular': 'Mashhur',
@@ -44,7 +44,7 @@ export const translations = {
     'shopCard.nextSlot': 'Keyingi vaqt',
     'shopCard.today': 'bugun',
     'shopCard.minDrive': 'min yo\'l',
-    
+
     // Filters
     'filter.title': 'Filtrlar',
     'filter.category': 'Kategoriya',
@@ -53,7 +53,7 @@ export const translations = {
     'filter.openNow': 'Hozir ochiq',
     'filter.apply': 'Qo\'llash',
     'filter.reset': 'Tozalash',
-    
+
     // Common
     'common.loading': 'Yuklanmoqda...',
     'common.error': 'Xatolik yuz berdi',
@@ -63,7 +63,7 @@ export const translations = {
     'common.save': 'Saqlash',
     'common.rating': 'Reyting',
     'common.reviews': 'sharhlar',
-    
+
     // Shop Detail
     'shop.gallery': 'Galeriya',
     'shop.services': 'Xizmatlar',
@@ -89,7 +89,7 @@ export const translations = {
     'shop.noReviews': 'Hali sharhlar yo\'q',
     'shop.experience': 'Tajriba',
     'shop.years': 'yil',
-    
+
     // Booking
     'booking.title': 'Bandlov',
     'booking.service': 'Xizmat',
@@ -102,11 +102,50 @@ export const translations = {
     'booking.cancel': 'Bekor qilish',
     'booking.success': 'Bandlov muvaffaqiyatli amalga oshirildi!',
     'booking.error': 'Xatolik yuz berdi',
-    
+
     // Currency
     'currency.som': 'so\'m',
+
+    // Profile
+    'profile.title': 'Profil',
+    'profile.back': 'Orqaga',
+    'profile.toggleTheme': 'Mavzuni almashtirish',
+    'profile.lightMode': 'Yorug\' rejim',
+    'profile.darkMode': 'Qorong\'u rejim',
+    'profile.memberSince': 'A\'zo bo\'lgan sana',
+    'profile.memberSinceUnknown': 'A\'zolik sanasi noma\'lum',
+    'profile.totalBookings': 'Jami bandlovlar',
+    'profile.timeSaved': 'Tejalgan vaqt',
+    'profile.admin': 'Admin',
+    'profile.switchToAdmin': 'Biznes admin paneliga o\'tish',
+    'profile.toggleProviderMode': 'Provider rejimini almashtirish',
+    'profile.accountSettings': 'Hisob sozlamalari',
+    'profile.personalInfo': 'Shaxsiy ma\'lumotlar',
+    'profile.personalInfoSubtitle': 'Ism, email va telefon',
+    'profile.security': 'Xavfsizlik va parol',
+    'profile.securitySubtitle': '2FA va kirish xavfsizligi',
+    'profile.paymentMethods': 'To\'lov usullari',
+    'profile.paymentMethodsSubtitle': 'Karta va raqamli hamyonlar',
+    'profile.appPreferences': 'Ilova sozlamalari',
+    'profile.notifications': 'Bildirishnomalar',
+    'profile.notificationsSubtitle': 'Xabarlar va ogohlantirishlar',
+    'profile.language': 'Til',
+    'profile.change': 'O\'zgartirish',
+    'profile.helpSupport': 'Yordam va qo\'llab-quvvatlash',
+    'profile.helpSupportSubtitle': 'FAQ va bevosita yordam',
+    'profile.logout': 'Chiqish',
+    'profile.personalInfoModalTitle': 'Shaxsiy ma\'lumotlar',
+    'profile.languageModalTitle': 'Tilni tanlang',
+    'profile.field.id': 'ID',
+    'profile.field.name': 'Ism',
+    'profile.field.email': 'Email',
+    'profile.field.role': 'Rol',
+    'profile.field.createdAt': 'Ro\'yxatdan o\'tgan sana',
+    'profile.field.phone': 'Telefon',
+    'profile.field.avatar': 'Avatar URL',
+    'profile.closeModal': 'Modalni yopish',
   },
-  
+
   'uz-cyrl': {
     // Navbar
     'nav.home': 'Бош саҳифа',
@@ -116,25 +155,25 @@ export const translations = {
     'nav.profile': 'Профил',
     'nav.signin': 'Кириш',
     'nav.signup': 'Рўйхатдан ўтиш',
-    
+
     // Bottom Navigation
     'bottomNav.home': 'Бош саҳифа',
     'bottomNav.search': 'Қидирув',
     'bottomNav.services': 'Хизматлар',
     'bottomNav.history': 'Тарих',
     'bottomNav.profile': 'Профил',
-    
+
     // Hero
     'hero.title': 'Навбатсиз хизмат',
     'hero.subtitle': 'Ўзингизга керакли хизматни топинг ва онлайн банд қилинг',
     'hero.search.placeholder': 'Хизмат ёки дўкон қидиринг...',
     'hero.location.placeholder': 'Манзил',
     'hero.search.button': 'Қидириш',
-    
+
     // Categories
     'categories.title': 'Категориялар',
     'categories.all': 'Барчаси',
-    
+
     // Services
     'services.title': 'Машҳур хизматлар',
     'services.popular': 'Машҳур',
@@ -152,7 +191,7 @@ export const translations = {
     'serviceCard.nextSlot': 'Кейинги вақт',
     'serviceCard.today': 'бугун',
     'serviceCard.minDrive': 'дақ йўл',
-    
+
     // Filters
     'filter.title': 'Фильтрлар',
     'filter.category': 'Категория',
@@ -161,7 +200,7 @@ export const translations = {
     'filter.openNow': 'Ҳозир очиқ',
     'filter.apply': 'Қўллаш',
     'filter.reset': 'Тозалаш',
-    
+
     // Common
     'common.loading': 'Юкланмоқда...',
     'common.error': 'Хатолик юз берди',
@@ -171,7 +210,7 @@ export const translations = {
     'common.save': 'Сақлаш',
     'common.rating': 'Рейтинг',
     'common.reviews': 'шарҳлар',
-    
+
     // Shop Detail
     'shop.gallery': 'Галерея',
     'shop.services': 'Хизматлар',
@@ -197,7 +236,7 @@ export const translations = {
     'shop.noReviews': 'Ҳали шарҳлар йўқ',
     'shop.experience': 'Тажриба',
     'shop.years': 'йил',
-    
+
     // Booking
     'booking.title': 'Бандлов',
     'booking.service': 'Хизмат',
@@ -210,11 +249,50 @@ export const translations = {
     'booking.cancel': 'Бекор қилиш',
     'booking.success': 'Бандлов муваффақиятли амалга оширилди!',
     'booking.error': 'Хатолик юз берди',
-    
+
     // Currency
     'currency.som': 'сўм',
+
+    // Profile
+    'profile.title': 'Профил',
+    'profile.back': 'Орқага',
+    'profile.toggleTheme': 'Мавзуни алмаштириш',
+    'profile.lightMode': 'Ёруғ режим',
+    'profile.darkMode': 'Қоронғи режим',
+    'profile.memberSince': 'Аъзо бўлган сана',
+    'profile.memberSinceUnknown': 'Аъзолик санаси номаълум',
+    'profile.totalBookings': 'Жами бандловлар',
+    'profile.timeSaved': 'Тежалган вақт',
+    'profile.admin': 'Админ',
+    'profile.switchToAdmin': 'Бизнес админ панелига ўтиш',
+    'profile.toggleProviderMode': 'Провайдер режимини алмаштириш',
+    'profile.accountSettings': 'Ҳисоб созламалари',
+    'profile.personalInfo': 'Шахсий маълумотлар',
+    'profile.personalInfoSubtitle': 'Исм, email ва телефон',
+    'profile.security': 'Хавфсизлик ва парол',
+    'profile.securitySubtitle': '2FA ва кириш хавфсизлиги',
+    'profile.paymentMethods': 'Тўлов усуллари',
+    'profile.paymentMethodsSubtitle': 'Карта ва рақамли ҳамёнлар',
+    'profile.appPreferences': 'Илова созламалари',
+    'profile.notifications': 'Билдиришномалар',
+    'profile.notificationsSubtitle': 'Хабарлар ва огоҳлантиришлар',
+    'profile.language': 'Тил',
+    'profile.change': 'Ўзгартириш',
+    'profile.helpSupport': 'Ёрдам ва қўллаб-қувватлаш',
+    'profile.helpSupportSubtitle': 'FAQ ва бевосита ёрдам',
+    'profile.logout': 'Чиқиш',
+    'profile.personalInfoModalTitle': 'Шахсий маълумотлар',
+    'profile.languageModalTitle': 'Тилни танланг',
+    'profile.field.id': 'ID',
+    'profile.field.name': 'Исм',
+    'profile.field.email': 'Email',
+    'profile.field.role': 'Рол',
+    'profile.field.createdAt': 'Рўйхатдан ўтган сана',
+    'profile.field.phone': 'Телефон',
+    'profile.field.avatar': 'Аватар URL',
+    'profile.closeModal': 'Модални ёпиш',
   },
-  
+
   'ru': {
     // Navbar
     'nav.home': 'Главная',
@@ -224,25 +302,25 @@ export const translations = {
     'nav.profile': 'Профиль',
     'nav.signin': 'Войти',
     'nav.signup': 'Регистрация',
-    
+
     // Bottom Navigation
     'bottomNav.home': 'Главная',
     'bottomNav.search': 'Поиск',
     'bottomNav.services': 'Услуги',
     'bottomNav.history': 'История',
     'bottomNav.profile': 'Профиль',
-    
+
     // Hero
     'hero.title': 'Услуги без очереди',
     'hero.subtitle': 'Найдите нужную услугу и забронируйте онлайн',
     'hero.search.placeholder': 'Поиск услуг или салонов...',
     'hero.location.placeholder': 'Адрес',
     'hero.search.button': 'Искать',
-    
+
     // Categories
     'categories.title': 'Категории',
     'categories.all': 'Все',
-    
+
     // Services
     'services.title': 'Популярные услуги',
     'services.popular': 'Популярные',
@@ -260,7 +338,7 @@ export const translations = {
     'serviceCard.nextSlot': 'Следующий слот',
     'serviceCard.today': 'сегодня',
     'serviceCard.minDrive': 'мин в пути',
-    
+
     // Filters
     'filter.title': 'Фильтры',
     'filter.category': 'Категория',
@@ -269,7 +347,7 @@ export const translations = {
     'filter.openNow': 'Открыто сейчас',
     'filter.apply': 'Применить',
     'filter.reset': 'Сбросить',
-    
+
     // Common
     'common.loading': 'Загрузка...',
     'common.error': 'Произошла ошибка',
@@ -279,7 +357,7 @@ export const translations = {
     'common.save': 'Сохранить',
     'common.rating': 'Рейтинг',
     'common.reviews': 'отзывов',
-    
+
     // Shop Detail
     'shop.gallery': 'Галерея',
     'shop.services': 'Услуги',
@@ -305,7 +383,7 @@ export const translations = {
     'shop.noReviews': 'Пока нет отзывов',
     'shop.experience': 'Опыт',
     'shop.years': 'лет',
-    
+
     // Booking
     'booking.title': 'Бронирование',
     'booking.service': 'Услуга',
@@ -318,8 +396,47 @@ export const translations = {
     'booking.cancel': 'Отмена',
     'booking.success': 'Бронирование успешно создано!',
     'booking.error': 'Произошла ошибка',
-    
+
     // Currency
     'currency.som': 'сум',
+
+    // Profile
+    'profile.title': 'Профиль',
+    'profile.back': 'Назад',
+    'profile.toggleTheme': 'Переключить тему',
+    'profile.lightMode': 'Светлая тема',
+    'profile.darkMode': 'Темная тема',
+    'profile.memberSince': 'С нами с',
+    'profile.memberSinceUnknown': 'Дата регистрации неизвестна',
+    'profile.totalBookings': 'Всего бронирований',
+    'profile.timeSaved': 'Сэкономлено времени',
+    'profile.admin': 'Админ',
+    'profile.switchToAdmin': 'Перейти в бизнес-панель',
+    'profile.toggleProviderMode': 'Переключить режим провайдера',
+    'profile.accountSettings': 'Настройки аккаунта',
+    'profile.personalInfo': 'Личная информация',
+    'profile.personalInfoSubtitle': 'Имя, email и телефон',
+    'profile.security': 'Безопасность и пароль',
+    'profile.securitySubtitle': '2FA и безопасность входа',
+    'profile.paymentMethods': 'Способы оплаты',
+    'profile.paymentMethodsSubtitle': 'Карты и цифровые кошельки',
+    'profile.appPreferences': 'Настройки приложения',
+    'profile.notifications': 'Уведомления',
+    'profile.notificationsSubtitle': 'Сообщения и оповещения',
+    'profile.language': 'Язык',
+    'profile.change': 'Изменить',
+    'profile.helpSupport': 'Помощь и поддержка',
+    'profile.helpSupportSubtitle': 'FAQ и прямая поддержка',
+    'profile.logout': 'Выйти',
+    'profile.personalInfoModalTitle': 'Личная информация',
+    'profile.languageModalTitle': 'Выберите язык',
+    'profile.field.id': 'ID',
+    'profile.field.name': 'Имя',
+    'profile.field.email': 'Email',
+    'profile.field.role': 'Роль',
+    'profile.field.createdAt': 'Дата регистрации',
+    'profile.field.phone': 'Телефон',
+    'profile.field.avatar': 'URL аватара',
+    'profile.closeModal': 'Закрыть модальное окно',
   },
 };
