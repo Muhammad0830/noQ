@@ -1,6 +1,5 @@
 "use client";
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
 import axios, { AxiosRequestConfig } from "axios";
 
 type UrlType<TVariables> = string | ((variables: TVariables) => string);
@@ -14,7 +13,6 @@ export function useApiMutation<TResponse = unknown, TVariables = unknown>(
   method: "post" | "put" | "delete" = "post",
   headerGenerator?: HeaderGenerator<TVariables>
 ): UseMutationResult<TResponse, Error, TVariables> {
-  const toastT = useTranslations("Toast");
   // const { showToast } = useCustomToast();
 
   return useMutation<TResponse, Error, TVariables>({
