@@ -8,6 +8,17 @@ import API_ENDPOINTS from '@/lib/api'
 import type { Shop, Service, Review } from '@shared/types/types'
 import { getImageUrl } from '@/lib/supabaseClient'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useLanguage } from '@/contexts/LanguageContext'
+
+// Helper function to truncate address
+const truncateAddress = (address: string, words: number = 4): string => {
+  if (!address) return ''
+  const addressWords = address.split(' ')
+  if (addressWords.length > words) {
+    return addressWords.slice(0, words).join(' ') + '...'
+  }
+  return address
+}
 
 interface ShopDetailResponse extends Omit<Shop, 'services'> {
   services: Service[]
@@ -15,6 +26,7 @@ interface ShopDetailResponse extends Omit<Shop, 'services'> {
 
 export default function ShopProfile({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
+  const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState('services')
   const [isFavorite, setIsFavorite] = useState(false)
 
@@ -72,12 +84,12 @@ export default function ShopProfile({ params }: { params: Promise<{ id: string }
   const hasPhone = Boolean(shopData.phone && shopData.phone.trim().length > 0)
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
       {/* Error Message */}
       {shopError && (
-        <div className="bg-red-50 border border-red-200 p-4 m-4 rounded-lg">
-          <p className="text-red-800 font-semibold">Error loading shop details</p>
-          <p className="text-red-600 text-sm">{shopError.data?.message || shopError.message}</p>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 m-4 rounded-lg">
+          <p className="text-red-800 dark:text-red-200 font-semibold">Error loading shop details</p>
+          <p className="text-red-600 dark:text-red-300 text-sm">{shopError.data?.message || shopError.message}</p>
         </div>
       )}
 
@@ -86,35 +98,35 @@ export default function ShopProfile({ params }: { params: Promise<{ id: string }
         <button
           type="button"
           onClick={() => window.history.back()}
-          className="shrink-0 p-1.5 sm:p-2 bg-white rounded-full border border-gray-200 hover:bg-gray-50"
+          className="shrink-0 p-1.5 sm:p-2 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
         >
-          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
+          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300" />
         </button>
 
         <div className="flex-1 text-center min-w-0">
-          <h1 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{shopData.name}</h1>
+          <h1 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white truncate">{shopData.name}</h1>
           <div className="flex items-center justify-center gap-1 mt-0.5">
             <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400" />
-            <span className="font-semibold text-xs sm:text-sm">{shopData.averageRating?.toFixed(1) || '0.0'}</span>
-            <span className="text-xs sm:text-sm text-gray-600">({shopData.reviewCount || 0} reviews)</span>
+            <span className="font-semibold text-xs sm:text-sm text-gray-900 dark:text-gray-200">{shopData.averageRating?.toFixed(1) || '0.0'}</span>
+            <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">({shopData.reviewCount || 0} {t('common.reviews')})</span>
           </div>
         </div>
 
-        <button type="button" className="shrink-0 p-1.5 sm:p-2 bg-white rounded-full border border-gray-200 hover:bg-gray-50">
-          <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
+        <button type="button" className="shrink-0 p-1.5 sm:p-2 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+          <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300" />
         </button>
         <button
           type="button"
           onClick={() => setIsFavorite(!isFavorite)}
-          className="shrink-0 p-1.5 sm:p-2 bg-white rounded-full border border-gray-200 hover:bg-gray-50"
+          className="shrink-0 p-1.5 sm:p-2 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
         >
-          <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-700'}`} />
+          <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-700 dark:text-gray-300'}`} />
         </button>
       </div>
 
       {/* Hero Image Section */}
       <div className="max-w-3xl mx-auto px-4 mt-1">
-        <div className="relative h-64 sm:h-80 bg-gray-300 overflow-hidden rounded-3xl">
+        <div className="relative h-64 sm:h-80 bg-gray-300 dark:bg-gray-700 overflow-hidden rounded-3xl">
           {shopLoading ? (
             <Skeleton className="h-full w-full rounded-3xl" />
           ) : (
@@ -126,8 +138,8 @@ export default function ShopProfile({ params }: { params: Promise<{ id: string }
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-linear-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                  <span className="text-6xl font-bold text-gray-300">{shopData.name.charAt(0)}</span>
+                <div className="w-full h-full bg-linear-to-br from-blue-100 dark:from-blue-900 to-purple-100 dark:to-purple-900 flex items-center justify-center">
+                  <span className="text-6xl font-bold text-gray-300 dark:text-gray-600">{shopData.name.charAt(0)}</span>
                 </div>
               )}
 
@@ -137,10 +149,10 @@ export default function ShopProfile({ params }: { params: Promise<{ id: string }
               {/* Status + Address */}
               <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 pr-4">
                 <span className={`px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold text-white ${shopData.isOpen ? 'bg-teal-500' : 'bg-red-500'}`}>
-                  {shopData.isOpen ? 'OPEN NOW' : 'CLOSED'}
+                  {shopData.isOpen ? t('shop.openNow') : t('shop.closed')}
                 </span>
                 <p className="mt-1.5 sm:mt-2 text-white text-base sm:text-2xl font-medium leading-tight drop-shadow-md line-clamp-2">
-                  {shopData.address || 'Address not available'}
+                  {truncateAddress(shopData.address, 4) || 'Address not available'}
                 </p>
               </div>
             </>
@@ -154,26 +166,26 @@ export default function ShopProfile({ params }: { params: Promise<{ id: string }
         {!shopLoading && (
           <div className="mb-6">
             {/* Quick Info Grid */}
-            <div className={`grid ${hasPhone ? 'grid-cols-4' : 'grid-cols-3'} gap-2 sm:gap-3`}>
-              <div className="flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-3 bg-blue-50 rounded-lg">
-                <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                <span className="text-[11px] sm:text-xs font-medium text-gray-700">{distance}</span>
+            <div className={`grid ${hasPhone ? 'grid-cols-4' : 'grid-cols-3'} gap-3 sm:gap-4`}>
+              <div className="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
+                <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 text-center">{distance}</span>
               </div>
-              <div className="flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-3 bg-orange-50 rounded-lg">
-                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
-                <span className="text-[11px] sm:text-xs font-medium text-gray-700">{hours}</span>
+              <div className="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-orange-50 dark:bg-orange-900/30 rounded-lg">
+                <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 dark:text-orange-400" />
+                <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 text-center">{hours}</span>
               </div>
-              <div className="flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-3 bg-blue-50 rounded-lg">
-                <Map className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                <span className="text-[11px] sm:text-xs font-medium text-gray-700">View Map</span>
+              <div className="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                <Map className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
+                <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 text-center">{t('shop.viewDetails')}</span>
               </div>
               {hasPhone && (
                 <a
                   href={`tel:${shopData.phone}`}
-                  className="flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition"
+                  className="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-purple-50 dark:bg-purple-900/30 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/50 transition"
                 >
-                  <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
-                  <span className="text-[11px] sm:text-xs font-medium text-gray-700">Qo'ng'iroq</span>
+                  <Phone className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />
+                  <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 text-center">{t('shop.phone')}</span>
                 </a>
               )}
             </div>
@@ -181,7 +193,7 @@ export default function ShopProfile({ params }: { params: Promise<{ id: string }
         )}
 
         {/* Tabs */}
-        <div className="border-b border-gray-200 mb-6">
+        <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
           <div className="flex gap-4 sm:gap-8 overflow-x-auto no-scrollbar">
             {['services', 'gallery', 'reviews', 'about'].map((tab) => (
               <button
@@ -189,11 +201,11 @@ export default function ShopProfile({ params }: { params: Promise<{ id: string }
                 onClick={() => setActiveTab(tab)}
                 className={`pb-3 font-medium text-xs sm:text-sm capitalize transition-colors whitespace-nowrap ${
                   activeTab === tab
-                    ? 'text-teal-600 border-b-2 border-teal-600'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'text-teal-600 dark:text-teal-400 border-b-2 border-teal-600 dark:border-teal-400'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                 }`}
               >
-                {tab}
+                {t(`shop.${tab}`)}
               </button>
             ))}
           </div>
@@ -204,38 +216,38 @@ export default function ShopProfile({ params }: { params: Promise<{ id: string }
           <div className="space-y-4">
             {services.length > 0 ? (
               services.map((service) => (
-                <div key={service.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{service.name}</h3>
-                    <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
+                <div key={service.id} className="flex items-center justify-between p-4 sm:p-5 bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white">{service.name}</h3>
+                    <div className="flex items-center gap-3 sm:gap-4 mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                       {service.durationMin && (
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          {service.durationMin} min
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="w-4 h-4 shrink-0" />
+                          <span>{service.durationMin} {t('services.duration')}</span>
                         </span>
                       )}
                       {service.description && (
-                        <span>{service.description}</span>
+                        <span className="truncate">{service.description}</span>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 ml-4 shrink-0">
                     <div className="text-right">
-                      <p className="text-xl font-bold text-teal-600">
+                      <p className="text-lg sm:text-xl font-bold text-teal-600 dark:text-teal-400">
                         ${(service.price || 0).toLocaleString()}
                       </p>
                     </div>
                     <Link
                       href={`/book/${id}?service=${service.id}`}
-                      className="px-6 py-2 bg-teal-500 text-white rounded-full font-medium hover:bg-teal-600 transition"
+                      className="px-4 sm:px-6 py-2 bg-teal-500 dark:bg-teal-600 text-white text-xs sm:text-sm font-medium rounded-full hover:bg-teal-600 dark:hover:bg-teal-700 transition whitespace-nowrap"
                     >
-                      Book
+                      {t('shops.book')}
                     </Link>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="text-gray-500 text-center py-8">No services available</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">{t('shop.noServices')}</p>
             )}
           </div>
         )}
@@ -254,7 +266,7 @@ export default function ShopProfile({ params }: { params: Promise<{ id: string }
             ) : (
               <>
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="aspect-square bg-gray-200 rounded-lg"></div>
+                  <div key={i} className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
                 ))}
               </>
             )}
@@ -266,34 +278,34 @@ export default function ShopProfile({ params }: { params: Promise<{ id: string }
           <div className="space-y-4">
             {reviews.length > 0 ? (
               reviews.map((review) => (
-                <div key={review.id} className="p-4 bg-gray-50 rounded-lg">
+                <div key={review.id} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <h4 className="font-semibold text-gray-900">{review.user?.name || 'Anonymous'}</h4>
+                      <h4 className="font-semibold text-gray-900 dark:text-white">{review.user?.name || 'Anonymous'}</h4>
                       <div className="flex items-center gap-1 text-yellow-400 mt-1">
                         {[...Array(review.rating)].map((_, i) => (
                           <Star key={i} className="w-4 h-4 fill-current" />
                         ))}
                       </div>
                     </div>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(review.createdAt).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="text-gray-700 text-sm">{review.comment || 'No comment'}</p>
+                  <p className="text-gray-700 dark:text-gray-300 text-sm">{review.comment || 'No comment'}</p>
                 </div>
               ))
             ) : (
-              <p className="text-gray-500 text-center py-8">No reviews yet</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">{t('shop.noReviews')}</p>
             )}
           </div>
         )}
 
         {/* About Tab */}
         {activeTab === 'about' && (
-          <div className="mt-8 p-6 bg-gray-50 rounded-lg">
-            <h3 className="font-semibold text-gray-900 mb-2">About</h3>
-            <p className="text-gray-700 text-sm">
+          <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{t('shop.about')}</h3>
+            <p className="text-gray-700 dark:text-gray-300 text-sm">
               {shopData.description || 'No description yet'}
             </p>
           </div>
