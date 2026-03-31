@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   Star, 
   MapPin, 
@@ -22,6 +23,7 @@ interface ShopDetailPageProps {
 
 export default function ShopDetailPage({ params }: ShopDetailPageProps) {
   const { t } = useLanguage();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('services');
   const [isFavorite, setIsFavorite] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -86,8 +88,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
   };
 
   const handleBooking = (service: any) => {
-    setSelectedService(service);
-    setShowBookingModal(true);
+    router.push(`/book/${params.id}?service=${service.id}`);
   };
 
   const formatPrice = (price: number) => {
@@ -341,7 +342,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
               
               <div className="space-y-4">
                 <button
-                  onClick={() => setShowBookingModal(true)}
+                  onClick={() => router.push(`/book/${params.id}`)}
                   className="w-full px-6 py-4 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2"
                 >
                   <CalendarIcon className="w-5 h-5" />

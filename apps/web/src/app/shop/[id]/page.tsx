@@ -84,7 +84,7 @@ export default function ShopProfile({ params }: { params: Promise<{ id: string }
   const hasPhone = Boolean(shopData.phone && shopData.phone.trim().length > 0)
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
+    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors pb-20">
       {/* Error Message */}
       {shopError && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 m-4 rounded-lg">
@@ -161,7 +161,7 @@ export default function ShopProfile({ params }: { params: Promise<{ id: string }
       </div>
 
       {/* Main Content */}
-      <div className="max-w-3xl mx-auto px-4 py-6">
+      <div className="max-w-3xl mx-auto px-4 pt-6">
         {/* Header Info */}
         {!shopLoading && (
           <div className="mb-6">
