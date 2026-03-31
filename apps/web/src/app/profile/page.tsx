@@ -1,407 +1,467 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  Bell,
+  Calendar,
+  ChevronRight,
+  CreditCard,
+  HelpCircle,
+  Languages,
+  LogOut,
+  Moon,
+  Shield,
+  Sun,
+  User,
+  X,
+  Zap,
+} from "lucide-react";
+import type { Language } from "@shared/types/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import {
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  Camera,
-  Lock,
-  Bell,
-  CreditCard,
-  Globe,
-  Moon,
-  Sun,
-  ChevronDown,
-} from "lucide-react";
-import type { Language } from "@shared/types/types";
 
-export default function UserProfile() {
+const LANGUAGES: { code: Language; label: string }[] = [
+  { code: "uz-latn", label: "O'zbekcha" },
+  { code: "uz-cyrl", label: "Uzbek Cyrillic" },
+  { code: "ru", label: "Russian" },
+];
+
+type ProfileField = {
+  label: string;
+  value: string;
+};
+
+const LOCALE_BY_LANGUAGE: Record<Language, string> = {
+  "uz-latn": "uz-UZ",
+  "uz-cyrl": "uz-Cyrl-UZ",
+  ru: "ru-RU",
+};
+
+export default function ProfilePage() {
   const router = useRouter();
-  const { user, updateProfile, isLoading } = useAuth();
-  const { language, setLanguage } = useLanguage();
+  const { user, isLoading, logout } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
-  const [isEditing, setIsEditing] = useState(false);
-  const [langMenuOpen, setLangMenuOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [profile, setProfile] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    birthdate: "1990-01-15",
-    address: "Tashkent, Uzbekistan",
-    bio: "Love trying new salons and styles!",
-  });
+
+  const [isProviderModeEnabled, setIsProviderModeEnabled] = useState(false);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+  const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
-
-    setProfile((prev) => ({
-      ...prev,
-      name: user.name || "",
-      email: user.email || "",
-      phone: user.phoneNumber || "",
-    }));
-  }, [user]);
-
-  useEffect(() => {
-    if (isLoading) return;
-    if (!user) {
+    if (!isLoading && !user) {
       router.replace("/login");
     }
-  }, [isLoading, user, router]);
+  }, [isLoading, router, user]);
 
-  const languages: { code: Language; label: string }[] = [
-    { code: "uz-latn", label: "O'zbekcha" },
-    { code: "uz-cyrl", label: "Ўзбекча" },
-    { code: "ru", label: "Русский" },
-  ];
+  const activeLanguage =
+    LANGUAGES.find((item) => item.code === language)?.label ||
+    t("profile.language");
 
-  const activeLanguageLabel =
-    languages.find((item) => item.code === language)?.label || "Language";
+  const profileFields = useMemo<ProfileField[]>(() => {
+    if (!user) return [];
 
-  const handleSaveChanges = async () => {
-    try {
-      setIsSaving(true);
-      await updateProfile({
-        name: profile.name,
-        phoneNumber: profile.phone,
-      });
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Failed to save profile:", error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
+    const optionalFields: ProfileField[] = [
+      { label: t("profile.field.phone"), value: user.phoneNumber || "" },
+      { label: t("profile.field.avatar"), value: user.avatarUrl || "" },
+    ];
+
+    return [
+      { label: t("profile.field.id"), value: user.id },
+      { label: t("profile.field.name"), value: user.name },
+      { label: t("profile.field.email"), value: user.email },
+      { label: t("profile.field.role"), value: user.role },
+      {
+        label: t("profile.field.createdAt"),
+        value: new Date(user.createdAt).toLocaleString(
+          LOCALE_BY_LANGUAGE[language],
+        ),
+      },
+      ...optionalFields.filter((field) => field.value.trim().length > 0),
+    ];
+  }, [language, t, user]);
+
+  const memberSince = user?.createdAt
+    ? `${t("profile.memberSince")} ${new Date(
+        user.createdAt,
+      ).toLocaleDateString(LOCALE_BY_LANGUAGE[language], {
+        month: "short",
+        year: "numeric",
+      })}`
+    : t("profile.memberSinceUnknown");
+
+  const initials = (() => {
+    if (!user?.name) return "U";
+
+    const parts = user.name.split(" ").filter(Boolean);
+    if (parts.length === 1) return parts[0][0]?.toUpperCase() || "U";
+
+    return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
+  })();
 
   if (isLoading || !user) {
     return null;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
-      <div className="container mx-auto px-4 max-w-4xl">
-        <div className="mb-5 flex flex-wrap items-center justify-end gap-3">
-          <div className="relative">
-            <button
-              onClick={() => setLangMenuOpen((prev) => !prev)}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
-              aria-label="Change language"
-            >
-              <Globe className="h-4 w-4" />
-              <span className="max-w-24 truncate sm:max-w-none">
-                {activeLanguageLabel}
-              </span>
-              <ChevronDown className="h-4 w-4" />
-            </button>
+    <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#060912] dark:text-white">
+      <div className="mx-auto w-full max-w-[650px] px-3 pb-24 pt-4 sm:px-6">
+        <header className="mb-6 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:text-white/80 dark:hover:bg-white/10"
+            aria-label={t("profile.back")}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
 
-            {langMenuOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setLangMenuOpen(false)}
-                />
-                <div className="absolute right-0 z-20 mt-2 w-40 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-                  {languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => {
-                        setLanguage(lang.code);
-                        setLangMenuOpen(false);
-                      }}
-                      className={`w-full px-4 py-2 text-left text-sm transition-colors ${
-                        language === lang.code
-                          ? "bg-blue-50 font-medium text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
-                          : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                      }`}
-                    >
-                      {lang.label}
-                    </button>
-                  ))}
-                </div>
-              </>
+          <h1 className="text-base font-semibold tracking-wide text-slate-900 dark:text-white">
+            {t("profile.title")}
+          </h1>
+
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-teal-300 bg-teal-50 text-teal-700 transition hover:bg-teal-100 dark:border-[#00e6d0]/30 dark:bg-[#0a1220] dark:text-[#00e6d0] dark:hover:bg-[#102036]"
+            aria-label={t("profile.toggleTheme")}
+            title={
+              theme === "dark" ? t("profile.lightMode") : t("profile.darkMode")
+            }
+          >
+            {theme === "dark" ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
+          </button>
+        </header>
+
+        <section className="relative mb-6 border-b border-slate-200 pb-6 text-center dark:border-white/10">
+          <div className="relative mx-auto mb-4 h-24 w-24 rounded-full p-[2px] ring-1 ring-[#00e6d0]/60">
+            {user.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={user.avatarUrl}
+                alt={user.name}
+                className="h-full w-full rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center rounded-full bg-slate-200 text-2xl font-bold text-slate-700 dark:bg-[#132235] dark:text-[#9ce9e2]">
+                {initials}
+              </div>
             )}
           </div>
 
-          <button
-            onClick={toggleTheme}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
-            aria-label="Toggle theme"
+          <h2 className="text-3xl font-semibold leading-tight text-slate-900 dark:text-white">
+            {user.name}
+          </h2>
+          <p className="mt-1 text-sm font-medium text-teal-600 dark:text-[#00e6d0]">
+            {memberSince}
+          </p>
+        </section>
+
+        <section className="mb-5 grid grid-cols-2 gap-3">
+          <article className="rounded-2xl border border-teal-200 bg-gradient-to-br from-white to-slate-100 p-4 shadow-sm dark:border-[#00e6d0]/20 dark:from-[#0a1e2b] dark:to-[#101729] dark:shadow-[0_0_0_1px_rgba(0,230,208,0.06)]">
+            <div className="mb-2 inline-flex h-7 w-7 items-center justify-center rounded-md bg-teal-100 text-teal-700 dark:bg-[#02282f] dark:text-[#00e6d0]">
+              <Calendar className="h-4 w-4" />
+            </div>
+            <p className="text-2xl font-bold leading-none text-slate-900 dark:text-white">
+              24
+            </p>
+            <p className="mt-2 text-[11px] uppercase tracking-[0.12em] text-slate-500 dark:text-white/50">
+              {t("profile.totalBookings")}
+            </p>
+          </article>
+
+          <article className="rounded-2xl border border-teal-200 bg-gradient-to-br from-white to-slate-100 p-4 shadow-sm dark:border-[#00e6d0]/20 dark:from-[#0a1e2b] dark:to-[#101729] dark:shadow-[0_0_0_1px_rgba(0,230,208,0.06)]">
+            <div className="mb-2 inline-flex h-7 w-7 items-center justify-center rounded-md bg-teal-100 text-teal-700 dark:bg-[#02282f] dark:text-[#00e6d0]">
+              <Zap className="h-4 w-4" />
+            </div>
+            <p className="text-2xl font-bold leading-none text-slate-900 dark:text-white">
+              12h
+            </p>
+            <p className="mt-2 text-[11px] uppercase tracking-[0.12em] text-slate-500 dark:text-white/50">
+              {t("profile.timeSaved")}
+            </p>
+          </article>
+        </section>
+
+        <section
+          className={`mb-5 rounded-2xl border p-4 ${
+            theme === "dark"
+              ? "border-[#00e6d0]/25 bg-[#071723] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
+              : "border-teal-200 bg-white shadow-sm"
+          }`}
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-base font-semibold text-teal-700 dark:text-[#00e6d0]">
+                {t("profile.admin")}
+              </p>
+              <p className="mt-1 text-xs text-slate-600 dark:text-white/60">
+                {t("profile.switchToAdmin")}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsProviderModeEnabled((prev) => !prev)}
+              className={`relative h-7 w-12 rounded-full border transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
+                isProviderModeEnabled
+                  ? "border-teal-500 bg-teal-500/40 dark:border-[#00e6d0]/70 dark:bg-[#00e6d0]/35"
+                  : "border-slate-300 bg-slate-200 dark:border-white/25 dark:bg-white/10"
+              }`}
+              aria-label={t("profile.toggleProviderMode")}
+              aria-pressed={isProviderModeEnabled}
+            >
+              <span
+                className={`absolute top-[3px] h-5 w-5 rounded-full ring-1 transition-all duration-200 ${
+                  isProviderModeEnabled
+                    ? "left-6 bg-teal-600 ring-teal-600/60 dark:bg-[#00e6d0] dark:ring-[#00e6d0]/70"
+                    : "left-1 bg-white ring-slate-300 dark:bg-slate-100 dark:ring-white/35"
+                }`}
+              />
+            </button>
+          </div>
+        </section>
+
+        <section className="mb-6">
+          <p className="mb-2 px-1 text-[11px] uppercase tracking-[0.2em] text-slate-500 dark:text-white/45">
+            {t("profile.accountSettings")}
+          </p>
+
+          <div
+            className={`overflow-hidden rounded-2xl border ${
+              theme === "dark"
+                ? "border-white/10 bg-[#111528]"
+                : "border-slate-200 bg-white shadow-sm"
+            }`}
           >
-            {theme === "light" ? (
-              <Moon className="h-4 w-4" />
-            ) : (
-              <Sun className="h-4 w-4" />
-            )}
-            <span>{theme === "light" ? "Dark mode" : "Light mode"}</span>
+            <ProfileRow
+              icon={<User className="h-4 w-4" />}
+              title={t("profile.personalInfo")}
+              subtitle={t("profile.personalInfoSubtitle")}
+              onClick={() => setIsInfoModalOpen(true)}
+            />
+
+            <ProfileRow
+              icon={<Shield className="h-4 w-4" />}
+              title={t("profile.security")}
+              subtitle={t("profile.securitySubtitle")}
+              onClick={() => router.push("/profile/security")}
+              bordered
+            />
+
+            <ProfileRow
+              icon={<CreditCard className="h-4 w-4" />}
+              title={t("profile.paymentMethods")}
+              subtitle={t("profile.paymentMethodsSubtitle")}
+              onClick={() => router.push("/profile/payments")}
+              bordered
+            />
+          </div>
+        </section>
+
+        <section className="mb-8">
+          <p className="mb-2 px-1 text-[11px] uppercase tracking-[0.2em] text-slate-500 dark:text-white/45">
+            {t("profile.appPreferences")}
+          </p>
+
+          <div
+            className={`overflow-hidden rounded-2xl border ${
+              theme === "dark"
+                ? "border-white/10 bg-[#111528]"
+                : "border-slate-200 bg-white shadow-sm"
+            }`}
+          >
+            <ProfileRow
+              icon={<Bell className="h-4 w-4" />}
+              title={t("profile.notifications")}
+              subtitle={t("profile.notificationsSubtitle")}
+              onClick={() => router.push("/profile/notifications")}
+              bordered
+            />
+
+            <ProfileRow
+              icon={<Languages className="h-4 w-4" />}
+              title={t("profile.language")}
+              subtitle={activeLanguage}
+              trailing={
+                <span className="rounded-md px-2 py-1 text-xs font-medium text-slate-500 dark:text-white/70">
+                  {t("profile.change")}
+                </span>
+              }
+              onClick={() => setIsLanguageModalOpen(true)}
+              bordered
+            />
+
+            <ProfileRow
+              icon={<HelpCircle className="h-4 w-4" />}
+              title={t("profile.helpSupport")}
+              subtitle={t("profile.helpSupportSubtitle")}
+              onClick={() => router.push("/profile/support")}
+              bordered
+            />
+          </div>
+        </section>
+
+        <button
+          type="button"
+          onClick={() => {
+            logout();
+            router.replace("/login");
+          }}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-500 bg-red-500 py-3 font-semibold text-white transition hover:bg-red-500/10 hover:text-red-500"
+        >
+          <LogOut className="h-4 w-4" />
+          {t("profile.logout")}
+        </button>
+      </div>
+
+      {isInfoModalOpen && (
+        <ModalShell
+          title={t("profile.personalInfoModalTitle")}
+          closeLabel={t("profile.closeModal")}
+          onClose={() => setIsInfoModalOpen(false)}
+        >
+          <div className="space-y-3">
+            {profileFields.map((item) => (
+              <div
+                key={item.label}
+                className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5"
+              >
+                <p className="text-xs uppercase tracking-[0.15em] text-slate-500 dark:text-white/45">
+                  {item.label}
+                </p>
+                <p className="mt-1 break-all text-sm text-slate-800 dark:text-white/90">
+                  {item.value}
+                </p>
+              </div>
+            ))}
+          </div>
+        </ModalShell>
+      )}
+
+      {isLanguageModalOpen && (
+        <ModalShell
+          title={t("profile.languageModalTitle")}
+          closeLabel={t("profile.closeModal")}
+          onClose={() => setIsLanguageModalOpen(false)}
+        >
+          <div className="space-y-2">
+            {LANGUAGES.map((lang) => {
+              const isActive = lang.code === language;
+
+              return (
+                <button
+                  key={lang.code}
+                  type="button"
+                  onClick={() => {
+                    setLanguage(lang.code);
+                    setIsLanguageModalOpen(false);
+                  }}
+                  className={`w-full rounded-xl border px-4 py-3 text-left text-sm font-medium transition ${
+                    isActive
+                      ? "border-teal-300 bg-teal-50 text-teal-700 dark:border-[#00e6d0]/60 dark:bg-[#00e6d0]/10 dark:text-[#8de8df]"
+                      : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:text-white/80 dark:hover:bg-white/10"
+                  }`}
+                >
+                  {lang.label}
+                </button>
+              );
+            })}
+          </div>
+        </ModalShell>
+      )}
+    </main>
+  );
+}
+
+function ProfileRow({
+  icon,
+  title,
+  subtitle,
+  onClick,
+  trailing,
+  bordered = false,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+  onClick: () => void;
+  trailing?: React.ReactNode;
+  bordered?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-slate-50 dark:hover:bg-white/5 ${
+        bordered ? "border-t border-slate-200 dark:border-white/10" : ""
+      }`}
+    >
+      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 dark:bg-[#18203a] dark:text-[#a5b4d6]">
+        {icon}
+      </span>
+
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-medium text-slate-900 dark:text-white/95">
+          {title}
+        </span>
+        <span className="block truncate text-xs text-slate-500 dark:text-white/45">
+          {subtitle}
+        </span>
+      </span>
+
+      {trailing || (
+        <ChevronRight className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/35" />
+      )}
+    </button>
+  );
+}
+
+function ModalShell({
+  title,
+  closeLabel,
+  children,
+  onClose,
+}: {
+  title: string;
+  closeLabel: string;
+  children: React.ReactNode;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-3 dark:bg-black/70 sm:items-center"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        className="w-full max-w-[620px] rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl dark:border-white/10 dark:bg-[#0d1325]"
+        onClick={(event) => event.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+            {title}
+          </h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100 dark:border-white/15 dark:bg-white/5 dark:text-white/80 dark:hover:bg-white/10"
+            aria-label={closeLabel}
+          >
+            <X className="h-4 w-4" />
           </button>
         </div>
 
-        <h1 className="mb-8 text-3xl font-bold">My Profile</h1>
-
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Profile Card */}
-          <div className="lg:col-span-1">
-            <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900 dark:ring-1 dark:ring-gray-800">
-              <div className="text-center">
-                <div className="relative inline-block mb-4">
-                  <div className="mx-auto h-32 w-32 rounded-full bg-gray-300 dark:bg-gray-700"></div>
-                  <button className="absolute bottom-0 right-0 p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700">
-                    <Camera className="w-4 h-4" />
-                  </button>
-                </div>
-                <h2 className="text-xl font-bold mb-1">
-                  {profile.name || "User"}
-                </h2>
-                <p className="mb-4 text-gray-600 dark:text-gray-400">
-                  {profile.email || "-"}
-                </p>
-
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-400">
-                    <Calendar className="w-4 h-4" />
-                    <span>Member since Jan 2026</span>
-                  </div>
-                  <div className="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-400">
-                    <CreditCard className="w-4 h-4" />
-                    <span>12 bookings completed</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Stats */}
-            <div className="mt-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900 dark:ring-1 dark:ring-gray-800">
-              <h3 className="font-bold mb-4">Quick Stats</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Total Bookings
-                  </span>
-                  <span className="font-semibold">15</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Favorites
-                  </span>
-                  <span className="font-semibold">8</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Reviews Written
-                  </span>
-                  <span className="font-semibold">10</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Profile Information */}
-          <div className="space-y-6 lg:col-span-2">
-            <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900 dark:ring-1 dark:ring-gray-800">
-              <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-xl font-bold">Personal Information</h2>
-                <button
-                  onClick={() => setIsEditing(!isEditing)}
-                  className="rounded-lg border border-blue-600 px-4 py-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                >
-                  {isEditing ? "Cancel" : "Edit Profile"}
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Full Name
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={profile.name}
-                      onChange={(e) =>
-                        setProfile({ ...profile, name: e.target.value })
-                      }
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                    />
-                  ) : (
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
-                      <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />
-                      <span>{profile.name}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Email Address
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="email"
-                      value={profile.email}
-                      onChange={(e) =>
-                        setProfile({ ...profile, email: e.target.value })
-                      }
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                    />
-                  ) : (
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
-                      <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500" />
-                      <span>{profile.email}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Phone Number
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="tel"
-                      value={profile.phone}
-                      onChange={(e) =>
-                        setProfile({ ...profile, phone: e.target.value })
-                      }
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                    />
-                  ) : (
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
-                      <Phone className="h-5 w-5 text-gray-400 dark:text-gray-500" />
-                      <span>{profile.phone || "-"}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Birth Date
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="date"
-                      value={profile.birthdate}
-                      onChange={(e) =>
-                        setProfile({ ...profile, birthdate: e.target.value })
-                      }
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                    />
-                  ) : (
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
-                      <Calendar className="h-5 w-5 text-gray-400 dark:text-gray-500" />
-                      <span>
-                        {new Date(profile.birthdate).toLocaleDateString()}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Address
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={profile.address}
-                      onChange={(e) =>
-                        setProfile({ ...profile, address: e.target.value })
-                      }
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                    />
-                  ) : (
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
-                      <MapPin className="h-5 w-5 text-gray-400 dark:text-gray-500" />
-                      <span>{profile.address}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Bio
-                  </label>
-                  {isEditing ? (
-                    <textarea
-                      value={profile.bio}
-                      onChange={(e) =>
-                        setProfile({ ...profile, bio: e.target.value })
-                      }
-                      className="h-24 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                    />
-                  ) : (
-                    <p className="text-gray-700 dark:text-gray-200">
-                      {profile.bio}
-                    </p>
-                  )}
-                </div>
-
-                {isEditing && (
-                  <button
-                    onClick={handleSaveChanges}
-                    disabled={isSaving}
-                    className="w-full rounded-lg bg-blue-600 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-400"
-                  >
-                    {isSaving ? "Saving..." : "Save Changes"}
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Security Settings */}
-            <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900 dark:ring-1 dark:ring-gray-800">
-              <h2 className="text-xl font-bold mb-6">Security Settings</h2>
-              <div className="space-y-4">
-                <button className="flex w-full items-center justify-between rounded-lg border border-gray-200 p-4 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
-                  <div className="flex items-center gap-3">
-                    <Lock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
-                    <div className="text-left">
-                      <p className="font-semibold">Change Password</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Update your password regularly
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-gray-400 dark:text-gray-500">→</span>
-                </button>
-
-                <button className="flex w-full items-center justify-between rounded-lg border border-gray-200 p-4 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
-                  <div className="flex items-center gap-3">
-                    <Bell className="h-5 w-5 text-gray-400 dark:text-gray-500" />
-                    <div className="text-left">
-                      <p className="font-semibold">Notification Preferences</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Manage email and push notifications
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-gray-400 dark:text-gray-500">→</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Danger Zone */}
-            <div className="rounded-lg border-2 border-red-200 bg-white p-6 shadow-sm dark:border-red-900/50 dark:bg-gray-900 dark:ring-1 dark:ring-gray-800">
-              <h2 className="text-xl font-bold text-red-600 mb-4">
-                Danger Zone
-              </h2>
-              <p className="mb-4 text-gray-600 dark:text-gray-400">
-                Once you delete your account, there is no going back. Please be
-                certain.
-              </p>
-              <button className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                Delete Account
-              </button>
-            </div>
-          </div>
-        </div>
+        <div className="max-h-[65vh] overflow-y-auto pr-1">{children}</div>
       </div>
     </div>
   );
