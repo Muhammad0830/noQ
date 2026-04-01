@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { User, Mail, Lock, Eye, EyeOff, Phone, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import API_ENDPOINTS from "@/lib/api";
+import { API_ENDPOINTS } from "@/lib/api";
 
 type FieldErrors = {
   email: string;
@@ -259,7 +259,7 @@ export default function SignUp() {
             {/* Full Name */}
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-                To'liq ism
+                To&apos;liq ism
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
@@ -482,7 +482,7 @@ export default function SignUp() {
                   <span>Yuklanmoqda...</span>
                 </>
               ) : (
-                <span>Ro'yxatdan o'tish</span>
+                <span>Ro&apos;yxatdan o&apos;tish</span>
               )}
             </button>
           </form>

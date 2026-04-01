@@ -1,61 +1,17 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import type { User } from "@shared/types/types";
-import API_ENDPOINTS from "@/lib/api";
-
-interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string, remember?: boolean) => Promise<void>;
-  signup: (
-    email: string,
-    password: string,
-    name: string,
-    phone?: string,
-  ) => Promise<void>;
-  logout: () => void;
-  updateProfile: (data: {
-    name?: string;
-    phoneNumber?: string;
-  }) => Promise<void>;
-}
+import type { AuthContextType, User } from "@shared/types/types";
+import api, {
+  API_ENDPOINTS,
+  clearPersistedAuth,
+  getStorageBySource,
+  getStoredAuth,
+  persistAuth,
+  USER_STORAGE_KEY,
+} from "@/lib/api";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const USER_STORAGE_KEY = "user";
-const ACCESS_TOKEN_STORAGE_KEY = "token";
-const REFRESH_TOKEN_STORAGE_KEY = "refresh_token";
-
-type AuthStorageSource = "local" | "session";
-
-const getStorageBySource = (source: AuthStorageSource) =>
-  source === "local" ? localStorage : sessionStorage;
-
-const getStoredAuth = () => {
-  const localToken = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
-  if (localToken) {
-    return {
-      source: "local" as const,
-      token: localToken,
-      refreshToken: localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
-      savedUser: localStorage.getItem(USER_STORAGE_KEY),
-    };
-  }
-
-  const sessionToken = sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
-  if (sessionToken) {
-    return {
-      source: "session" as const,
-      token: sessionToken,
-      refreshToken: sessionStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
-      savedUser: sessionStorage.getItem(USER_STORAGE_KEY),
-    };
-  }
-
-  return null;
-};
 
 type ApiUserPayload = {
   id: string;
@@ -86,42 +42,13 @@ const parseErrorMessage = async (response: Response) => {
   }
 };
 
-const persistAuth = (
-  token: string,
-  refreshToken: string | null,
-  userData: User,
-  source: AuthStorageSource = "local",
-) => {
-  const targetStorage = getStorageBySource(source);
-  const otherStorage = getStorageBySource(
-    source === "local" ? "session" : "local",
-  );
-
-  targetStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
-  if (refreshToken) {
-    targetStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, refreshToken);
-  } else {
-    targetStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
-  }
-  targetStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
-
-  otherStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-  otherStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
-  otherStorage.removeItem(USER_STORAGE_KEY);
-};
-
-const clearPersistedAuth = () => {
-  localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
-  localStorage.removeItem(USER_STORAGE_KEY);
-  sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-  sessionStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
-  sessionStorage.removeItem(USER_STORAGE_KEY);
-};
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const storageAuth = getStoredAuth();
+
+  console.log("getStoredAuth", storageAuth);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -283,34 +210,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateProfile = async (data: {
     name?: string;
     phoneNumber?: string;
+    file?: File | null;
   }) => {
     if (!user) {
       throw new Error("User not authenticated");
     }
 
     try {
-      const token = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
-      if (!token) {
-        throw new Error("No authentication token");
-      }
+      const formData = new FormData();
+      if (data.name) formData.append("name", data.name);
+      if (data.phoneNumber) formData.append("phoneNumber", data.phoneNumber);
+      if (data.file) formData.append("file", data.file);
 
-      const response = await fetch(API_ENDPOINTS.users.profile, {
-        method: "PUT",
+      const response = await api.put(API_ENDPOINTS.users.profile, formData, {
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
         },
-        body: JSON.stringify(data),
       });
 
-      if (!response.ok) {
-        const errorPayload = (await response.json().catch(() => null)) as {
-          error?: string;
-        } | null;
-        throw new Error(errorPayload?.error || "Failed to update profile");
-      }
-
-      const updatedData = await response.json();
+      const updatedData = await response.data;
       const updatedUser = mapApiUserToUser(updatedData);
       setUser(updatedUser);
       const storedAuth = getStoredAuth();
@@ -324,10 +242,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updatedUser,
         storedAuth.source,
       );
+      console.log("success ✅");
     } catch (error) {
       throw error;
     }
   };
+
+  const storageAuth2 = getStoredAuth();
+
+  console.log("getStoredAuth2", storageAuth2);
 
   const logout = () => {
     setUser(null);

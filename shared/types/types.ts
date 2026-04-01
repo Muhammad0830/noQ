@@ -1,12 +1,34 @@
+// auth types
+export type AuthStorageSource = "local" | "session";
+
+export interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (email: string, password: string, remember?: boolean) => Promise<void>;
+  signup: (
+    email: string,
+    password: string,
+    name: string,
+    phone?: string,
+  ) => Promise<void>;
+  logout: () => void;
+  updateProfile: (data: {
+    name?: string;
+    phoneNumber?: string;
+    file?: File | null;
+  }) => Promise<void>;
+}
+
 // User types
 export interface User {
   id: string;
   email: string;
   name: string;
   phoneNumber?: string;
-  avatarUrl?: string;
   role: 'USER' | 'ADMIN';
   createdAt: string;
+  avatarUrl?: string;
 }
 
 // Shop Category
@@ -103,4 +125,12 @@ export interface Translations {
   'uz-latn': Record<string, string>;
   'uz-cyrl': Record<string, string>;
   'ru': Record<string, string>;
+}
+
+// backend-only types
+export interface MulterFile {
+  originalname: string
+  buffer: Buffer
+  mimetype: string
+  size: number
 }

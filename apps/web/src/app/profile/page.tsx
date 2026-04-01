@@ -22,6 +22,7 @@ import type { Language } from "@shared/types/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { getImageUrl } from "@/lib/supabaseClient";
 
 const LANGUAGES: { code: Language; label: string }[] = [
   { code: "uz-latn", label: "O'zbekcha" },
@@ -42,9 +43,11 @@ const LOCALE_BY_LANGUAGE: Record<Language, string> = {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, isLoading, logout } = useAuth();
+  const { user, isLoading, updateProfile, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+
+  const [file, setFile] = useState<File | null>(null);
 
   const [isProviderModeEnabled, setIsProviderModeEnabled] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
@@ -58,7 +61,7 @@ export default function ProfilePage() {
 
   const activeLanguage =
     LANGUAGES.find((item) => item.code === language)?.label ||
-    t("profile.language");
+    t("profile.language");  
 
   const profileFields = useMemo<ProfileField[]>(() => {
     if (!user) return [];
@@ -105,9 +108,13 @@ export default function ProfilePage() {
     return null;
   }
 
+  const profileImageUrl = user.avatarUrl
+    ? getImageUrl(user.avatarUrl, "user_avatars")
+    : null;
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#060912] dark:text-white">
-      <div className="mx-auto w-full max-w-[650px] px-3 pb-24 pt-4 sm:px-6">
+      <div className="mx-auto w-full max-w-162.5 px-3 pb-24 pt-4 sm:px-6">
         <header className="mb-6 flex items-center justify-between">
           <button
             type="button"
@@ -139,12 +146,35 @@ export default function ProfilePage() {
           </button>
         </header>
 
+        <div className="w-full h-20 bg-red-500">
+          <input
+            type="file"
+            onChange={(e) => {
+              if (e.target.files) {
+                setFile(e.target.files[0]);
+              }
+            }}
+          />
+
+          <button
+            onClick={() =>
+              updateProfile({
+                name: user.name,
+                phoneNumber: user.phoneNumber,
+                file,
+              })
+            }
+          >
+            Update
+          </button>
+        </div>
+
         <section className="relative mb-6 border-b border-slate-200 pb-6 text-center dark:border-white/10">
-          <div className="relative mx-auto mb-4 h-24 w-24 rounded-full p-[2px] ring-1 ring-[#00e6d0]/60">
-            {user.avatarUrl ? (
+          <div className="relative mx-auto mb-4 h-24 w-24 rounded-full p-0.5 ring-1 ring-[#00e6d0]/60">
+            {profileImageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={user.avatarUrl}
+                src={profileImageUrl}
                 alt={user.name}
                 className="h-full w-full rounded-full object-cover"
               />
@@ -164,7 +194,7 @@ export default function ProfilePage() {
         </section>
 
         <section className="mb-5 grid grid-cols-2 gap-3">
-          <article className="rounded-2xl border border-teal-200 bg-gradient-to-br from-white to-slate-100 p-4 shadow-sm dark:border-[#00e6d0]/20 dark:from-[#0a1e2b] dark:to-[#101729] dark:shadow-[0_0_0_1px_rgba(0,230,208,0.06)]">
+          <article className="rounded-2xl border border-teal-200 bg-linear-to-br from-white to-slate-100 p-4 shadow-sm dark:border-[#00e6d0]/20 dark:from-[#0a1e2b] dark:to-[#101729] dark:shadow-[0_0_0_1px_rgba(0,230,208,0.06)]">
             <div className="mb-2 inline-flex h-7 w-7 items-center justify-center rounded-md bg-teal-100 text-teal-700 dark:bg-[#02282f] dark:text-[#00e6d0]">
               <Calendar className="h-4 w-4" />
             </div>
@@ -176,7 +206,7 @@ export default function ProfilePage() {
             </p>
           </article>
 
-          <article className="rounded-2xl border border-teal-200 bg-gradient-to-br from-white to-slate-100 p-4 shadow-sm dark:border-[#00e6d0]/20 dark:from-[#0a1e2b] dark:to-[#101729] dark:shadow-[0_0_0_1px_rgba(0,230,208,0.06)]">
+          <article className="rounded-2xl border border-teal-200 bg-linear-to-br from-white to-slate-100 p-4 shadow-sm dark:border-[#00e6d0]/20 dark:from-[#0a1e2b] dark:to-[#101729] dark:shadow-[0_0_0_1px_rgba(0,230,208,0.06)]">
             <div className="mb-2 inline-flex h-7 w-7 items-center justify-center rounded-md bg-teal-100 text-teal-700 dark:bg-[#02282f] dark:text-[#00e6d0]">
               <Zap className="h-4 w-4" />
             </div>
@@ -218,7 +248,7 @@ export default function ProfilePage() {
               aria-pressed={isProviderModeEnabled}
             >
               <span
-                className={`absolute top-[3px] h-5 w-5 rounded-full ring-1 transition-all duration-200 ${
+                className={`absolute top-0.75 h-5 w-5 rounded-full ring-1 transition-all duration-200 ${
                   isProviderModeEnabled
                     ? "left-6 bg-teal-600 ring-teal-600/60 dark:bg-[#00e6d0] dark:ring-[#00e6d0]/70"
                     : "left-1 bg-white ring-slate-300 dark:bg-slate-100 dark:ring-white/35"
@@ -441,7 +471,7 @@ function ModalShell({
       role="presentation"
     >
       <div
-        className="w-full max-w-[620px] rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl dark:border-white/10 dark:bg-[#0d1325]"
+        className="w-full max-w-155 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl dark:border-white/10 dark:bg-[#0d1325]"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"

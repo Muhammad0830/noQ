@@ -9,14 +9,21 @@ import {
   favouriteRouter,
   serviceRouter,
   shopRouter,
-  reviewsRouter
+  reviewsRouter,
 } from "./routes/index.js";
 
 const app = express();
 
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "http://10.20.4.57:3000"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  }),
+);
+
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
 
 app.use("/api/categories", categoryRouter);
 app.use("/api/auth", authRouter);

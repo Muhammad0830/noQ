@@ -2,6 +2,8 @@ import prisma from "../db/prisma.js";
 import express from "express";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { adminOnly } from "../middlewares/admin.middleware.js";
+import { uploadImage } from "../utils/handleImage.js";
+import { upload } from "../middlewares/upload.js";
 
 const router = express.Router();
 
@@ -19,27 +21,39 @@ router.get("/", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
-router.put("/profile", authMiddleware, async (req: any, res) => {
-  try {
-    const { name, phoneNumber } = req.body;
-    const userId = req.user.id;
+router.put(
+  "/profile",
+  authMiddleware,
+  upload.single("file"),
+  async (req: any, res) => {
+    try {
+      const { name, phoneNumber } = req.body;
+      const file = req.file;
+      const userId = req.user.id;
 
-    // Build update data object with only provided fields
-    const updateData: any = {};
-    if (name !== undefined) updateData.name = name;
-    if (phoneNumber !== undefined) updateData.phoneNumber = phoneNumber;
+      let uploadedFilePath: string | null = null;
 
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: updateData,
-    });
+      if (file && file.originalname) {
+        uploadedFilePath = await uploadImage(file, "user_avatars");
+      }
 
-    res.status(200).json(updatedUser);
-  } catch (error) {
-    console.error("Error updating profile:", error);
-    return res.status(500).json({ error: "Failed to update profile" });
-  }
-});
+      const updateData: any = {};
+      if (name !== undefined) updateData.name = name;
+      if (phoneNumber !== undefined) updateData.phoneNumber = phoneNumber;
+      if (uploadedFilePath !== null) updateData.avatarUrl = uploadedFilePath;
+
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: updateData,
+      });
+
+      res.status(200).json(updatedUser);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      return res.status(500).json({ error: "Failed to update profile" });
+    }
+  },
+);
 
 router.post("/", authMiddleware, async (req: any, res) => {
   try {
