@@ -1,8 +1,90 @@
-const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-const normalizedApiUrl = rawApiUrl.replace(/\/+$/, '');
+import { AuthStorageSource, User } from "@shared/types/types";
+import axios from "axios";
+
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const normalizedApiUrl = rawApiUrl.replace(/\/+$/, "");
 const API_BASE_URL = /\/api$/i.test(normalizedApiUrl)
   ? normalizedApiUrl
   : `${normalizedApiUrl}/api`;
+
+export const USER_STORAGE_KEY = "user";
+export const ACCESS_TOKEN_STORAGE_KEY = "token";
+export const REFRESH_TOKEN_STORAGE_KEY = "refresh_token";
+
+export const getStorageBySource = (source: AuthStorageSource) =>
+  source === "local" ? localStorage : sessionStorage;
+
+export const getStoredAuth = () => {
+  const localToken = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  if (localToken) {
+    return {
+      source: "local" as const,
+      token: localToken,
+      refreshToken: localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
+      savedUser: localStorage.getItem(USER_STORAGE_KEY),
+    };
+  }
+
+  const sessionToken = sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  if (sessionToken) {
+    return {
+      source: "session" as const,
+      token: sessionToken,
+      refreshToken: sessionStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
+      savedUser: sessionStorage.getItem(USER_STORAGE_KEY),
+    };
+  }
+
+  return null;
+};
+
+export const persistAuth = (
+  token: string,
+  refreshToken: string | null,
+  userData: User,
+  source: AuthStorageSource = "local",
+) => {
+  const targetStorage = getStorageBySource(source);
+  const otherStorage = getStorageBySource(
+    source === "local" ? "session" : "local",
+  );
+
+  targetStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
+  if (refreshToken) {
+    targetStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, refreshToken);
+  } else {
+    targetStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+  }
+  targetStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+
+  otherStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+  otherStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+  otherStorage.removeItem(USER_STORAGE_KEY);
+};
+
+export const clearPersistedAuth = () => {
+  localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+  localStorage.removeItem(USER_STORAGE_KEY);
+  sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+  sessionStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+  sessionStorage.removeItem(USER_STORAGE_KEY);
+};
+
+
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:10000",
+  withCredentials: true,
+});
+
+// attach token to every request
+api.interceptors.request.use((config) => {
+  const storedAuth = getStoredAuth()
+  if (storedAuth?.token) {
+    config.headers.Authorization = `Bearer ${storedAuth.token}`;
+  }
+  return config;
+});
 
 export const API_ENDPOINTS = {
   // Auth
@@ -51,4 +133,4 @@ export const API_ENDPOINTS = {
   },
 };
 
-export default API_ENDPOINTS;
+export default api;

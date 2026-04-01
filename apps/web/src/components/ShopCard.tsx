@@ -125,7 +125,7 @@ const shopCard: React.FC<ShopCardProps> = ({
     : "";
   const isCurrentlyOpen = shop?.isOpen ?? rootShop.isOpen ?? true;
   const rawImage = rootShop.backgroundImageUrl;
-  const imageUrl = rawImage ? getImageUrl(rawImage) : null;
+  const imageUrl = rawImage ? getImageUrl(rawImage, "shop_images") : null;
 
 
   return (

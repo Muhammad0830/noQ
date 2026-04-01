@@ -3,10 +3,10 @@ import prisma from "../db/prisma.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { getPaginationParams } from "../utils/pagination.js";
 import { adminOnly } from "../middlewares/admin.middleware.js";
-import multer from "multer";
 import { upload } from "../middlewares/upload.js";
 import { v4 as uuidv4 } from "uuid";
 import { supabaseServer } from "../services/supabaseServer.js";
+import { uploadImage } from "../utils/handleImage.js";
 
 const shopRouter = Router();
 
@@ -377,22 +377,7 @@ shopRouter.post(
     let uploadedFilePath: string | null = null;
 
     if (file) {
-      const fileExt = file.originalname.split(".").pop();
-      const fileName = `${uuidv4()}.${fileExt}`;
-
-      const { error } = await supabaseServer.storage
-        .from("shop_images")
-        .upload(fileName, file.buffer, {
-          contentType: file.mimetype,
-          upsert: false,
-        });
-
-      if (error) {
-        console.error("Supabase upload error:", error);
-        throw new Error(error.message);
-      }
-
-      uploadedFilePath = fileName;
+      uploadedFilePath = await uploadImage(file, "shop_images");
     }
 
     try {
