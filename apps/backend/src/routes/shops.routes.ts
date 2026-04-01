@@ -28,6 +28,11 @@ shopRouter.get("/", authMiddleware, async (req, res) => {
       ...(cursor && { cursor: { id: cursor } }),
       where,
       include: {
+        staffs: {
+          include: {
+            user: true,
+          },
+        },
         category: true,
         reviews: {
           select: {
@@ -82,6 +87,11 @@ shopRouter.get("/:id", async (req: any, res: any) => {
       where: { id },
       include: {
         category: true,
+        staffs: {
+          include: {
+            user: true,
+          },
+        },
         services: {
           include: {
             _count: {
@@ -124,9 +134,11 @@ shopRouter.get("/:id", async (req: any, res: any) => {
     }
 
     // Calculate average rating
-    const averageRating = shop.reviews.length > 0
-      ? shop.reviews.reduce((sum, review) => sum + review.rating, 0) / shop.reviews.length
-      : 0;
+    const averageRating =
+      shop.reviews.length > 0
+        ? shop.reviews.reduce((sum, review) => sum + review.rating, 0) /
+          shop.reviews.length
+        : 0;
 
     const response = {
       ...shop,
@@ -137,7 +149,10 @@ shopRouter.get("/:id", async (req: any, res: any) => {
     res.status(200).json(response);
   } catch (error) {
     console.error("Error fetching shop:", error);
-    res.status(500).json({ message: "Internal server error", error: error instanceof Error ? error.message : "Unknown error" });
+    res.status(500).json({
+      message: "Internal server error",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 });
 
