@@ -379,6 +379,7 @@ shopRouter.get("/trending/7days", async (req, res) => {
     const shops = await prisma.shop.findMany({
       where: {
         id: { in: shopIds },
+        isOpen: true,
       },
       include: {
         reviews: {
