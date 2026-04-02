@@ -12,66 +12,136 @@ const shopRouter = Router();
 
 shopRouter.get("/", authMiddleware, async (req, res) => {
   try {
-    const { categoryId = "", open = "true", search = "" } = req.query as any;
-    const { limit, cursor } = getPaginationParams(req);
+    const {
+      categoryId = "",
+      open = "true",
+      search = "",
+      minPrice,
+      maxPrice,
+    } = req.query as any;
+    const { shopCursor, serviceCursor, limit = 10 } = getPaginationParams(req);
 
-    const where: any = {};
-    if (categoryId) where.categoryId = categoryId;
-    if (open === "true") where.isOpen = true;
+    if (search && (categoryId || minPrice || maxPrice)) {
+      return res.status(400).json({
+        message: "Cannot combine search with filters",
+      });
+    }
+
     if (search) {
-      where.name = { contains: search, mode: "insensitive" };
+      const shops = await prisma.shop.findMany({
+        take: Number(limit) + 1,
+        skip: shopCursor ? 1 : 0,
+        ...(shopCursor && { cursor: { id: shopCursor } }),
+        where: {
+          name: { contains: search, mode: "insensitive" },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+
+      let nextCursor = null;
+      if (shops.length > limit) {
+        const next = shops.pop();
+        nextCursor = next?.id;
+      }
+
+      return res.json({
+        type: "search",
+        shops,
+        nextShopCursor: nextCursor,
+      });
+    }
+
+    if (!categoryId && (minPrice || maxPrice)) {
+      const services = await prisma.service.findMany({
+        take: Number(limit) + 1,
+        skip: serviceCursor ? 1 : 0,
+        ...(serviceCursor && { cursor: { id: serviceCursor } }),
+        where: {
+          price: {
+            ...(minPrice && { gte: Number(minPrice) }),
+            ...(maxPrice && { lte: Number(maxPrice) }),
+          },
+        },
+        orderBy: { id: "desc" },
+      });
+
+      let nextCursor = null;
+      if (services.length > limit) {
+        const next = services.pop();
+        nextCursor = next?.id;
+      }
+
+      return res.json({
+        type: "price-only",
+        services,
+        nextServiceCursor: nextCursor,
+      });
+    }
+
+    if (categoryId) {
+      const shops = await prisma.shop.findMany({
+        take: Number(limit) + 1,
+        skip: shopCursor ? 1 : 0,
+        ...(shopCursor && { cursor: { id: shopCursor } }),
+        where: {
+          categoryId,
+          ...(open === "true" && { isOpen: true }),
+        },
+        orderBy: { createdAt: "desc" },
+      });
+
+      let nextShopCursor = null;
+      if (shops.length > limit) {
+        const next = shops.pop();
+        nextShopCursor = next?.id;
+      }
+
+      let services: any[] = [];
+
+      if (minPrice || maxPrice) {
+        services = await prisma.service.findMany({
+          where: {
+            shop: { categoryId },
+            price: {
+              ...(minPrice && { gte: Number(minPrice) }),
+              ...(maxPrice && { lte: Number(maxPrice) }),
+            },
+          },
+          include: {
+            shop: true,
+          },
+        });
+      }
+
+      return res.json({
+        type: "filter",
+        shops,
+        services,
+        nextShopCursor,
+      });
     }
 
     const shops = await prisma.shop.findMany({
-      take: limit + 1,
-      skip: cursor ? 1 : 0,
-      ...(cursor && { cursor: { id: cursor } }),
-      where,
-      include: {
-        staffs: {
-          include: {
-            user: true,
-          },
-        },
-        category: true,
-        reviews: {
-          select: {
-            rating: true,
-          },
-        },
-        _count: {
-          select: { services: true, reviews: true },
-        },
+      take: Number(limit) + 1,
+      skip: shopCursor ? 1 : 0,
+      ...(shopCursor && { cursor: { id: shopCursor } }),
+      where: {
+        ...(categoryId && { categoryId }),
+        ...(open === "true" && { isOpen: true }),
       },
       orderBy: { createdAt: "desc" },
     });
 
-    let nextCursor = null;
-    let dataToFormat = [...shops];
-
-    if (dataToFormat.length > limit) {
-      const nextItem = dataToFormat.pop();
-      nextCursor = nextItem?.id;
+    let nextShopCursor = null;
+    if (shops.length > limit) {
+      const next = shops.pop();
+      nextShopCursor = next?.id;
     }
 
-    // Transform data
-    const formattedShops = dataToFormat.map((shop: any) => {
-      const total = shop.reviews.reduce(
-        (acc: number, rev: { rating: number }) => acc + rev.rating,
-        0,
-      );
-      const avg = shop.reviews.length > 0 ? total / shop.reviews.length : 0;
-
-      const { reviews, ...rest } = shop;
-      return {
-        ...rest,
-        averageRating: parseFloat(avg.toFixed(1)),
-      };
-    });
-
-    res.status(200).json({
-      data: formattedShops, // Make sure to send the formatted ones!
-      nextCursor,
+    return res.json({
+      type: "no-filter",
+      shops,
+      nextShopCursor,
     });
   } catch (error) {
     console.error(error);
