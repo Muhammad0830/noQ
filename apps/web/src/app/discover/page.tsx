@@ -1,408 +1,195 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Search, MapPin, Star, Filter, Heart, X } from 'lucide-react';
+import { Search, SlidersHorizontal } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import ShopCard from '@/components/ShopCard';
+import { API_ENDPOINTS } from '@/lib/api';
+import type { Shop } from '@shared/types/types';
+import useApiQuery from '@/hooks/useApiQuery';
+
+const popularServices = [
+  {
+    id: 1,
+    title: 'Precision Beard Trim',
+    shop: '30min • The Fade',
+    price: '$25.00',
+  },
+  {
+    id: 2,
+    title: 'Express Glow Facial',
+    shop: '45min • Aura Wellness',
+    price: '$60.00',
+  },
+];
 
 export default function DiscoverServices() {
   const { t } = useLanguage();
-  const [favorites, setFavorites] = useState<number[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [locationQuery, setLocationQuery] = useState('');
+  const [query, setQuery] = useState('');
+  const popularScrollRef = useRef<HTMLDivElement | null>(null);
+  const [activePopularDot, setActivePopularDot] = useState(0);
 
-  const toggleFavorite = (id: number) => {
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
+  const { data: popularShops = [], isLoading: isPopularShopsLoading } =
+    useApiQuery<Shop[]>(`${API_ENDPOINTS.shops_trending}`, {
+      key: ['discover-popular-purchases'],
+    });
+
+  const filteredServices = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    if (!q) return popularServices;
+
+    return popularServices.filter(
+      (item) =>
+        item.title.toLowerCase().includes(q) || item.shop.toLowerCase().includes(q)
     );
+  }, [query]);
+
+  const filteredPopularShops = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    if (!q) return popularShops;
+
+    return popularShops.filter((shop) =>
+      shop.name.toLowerCase().includes(q)
+    );
+  }, [popularShops, query]);
+
+  const popularIndicatorCount = Math.max(1, filteredPopularShops.length);
+
+  const updatePopularActiveDot = () => {
+    const el = popularScrollRef.current;
+    if (!el) return;
+
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    if (maxScroll <= 0) {
+      setActivePopularDot(0);
+      return;
+    }
+
+    const progress = el.scrollLeft / maxScroll;
+    setActivePopularDot(Math.round(progress * (popularIndicatorCount - 1)));
   };
 
-  const shops = [
-    {
-      id: 1,
-      name: 'Elite Hair Salon',
-      rating: 4.9,
-      reviews: 320,
-      category: 'Hair Salon',
-      price: '$$',
-      distance: '0.5 km',
-      address: '123 Main Street, Tashkent',
-      phone: '+998 90 123 45 67',
-    },
-    {
-      id: 2,
-      name: 'Kings Barber Shop',
-      rating: 4.8,
-      reviews: 250,
-      category: 'Barbershop',
-      price: '$',
-      distance: '1.2 km',
-      address: '456 Second Ave, Tashkent',
-      phone: '+998 90 234 56 78',
-    },
-    {
-      id: 3,
-      name: 'Luxury Spa & Wellness',
-      rating: 4.7,
-      reviews: 180,
-      category: 'Spa',
-      price: '$$$',
-      distance: '2.1 km',
-      address: '789 Third St, Tashkent',
-      phone: '+998 90 345 67 89',
-    },
-    {
-      id: 4,
-      name: 'Nail Art Studio',
-      rating: 4.9,
-      reviews: 410,
-      category: 'Nail Salon',
-      price: '$$',
-      distance: '0.8 km',
-      address: '321 Fourth Rd, Tashkent',
-      phone: '+998 90 456 78 90',
-    },
-    {
-      id: 5,
-      name: 'Beauty Lounge',
-      rating: 4.6,
-      reviews: 150,
-      category: 'Beauty',
-      price: '$$',
-      distance: '1.5 km',
-      address: '654 Fifth Lane, Tashkent',
-      phone: '+998 90 567 89 01',
-    },
-    {
-      id: 6,
-      name: 'Modern Cuts',
-      rating: 4.8,
-      reviews: 290,
-      category: 'Hair Salon',
-      price: '$',
-      distance: '0.3 km',
-      address: '987 Sixth Blvd, Tashkent',
-      phone: '+998 90 678 90 12',
-    },
-  ];
+  const scrollToPopularDot = (index: number) => {
+    const el = popularScrollRef.current;
+    if (!el) return;
+
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    const target = (maxScroll * index) / Math.max(1, popularIndicatorCount - 1);
+    el.scrollTo({ left: target, behavior: 'smooth' });
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20">
-        <div className="container mx-auto px-4 py-3 md:py-4">
-          {/* Mobile: Stacked */}
-          {/* Desktop: Horizontal */}
-          <div className="space-y-3 md:space-y-0 md:flex md:gap-3 md:items-center">
-            {/* Search */}
-            <div className="flex-1 flex items-center gap-2 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700">
-              <Search className="text-gray-400 w-5 h-5 shrink-0" />
-              <input
-                type="text"
-                placeholder={t('hero.search.placeholder')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full outline-none text-sm bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-              />
-            </div>
-
-            {/* Location */}
-            <div className="flex-1 md:flex-none flex items-center gap-2 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700">
-              <MapPin className="text-gray-400 w-5 h-5 shrink-0" />
-              <input
-                type="text"
-                placeholder={t('hero.location.placeholder')}
-                value={locationQuery}
-                onChange={(e) => setLocationQuery(e.target.value)}
-                className="w-full md:w-40 outline-none text-sm bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-              />
-            </div>
-
-            {/* Filter Button */}
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="w-full md:w-auto flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              <Filter className="w-5 h-5" />
-              <span className="text-sm font-medium">{t('filter.title')}</span>
-            </button>
-          </div>
+    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#070d18] dark:text-white">
+      <div className="mx-auto w-full max-w-md px-4 pb-8 pt-3">
+        <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm dark:border-slate-700 dark:bg-white">
+          <Search className="h-5 w-5 text-slate-400 dark:text-slate-400" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Find your next look..."
+            className="h-6 w-full bg-transparent text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+          />
+          <button
+            type="button"
+            className="rounded-lg bg-slate-100 p-2 text-slate-600 transition hover:bg-slate-200"
+            aria-label="Open filters"
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+          </button>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-6 md:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar Filters - Desktop Only */}
-          <aside className="hidden lg:block">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 md:p-6 sticky top-24">
-              <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">
-                {t('filter.title')}
-              </h3>
+        <div className="mt-5">
+          <p className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
+            {t('services.homePopularPurchases')}
+          </p>
 
-              {/* Categories */}
-              <div className="mb-6">
-                <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">
-                  {t('filter.category')}
-                </h4>
-                <div className="space-y-2">
-                  {[
-                    'All',
-                    'Hair Salon',
-                    'Barbershop',
-                    'Nail Salon',
-                    'Spa & Massage',
-                    'Beauty',
-                  ].map((cat) => (
-                    <label
-                      key={cat}
-                      className="flex items-center gap-2 cursor-pointer hover:opacity-70 transition-opacity"
-                    >
-                      <input
-                        type="checkbox"
-                        className="rounded"
-                        defaultChecked={cat === 'All'}
-                      />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        {cat}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Price Range */}
-              <div className="mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
-                <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">
-                  {t('filter.priceRange')}
-                </h4>
-                <div className="space-y-2">
-                  {['$', '$$', '$$$', '$$$$'].map((price) => (
-                    <label
-                      key={price}
-                      className="flex items-center gap-2 cursor-pointer hover:opacity-70 transition-opacity"
-                    >
-                      <input type="checkbox" className="rounded" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        {price}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Rating */}
-              <div>
-                <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">
-                  {t('filter.rating')}
-                </h4>
-                <div className="space-y-2">
-                  {[4.5, 4.0, 3.5, 3.0].map((rating) => (
-                    <label
-                      key={rating}
-                      className="flex items-center gap-2 cursor-pointer hover:opacity-70 transition-opacity"
-                    >
-                      <input type="checkbox" className="rounded" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        {rating}+ ⭐
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </aside>
-
-          {/* Mobile Filters Modal */}
-          {showFilters && (
-            <div className="fixed inset-0 bg-black/50 z-50 lg:hidden" onClick={() => setShowFilters(false)}>
-              <div
-                className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white dark:bg-gray-800 overflow-y-auto"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between">
-                  <h3 className="font-bold text-lg text-gray-900 dark:text-white">
-                    {t('filter.title')}
-                  </h3>
-                  <button
-                    onClick={() => setShowFilters(false)}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <div className="p-4 space-y-6">
-                  {/* Categories */}
-                  <div>
-                    <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">
-                      {t('filter.category')}
-                    </h4>
-                    <div className="space-y-2">
-                      {[
-                        'All',
-                        'Hair Salon',
-                        'Barbershop',
-                        'Nail Salon',
-                        'Spa & Massage',
-                        'Beauty',
-                      ].map((cat) => (
-                        <label
-                          key={cat}
-                          className="flex items-center gap-2 cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            className="rounded"
-                            defaultChecked={cat === 'All'}
-                          />
-                          <span className="text-sm text-gray-700 dark:text-gray-300">
-                            {cat}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Price Range */}
-                  <div>
-                    <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">
-                      {t('filter.priceRange')}
-                    </h4>
-                    <div className="space-y-2">
-                      {['$', '$$', '$$$', '$$$$'].map((price) => (
-                        <label
-                          key={price}
-                          className="flex items-center gap-2 cursor-pointer"
-                        >
-                          <input type="checkbox" className="rounded" />
-                          <span className="text-sm text-gray-700 dark:text-gray-300">
-                            {price}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Rating */}
-                  <div>
-                    <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">
-                      {t('filter.rating')}
-                    </h4>
-                    <div className="space-y-2">
-                      {[4.5, 4.0, 3.5, 3.0].map((rating) => (
-                        <label
-                          key={rating}
-                          className="flex items-center gap-2 cursor-pointer"
-                        >
-                          <input type="checkbox" className="rounded" />
-                          <span className="text-sm text-gray-700 dark:text-gray-300">
-                            {rating}+ ⭐
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Results */}
-          <main className="lg:col-span-3">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-                {shops.length} {t('services.all')}
-              </h1>
-              <select className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 md:px-4 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
-                <option>Sort by: Recommended</option>
-                <option>Highest Rated</option>
-                <option>Most Reviews</option>
-                <option>Distance</option>
-                <option>Price: Low to High</option>
-                <option>Price: High to Low</option>
-              </select>
-            </div>
-
-            <div className="space-y-4">
-              {shops.map((shop) => (
+          {isPopularShopsLoading ? (
+            <div className="flex gap-4 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+              {Array.from({ length: 2 }).map((_, i) => (
                 <div
-                  key={shop.id}
-                  className="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden"
-                >
-                  <div className="flex flex-col sm:flex-row gap-4 p-4">
-                    {/* Image */}
-                    <div className="w-full sm:w-40 md:w-48 h-40 md:h-48 bg-gray-200 dark:bg-gray-700 rounded-lg shrink-0"></div>
-
-                    {/* Content */}
-                    <div className="flex-1">
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
-                        <div className="flex-1">
-                          <Link
-                            href={`/shop/${shop.id}`}
-                            className="text-lg md:text-xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2"
-                          >
-                            {shop.name}
-                          </Link>
-                          <div className="flex flex-wrap items-center gap-1 md:gap-2 mt-2 text-xs md:text-sm text-gray-600 dark:text-gray-400">
-                            <div className="flex items-center gap-1 text-yellow-500">
-                              <Star className="w-4 h-4 fill-current" />
-                              <span className="font-semibold">{shop.rating}</span>
-                            </div>
-                            <span>({shop.reviews})</span>
-                            <span className="hidden sm:inline">•</span>
-                            <span className="hidden sm:inline">{shop.category}</span>
-                            <span className="hidden sm:inline">•</span>
-                            <span className="hidden sm:inline">{shop.price}</span>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => toggleFavorite(shop.id)}
-                          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full self-start md:self-auto"
-                        >
-                          <Heart
-                            className={`w-5 md:w-6 h-5 md:h-6 ${
-                              favorites.includes(shop.id)
-                                ? 'fill-red-500 text-red-500'
-                                : 'text-gray-400'
-                            }`}
-                          />
-                        </button>
-                      </div>
-
-                      {/* Info */}
-                      <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        <div className="flex items-center gap-1 flex-wrap">
-                          <MapPin className="w-4 h-4 shrink-0" />
-                          <span className="line-clamp-1">{shop.distance}</span>
-                        </div>
-                        <p className="line-clamp-2 text-gray-700 dark:text-gray-300">
-                          Professional services with experienced staff and modern equipment.
-                        </p>
-                      </div>
-
-                      {/* Buttons */}
-                      <div className="flex flex-col sm:flex-row gap-2">
-                        <Link
-                          href={`/shop/${shop.id}`}
-                          className="flex-1 text-center px-4 py-2 bg-blue-600 text-white text-sm md:text-base rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                          {t('shop.viewDetails')}
-                        </Link>
-                        <Link
-                          href={`/book/${shop.id}`}
-                          className="flex-1 text-center px-4 py-2 border-2 border-blue-600 text-blue-600 dark:text-blue-400 text-sm md:text-base rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                        >
-                          {t('shop.bookNow')}
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  key={`discover-popular-skeleton-${i}`}
+                  className="max-w-85 min-w-65 h-56 w-[70vw] shrink-0 rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-[#0d1422] dark:shadow-none"
+                />
               ))}
             </div>
-          </main>
+          ) : filteredPopularShops.length > 0 ? (
+            <>
+              <div className="sm:hidden">
+                <div
+                  ref={popularScrollRef}
+                  onScroll={updatePopularActiveDot}
+                  className="overflow-x-auto flex gap-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                >
+                  {filteredPopularShops.map((shop) => (
+                    <div key={shop.id} className="max-w-85 min-w-65 w-[70vw] shrink-0">
+                      <ShopCard shop={shop} />
+                    </div>
+                  ))}
+                </div>
+
+                {popularIndicatorCount > 1 && (
+                  <div className="mt-3 flex justify-center gap-2">
+                    {Array.from({ length: popularIndicatorCount }).map((_, i) => (
+                      <button
+                        key={`popular-dot-${i}`}
+                        type="button"
+                        onClick={() => scrollToPopularDot(i)}
+                        className={`h-2 w-2 rounded-full transition-colors ${
+                          i === activePopularDot
+                            ? 'bg-cyan-500 dark:bg-cyan-400'
+                            : 'bg-slate-300 dark:bg-slate-600'
+                        }`}
+                        aria-label={`Go to card ${i + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="hidden sm:grid grid-cols-2 gap-4">
+                {filteredPopularShops.slice(0, 4).map((shop) => (
+                  <ShopCard key={shop.id} shop={shop} />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="rounded-xl border border-slate-200 bg-white px-3 py-5 text-center text-sm text-slate-500 shadow-sm dark:border-slate-800 dark:bg-[#0e1726] dark:text-slate-400 dark:shadow-none">
+              No results
+            </div>
+          )}
+        </div>
+
+        <div className="mt-6">
+          <p className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">Popular Services</p>
+          <div className="space-y-2.5">
+            {filteredServices.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm dark:border-slate-800 dark:bg-[#0e1726] dark:shadow-none"
+              >
+                <div className="h-10 w-10 rounded-full bg-linear-to-br from-slate-300 to-slate-500" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">{item.title}</p>
+                  <p className="truncate text-[11px] text-slate-500 dark:text-slate-400">{item.shop}</p>
+                  <p className="text-sm font-bold text-cyan-400">{item.price}</p>
+                </div>
+                <Link
+                  href={`/book/${item.id}`}
+                  className="rounded-full bg-emerald-400 px-3 py-1.5 text-xs font-bold text-emerald-950"
+                >
+                  BOOK
+                </Link>
+              </div>
+            ))}
+
+            {filteredServices.length === 0 && (
+              <div className="rounded-xl border border-slate-200 bg-white px-3 py-5 text-center text-sm text-slate-500 shadow-sm dark:border-slate-800 dark:bg-[#0e1726] dark:text-slate-400 dark:shadow-none">
+                No services found.
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

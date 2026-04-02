@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import {
   Home,
   Search,
-  LayoutList,
   History,
   User,
 } from 'lucide-react';
@@ -35,12 +34,6 @@ export default function BottomNav() {
       label: t('bottomNav.search'),
       icon: <Search className="w-6 h-6" />,
       activePatterns: ['^/discover'],
-    },
-    {
-      href: '/services',
-      label: t('bottomNav.services'),
-      icon: <LayoutList className="w-6 h-6" />,
-      activePatterns: ['^/services', '^/shop'],
     },
     {
       href: '/bookings',

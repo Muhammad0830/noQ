@@ -1,9 +1,12 @@
 'use client';
 
-import React from 'react';
-import { Search } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
+import { Search, SlidersHorizontal } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import barbershopBanner from '../../assets/Barbershop.png';
+import dentalClinicBanner from '../../assets/Dental clinic.png';
 
 interface HeroSectionProps {
   onSearch?: (query: string, location: string) => void;
@@ -12,54 +15,158 @@ interface HeroSectionProps {
 const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
   const { t } = useLanguage();
   const router = useRouter();
+  const [activeBanner, setActiveBanner] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+
+  const banners = [
+    {
+      id: 'barbershop',
+      image: barbershopBanner,
+      alt: 'Barbershop banner',
+      badge: 'MAXSUS TAKLIF',
+      title: 'Birinchi barber tashrifiga 30% chegirma',
+      subtitle: 'Qulay vaqtingizni hozir band qiling',
+    },
+    {
+      id: 'dental-clinic',
+      image: dentalClinicBanner,
+      alt: 'Dental clinic banner',
+      badge: 'YANGI TAKLIF',
+      title: 'Yangi: dental paketlar',
+      subtitle: 'Cheklangan vaqt uchun',
+    },
+  ];
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveBanner((prev) => (prev + 1) % banners.length);
+    }, 3500);
+
+    return () => window.clearInterval(timer);
+  }, [banners.length]);
+
+  const goToBanner = (index: number) => {
+    setActiveBanner(index);
+  };
+
+  const nextBanner = () => {
+    setActiveBanner((prev) => (prev + 1) % banners.length);
+  };
+
+  const prevBanner = () => {
+    setActiveBanner((prev) => (prev - 1 + banners.length) % banners.length);
+  };
+
+  const onTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchStartX.current = event.touches[0]?.clientX ?? null;
+  };
+
+  const onTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (touchStartX.current === null) return;
+
+    const touchEndX = event.changedTouches[0]?.clientX ?? touchStartX.current;
+    const deltaX = touchStartX.current - touchEndX;
+
+    if (Math.abs(deltaX) > 40) {
+      if (deltaX > 0) {
+        nextBanner();
+      } else {
+        prevBanner();
+      }
+    }
+
+    touchStartX.current = null;
+  };
+
   const openDiscover = () => {
     router.push('/discover');
   };
 
   return (
-    <section className="relative bg-linear-to-br from-blue-600 via-purple-600 to-pink-500 dark:from-blue-900 dark:via-purple-900 dark:to-pink-900 text-white overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-      </div>
+    <section className="bg-white dark:bg-gray-900">
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-2">
+        <form className="w-full">
+          <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm dark:border-slate-700 dark:bg-white">
+            <Search className="h-5 w-5 text-slate-400 dark:text-slate-400" />
+            <input
+              type="text"
+              placeholder={t('hero.search.placeholder')}
+              readOnly
+              onClick={openDiscover}
+              onFocus={openDiscover}
+              className="h-6 w-full bg-transparent text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+            />
+            <button
+              type="button"
+              onClick={openDiscover}
+              className="rounded-lg bg-slate-100 p-2 text-slate-600 transition hover:bg-slate-200"
+              aria-label="Open filters"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+            </button>
+          </div>
+        </form>
 
-      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Search Form */}
-          <form className="max-w-4xl mx-auto">
-            <div className="flex items-stretch gap-2">
-              {/* Service Search */}
-              <div className="flex-1 flex items-center px-4 py-3 bg-white dark:bg-gray-800 rounded-4xl shadow-2xl">
-                <Search className="w-5 h-5 text-gray-400 dark:text-gray-500 mr-3 shrink-0" />
-                <input
-                  type="text"
-                  placeholder={t('hero.search.placeholder')}
-                  readOnly
-                  onClick={openDiscover}
-                  onFocus={openDiscover}
-                  className="w-full bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-base"
-                />
-              </div>
-            </div>
-          </form>
-
-        </div>
-      </div>
-
-      {/* Wave Divider */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg
-          viewBox="0 0 1440 120"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-auto"
+        <div
+          className="mt-3 overflow-hidden rounded-2xl"
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
         >
-          <path
-            d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z"
-            className="fill-white dark:fill-gray-900"
-          />
-        </svg>
+          <div
+            className="flex transition-transform duration-500 ease-in-out"
+            style={{ transform: `translateX(-${activeBanner * 100}%)` }}
+          >
+            {banners.map((banner) => (
+              <button
+                key={banner.id}
+                type="button"
+                onClick={openDiscover}
+                className="relative min-w-full h-45 sm:h-48 md:h-52 focus:outline-hidden"
+                aria-label={banner.alt}
+              >
+                <Image
+                  src={banner.image}
+                  alt={banner.alt}
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 1152px"
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-black/35" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/35 to-transparent" />
+                <div className="absolute left-3 sm:left-4 top-3 sm:top-4 z-10">
+                  <span className="inline-flex items-center rounded-md bg-emerald-400/90 px-2 py-1 text-[9px] sm:text-[10px] font-semibold tracking-wide text-white">
+                    {banner.badge}
+                  </span>
+                </div>
+                <div className="absolute left-3 sm:left-4 bottom-3 sm:bottom-4 right-3 sm:right-4 text-left text-white">
+                  <p className="mt-1.5 text-xl sm:text-3xl font-bold leading-tight max-w-[85%]">
+                    {banner.title}
+                  </p>
+                  <p className="mt-0.5 text-xs sm:text-sm text-gray-200">
+                    {banner.subtitle}
+                  </p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-2 flex items-center justify-center gap-1.5">
+          {banners.map((banner, index) => (
+            <button
+              key={banner.id}
+              type="button"
+              onClick={() => goToBanner(index)}
+              className={`h-1.5 rounded-full transition-all ${
+                activeBanner === index
+                  ? 'w-5 bg-blue-600 dark:bg-blue-400'
+                  : 'w-1.5 bg-gray-300 dark:bg-gray-600'
+              }`}
+              aria-label={`Go to banner ${index + 1}`}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );

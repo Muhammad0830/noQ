@@ -104,7 +104,7 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
   };
 
   return (
-    <section className="py-12 sm:py-16 bg-white dark:bg-gray-900">
+    <section className="pt-8 pb-5 sm:pt-10 sm:pb-6 bg-white dark:bg-gray-900">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-left mb-8 sm:mb-10">
