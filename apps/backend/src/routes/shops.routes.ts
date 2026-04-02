@@ -304,19 +304,15 @@ shopRouter.get("/:id/day-timeline", authMiddleware, async (req, res) => {
   const { id } = req.params;
   const { date } = req.query;
 
-  const shop = await prisma.shop.findUnique({
-    where: { id },
-    include: { shopSchedules: true },
-  });
-
-  if (!shop) return res.status(404).json({ message: "Shop not found" });
-
   const day = new Date(date as string).getDay();
 
-  const schedule = shop.shopSchedules.find((s) => s.dayOfWeek === day);
+  const schedules = await prisma.shopSchedule.findMany({
+    where: { shopId: id, dayOfWeek: day },
+    orderBy: { startTime: "asc" },
+  });
 
-  if (!schedule) {
-    return res.json({ open: null, close: null, busy: [] });
+  if (!schedules || !schedules.length || schedules.length === 0) {
+    return res.json({ open: null, close: null, disabled: [] });
   }
 
   const startDay = new Date(`${date}T00:00:00`);
@@ -338,21 +334,23 @@ shopRouter.get("/:id/day-timeline", authMiddleware, async (req, res) => {
   });
 
   const busy = [
-    ...bookings.map((b) => ({
-      start: b.startTime,
-      end: b.endTime,
-    })),
-    ...blocks.map((b) => ({
-      start: b.startTime,
-      end: b.endTime,
-    })),
+    ...bookings.map((b) => ({ start: b.startTime, end: b.endTime })),
+    ...blocks.map((b) => ({ start: b.startTime, end: b.endTime })),
   ];
 
-  res.json({
-    open: schedule.startTime,
-    close: schedule.endTime,
-    busy,
-  });
+  const open = schedules[0]?.startTime ?? null;
+  const close = schedules[schedules.length - 1]?.endTime ?? null;
+
+  const disabled: { start: string; end: string }[] = [];
+
+  for (let i = 0; i < schedules.length - 1; i++) {
+    disabled.push({
+      start: schedules[i]?.endTime ?? "",
+      end: schedules[i + 1]?.startTime ?? "",
+    });
+  }
+
+  res.json({ open, close, disabled, busy });
 });
 
 shopRouter.get("/trending/7days", async (req, res) => {
