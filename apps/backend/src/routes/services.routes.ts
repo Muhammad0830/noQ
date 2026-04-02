@@ -104,6 +104,84 @@ serviceRouter.get(
   },
 );
 
+serviceRouter.get("/trending/7days", async (req, res) => {
+  try {
+    const trendingServices = await prisma.booking.groupBy({
+      by: ["serviceId"],
+      where: {
+        status: "COMPLETED",
+        createdAt: {
+          gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // last 7 days
+        },
+      },
+      _count: {
+        serviceId: true,
+      },
+      orderBy: {
+        _count: {
+          serviceId: "desc",
+        },
+      },
+      take: 10,
+    });
+
+    const serviceIds = trendingServices.map((t) => t.serviceId);
+
+    const services = await prisma.service.findMany({
+      where: {
+        id: { in: serviceIds },
+      },
+      include: {
+        reviews: {
+          select: {
+            rating: true,
+          },
+        },
+        shop: {
+          select: {
+            category: true,
+          },
+        },
+        _count: {
+          select: { reviews: true },
+        },
+      },
+    });
+
+    const result = serviceIds
+      .map((id) => {
+        const service = services.find((s) => s.id === id);
+
+        if (!service) return null;
+
+        const bookingCount =
+          trendingServices.find((t) => t.serviceId === id)?._count.serviceId ||
+          0;
+
+        const total = service.reviews.reduce(
+          (acc: number, rev: { rating: number }) => acc + rev.rating,
+          0,
+        );
+
+        const avg =
+          service.reviews.length > 0 ? total / service.reviews.length : 0;
+
+        const { reviews, ...rest } = service;
+
+        return {
+          ...rest,
+          booking_count_last_week: bookingCount,
+          averageRating: parseFloat(avg.toFixed(1)),
+        };
+      })
+      .filter(Boolean);
+
+    return res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 serviceRouter.post(
   "/",
   authMiddleware,
