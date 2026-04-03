@@ -2,71 +2,165 @@ import { Router } from "express";
 import prisma from "../db/prisma.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
+type StatusProps =
+  | "PENDING"
+  | "CONFIRMED"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "NO_SHOW";
+
+function getBookings({
+  userId,
+  shopId,
+  status,
+}: {
+  userId?: string;
+  shopId?: string;
+  status: StatusProps[];
+}) {
+  return prisma.booking.findMany({
+    where: {
+      ...(userId && { userId }),
+      ...(shopId && { shopId }),
+      status: {
+        in: status,
+      },
+    },
+    include: {
+      shop: true,
+      service: true,
+      user: true,
+    },
+  });
+}
+
 const bookingRouter = Router();
 
-bookingRouter.get("/active", authMiddleware, async (req: any, res: any) => {
+bookingRouter.get("/users/active", authMiddleware, async (req: any, res) => {
   try {
-    const { shopId } = req.query;
-
-    if (shopId === undefined) {
-      return res.status(400).json({ message: "shopId is required" });
-    }
-
-    const bookings = await prisma.booking.findMany({
-      where: {
-        userId: req.user.id,
-        status: {
-          in: ["PENDING", "CONFIRMED", "IN_PROGRESS"],
-        },
-        shopId: shopId,
-      },
-      include: {
-        shop: true,
-        service: true,
-      },
+    const bookings = await getBookings({
+      userId: req.user.id,
+      status: ["PENDING", "CONFIRMED", "IN_PROGRESS"],
     });
 
-    res.status(200).json(bookings);
+    const pendingBookings = bookings.filter((b) => b.status === "PENDING");
+
+    const confirmedBookings = bookings.filter((b) => b.status === "CONFIRMED");
+
+    const inProgressBookings = bookings.filter(
+      (b) => b.status === "IN_PROGRESS",
+    );
+
+    res.status(200).json({
+      pending: pendingBookings,
+      confirmed: confirmedBookings,
+      inProgress: inProgressBookings,
+    });
   } catch (error) {
-    console.log("error", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
 
-bookingRouter.get("/history", authMiddleware, async (req: any, res: any) => {
+bookingRouter.get("/users/history", authMiddleware, async (req: any, res) => {
   try {
-    const {
-      shopId = "",
-      serviceId = "",
-      startTime = "",
-      endTime = "",
-    } = req.query as {
-      shopId?: string;
-      serviceId?: string;
-      startTime?: string;
-      endTime?: string;
-    };
+    const bookings = await getBookings({
+      userId: req.user.id,
+      status: ["COMPLETED", "CANCELLED", "NO_SHOW"],
+    });
 
-    const bookings = await prisma.booking.findMany({
-      where: {
-        userId: req.user.id,
-        status: {
-          in: ["COMPLETED", "CANCELLED", "NO_SHOW"],
-        },
+    const cancelledBookings = bookings.filter((b) => b.status === "CANCELLED");
+
+    const completedBookings = bookings.filter((b) => b.status === "COMPLETED");
+
+    const nowShowBookings = bookings.filter((b) => b.status === "NO_SHOW");
+
+    res.status(200).json({
+      cancelled: cancelledBookings,
+      completed: completedBookings,
+      nowShow: nowShowBookings,
+    });
+    res.status(200).json(bookings);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+bookingRouter.get(
+  "/shops/:shopId/active",
+  authMiddleware,
+  async (req: any, res: any) => {
+    try {
+      const { shopId } = req.params;
+
+      if (!shopId) {
+        return res.status(400).json({ message: "shopId is required" });
+      }
+
+      const bookings = await getBookings({
         shopId,
-      },
-      include: {
-        shop: true,
-        service: true,
-      },
-    });
+        status: ["PENDING", "CONFIRMED", "IN_PROGRESS"],
+      });
 
-    res.status(200).json(bookings);
-  } catch (error) {
-    console.error("error", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
+      const pendingBookings = bookings.filter((b) => b.status === "PENDING");
+
+      const confirmedBookings = bookings.filter(
+        (b) => b.status === "CONFIRMED",
+      );
+
+      const inProgressBookings = bookings.filter(
+        (b) => b.status === "IN_PROGRESS",
+      );
+
+      res.status(200).json({
+        pending: pendingBookings,
+        confirmed: confirmedBookings,
+        inProgress: inProgressBookings,
+      });
+    } catch (error) {
+      console.log("error", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
+
+bookingRouter.get(
+  "/shops/:shopId/history",
+  authMiddleware,
+  async (req: any, res: any) => {
+    try {
+      const { shopId } = req.params;
+
+      if (!shopId) {
+        return res.status(400).json({ message: "shopId is required" });
+      }
+
+      const bookings = await getBookings({
+        shopId,
+        status: ["COMPLETED", "CANCELLED", "NO_SHOW"],
+      });
+
+      const cancelledBookings = bookings.filter(
+        (b) => b.status === "CANCELLED",
+      );
+
+      const completedBookings = bookings.filter(
+        (b) => b.status === "COMPLETED",
+      );
+
+      const nowShowBookings = bookings.filter((b) => b.status === "NO_SHOW");
+
+      res.status(200).json({
+        cancelled: cancelledBookings,
+        completed: completedBookings,
+        nowShow: nowShowBookings,
+      });
+    } catch (error) {
+      console.error("error", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
 
 bookingRouter.post("/", authMiddleware, async (req: any, res) => {
   try {
