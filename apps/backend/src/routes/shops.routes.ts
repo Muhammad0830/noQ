@@ -329,6 +329,11 @@ shopRouter.get("/:id/day-timeline", authMiddleware, async (req, res) => {
 
 shopRouter.get("/trending/7days", async (req, res) => {
   try {
+    const { search = "", categoryId = "" } = req.query as {
+      search?: string;
+      categoryId?: string;
+    };
+
     const trendingShops = await prisma.booking.groupBy({
       by: ["shopId"],
       where: {
@@ -350,9 +355,17 @@ shopRouter.get("/trending/7days", async (req, res) => {
 
     const shopIds = trendingShops.map((t) => t.shopId);
 
+    if (shopIds.length === 0) {
+      return res.status(200).json([]);
+    }
+
     const shops = await prisma.shop.findMany({
       where: {
         id: { in: shopIds },
+        ...(categoryId ? { categoryId } : {}),
+        ...(search
+          ? { name: { contains: search, mode: "insensitive" } }
+          : {}),
       },
       include: {
         reviews: {
