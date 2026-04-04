@@ -10,6 +10,7 @@ import {
   serviceRouter,
   shopRouter,
   reviewsRouter,
+  dashboardRouter
 } from "./routes/index.js";
 
 const app = express();
@@ -33,5 +34,6 @@ app.use("/api/favourites", favouriteRouter);
 app.use("/api/services", serviceRouter);
 app.use("/api/shops", shopRouter);
 app.use("/api/reviews", reviewsRouter);
+app.use("/api/dashboard", dashboardRouter);
 
 export default app;
