@@ -5,14 +5,22 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { User, LogIn, LogOut, Bell, MapPin, ChevronDown } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getImageUrl } from "@/lib/supabaseClient";
 
 export default function Header() {
   const pathname = usePathname();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [locationMenuOpen, setLocationMenuOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] =
     useState("Downtown Manhab an");
+
+  const avatarImageSrc = user?.avatarUrl
+    ? user.avatarUrl.startsWith("http")
+      ? user.avatarUrl
+      : getImageUrl(user.avatarUrl, "user_avatars")
+    : null;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md">
@@ -111,7 +119,12 @@ export default function Header() {
           {/* Right Side Actions */}
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             {/* Auth Buttons / Profile */}
-            {isAuthenticated ? (
+            {isLoading ? (
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-10 rounded-full sm:h-11 sm:w-11" />
+                <Skeleton className="h-10 w-10 rounded-full sm:h-11 sm:w-11" />
+              </div>
+            ) : isAuthenticated ? (
               <div className="flex items-center gap-3">
                 <button
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 sm:h-11 sm:w-11"
@@ -125,9 +138,9 @@ export default function Header() {
                     className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-amber-100 dark:bg-amber-900/30 sm:h-11 sm:w-11"
                     aria-label="Profile menu"
                   >
-                    {user?.avatarUrl ? (
+                    {avatarImageSrc ? (
                       <img
-                        src={user.avatarUrl}
+                        src={avatarImageSrc}
                         alt={user?.name || "User avatar"}
                         className="w-full h-full object-cover"
                       />

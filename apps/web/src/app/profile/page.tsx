@@ -10,6 +10,7 @@ import {
   CreditCard,
   HelpCircle,
   Languages,
+  Loader2,
   LogOut,
   Moon,
   Shield,
@@ -22,11 +23,12 @@ import type { Language } from "@shared/types/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getImageUrl } from "@/lib/supabaseClient";
 
 const LANGUAGES: { code: Language; label: string }[] = [
   { code: "uz-latn", label: "O'zbekcha" },
-  { code: "uz-cyrl", label: "Uzbek Cyrillic" },
+  { code: "uz-cyrl", label: "Kirilcha" },
   { code: "ru", label: "Russian" },
 ];
 
@@ -104,8 +106,19 @@ export default function ProfilePage() {
     return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
   })();
 
-  if (isLoading || !user) {
-    return null;
+  if (isLoading) {
+    return <ProfilePageSkeleton />;
+  }
+
+  if (!user) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-700 dark:bg-[#060912] dark:text-slate-200">
+        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium shadow-sm dark:border-white/10 dark:bg-white/5">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span>{t("common.loading")}</span>
+        </div>
+      </main>
+    );
   }
 
   const profileImageUrl = user.avatarUrl
@@ -406,6 +419,97 @@ export default function ProfilePage() {
           </div>
         </ModalShell>
       )}
+    </main>
+  );
+}
+
+function ProfilePageSkeleton() {
+  return (
+    <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#060912] dark:text-white">
+      <div className="mx-auto w-full max-w-162.5 px-3 pb-24 pt-4 sm:px-6">
+        <header className="mb-6 flex items-center justify-between">
+          <Skeleton className="h-9 w-9 rounded-full" />
+          <Skeleton className="h-5 w-28 rounded-md" />
+          <Skeleton className="h-9 w-9 rounded-full" />
+        </header>
+
+        <section className="relative mb-6 border-b border-slate-200 pb-6 text-center dark:border-white/10">
+          <Skeleton className="mx-auto mb-4 h-24 w-24 rounded-full" />
+          <Skeleton className="mx-auto h-9 w-52 rounded-md" />
+          <Skeleton className="mx-auto mt-2 h-4 w-40 rounded-md" />
+        </section>
+
+        <section className="mb-5 grid grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/5">
+            <Skeleton className="mb-2 h-7 w-7 rounded-md" />
+            <Skeleton className="h-8 w-16 rounded-md" />
+            <Skeleton className="mt-2 h-3 w-20 rounded-md" />
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/5">
+            <Skeleton className="mb-2 h-7 w-7 rounded-md" />
+            <Skeleton className="h-8 w-16 rounded-md" />
+            <Skeleton className="mt-2 h-3 w-20 rounded-md" />
+          </div>
+        </section>
+
+        <section className="mb-5 rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/5">
+          <div className="flex items-center justify-between gap-4">
+            <div className="space-y-2">
+              <Skeleton className="h-5 w-28 rounded-md" />
+              <Skeleton className="h-3 w-40 rounded-md" />
+            </div>
+            <Skeleton className="h-7 w-12 rounded-full" />
+          </div>
+        </section>
+
+        <section className="mb-6">
+          <Skeleton className="mb-2 h-3 w-40 rounded-md" />
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/5">
+            {[0, 1, 2].map((item) => (
+              <div
+                key={item}
+                className={`flex items-center gap-3 px-4 py-3 ${
+                  item > 0
+                    ? "border-t border-slate-200 dark:border-white/10"
+                    : ""
+                }`}
+              >
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Skeleton className="h-4 w-36 rounded-md" />
+                  <Skeleton className="h-3 w-48 rounded-md" />
+                </div>
+                <Skeleton className="h-4 w-4 rounded-sm" />
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mb-8">
+          <Skeleton className="mb-2 h-3 w-40 rounded-md" />
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/5">
+            {[0, 1, 2].map((item) => (
+              <div
+                key={item}
+                className={`flex items-center gap-3 px-4 py-3 ${
+                  item > 0
+                    ? "border-t border-slate-200 dark:border-white/10"
+                    : ""
+                }`}
+              >
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Skeleton className="h-4 w-32 rounded-md" />
+                  <Skeleton className="h-3 w-52 rounded-md" />
+                </div>
+                <Skeleton className="h-4 w-4 rounded-sm" />
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <Skeleton className="h-12 w-full rounded-xl" />
+      </div>
     </main>
   );
 }

@@ -11,27 +11,39 @@ export const USER_STORAGE_KEY = "user";
 export const ACCESS_TOKEN_STORAGE_KEY = "token";
 export const REFRESH_TOKEN_STORAGE_KEY = "refresh_token";
 
-export const getStorageBySource = (source: AuthStorageSource) =>
-  source === "local" ? localStorage : sessionStorage;
+const isBrowser = () => typeof window !== "undefined";
+
+export const getStorageBySource = (
+  source: AuthStorageSource,
+): Storage | null => {
+  if (!isBrowser()) {
+    return null;
+  }
+  return source === "local" ? window.localStorage : window.sessionStorage;
+};
 
 export const getStoredAuth = () => {
-  const localToken = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  if (!isBrowser()) {
+    return null;
+  }
+
+  const localToken = window.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
   if (localToken) {
     return {
       source: "local" as const,
       token: localToken,
-      refreshToken: localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
-      savedUser: localStorage.getItem(USER_STORAGE_KEY),
+      refreshToken: window.localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
+      savedUser: window.localStorage.getItem(USER_STORAGE_KEY),
     };
   }
 
-  const sessionToken = sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  const sessionToken = window.sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
   if (sessionToken) {
     return {
       source: "session" as const,
       token: sessionToken,
-      refreshToken: sessionStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
-      savedUser: sessionStorage.getItem(USER_STORAGE_KEY),
+      refreshToken: window.sessionStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
+      savedUser: window.sessionStorage.getItem(USER_STORAGE_KEY),
     };
   }
 
@@ -44,10 +56,18 @@ export const persistAuth = (
   userData: User,
   source: AuthStorageSource = "local",
 ) => {
+  if (!isBrowser()) {
+    return;
+  }
+
   const targetStorage = getStorageBySource(source);
   const otherStorage = getStorageBySource(
     source === "local" ? "session" : "local",
   );
+
+  if (!targetStorage || !otherStorage) {
+    return;
+  }
 
   targetStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
   if (refreshToken) {
@@ -63,12 +83,16 @@ export const persistAuth = (
 };
 
 export const clearPersistedAuth = () => {
-  localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
-  localStorage.removeItem(USER_STORAGE_KEY);
-  sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-  sessionStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
-  sessionStorage.removeItem(USER_STORAGE_KEY);
+  if (!isBrowser()) {
+    return;
+  }
+
+  window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+  window.localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+  window.localStorage.removeItem(USER_STORAGE_KEY);
+  window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+  window.sessionStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+  window.sessionStorage.removeItem(USER_STORAGE_KEY);
 };
 
 
@@ -114,6 +138,10 @@ export const API_ENDPOINTS = {
   bookings: `${API_BASE_URL}/bookings`,
   activeBookings: `${API_BASE_URL}/bookings/active`,
   bookingHistory: `${API_BASE_URL}/bookings/history`,
+  bookingsByUser: {
+    active: `${API_BASE_URL}/bookings/users/active`,
+    history: `${API_BASE_URL}/bookings/users/history`,
+  },
 
   // Favourites
   favourites: {

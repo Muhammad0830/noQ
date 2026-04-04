@@ -46,10 +46,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const storageAuth = getStoredAuth();
-
-  console.log("getStoredAuth", storageAuth);
-
   useEffect(() => {
     const initializeAuth = async () => {
       const storedAuth = getStoredAuth();
@@ -247,10 +243,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw error;
     }
   };
-
-  const storageAuth2 = getStoredAuth();
-
-  console.log("getStoredAuth2", storageAuth2);
 
   const logout = () => {
     setUser(null);
