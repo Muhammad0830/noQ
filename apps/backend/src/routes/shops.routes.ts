@@ -33,6 +33,7 @@ shopRouter.get("/", authMiddleware, async (req, res) => {
         skip: shopCursor ? 1 : 0,
         ...(shopCursor && { cursor: { id: shopCursor } }),
         where: {
+          isOpen: true,
           name: { contains: search, mode: "insensitive" },
         },
         orderBy: { createdAt: "desc" },
@@ -57,6 +58,7 @@ shopRouter.get("/", authMiddleware, async (req, res) => {
         skip: serviceCursor ? 1 : 0,
         ...(serviceCursor && { cursor: { id: serviceCursor } }),
         where: {
+          isOpen: true,
           price: {
             ...(minPrice && { gte: Number(minPrice) }),
             ...(maxPrice && { lte: Number(maxPrice) }),
@@ -84,6 +86,7 @@ shopRouter.get("/", authMiddleware, async (req, res) => {
         skip: shopCursor ? 1 : 0,
         ...(shopCursor && { cursor: { id: shopCursor } }),
         where: {
+          isOpen: true,
           categoryId,
           ...(open === "true" && { isOpen: true }),
         },
@@ -126,6 +129,7 @@ shopRouter.get("/", authMiddleware, async (req, res) => {
       skip: shopCursor ? 1 : 0,
       ...(shopCursor && { cursor: { id: shopCursor } }),
       where: {
+        isOpen: true,
         ...(categoryId && { categoryId }),
         ...(open === "true" && { isOpen: true }),
       },
