@@ -6,29 +6,33 @@ import { adminOnly } from "../middlewares/admin.middleware.js";
 
 const serviceRouter = Router();
 
-serviceRouter.get(
-  "/",
-  authMiddleware,
-  adminOnly,
-  async (req: any, res: any) => {
-    try {
-      const { shopId } = req.query;
+serviceRouter.get("/", async (req: any, res: any) => {
+  try {
+    const { shopId, categoryId, minPrice, maxPrice } = req.query;
 
-      const services = await prisma.service.findMany({
-        where: {
-          shopId,
+    const services = await prisma.service.findMany({
+      where: {
+        shopId,
+        shop: {
+          categoryId,
+          isOpen: true,
         },
-        include: {
-          shop: true,
+        price: {
+          ...(minPrice && { gte: Number(minPrice) }),
+          ...(maxPrice && { lte: Number(maxPrice) }),
         },
-      });
+      },
+      include: {
+        shop: true,
+      },
+    });
 
-      res.status(200).json(services);
-    } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
-    }
-  },
-);
+    res.status(200).json(services);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+    console.error(error);
+  }
+});
 
 serviceRouter.get("/:id", authMiddleware, async (req: any, res: any) => {
   try {
