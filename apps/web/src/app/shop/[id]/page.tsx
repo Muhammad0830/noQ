@@ -53,7 +53,7 @@ export default function ShopProfile({
   });
 
   // 🔥 FETCH SERVICES
-  const { data: servicesData = [] } = useApiQuery<Service[]>(
+  const { data: servicesData = [], isLoading: servicesLoading } = useApiQuery<Service[]>(
     API_ENDPOINTS.shopServices(id),
     {
       key: ["services", id],
@@ -61,7 +61,7 @@ export default function ShopProfile({
   );
 
   // 🔥 FETCH REVIEWS
-  const { data: reviewsData = [] } = useApiQuery<Review[]>(
+  const { data: reviewsData = [], isLoading: reviewsLoading } = useApiQuery<Review[]>(
     API_ENDPOINTS.shopReviews(id),
     {
       key: ["reviews", id],
@@ -75,6 +75,52 @@ export default function ShopProfile({
   const reviews = useMemo(() => {
     return reviewsData || [];
   }, [reviewsData]);
+
+  if (shopLoading && !shop) {
+    return (
+      <div className="bg-white dark:bg-gray-900 transition-colors">
+        <div className="max-w-3xl mx-auto px-4 pt-3 pb-2 flex items-center gap-3">
+          <Skeleton className="w-9 h-9 rounded-full" />
+          <Skeleton className="h-6 w-40 rounded-md" />
+          <div className="ml-auto flex items-center gap-2">
+            <Skeleton className="w-9 h-9 rounded-full" />
+            <Skeleton className="w-9 h-9 rounded-full" />
+          </div>
+        </div>
+
+        <div className="max-w-3xl mx-auto px-4 mt-1">
+          <Skeleton className="h-64 sm:h-80 w-full rounded-3xl" />
+        </div>
+
+        <div className="max-w-3xl mx-auto px-4 pt-6">
+          <div className="grid grid-cols-4 gap-3 sm:gap-4 mb-6">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-20 sm:h-24 w-full rounded-lg" />
+            ))}
+          </div>
+
+          <div className="flex gap-4 sm:gap-8 mb-6">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-5 w-20 rounded" />
+            ))}
+          </div>
+
+          <div className="space-y-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="p-4 sm:p-5 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                <Skeleton className="h-5 w-44 mb-3" />
+                <Skeleton className="h-4 w-60 mb-3" />
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-6 w-20" />
+                  <Skeleton className="h-9 w-24 rounded-full" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const shopData = shop || {
     id: id,
@@ -100,7 +146,7 @@ export default function ShopProfile({
   const hasPhone = Boolean(shopData.phone && shopData.phone.trim().length > 0);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors pb-20">
+    <div className="bg-white dark:bg-gray-900 transition-colors">
       {/* Error Message */}
       {shopError && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 m-4 rounded-lg">
@@ -260,7 +306,18 @@ export default function ShopProfile({
         {/* Services Tab */}
         {activeTab === "services" && !shopLoading && (
           <div className="space-y-4">
-            {services.length > 0 ? (
+            {servicesLoading ? (
+              [...Array(4)].map((_, i) => (
+                <div key={i} className="p-4 sm:p-5 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                  <Skeleton className="h-5 w-44 mb-3" />
+                  <Skeleton className="h-4 w-60 mb-3" />
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-6 w-20" />
+                    <Skeleton className="h-9 w-24 rounded-full" />
+                  </div>
+                </div>
+              ))
+            ) : services.length > 0 ? (
               services.map((service) => (
                 <div
                   key={service.id}
@@ -334,7 +391,21 @@ export default function ShopProfile({
         {/* Reviews Tab */}
         {activeTab === "reviews" && (
           <div className="space-y-4">
-            {reviews.length > 0 ? (
+            {reviewsLoading ? (
+              [...Array(3)].map((_, i) => (
+                <div key={i} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <Skeleton className="h-4 w-28 mb-2" />
+                      <Skeleton className="h-4 w-20" />
+                    </div>
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-4/5" />
+                </div>
+              ))
+            ) : reviews.length > 0 ? (
               reviews.map((review) => (
                 <div
                   key={review.id}

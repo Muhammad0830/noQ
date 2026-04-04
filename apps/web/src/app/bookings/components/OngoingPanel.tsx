@@ -1,0 +1,203 @@
+import Link from "next/link";
+import { Calendar, MapPin, Navigation, Phone, Scissors } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { OngoingBookingCardData } from "../bookings.types";
+import { getStatusColor, getStatusLabel } from "./booking-status";
+
+type Props = {
+  filter: "ongoing" | "completed" | "cancelled";
+  isHydrated: boolean;
+  isLoading: boolean;
+  isError: boolean;
+  errorMessage?: string;
+  activeBooking: OngoingBookingCardData | null;
+  onRetry: () => void;
+  t: (key: string) => string;
+};
+
+const ongoingSkeleton = (
+  <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white/85 p-4 dark:border-white/10 dark:bg-white/5 sm:p-5">
+    <div className="mb-4 flex items-center justify-between">
+      <Skeleton className="h-8 w-52 rounded-xl" />
+      <Skeleton className="h-6 w-24 rounded-full" />
+    </div>
+    <Skeleton className="h-40 w-full rounded-2xl sm:h-44" />
+    <div className="mt-4 space-y-3">
+      <Skeleton className="h-4 w-28 rounded-md" />
+      <Skeleton className="h-10 w-64 rounded-xl" />
+      <Skeleton className="h-4 w-full rounded-md" />
+    </div>
+    <div className="my-4 grid grid-cols-2 gap-3">
+      <Skeleton className="h-16 w-full rounded-2xl" />
+      <Skeleton className="h-16 w-full rounded-2xl" />
+    </div>
+    <div className="flex gap-2">
+      <Skeleton className="h-12 flex-1 rounded-full" />
+      <Skeleton className="h-12 w-12 rounded-full" />
+    </div>
+  </div>
+);
+
+export default function OngoingPanel({
+  filter,
+  isHydrated,
+  isLoading,
+  isError,
+  errorMessage,
+  activeBooking,
+  onRetry,
+  t,
+}: Props) {
+  if (filter !== "ongoing") {
+    return null;
+  }
+
+  if (!isHydrated || isLoading) {
+    return ongoingSkeleton;
+  }
+
+  if (isError) {
+    return (
+      <div className="rounded-3xl border border-red-200 bg-red-50/90 p-6 dark:border-red-400/30 dark:bg-red-500/10">
+        <p className="text-sm font-semibold text-red-700 dark:text-red-300">
+          {t("history.errorOngoing")}
+        </p>
+        <p className="mt-1 text-xs text-red-700/80 dark:text-red-300/80">
+          {errorMessage}
+        </p>
+        <button
+          type="button"
+          onClick={onRetry}
+          className="mt-3 rounded-full border border-red-300 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 dark:border-red-300/40 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20"
+        >
+          {t("common.retry")}
+        </button>
+      </div>
+    );
+  }
+
+  if (!activeBooking) {
+    return (
+      <div className="rounded-2xl border border-slate-200 bg-white/75 p-6 text-center dark:border-white/10 dark:bg-white/3">
+        <Calendar className="mx-auto mb-3 h-8 w-8 text-slate-500 dark:text-slate-500" />
+        <p className="text-sm text-slate-600 dark:text-slate-300">
+          {t("history.emptyOngoing")}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-[23px] font-semibold tracking-tight text-slate-900 dark:text-white sm:text-[30px]">
+          {t("history.nextAppointment")}
+        </h2>
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${getStatusColor(activeBooking.status)}`}
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-300" />
+          {getStatusLabel(activeBooking.subtitle, t)}
+        </span>
+      </div>
+
+      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-[linear-gradient(180deg,#f8fcff_0%,#eef4fa_100%)] shadow-[0_18px_40px_rgba(56,88,120,0.2)] dark:border-white/10 dark:bg-[linear-gradient(180deg,#111c2f_0%,#0a101b_100%)] dark:shadow-[0_18px_42px_rgba(0,0,0,0.45)]">
+        <div className="relative h-36 overflow-hidden border-b border-slate-200 bg-[linear-gradient(130deg,#cad7e2_0%,#9eb0bf_35%,#738b9d_100%)] dark:border-white/10 dark:bg-[linear-gradient(130deg,#9bb2c4_0%,#5f7282_35%,#2f3f4b_100%)] sm:h-44">
+          {activeBooking.image && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={activeBooking.image}
+              alt={activeBooking.shopName}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          )}
+        </div>
+
+        <div className="p-4 sm:p-5">
+          <div className="mb-3 flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.15em] text-emerald-700 dark:text-emerald-300">
+                {activeBooking.service}
+              </p>
+              <h3 className="mt-1 text-[32px] font-semibold leading-none tracking-tight text-slate-900 dark:text-white sm:text-[40px]">
+                {activeBooking.shopName}
+              </h3>
+              <p className="mt-2 text-sm text-slate-700 dark:text-slate-300/90 sm:text-base">
+                {activeBooking.address}
+              </p>
+            </div>
+            <button className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/15 text-emerald-700 transition hover:bg-emerald-500/20 dark:border-emerald-300/35 dark:bg-emerald-400/15 dark:text-emerald-300 dark:hover:bg-emerald-400/20">
+              <Scissors className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="my-4 h-px w-full bg-linear-to-r from-slate-200/0 via-slate-400/40 to-slate-200/0 dark:from-white/0 dark:via-white/20 dark:to-white/0" />
+
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              {activeBooking.remainingDays !== null ? (
+                <div className="flex h-14 w-20 flex-col items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-[0_8px_22px_rgba(16,185,129,0.34)] dark:bg-emerald-400 dark:text-[#032018] dark:shadow-[0_8px_22px_rgba(0,255,190,0.32)]">
+                  <span className="text-[22px] font-semibold leading-none">
+                    {activeBooking.remainingDays}
+                  </span>
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.09em]">
+                    {t("history.time.days")}
+                  </span>
+                </div>
+              ) : (
+                <>
+                  <div className="flex h-14 w-14 flex-col items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-[0_8px_22px_rgba(16,185,129,0.34)] dark:bg-emerald-400 dark:text-[#032018] dark:shadow-[0_8px_22px_rgba(0,255,190,0.32)]">
+                    <span className="text-[22px] font-semibold leading-none">
+                      {activeBooking.remainingHours}
+                    </span>
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.09em]">
+                      {t("history.time.hour")}
+                    </span>
+                  </div>
+                  <div className="flex h-14 w-14 flex-col items-center justify-center rounded-2xl border border-slate-300 bg-white text-slate-900 dark:border-white/12 dark:bg-white/5 dark:text-white">
+                    <span className="text-[22px] font-semibold leading-none">
+                      {activeBooking.remainingMinutes}
+                    </span>
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.09em] text-slate-500 dark:text-slate-300">
+                      {t("history.time.min")}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="text-right">
+              <p className="text-[11px] uppercase tracking-[0.11em] text-slate-500 dark:text-slate-400">
+                {t("history.startsAt")}
+              </p>
+              <p className="text-[20px] font-semibold tracking-tight text-slate-900 dark:text-white sm:text-[30px]">
+                {activeBooking.startLabel}
+              </p>
+            </div>
+          </div>
+
+          <div className="mb-4 flex items-center justify-between rounded-2xl border border-slate-300/70 bg-white/75 px-3 py-2 dark:border-white/10 dark:bg-white/5">
+            <p className="text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400">
+              {t("history.serviceDetails")}
+            </p>
+            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+              {activeBooking.duration} • ${activeBooking.price.toFixed(2)}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/bookings/${activeBooking.id}`}
+              className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-linear-to-r from-emerald-500 to-cyan-500 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(16,185,129,0.35)] transition hover:brightness-105 dark:from-emerald-400 dark:to-cyan-400 dark:text-[#032018] dark:shadow-[0_10px_26px_rgba(0,255,190,0.35)]"
+            >
+              <Navigation className="h-4 w-4" />
+              {t("history.getDirections")}
+            </Link>
+            <button className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-100 dark:border-white/15 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10">
+              <Phone className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

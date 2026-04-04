@@ -39,7 +39,7 @@ export default function RootLayout({
             <LanguageProvider>
               <AuthProvider>
                 <Header />
-                <main className="min-h-screen pb-16 md:pb-0">{children}</main>
+                <main className="min-h-[calc(100dvh-8rem)] md:min-h-[calc(100dvh-4rem)] pb-16 md:pb-0">{children}</main>
                 <ConditionalBottomNav />
               </AuthProvider>
             </LanguageProvider>

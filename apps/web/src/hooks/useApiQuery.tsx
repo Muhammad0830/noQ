@@ -2,6 +2,7 @@
 
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
+import { getStoredAuth } from "@/lib/api";
 
 interface ApiError extends Error {
   status?: number;
@@ -30,7 +31,7 @@ const useApiQuery = <T,>(
     refetchOnMount = "always",
     refetchOnWindowFocus = true,
     queryOptions,
-  }: UseApiQueryOptions<T>
+  }: UseApiQueryOptions<T>,
 ) => {
   const hasShownError = useRef(false);
 
@@ -40,7 +41,7 @@ const useApiQuery = <T,>(
     queryFn: async () => {
       if (!url) throw new Error("No URL provided");
 
-      const token = localStorage.getItem("token");
+      const token = getStoredAuth()?.token;
 
       const res = await fetch(url, {
         method: "GET",

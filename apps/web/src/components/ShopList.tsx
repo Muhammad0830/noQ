@@ -76,7 +76,7 @@ const ServicesList: React.FC<ServicesListProps> = ({
   const skeletonCountDesktop = 8;
 
   return (
-    <section className="py-12 sm:py-16 bg-gray-50 dark:bg-gray-800">
+    <section className="pt-6 pb-12 sm:pt-8 sm:pb-16 bg-gray-50 dark:bg-gray-800">
       {error?.message ?? ""}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* HEADER */}
@@ -91,7 +91,7 @@ const ServicesList: React.FC<ServicesListProps> = ({
         {isLoading ? (
           <>
             <div className="sm:hidden">
-              <div className="overflow-x-auto flex gap-4">
+              <div className="overflow-x-auto flex gap-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                 {Array.from({ length: skeletonCountMobile }).map((_, i) => (
                   <div
                     key={`mobile-skeleton-${i}`}
@@ -129,7 +129,7 @@ const ServicesList: React.FC<ServicesListProps> = ({
               <div
                 ref={scrollRef}
                 onScroll={updateActiveDot}
-                className="overflow-x-auto flex gap-4"
+                className="overflow-x-auto flex gap-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               >
                 {filteredServices.map((shop) => (
                   <div

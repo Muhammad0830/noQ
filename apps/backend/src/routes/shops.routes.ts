@@ -153,67 +153,41 @@ shopRouter.get("/:id", async (req: any, res: any) => {
   try {
     const { id } = req.params;
 
-    const shop = await prisma.shop.findUnique({
-      where: { id },
-      include: {
-        category: true,
-        staffs: {
-          include: {
-            user: true,
-          },
+    const [shop, services, reviewStats] = await prisma.$transaction([
+      prisma.shop.findUnique({
+        where: { id },
+        include: {
+          category: true,
         },
-        services: {
-          include: {
-            _count: {
-              select: {
-                reviews: true,
-              },
+      }),
+      prisma.service.findMany({
+        where: { shopId: id },
+        include: {
+          _count: {
+            select: {
+              reviews: true,
             },
           },
         },
-        reviews: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                avatarUrl: true,
-              },
-            },
-          },
-        },
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatarUrl: true,
-          },
-        },
-        _count: {
-          select: {
-            reviews: true,
-          },
-        },
-      },
-    });
+      }),
+      prisma.review.aggregate({
+        where: { shopId: id },
+        _avg: { rating: true },
+        _count: { id: true },
+      }),
+    ]);
 
     if (!shop) {
       return res.status(404).json({ message: "Shop not found" });
     }
 
-    // Calculate average rating
-    const averageRating =
-      shop.reviews.length > 0
-        ? shop.reviews.reduce((sum, review) => sum + review.rating, 0) /
-          shop.reviews.length
-        : 0;
+    const averageRating = reviewStats._avg.rating ?? 0;
 
     const response = {
       ...shop,
+      services,
       averageRating: parseFloat(averageRating.toFixed(1)),
-      reviewCount: shop._count.reviews,
+      reviewCount: reviewStats._count.id,
     };
 
     res.status(200).json(response);
@@ -379,7 +353,6 @@ shopRouter.get("/trending/7days", async (req, res) => {
     const shops = await prisma.shop.findMany({
       where: {
         id: { in: shopIds },
-        isOpen: true,
       },
       include: {
         reviews: {
