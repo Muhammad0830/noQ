@@ -16,7 +16,7 @@ export default function Header() {
   const [selectedLocation, setSelectedLocation] =
     useState("Downtown Manhab an");
 
-  const hideHeaderOnBookPage = pathname.startsWith("/book/");
+  const hideHeaderOnBookPage = pathname.startsWith("/book/") || pathname.startsWith("/shop/");
 
   if (hideHeaderOnBookPage) {
     return null;
