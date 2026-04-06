@@ -139,9 +139,9 @@ shopRouter.get("/", async (req, res) => {
         ...(categoryId && { categoryId }),
         ...(open === "true" && { isOpen: true }),
       },
-        include: {
-          category: true,
-        },
+      include: {
+        category: true,
+      },
       orderBy: { createdAt: "desc" },
     });
 
@@ -287,7 +287,7 @@ shopRouter.get("/:id/reviews", async (req: any, res: any) => {
 });
 
 // GET /shops/:id/day-timeline?date=2026-01-20
-shopRouter.get("/:id/day-timeline", authMiddleware, async (req, res) => {
+shopRouter.get("/:id/day-timeline", async (req, res) => {
   try {
     const { id } = req.params;
     const { date } = req.query;
@@ -299,7 +299,13 @@ shopRouter.get("/:id/day-timeline", authMiddleware, async (req, res) => {
     const day = new Date(date as string).getDay();
 
     const schedules = await prisma.$queryRaw<
-      { id: string; shopId: string; dayOfWeek: number; startTime: string; endTime: string }[]
+      {
+        id: string;
+        shopId: string;
+        dayOfWeek: number;
+        startTime: string;
+        endTime: string;
+      }[]
     >`
       SELECT "id", "shopId", "dayOfWeek", "startTime", "endTime"
       FROM "ShopSchedule"
@@ -332,8 +338,14 @@ shopRouter.get("/:id/day-timeline", authMiddleware, async (req, res) => {
     });
 
     const busy = [
-      ...bookings.map((b) => ({ start: b.startTime.toISOString(), end: b.endTime.toISOString() })),
-      ...blocks.map((b) => ({ start: b.startTime.toISOString(), end: b.endTime.toISOString() })),
+      ...bookings.map((b) => ({
+        start: b.startTime.toISOString(),
+        end: b.endTime.toISOString(),
+      })),
+      ...blocks.map((b) => ({
+        start: b.startTime.toISOString(),
+        end: b.endTime.toISOString(),
+      })),
     ];
 
     const open = schedules[0]?.startTime ?? null;
@@ -394,9 +406,7 @@ shopRouter.get("/trending/7days", async (req, res) => {
       where: {
         id: { in: shopIds },
         ...(categoryId ? { categoryId } : {}),
-        ...(search
-          ? { name: { contains: search, mode: "insensitive" } }
-          : {}),
+        ...(search ? { name: { contains: search, mode: "insensitive" } } : {}),
       },
       include: {
         reviews: {
