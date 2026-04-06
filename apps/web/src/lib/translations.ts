@@ -39,6 +39,8 @@ export const translations = {
     'services.noResults': 'Xizmat topilmadi',
     'services.unknownShop': 'Do\'kon',
     'services.priceUnavailable': 'Narx yo\'q',
+    'discover.popularShops': 'Mashxur do\'konlar',
+    'discover.noShopsFound': 'Do\'kon topilmadi',
 
     // Service Card
     'shopCard.availableNow': 'HOZIR OCHIQ',
@@ -110,6 +112,7 @@ export const translations = {
     'booking.liveSelection': 'JONLI TANLOV',
     'booking.availableSlot': 'bo\'sh vaqt',
     'booking.alreadyReserved': 'band qilingan',
+    'booking.noSlots': 'Tanlangan kun uchun bo\'sh vaqt topilmadi',
     'booking.selectedWindow': 'Tanlangan vaqt',
     'booking.processing': 'BAJARILMOQDA...',
     'booking.confirmBooking': 'BANDLOVNI TASDIQLASH',
@@ -227,6 +230,8 @@ export const translations = {
     'services.noResults': 'Хизмат топилмади',
     'services.unknownShop': 'Дўкон',
     'services.priceUnavailable': 'Нарх йўқ',
+    'discover.popularShops': 'Машҳур дўконлар',
+    'discover.noShopsFound': 'Дўкон топилмади',
 
     // Service Card
     'serviceCard.availableNow': 'ҲОЗИР ОЧИҚ',
@@ -298,6 +303,7 @@ export const translations = {
     'booking.liveSelection': 'ЖОНЛИ ТАНЛОВ',
     'booking.availableSlot': 'бўш вақт',
     'booking.alreadyReserved': 'банд қилинган',
+    'booking.noSlots': 'Танланган кун учун бўш вақт топилмади',
     'booking.selectedWindow': 'Танланган вақт',
     'booking.processing': 'БАЖАРИЛМОҚДА...',
     'booking.confirmBooking': 'БАНДЛОВНИ ТАСДИҚЛАШ',
@@ -415,6 +421,8 @@ export const translations = {
     'services.noResults': 'Услуги не найдены',
     'services.unknownShop': 'Салон',
     'services.priceUnavailable': 'Цена недоступна',
+    'discover.popularShops': 'Популярные салоны',
+    'discover.noShopsFound': 'Салоны не найдены',
 
     // Service Card
     'serviceCard.availableNow': 'ОТКРЫТО СЕЙЧАС',
@@ -486,6 +494,7 @@ export const translations = {
     'booking.liveSelection': 'ЖИВОЙ ВЫБОР',
     'booking.availableSlot': 'доступный слот',
     'booking.alreadyReserved': 'уже занято',
+    'booking.noSlots': 'На выбранный день свободные слоты не найдены',
     'booking.selectedWindow': 'Выбранное окно',
     'booking.processing': 'ОБРАБОТКА...',
     'booking.confirmBooking': 'ПОДТВЕРДИТЬ БРОНЬ',

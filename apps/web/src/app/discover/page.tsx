@@ -73,15 +73,10 @@ export default function DiscoverServices() {
 
   const hasAppliedFilters =
     appliedCategories.length > 0 ||
-    (appliedPriceEnabled &&
-      (appliedMinPrice !== DEFAULT_MIN_PRICE ||
-        appliedMaxPrice !== DEFAULT_MAX_PRICE));
+    appliedPriceEnabled;
 
   const hasCategoryFilter = appliedCategories.length > 0;
-  const hasPriceFilter =
-    appliedPriceEnabled &&
-    (appliedMinPrice !== DEFAULT_MIN_PRICE ||
-      appliedMaxPrice !== DEFAULT_MAX_PRICE);
+  const hasPriceFilter = appliedPriceEnabled;
   const isPriceOnlyFilter = hasPriceFilter && !hasCategoryFilter;
   const isTypingSearch = search.trim() !== debouncedSearch;
 
@@ -529,7 +524,16 @@ export default function DiscoverServices() {
                     </span>
                     <button
                       type="button"
-                      onClick={() => setDraftPriceEnabled((prev) => !prev)}
+                      onClick={() => {
+                        setDraftPriceEnabled((prev) => {
+                          const next = !prev;
+                          if (next) {
+                            setDraftMinPrice(DEFAULT_MIN_PRICE);
+                            setDraftMaxPrice(DEFAULT_MAX_PRICE);
+                          }
+                          return next;
+                        });
+                      }}
                       className={`relative inline-flex h-6 w-11 shrink-0 items-center overflow-hidden rounded-full p-0.5 transition ${
                         draftPriceEnabled
                           ? 'bg-[#00c9a7]'
@@ -608,7 +612,7 @@ export default function DiscoverServices() {
         {shouldShowShops && (
           <div className="mt-5">
             <p className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
-              {t('services.homePopularPurchases')}
+              {t('discover.popularShops')}
             </p>
 
             {isPopularShopsLoading ? (
@@ -687,7 +691,7 @@ export default function DiscoverServices() {
               )
             ) : (
               <div className="rounded-xl border border-slate-200 bg-white px-3 py-5 text-center text-sm text-slate-500 shadow-sm dark:border-slate-800 dark:bg-[#0e1726] dark:text-slate-400 dark:shadow-none">
-                {t('services.noResults')}
+                {t('discover.noShopsFound')}
               </div>
             )}
           </div>
@@ -715,10 +719,16 @@ export default function DiscoverServices() {
                     const targetShopId = item.shopId || item.shop?.id;
 
                     return (
-                      <div
+                      <Link
                         key={item.id}
-                        className="flex items-center justify-between gap-4 border-b border-slate-200/70 py-4 last:border-b-0 dark:border-slate-800/80"
+                        href={
+                          targetShopId
+                            ? `/book/${targetShopId}?service=${item.id}`
+                            : '/discover'
+                        }
+                        className="block border-b border-slate-200/70 py-4 last:border-b-0 dark:border-slate-800/80"
                       >
+                        <div className="flex items-center justify-between gap-4">
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-lg font-semibold text-slate-900 dark:text-slate-100 sm:text-base">{item.name}</p>
                           <p className="mt-1 flex items-center gap-1.5 text-xs tracking-wide text-slate-500 dark:text-slate-400">
@@ -733,23 +743,17 @@ export default function DiscoverServices() {
                           <p className="text-2xl font-bold text-slate-800 dark:text-slate-100 sm:text-xl">
                             {Number.isFinite(priceValue) ? `$${priceValue.toFixed(2)}` : '--'}
                           </p>
-                          <Link
-                            href={
-                              targetShopId
-                                ? `/book/${targetShopId}?service=${item.id}`
-                                : '/discover'
-                            }
-                            className="mt-1 inline-block text-xs font-semibold text-emerald-500"
-                          >
+                          <span className="mt-1 inline-block text-xs font-semibold text-emerald-500">
                             {t('shops.book').toUpperCase()}
-                          </Link>
+                          </span>
                         </div>
-                      </div>
+                        </div>
+                      </Link>
                     );
                   })}
 
               {!isPopularServicesLoading && filteredServices.length === 0 && (
-                <div className="rounded-xl border border-slate-200 bg-white px-3 py-5 text-center text-sm text-slate-500 shadow-sm dark:border-slate-800 dark:bg-[#0e1726] dark:text-slate-400 dark:shadow-none">
+                <div className="py-5 text-center text-sm text-slate-500 dark:text-slate-400">
                   {t('services.noResults')}
                 </div>
               )}

@@ -16,6 +16,12 @@ export default function Header() {
   const [selectedLocation, setSelectedLocation] =
     useState("Downtown Manhab an");
 
+  const hideHeaderOnBookPage = pathname.startsWith("/book/");
+
+  if (hideHeaderOnBookPage) {
+    return null;
+  }
+
   const avatarImageSrc = user?.avatarUrl
     ? user.avatarUrl.startsWith("http")
       ? user.avatarUrl

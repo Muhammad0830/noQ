@@ -8,9 +8,7 @@ const serviceRouter = Router();
 
 serviceRouter.get(
   "/",
-  authMiddleware,
-  adminOnly,
-  async (req: any, res: any) => {
+   async (req: any, res: any) => {
     try {
       const { shopId } = req.query;
 

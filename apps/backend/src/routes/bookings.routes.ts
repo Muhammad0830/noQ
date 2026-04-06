@@ -37,6 +37,101 @@ function getBookings({
 
 const bookingRouter = Router();
 
+const toMinutes = (value: string) => {
+  const [hours = 0, minutes = 0] = value.split(":").map(Number);
+  return hours * 60 + minutes;
+};
+
+const toTimeString = (totalMinutes: number) => {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+};
+
+bookingRouter.get("/available-slots", async (req, res) => {
+  try {
+    const { shopId, date, serviceId, staffId } = req.query as {
+      shopId?: string;
+      date?: string;
+      serviceId?: string;
+      staffId?: string;
+    };
+
+    if (!shopId || !date) {
+      return res.status(400).json({ message: "shopId and date are required" });
+    }
+
+    const dayOfWeek = new Date(date).getDay();
+
+    const schedules = await prisma.shopSchedule.findMany({
+      where: { shopId, dayOfWeek },
+      orderBy: { openTime: "asc" },
+    });
+
+    if (!schedules.length) {
+      return res.status(200).json([]);
+    }
+
+    const service = serviceId
+      ? await prisma.service.findUnique({ where: { id: serviceId } })
+      : null;
+
+    const durationMin = service?.durationMin ?? 45;
+    const startDay = new Date(`${date}T00:00:00`);
+    const endDay = new Date(`${date}T23:59:59`);
+
+    const bookings = await prisma.booking.findMany({
+      where: {
+        shopId,
+        ...(staffId ? { staffId } : {}),
+        startTime: { gte: startDay, lte: endDay },
+        status: { notIn: ["CANCELLED", "NO_SHOW"] },
+      },
+      select: { startTime: true, endTime: true },
+    });
+
+    const blocks = await prisma.shopBlock.findMany({
+      where: {
+        shopId,
+        startTime: { gte: startDay, lte: endDay },
+      },
+      select: { startTime: true, endTime: true },
+    });
+
+    const busyRanges = [...bookings, ...blocks];
+    const slots: { id: string; time: string; available: boolean }[] = [];
+
+    schedules.forEach((schedule) => {
+      let cursor = toMinutes(schedule.openTime);
+      const close = toMinutes(schedule.closeTime);
+
+      while (cursor + durationMin <= close) {
+        const startTime = toTimeString(cursor);
+        const endTime = toTimeString(cursor + durationMin);
+        const slotStart = new Date(`${date}T${startTime}:00`);
+        const slotEnd = new Date(`${date}T${endTime}:00`);
+
+        const hasConflict = busyRanges.some(
+          (busy) => busy.startTime < slotEnd && busy.endTime > slotStart,
+        );
+
+        slots.push({
+          id: `${shopId}-${date}-${startTime}`,
+          time: startTime,
+          available: !hasConflict,
+        });
+
+        cursor += durationMin;
+      }
+    });
+
+    return res.status(200).json(slots);
+  } catch (error) {
+    console.error("Error fetching available slots:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 bookingRouter.get("/users/active", authMiddleware, async (req: any, res) => {
   try {
     const bookings = await getBookings({
