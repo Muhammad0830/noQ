@@ -24,14 +24,29 @@ const ServicesList: React.FC<ServicesListProps> = ({
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [activeDot, setActiveDot] = useState(0);
 
+  const trendingUrl = useMemo(() => {
+    const params = new URLSearchParams();
+
+    if (searchQuery.trim()) {
+      params.set("search", searchQuery.trim());
+    }
+
+    if (selectedCategory) {
+      params.set("categoryId", selectedCategory);
+    }
+
+    const query = params.toString();
+    return query ? `${API_ENDPOINTS.shops_trending}?${query}` : API_ENDPOINTS.shops_trending;
+  }, [searchQuery, selectedCategory]);
+
   // 🔥 API CALL
   const {
     data: shops = [],
     isLoading,
     isError,
     error,
-  } = useApiQuery<Shop[]>(`${API_ENDPOINTS.shops_trending}`, {
-    key: ["shops", searchQuery],
+  } = useApiQuery<Shop[]>(trendingUrl, {
+    key: ["shops", searchQuery, selectedCategory ?? "all"],
   });
 
   // 🔥 FILTER
@@ -42,6 +57,11 @@ const ServicesList: React.FC<ServicesListProps> = ({
     ) {
       return false;
     }
+
+    if (selectedCategory && shop.categoryId !== selectedCategory) {
+      return false;
+    }
+
     return true;
   });
 
@@ -68,9 +88,7 @@ const ServicesList: React.FC<ServicesListProps> = ({
     el.scrollTo({ left: target, behavior: "smooth" });
   };
 
-  const handleFavorite = (id: string) => {
-    console.log("fav:", id);
-  };
+  const handleFavorite = (_id: string) => {};
 
   const skeletonCountMobile = 3;
   const skeletonCountDesktop = 8;

@@ -1,17 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import HeroSection from "@/components/HeroSection";
 import CategoriesSection from "@/components/CategoriesSection";
 import ServicesList from "@/components/ShopList";
 import { API_ENDPOINTS } from "@/lib/api";
+import useApiQuery from "@/hooks/useApiQuery";
 import type { ShopCategory } from "@shared/types/types";
 
 export default function Home() {
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [categories, setCategories] = useState<ShopCategory[]>([]);
-  const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
+  const { data: categoriesData = [], isLoading: isCategoriesLoading } =
+    useApiQuery<unknown[]>(API_ENDPOINTS.categories, {
+      key: ["home-categories"],
+    });
+
+  const categories = useMemo<ShopCategory[]>(
+    () =>
+      categoriesData.map((item: any) => ({
+        id: String(item.id),
+        name: String(item.name),
+        icon: item.icon ? String(item.icon) : undefined,
+      })),
+    [categoriesData],
+  );
 
   const handleSearch = (query: string, location: string) => {
     setSearchQuery(query);
@@ -24,62 +39,18 @@ export default function Home() {
 
   const handleCategorySelect = (categoryId: string | null) => {
     setSelectedCategory(categoryId);
-    // Scroll to services section
-    const servicesSection = document.getElementById("services");
-    if (servicesSection) {
-      servicesSection.scrollIntoView({ behavior: "smooth" });
+
+    const params = new URLSearchParams();
+    if (searchQuery.trim()) {
+      params.set("q", searchQuery.trim());
     }
+    if (categoryId) {
+      params.set("categoryId", categoryId);
+    }
+
+    const query = params.toString();
+    router.push(query ? `/discover?${query}` : "/discover");
   };
-
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchCategories = async () => {
-      try {
-        if (mounted) setIsCategoriesLoading(true);
-        const token = localStorage.getItem("token");
-        const headers: HeadersInit = token
-          ? { Authorization: `Bearer ${token}` }
-          : {};
-
-        const response = await fetch(API_ENDPOINTS.categories, {
-          headers,
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          if (mounted) {
-            setCategories([]);
-            setIsCategoriesLoading(false);
-          }
-          return;
-        }
-
-        const payload: unknown = await response.json();
-        if (!mounted || !Array.isArray(payload)) return;
-
-        const normalized: ShopCategory[] = payload.map((item: any) => ({
-          id: String(item.id),
-          name: String(item.name),
-          icon: item.icon ? String(item.icon) : undefined,
-        }));
-
-        setCategories(normalized);
-        setIsCategoriesLoading(false);
-      } catch {
-        if (mounted) {
-          setCategories([]);
-          setIsCategoriesLoading(false);
-        }
-      }
-    };
-
-    fetchCategories();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   return (
     <div className="bg-white dark:bg-gray-900">

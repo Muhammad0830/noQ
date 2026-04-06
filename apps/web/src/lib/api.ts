@@ -132,6 +132,7 @@ export const API_ENDPOINTS = {
 
   // Services
   services: `${API_BASE_URL}/services`,
+  services_trending: `${API_BASE_URL}/services/trending/7days`,
   serviceById: (id: string) => `${API_BASE_URL}/services/${id}`,
 
   // Bookings

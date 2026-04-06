@@ -37,6 +37,8 @@ export const translations = {
     'services.price': 'dan',
     'shops.book': 'Band qilish',
     'services.noResults': 'Xizmat topilmadi',
+    'services.unknownShop': 'Do\'kon',
+    'services.priceUnavailable': 'Narx yo\'q',
 
     // Service Card
     'shopCard.availableNow': 'HOZIR OCHIQ',
@@ -48,6 +50,7 @@ export const translations = {
     // Filters
     'filter.title': 'Filtrlar',
     'filter.category': 'Kategoriya',
+    'filter.multiSelect': 'Ko\'p tanlov',
     'filter.priceRange': 'Narx oralig\'i',
     'filter.rating': 'Reyting',
     'filter.openNow': 'Hozir ochiq',
@@ -222,6 +225,8 @@ export const translations = {
     'services.price': 'дан',
     'shops.book': 'Банд қилиш',
     'services.noResults': 'Хизмат топилмади',
+    'services.unknownShop': 'Дўкон',
+    'services.priceUnavailable': 'Нарх йўқ',
 
     // Service Card
     'serviceCard.availableNow': 'ҲОЗИР ОЧИҚ',
@@ -233,6 +238,7 @@ export const translations = {
     // Filters
     'filter.title': 'Фильтрлар',
     'filter.category': 'Категория',
+    'filter.multiSelect': 'Бир нечта танлов',
     'filter.priceRange': 'Нарх оралиғи',
     'filter.rating': 'Рейтинг',
     'filter.openNow': 'Ҳозир очиқ',
@@ -407,6 +413,8 @@ export const translations = {
     'services.price': 'от',
     'shops.book': 'Забронировать',
     'services.noResults': 'Услуги не найдены',
+    'services.unknownShop': 'Салон',
+    'services.priceUnavailable': 'Цена недоступна',
 
     // Service Card
     'serviceCard.availableNow': 'ОТКРЫТО СЕЙЧАС',
@@ -418,6 +426,7 @@ export const translations = {
     // Filters
     'filter.title': 'Фильтры',
     'filter.category': 'Категория',
+    'filter.multiSelect': 'Мультивыбор',
     'filter.priceRange': 'Диапазон цен',
     'filter.rating': 'Рейтинг',
     'filter.openNow': 'Открыто сейчас',

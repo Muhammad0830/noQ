@@ -244,6 +244,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const storageAuth2 = getStoredAuth();
+
+  console.log("getStoredAuth2", storageAuth2);
+
   const logout = () => {
     setUser(null);
     clearPersistedAuth();
