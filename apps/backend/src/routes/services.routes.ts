@@ -6,26 +6,22 @@ import { adminOnly } from "../middlewares/admin.middleware.js";
 
 const serviceRouter = Router();
 
-serviceRouter.get("/", async (req: any, res: any) => {
-  try {
-    const { shopId, categoryId, minPrice, maxPrice } = req.query;
+serviceRouter.get(
+  "/",
+  authMiddleware,
+  adminOnly,
+  async (req: any, res: any) => {
+    try {
+      const { shopId } = req.query;
 
-    const services = await prisma.service.findMany({
-      where: {
-        shopId,
-        shop: {
-          categoryId,
-          isOpen: true,
+      const services = await prisma.service.findMany({
+        where: {
+          shopId,
         },
-        price: {
-          ...(minPrice && { gte: Number(minPrice) }),
-          ...(maxPrice && { lte: Number(maxPrice) }),
+        include: {
+          shop: true,
         },
-      },
-      include: {
-        shop: true,
-      },
-    });
+      });
 
     res.status(200).json(services);
   } catch (error) {

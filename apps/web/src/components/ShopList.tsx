@@ -88,9 +88,7 @@ const ServicesList: React.FC<ServicesListProps> = ({
     el.scrollTo({ left: target, behavior: "smooth" });
   };
 
-  const handleFavorite = (id: string) => {
-    console.log("fav:", id);
-  };
+  const handleFavorite = (_id: string) => {};
 
   const skeletonCountMobile = 3;
   const skeletonCountDesktop = 8;

@@ -10,7 +10,7 @@ import { uploadImage } from "../utils/handleImage.js";
 
 const shopRouter = Router();
 
-shopRouter.get("/", authMiddleware, async (req, res) => {
+shopRouter.get("/", async (req, res) => {
   try {
     const {
       categoryId = "",
@@ -35,6 +35,9 @@ shopRouter.get("/", authMiddleware, async (req, res) => {
         where: {
           isOpen: true,
           name: { contains: search, mode: "insensitive" },
+        },
+        include: {
+          category: true,
         },
         orderBy: { createdAt: "desc" },
       });
@@ -90,6 +93,9 @@ shopRouter.get("/", authMiddleware, async (req, res) => {
           categoryId,
           ...(open === "true" && { isOpen: true }),
         },
+        include: {
+          category: true,
+        },
         orderBy: { createdAt: "desc" },
       });
 
@@ -133,6 +139,9 @@ shopRouter.get("/", authMiddleware, async (req, res) => {
         ...(categoryId && { categoryId }),
         ...(open === "true" && { isOpen: true }),
       },
+        include: {
+          category: true,
+        },
       orderBy: { createdAt: "desc" },
     });
 
