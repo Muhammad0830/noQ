@@ -1,15 +1,23 @@
-@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc1MTI5NzkxLCJpYXQiOjE3NzUxMjYxOTEsImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiMjI5NDUzbUBqZHUudXoiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiI4ZDI5OThjMy02ZDc5LTQ5ZTgtOTAzMC1jZjEwYTU0ODc4ODYifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3NTEyNjE5MX1dLCJzZXNzaW9uX2lkIjoiZjQ0Mjg0MWYtNTVmZi00ZjcwLWE1NWUtYjRjOTRmYzNmYTQ0IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.Q3G-voBdhB1Vl0s4d5un9WC7bcMZTNmjsZ-6TFbfs56npAjZFg4es8-s5nkt_6H0mkesHs6551bc6DvgvJjIsg
+@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc1Mjg5ODg2LCJpYXQiOjE3NzUyODYyODYsImVtYWlsIjoiYUBnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3NTI4NjI4Nn1dLCJzZXNzaW9uX2lkIjoiODRlMjc1NWYtMmViYS00MjYwLWE0ZjktMzMxODIxN2JhNzUxIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.HewdZF-lVcr5KC205_l8pdARbca_eqCTwwv7yQtSmM7o3lKjYzW4Uvfoe287aUoh1XlXUmlkckDq_nWBhOx37A
 
 ###
 GET http://localhost:3001/api/auth/me
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/bookings/active?shopId=925e1f3b-b646-42a7-8235-1b2c612dee94
+GET http://localhost:3001/api/bookings/users/active
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/bookings/history?shopId=925e1f3b-b646-42a7-8235-1b2c612dee94
+GET http://localhost:3001/api/bookings/users/history
+Authorization: Bearer {{bearer_token}}
+
+###
+GET http://localhost:3001/api/bookings/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89/active
+Authorization: Bearer {{bearer_token}}
+
+###
+GET http://localhost:3001/api/bookings/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89/history
 Authorization: Bearer {{bearer_token}}
 
 ###
@@ -33,7 +41,7 @@ GET http://localhost:3001/api/reviews/d99964ba-11fe-4467-8107-e52ab670aa6b
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/services
+GET http://localhost:3001/api/services?minPrice=8&maxPrice=50&categoryId=a85dbfa6-7c8f-4ffc-a7ad-b3a85a5503e8
 Authorization: Bearer {{bearer_token}}
 
 ###
