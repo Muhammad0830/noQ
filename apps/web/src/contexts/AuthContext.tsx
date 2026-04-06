@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const mappedUser = mapApiUserToUser(profileData);
         setUser(mappedUser);
         const activeStorage = getStorageBySource(storedAuth?.source ?? "local");
-        activeStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mappedUser));
+        activeStorage?.setItem(USER_STORAGE_KEY, JSON.stringify(mappedUser));
       } catch {
         clearPersistedAuth();
         setUser(null);
