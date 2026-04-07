@@ -15,6 +15,7 @@ export interface AuthContextType {
   logout: () => void;
   updateProfile: (data: {
     name?: string;
+    email?: string;
     phoneNumber?: string;
     file?: File | null;
   }) => Promise<void>;
