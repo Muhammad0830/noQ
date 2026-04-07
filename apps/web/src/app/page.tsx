@@ -7,7 +7,7 @@ import CategoriesSection from "@/components/CategoriesSection";
 import ServicesList from "@/components/ShopList";
 import { API_ENDPOINTS } from "@/lib/api";
 import useApiQuery from "@/hooks/useApiQuery";
-import type { ShopCategory } from "@shared/types/types";
+import type { ShopCategory } from "@shared/types/general_types";
 
 export default function Home() {
   const router = useRouter();

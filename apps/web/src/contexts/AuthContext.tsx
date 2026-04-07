@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import type { AuthContextType, User } from "@shared/types/types";
+import type { AuthContextType, User } from "@shared/types/general_types";
 import api, {
   API_ENDPOINTS,
   clearPersistedAuth,

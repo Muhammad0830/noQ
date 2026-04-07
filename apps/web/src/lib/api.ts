@@ -1,7 +1,7 @@
-import { AuthStorageSource, User } from "@shared/types/types";
+import { AuthStorageSource, User } from "@shared/types/general_types";
 import axios from "axios";
 
-const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://10.20.9.253:3001";
 const normalizedApiUrl = rawApiUrl.replace(/\/+$/, "");
 const API_BASE_URL = /\/api$/i.test(normalizedApiUrl)
   ? normalizedApiUrl
@@ -95,9 +95,8 @@ export const clearPersistedAuth = () => {
   window.sessionStorage.removeItem(USER_STORAGE_KEY);
 };
 
-
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:10000",
+  baseURL: rawApiUrl,
   withCredentials: true,
 });
 

@@ -6,20 +6,18 @@ import { adminOnly } from "../middlewares/admin.middleware.js";
 
 const serviceRouter = Router();
 
-serviceRouter.get(
-  "/",
-   async (req: any, res: any) => {
-    try {
-      const { shopId } = req.query;
+serviceRouter.get("/", async (req: any, res: any) => {
+  try {
+    const { shopId } = req.query;
 
-      const services = await prisma.service.findMany({
-        where: {
-          shopId,
-        },
-        include: {
-          shop: true,
-        },
-      });
+    const services = await prisma.service.findMany({
+      where: {
+        shopId,
+      },
+      include: {
+        shop: true,
+      },
+    });
 
     res.status(200).json(services);
   } catch (error) {
@@ -28,7 +26,7 @@ serviceRouter.get(
   }
 });
 
-serviceRouter.get("/:id", authMiddleware, async (req: any, res: any) => {
+serviceRouter.get("/:id", async (req: any, res: any) => {
   try {
     const { id } = req.params;
 
@@ -54,53 +52,49 @@ serviceRouter.get("/:id", authMiddleware, async (req: any, res: any) => {
   }
 });
 
-serviceRouter.get(
-  "/:id/reviews",
-  authMiddleware,
-  async (req: any, res: any) => {
-    try {
-      const { id } = req.params;
-      const { cursor, limit } = getPaginationParams(req);
+serviceRouter.get("/:id/reviews", async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const { cursor, limit } = getPaginationParams(req);
 
-      const reviews = await prisma.review.findMany({
-        take: limit + 1,
-        skip: cursor ? 1 : 0,
-        ...(cursor && { cursor: { id: cursor } }),
+    const reviews = await prisma.review.findMany({
+      take: limit + 1,
+      skip: cursor ? 1 : 0,
+      ...(cursor && { cursor: { id: cursor } }),
 
-        where: {
-          serviceId: id,
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              avatarUrl: true,
-            },
+      where: {
+        serviceId: id,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            avatarUrl: true,
           },
-          service: true,
         },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
+        service: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-      let nextCursor = null;
+    let nextCursor = null;
 
-      if (reviews.length > limit) {
-        const nextItem = reviews.pop();
-        nextCursor = nextItem?.id;
-      }
-
-      res.json({
-        data: reviews,
-        nextCursor,
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+    if (reviews.length > limit) {
+      const nextItem = reviews.pop();
+      nextCursor = nextItem?.id;
     }
-  },
-);
+
+    res.json({
+      data: reviews,
+      nextCursor,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 serviceRouter.get("/trending/7days", async (req, res) => {
   try {

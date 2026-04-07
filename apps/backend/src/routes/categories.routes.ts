@@ -19,6 +19,7 @@ categoryRouter.get("/", async (req, res) => {
 categoryRouter.post(
   "/",
   authMiddleware,
+  adminOnly,
   async (req: any, res: any) => {
     const { name, icon } = req.body;
 

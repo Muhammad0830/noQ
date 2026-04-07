@@ -6,7 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import ShopCard from "./ShopCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { API_ENDPOINTS } from "@/lib/api";
-import type { Shop, ShopCategory } from "@shared/types/types";
+import type { Shop, ShopCategory } from "@shared/types/general_types";
 import useApiQuery from "@/hooks/useApiQuery";
 
 interface ServicesListProps {

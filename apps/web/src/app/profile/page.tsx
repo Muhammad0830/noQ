@@ -21,7 +21,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import type { Language } from "@shared/types/types";
+import type { Language } from "@shared/types/general_types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";

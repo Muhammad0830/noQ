@@ -9,7 +9,7 @@ import {
 import useApiQuery from "@/hooks/useApiQuery";
 import { useApiMutation } from "@/hooks/useApiMutation";
 import { API_ENDPOINTS } from "@/lib/api";
-import type { Shop, Service } from "@shared/types/types";
+import type { Shop, Service } from "@shared/types/general_types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 
