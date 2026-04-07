@@ -11,7 +11,7 @@ import {
   Palette,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { Shop } from "@shared/types/types";
+import type { Shop } from "@shared/types/general_types";
 import Link from "next/link";
 import { getImageUrl } from "@/lib/supabaseClient";
 

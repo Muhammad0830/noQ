@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { ShopCategory } from "@shared/types/types";
+import type { ShopCategory } from "@shared/types/general_types";
 
 interface CategoriesSectionProps {
   categories?: ShopCategory[];
