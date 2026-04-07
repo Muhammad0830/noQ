@@ -6,7 +6,7 @@ import { adminOnly } from "../middlewares/admin.middleware.js";
 
 const reviewRouter = Router();
 
-reviewRouter.get("/", authMiddleware, adminOnly, async (req: any, res: any) => {
+reviewRouter.get("/", async (req: any, res: any) => {
   try {
     const { shopId } = req.query;
 
@@ -36,7 +36,7 @@ reviewRouter.get("/", authMiddleware, adminOnly, async (req: any, res: any) => {
   }
 });
 
-reviewRouter.get("/:id", authMiddleware, async (req: any, res: any) => {
+reviewRouter.get("/:id", async (req: any, res: any) => {
   try {
     const { id } = req.params;
 

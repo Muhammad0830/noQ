@@ -223,10 +223,10 @@ export default function SignUp() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-12 px-4">
-      <div className="max-w-md w-full">
+    <div className="min-h-full w-full bg-linear-to-br from-blue-50 to-purple-50 px-4 py-4 dark:from-gray-900 dark:to-gray-800 sm:py-8 md:py-10">
+      <div className="mx-auto w-full max-w-md">
         {/* Logo */}
-        <div className="text-center mb-8">
+        <div className="mb-5 text-center sm:mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-4">
             <div className="w-12 h-12 bg-linear-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-2xl">
               N
@@ -235,7 +235,7 @@ export default function SignUp() {
               NoQ
             </span>
           </Link>
-          <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
+          <h2 className="mb-2 text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">
             {t("nav.signup")}
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
@@ -243,7 +243,7 @@ export default function SignUp() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
+        <div className="rounded-2xl bg-white p-5 shadow-lg dark:bg-gray-800 sm:p-8">
           {/* Error Message */}
           {error && (
             <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">

@@ -4,25 +4,41 @@ import { useMemo, useState, use } from "react";
 import {
   ChevronLeft,
   ChevronRight,
-  Clock3,
   MoreHorizontal,
 } from "lucide-react";
 import useApiQuery from "@/hooks/useApiQuery";
 import { useApiMutation } from "@/hooks/useApiMutation";
 import { API_ENDPOINTS } from "@/lib/api";
-import type { Shop, Service } from "@shared/types/types";
+import type { Shop, Service } from "@shared/types/general_types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Staff {
   id: string;
   name: string;
+  avatarUrl?: string | null;
 }
 
 interface TimeSlot {
   id: string;
   time: string;
   available: boolean;
+}
+
+interface ScheduleSlot extends TimeSlot {
+  startMin: number;
+}
+
+interface TimelineRange {
+  start: string;
+  end: string;
+}
+
+interface DayTimelineResponse {
+  open: string | null;
+  close: string | null;
+  disabled: TimelineRange[];
+  busy: TimelineRange[];
 }
 
 const timeToMinutes = (time: string) => {
@@ -35,6 +51,14 @@ const addMinutes = (time: string, minutes: number) => {
   const date = new Date();
   date.setHours(h, m + minutes, 0, 0);
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+};
+
+const toRangeDate = (date: string, value: string) => {
+  if (value.includes("T")) {
+    return new Date(value);
+  }
+
+  return new Date(`${date}T${value}:00`);
 };
 
 export default function BookingPage({
@@ -65,21 +89,14 @@ export default function BookingPage({
   >(API_ENDPOINTS.shopServices(shopId), {
     key: ["services", shopId],
   });
-  const { data: staffData = [] } = useApiQuery<Staff[]>(
-    `${API_ENDPOINTS.shopById(shopId)}/staff`,
-    {
-      key: ["staff", shopId],
-    },
+  const staff = useMemo<Staff[]>(
+    () => [
+      { id: "mock-1", name: "Axmadov Ayyubbek" },
+      { id: "mock-2", name: "Abduqayumov Muhammad" },
+      { id: "mock-3", name: "Sobitjanov Sunnatilla" },
+    ],
+    [],
   );
-
-  const staff = staffData.length
-    ? staffData
-    : [
-        { id: "mock-1", name: "Marco V." },
-        { id: "mock-2", name: "Leo S." },
-        { id: "mock-3", name: "Alex K." },
-        { id: "mock-4", name: "Sarah J." },
-      ];
 
   const nextDays = useMemo(() => {
     const days: Date[] = [];
@@ -94,29 +111,16 @@ export default function BookingPage({
 
   const initialDate = nextDays[0]?.toISOString().split("T")[0] ?? "";
   const effectiveDate = selectedDate || initialDate;
-
-  const { data: slotsData = [] } = useApiQuery<TimeSlot[]>(
-    effectiveDate
-      ? `${API_ENDPOINTS.bookings}/available-slots?shopId=${shopId}&date=${effectiveDate}`
-      : null,
-    { key: ["slots", shopId, effectiveDate] },
-  );
-
-  const timeSlots = slotsData.length
-    ? slotsData
-    : [
-        { id: "1", time: "09:00", available: false },
-        { id: "2", time: "10:00", available: false },
-        { id: "3", time: "11:20", available: true },
-        { id: "4", time: "13:00", available: false },
-        { id: "5", time: "15:00", available: true },
-        { id: "6", time: "16:30", available: true },
-      ];
-
   const selectedService = useMemo(() => {
     const found = services.find((service) => service.id === selectedServiceId);
     return found ?? services[0] ?? null;
   }, [services, selectedServiceId]);
+  const activeStaffId = "";
+
+  const { data: timelineData, isLoading: timelineLoading } = useApiQuery<DayTimelineResponse>(
+    effectiveDate ? `${API_ENDPOINTS.shopTimeline(shopId)}?date=${effectiveDate}` : null,
+    { key: ["timeline", shopId, effectiveDate, selectedService?.id] },
+  );
 
   const selectedStaffMember =
     staff.find((member) => member.id === selectedStaff) ?? staff[0] ?? null;
@@ -190,19 +194,22 @@ export default function BookingPage({
     ? `${monthNameMap[language][selectedDateObj.getMonth()]} ${selectedDateObj.getFullYear()}`
     : "";
 
-  const dayStartMin = 9 * 60;
-  const dayEndMin = 19 * 60;
-  const timelineHeight = 520;
-  const minuteToTop = (minute: number) =>
-    ((minute - dayStartMin) / (dayEndMin - dayStartMin)) * timelineHeight;
+  const getInitials = (name: string) =>
+    name
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("");
 
-  const hourLabels = useMemo(() => {
-    const labels: string[] = [];
-    for (let h = 9; h <= 19; h += 1) {
-      labels.push(`${String(h).padStart(2, "0")}:00`);
-    }
-    return labels;
-  }, []);
+  const avatarGradients = [
+    "from-cyan-500 to-blue-500",
+    "from-violet-500 to-fuchsia-500",
+    "from-emerald-500 to-teal-500",
+  ] as const;
+
+  const breakStartMin = 12 * 60;
+  const breakEndMin = 13 * 60;
 
   const visibleDays = useMemo(
     () => nextDays.slice(visibleDayStart, visibleDayStart + 5),
@@ -210,30 +217,58 @@ export default function BookingPage({
   );
 
   const timelineSlots = useMemo(
-    () =>
-      timeSlots
-        .map((slot) => ({ ...slot, startMin: timeToMinutes(slot.time) }))
-        .filter(
-          (slot) => slot.startMin >= dayStartMin && slot.startMin <= dayEndMin,
-        )
-        .sort((a, b) => a.startMin - b.startMin),
-    [timeSlots],
+    () => {
+      if (!timelineData?.open || !timelineData.close || !selectedService) {
+        return [];
+      }
+
+      const durationMin = selectedService.durationMin ?? 45;
+      const busyRanges = [...(timelineData.busy ?? []), ...(timelineData.disabled ?? [])];
+      const openMin = timeToMinutes(timelineData.open);
+      const closeMin = timeToMinutes(timelineData.close);
+      const slots: ScheduleSlot[] = [];
+
+      for (let cursor = openMin; cursor + durationMin <= closeMin; cursor += durationMin) {
+        const start = `${String(Math.floor(cursor / 60)).padStart(2, "0")}:${String(cursor % 60).padStart(2, "0")}`;
+        const end = addMinutes(start, durationMin);
+        const slotStart = new Date(`${effectiveDate}T${start}:00`);
+        const slotEnd = new Date(`${effectiveDate}T${end}:00`);
+
+        const hasConflict = busyRanges.some(
+          (range) => {
+            const rangeStart = toRangeDate(effectiveDate, range.start);
+            const rangeEnd = toRangeDate(effectiveDate, range.end);
+            return rangeStart < slotEnd && rangeEnd > slotStart;
+          },
+        );
+
+        slots.push({
+          id: `${shopId}-${effectiveDate}-${start}`,
+          time: start,
+          available: !hasConflict,
+          startMin: cursor,
+        });
+      }
+
+      return slots;
+    },
+    [effectiveDate, shopId, selectedService, timelineData],
   );
 
-  const bookingMutation = useApiMutation(API_ENDPOINTS.bookings, "post", () => {
-    const token = localStorage.getItem("token");
-    const headers: Record<string, string> = {};
-    if (token) headers.Authorization = `Bearer ${token}`;
-    return headers;
-  });
+  const {mutateAsync: bookingMutation, isPending} = useApiMutation(API_ENDPOINTS.bookings, "post");
+
+  const toggleServices = () => {
+    setShowServices((prev) => !prev);
+  };
 
   const handleConfirmBooking = async () => {
     if (!selectedService || !selectedTime) return;
 
     try {
-      await bookingMutation.mutateAsync({
+      await bookingMutation({
         shopId,
         serviceId: selectedService.id,
+        staffId: activeStaffId || undefined,
         startTime: `${effectiveDate}T${selectedTime}:00`,
       });
 
@@ -253,7 +288,7 @@ export default function BookingPage({
   }
 
   return (
-    <div className="min-h-dvh bg-slate-50 dark:bg-gray-900 text-slate-900 dark:text-white pb-20">
+    <div className="min-h-dvh bg-slate-50 dark:bg-gray-900 text-slate-900 dark:text-white pb-0">
       <div className="max-w-md mx-auto px-4 pt-3">
         <div className="flex items-center justify-between mb-4">
           <button
@@ -279,13 +314,15 @@ export default function BookingPage({
         </div>
 
         {selectedService && (
-          <div className="rounded-2xl border border-cyan-200 dark:border-gray-700 bg-linear-to-br from-cyan-50 to-slate-100 dark:from-gray-800 dark:to-gray-800 p-3 mb-6">
+          <div
+            onClick={toggleServices}
+            className="rounded-2xl border border-cyan-200 dark:border-gray-700 bg-linear-to-br from-cyan-50 to-slate-100 dark:from-gray-800 dark:to-gray-800 p-4 mb-6 cursor-pointer"
+          >
             <div className="flex items-center gap-3">
-              <div className="h-11 w-11 rounded-full bg-linear-to-tr from-amber-300 to-orange-500" />
               <div className="flex-1">
-                <p className="text-sm font-medium">{selectedService.name}</p>
-                <div className="flex items-center gap-2 mt-1 text-xs">
-                  <span className="text-cyan-600 dark:text-teal-400 font-semibold">
+                <p className="text-base font-semibold">{selectedService.name}</p>
+                <div className="flex items-center gap-2 mt-1 text-sm">
+                  <span className="text-cyan-600 dark:text-teal-400 font-bold">
                     ${selectedService.price ?? 0}
                   </span>
                   <span className="text-slate-400 dark:text-gray-500">·</span>
@@ -295,8 +332,11 @@ export default function BookingPage({
                 </div>
               </div>
               <button
-                onClick={() => setShowServices((prev) => !prev)}
-                className="text-[11px] font-semibold rounded-full px-3 py-1.5 border border-cyan-400/40 text-cyan-700 dark:text-teal-400"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  toggleServices();
+                }}
+                className="text-xs font-semibold rounded-full px-4 py-2 border border-cyan-400/40 text-cyan-700 dark:text-teal-400"
               >
                 {t("booking.edit")}
               </button>
@@ -332,23 +372,30 @@ export default function BookingPage({
           <h3 className="text-sm font-semibold mb-3 text-slate-800 dark:text-gray-200">
             {t("booking.selectStaff")}
           </h3>
-          <div className="flex items-start gap-4 overflow-x-auto pb-2">
-            {staff.map((member) => {
+          <div className="flex items-start gap-3 overflow-x-auto pb-2 px-1 snap-x snap-mandatory">
+            {staff.map((member, index) => {
               const isActive =
                 (selectedStaff ?? selectedStaffMember?.id) === member.id;
+              const gradientClass = avatarGradients[index % avatarGradients.length];
               return (
                 <button
                   key={member.id}
                   onClick={() => setSelectedStaff(member.id)}
-                  className="shrink-0 text-center"
+                  className="shrink-0 w-23 text-center snap-start flex flex-col items-center"
                 >
                   <div
-                    className={`h-16 w-16 rounded-full border-2 ${isActive ? "border-cyan-400 shadow-[0_0_0_2px_rgba(34,211,238,0.35)]" : "border-slate-300 dark:border-gray-600"} bg-linear-to-b from-orange-300 to-amber-500 p-0.5`}
+                    className={`h-16 w-16 rounded-full border-2 p-0.5 ${isActive ? "border-cyan-400 shadow-[0_0_0_2px_rgba(34,211,238,0.35)]" : "border-slate-300 dark:border-gray-600"}`}
                   >
-                    <div className="h-full w-full rounded-full bg-white dark:bg-gray-800" />
+                    <div
+                      className={`h-full w-full rounded-full bg-linear-to-br ${gradientClass} flex items-center justify-center`}
+                    >
+                      <span className="text-white text-sm font-bold tracking-wide">
+                        {getInitials(member.name)}
+                      </span>
+                    </div>
                   </div>
                   <p
-                    className={`mt-2 text-[10px] ${isActive ? "text-cyan-600 dark:text-teal-400" : "text-slate-500 dark:text-gray-400"}`}
+                    className={`mt-2 w-full px-1 text-[11px] leading-[1.2] min-h-[2.4rem] whitespace-normal wrap-break-word ${isActive ? "text-cyan-600 dark:text-teal-400" : "text-slate-500 dark:text-gray-400"}`}
                   >
                     {member.name}
                   </p>
@@ -414,89 +461,115 @@ export default function BookingPage({
 
         <section className="mb-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold">{t("booking.timeline")}</h3>
-            <div className="text-[10px] px-2 py-1 rounded-full bg-cyan-100 dark:bg-teal-500/20 border border-cyan-400/30 text-cyan-700 dark:text-teal-400">
+            <h3 className="text-[20px] leading-none font-bold text-slate-900 dark:text-white">
+              {t("booking.timeline")}
+            </h3>
+            <p className="text-[10px] tracking-[0.16em] text-cyan-700/80 dark:text-cyan-300/70 uppercase">
               {t("booking.liveSelection")}
-            </div>
+            </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
-            <div className="flex gap-3">
-              <div
-                className="w-12 shrink-0 relative"
-                style={{ height: `${timelineHeight}px` }}
-              >
-                {hourLabels.map((hour) => {
-                  const top = minuteToTop(timeToMinutes(hour));
-                  return (
-                    <span
-                      key={hour}
-                      className="absolute -translate-y-2 text-[10px] text-slate-500 dark:text-gray-400"
-                      style={{ top }}
-                    >
-                      {hour}
-                    </span>
-                  );
-                })}
-              </div>
-
-              <div
-                className="relative flex-1 rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-900"
-                style={{ height: `${timelineHeight}px` }}
-              >
-                {hourLabels.map((hour) => {
-                  const top = minuteToTop(timeToMinutes(hour));
-                  return (
+          <div className="rounded-3xl border border-cyan-200/80 bg-linear-to-b from-cyan-50 via-white to-emerald-50/30 dark:border-cyan-500/20 dark:from-gray-900 dark:via-[#071125] dark:to-[#06131c] p-3 sm:p-4 shadow-[0_8px_24px_rgba(14,116,144,0.12)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.55)]">
+            <div className="max-h-72 overflow-y-auto pr-1">
+              {timelineLoading ? (
+                <div className="grid grid-cols-2 gap-3">
+                  {Array.from({ length: 6 }).map((_, idx) => (
                     <div
-                      key={hour}
-                      className="absolute left-0 right-0 border-t border-dashed border-slate-200 dark:border-gray-700"
-                      style={{ top }}
-                    />
-                  );
-                })}
-
-                {timelineSlots.map((slot) => {
-                  const active = selectedTime === slot.time;
-                  const top = minuteToTop(slot.startMin);
-                  const height = Math.max(
-                    (duration / (dayEndMin - dayStartMin)) * timelineHeight,
-                    36,
-                  );
-
-                  return (
-                    <button
-                      key={slot.id}
-                      onClick={() =>
-                        slot.available && setSelectedTime(slot.time)
-                      }
-                      disabled={!slot.available}
-                      className={`absolute left-2 right-2 rounded-xl border px-3 text-left transition ${
-                        !slot.available
-                          ? "border-slate-200 dark:border-gray-700 bg-slate-200/50 dark:bg-gray-800 text-slate-400 dark:text-gray-500 cursor-not-allowed"
-                          : active
-                            ? "border-cyan-400 bg-cyan-100 dark:bg-teal-500/10 text-cyan-700 dark:text-teal-400 shadow-[0_0_0_1px_rgba(34,211,238,0.4)]"
-                            : "border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 hover:border-cyan-500/40"
-                      }`}
-                      style={{ top, height }}
+                      key={`timeline-skeleton-${idx}`}
+                      className="rounded-3xl min-h-18 border border-cyan-200/80 dark:border-cyan-500/30 p-3"
                     >
-                      <div className="h-full flex flex-col justify-center">
-                        <span className="text-xs font-medium">
-                          {slot.time}{" "}
-                          {slot.available
-                            ? `– ${addMinutes(slot.time, duration)}`
-                            : ""}
-                        </span>
-                        <span className="text-[10px] uppercase opacity-70">
-                          {slot.available
-                            ? t("booking.availableSlot")
-                            : t("booking.alreadyReserved")}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+                      <Skeleton className="h-4 w-28 mx-auto rounded bg-cyan-200/70 dark:bg-cyan-500/20" />
+                      <Skeleton className="h-2 w-16 mx-auto mt-2 rounded bg-cyan-200/60 dark:bg-cyan-500/15" />
+                    </div>
+                  ))}
+                </div>
+              ) : timelineSlots.length === 0 ? (
+                <div className="rounded-2xl border border-cyan-200/80 bg-white/70 px-3 py-4 text-center text-sm text-slate-600 dark:border-cyan-500/30 dark:bg-cyan-500/5 dark:text-slate-300">
+                  {t("booking.noSlots")}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                {timelineSlots.map((slot) => {
+                const isSelected = selectedTime === slot.time;
+                const isBreakTime =
+                  slot.startMin >= breakStartMin && slot.startMin < breakEndMin;
+                const isBooked = !slot.available;
+                const canSelect = !isBreakTime && !isBooked;
+                const endTime = addMinutes(slot.time, duration);
+                const status = isSelected
+                  ? "selected"
+                  : isBreakTime
+                    ? "break"
+                    : isBooked
+                      ? "booked"
+                      : "available";
+                const breakLabelMap = {
+                  "uz-latn": "tanaffus",
+                  "uz-cyrl": "танаффус",
+                  ru: "перерыв",
+                } as const;
+                const selectedLabelMap = {
+                  "uz-latn": "tanlangan",
+                  "uz-cyrl": "танланган",
+                  ru: "выбрано",
+                } as const;
+                const statusLabel =
+                  status === "selected"
+                    ? selectedLabelMap[language]
+                    : status === "available"
+                      ? t("booking.availableSlot")
+                      : status === "break"
+                        ? breakLabelMap[language]
+                        : t("booking.alreadyReserved");
+                const timeColorClass =
+                  status === "selected"
+                    ? "text-cyan-900 dark:text-cyan-100"
+                    : status === "available"
+                      ? "text-cyan-800 dark:text-cyan-300"
+                      : status === "break"
+                        ? "text-amber-800 dark:text-amber-300"
+                        : "text-slate-600 dark:text-slate-500";
+                const statusColorClass =
+                  status === "selected"
+                    ? "text-cyan-800 dark:text-cyan-200"
+                    : status === "available"
+                      ? "text-cyan-700 dark:text-cyan-300"
+                      : status === "break"
+                        ? "text-amber-700 dark:text-amber-300"
+                        : "text-slate-500 dark:text-slate-500";
+
+                return (
+                  <button
+                    key={slot.id}
+                    onClick={() => canSelect && setSelectedTime(slot.time)}
+                    disabled={!canSelect}
+                    className={`rounded-3xl min-h-18 border px-3 py-2 text-center transition-all ${
+                      status === "selected"
+                        ? "border-cyan-500 bg-linear-to-r from-cyan-50 to-emerald-50 text-cyan-900 shadow-[0_0_0_1px_rgba(6,182,212,0.55),0_6px_14px_rgba(20,184,166,0.2)] dark:border-cyan-300 dark:bg-linear-to-r dark:from-cyan-500/15 dark:to-emerald-500/10 dark:text-cyan-200 dark:shadow-[0_0_0_1px_rgba(34,211,238,0.85),0_0_16px_rgba(45,212,191,0.35)]"
+                        : status === "available"
+                          ? "border-cyan-300/90 bg-white/95 text-cyan-800 hover:border-cyan-400 hover:bg-cyan-50 dark:border-cyan-500/50 dark:bg-cyan-500/5 dark:text-cyan-300 dark:hover:border-cyan-300 dark:hover:bg-cyan-400/10"
+                          : status === "break"
+                            ? "border-amber-300 bg-amber-50 text-amber-700 cursor-not-allowed dark:border-amber-500/40 dark:bg-amber-900/20 dark:text-amber-300"
+                            : "border-slate-200 bg-slate-100/90 text-slate-500 cursor-not-allowed dark:border-slate-800 dark:bg-[#090d1b] dark:text-slate-600"
+                    }`}
+                  >
+                    <p
+                      className={`text-[14px] leading-none font-bold tracking-tight ${timeColorClass}`}
+                    >
+                      {slot.time} - {endTime}
+                    </p>
+                    <p
+                      className={`mt-1 text-[8px] uppercase tracking-[0.08em] font-semibold opacity-95 ${statusColorClass}`}
+                    >
+                      {statusLabel}
+                    </p>
+                  </button>
+                );
+              })}
+                </div>
+              )}
             </div>
+
           </div>
         </section>
       </div>
@@ -527,19 +600,14 @@ export default function BookingPage({
           <button
             onClick={handleConfirmBooking}
             disabled={
-              !selectedService || !selectedTime || bookingMutation.isPending
+              !selectedService || !selectedTime || isPending
             }
             className="w-full py-3 rounded-full bg-linear-to-r from-cyan-400 to-emerald-400 text-[#04212b] font-bold tracking-wide disabled:opacity-50"
           >
-            {bookingMutation.isPending
+            {isPending
               ? t("booking.processing")
               : t("booking.confirmBooking")}
           </button>
-
-          <p className="text-[10px] text-slate-500 dark:text-gray-400 mt-2 flex items-center gap-1">
-            <Clock3 className="w-3 h-3" />
-            {t("booking.timelineHint")}
-          </p>
         </div>
       </div>
     </div>

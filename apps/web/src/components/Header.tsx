@@ -4,17 +4,24 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { User, LogIn, LogOut, Bell, MapPin, ChevronDown } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { User, LogIn, LogOut, Bell } from "lucide-react";
 import { getImageUrl } from "@/lib/supabaseClient";
 
 export default function Header() {
   const pathname = usePathname();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const [locationMenuOpen, setLocationMenuOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] =
-    useState("Downtown Manhab an");
+
+  const hideHeaderOnPages =
+    pathname.startsWith("/book/") ||
+    pathname.startsWith("/shop/") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/forgot-password");
+
+  if (hideHeaderOnPages) {
+    return null;
+  }
 
   const avatarImageSrc = user?.avatarUrl
     ? user.avatarUrl.startsWith("http")
@@ -40,90 +47,11 @@ export default function Header() {
             </span>
           </Link>
 
-          {/* Location Selector */}
-          <div className="relative min-w-0 flex-1 max-w-40 sm:max-w-64 md:max-w-80">
-            <button
-              onClick={() => setLocationMenuOpen(!locationMenuOpen)}
-              className="flex w-full items-center gap-2 rounded-xl border border-transparent px-2 py-1.5 transition-colors hover:border-gray-200 hover:bg-gray-50 dark:hover:border-gray-700 dark:hover:bg-gray-800"
-            >
-              <MapPin className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
-              <div className="min-w-0 flex-1 text-left">
-                <span className="hidden text-[11px] font-medium leading-none text-gray-500 dark:text-gray-400 sm:block">
-                  Location
-                </span>
-                <div className="flex items-center gap-1">
-                  <span className="truncate text-sm font-semibold text-gray-900 dark:text-white">
-                    {selectedLocation}
-                  </span>
-                  <ChevronDown className="h-3 w-3 shrink-0 text-gray-600 dark:text-gray-300" />
-                </div>
-              </div>
-            </button>
-
-            {locationMenuOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setLocationMenuOpen(false)}
-                />
-                <div className="absolute left-0 right-0 z-20 mt-2 rounded-lg border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-                  <div className="border-b border-gray-200 px-3 py-2 dark:border-gray-700">
-                    <p className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
-                      Select Location
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setSelectedLocation("Downtown Manhab an");
-                      setLocationMenuOpen(false);
-                    }}
-                    className={`w-full px-3 py-2 text-left text-sm transition-colors ${
-                      selectedLocation === "Downtown Manhab an"
-                        ? "bg-blue-50 font-medium text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
-                        : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                    }`}
-                  >
-                    Downtown Manhab an
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedLocation("Tashkent City");
-                      setLocationMenuOpen(false);
-                    }}
-                    className={`w-full px-3 py-2 text-left text-sm transition-colors ${
-                      selectedLocation === "Tashkent City"
-                        ? "bg-blue-50 font-medium text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
-                        : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                    }`}
-                  >
-                    Tashkent City
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedLocation("Samarqand");
-                      setLocationMenuOpen(false);
-                    }}
-                    className={`w-full px-3 py-2 text-left text-sm transition-colors ${
-                      selectedLocation === "Samarqand"
-                        ? "bg-blue-50 font-medium text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
-                        : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                    }`}
-                  >
-                    Samarqand
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-
           {/* Right Side Actions */}
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             {/* Auth Buttons / Profile */}
             {isLoading ? (
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-10 w-10 rounded-full sm:h-11 sm:w-11" />
-                <Skeleton className="h-10 w-10 rounded-full sm:h-11 sm:w-11" />
-              </div>
+              <div className="h-10 w-24 sm:h-11 sm:w-28" aria-hidden="true" />
             ) : isAuthenticated ? (
               <div className="flex items-center gap-3">
                 <button

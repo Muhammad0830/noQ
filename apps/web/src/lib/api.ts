@@ -1,7 +1,7 @@
-import { AuthStorageSource, User } from "@shared/types/types";
+import { AuthStorageSource, User } from "@shared/types/general_types";
 import axios from "axios";
 
-const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://10.20.9.253:3001";
 const normalizedApiUrl = rawApiUrl.replace(/\/+$/, "");
 const API_BASE_URL = /\/api$/i.test(normalizedApiUrl)
   ? normalizedApiUrl
@@ -95,9 +95,8 @@ export const clearPersistedAuth = () => {
   window.sessionStorage.removeItem(USER_STORAGE_KEY);
 };
 
-
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:10000",
+  baseURL: rawApiUrl,
   withCredentials: true,
 });
 
@@ -127,11 +126,13 @@ export const API_ENDPOINTS = {
   shops_trending: `${API_BASE_URL}/shops/trending/7days`,
   shopById: (id: string) => `${API_BASE_URL}/shops/${id}`,
   shopServices: (id: string) => `${API_BASE_URL}/shops/${id}/services`,
+  shopStaff: (id: string) => `${API_BASE_URL}/shops/${id}/staff`,
   shopReviews: (id: string) => `${API_BASE_URL}/shops/${id}/reviews`,
   shopTimeline: (id: string) => `${API_BASE_URL}/shops/${id}/day-timeline`,
 
   // Services
   services: `${API_BASE_URL}/services`,
+  services_trending: `${API_BASE_URL}/services/trending/7days`,
   serviceById: (id: string) => `${API_BASE_URL}/services/${id}`,
 
   // Bookings

@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS } from "@/lib/api";
-import type { Shop, Service, Review } from "@shared/types/types";
+import type { Shop, Service, Review } from "@shared/types/general_types";
 import { getImageUrl } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";

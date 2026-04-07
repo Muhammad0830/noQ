@@ -8,19 +8,11 @@ const serviceRouter = Router();
 
 serviceRouter.get("/", async (req: any, res: any) => {
   try {
-    const { shopId, categoryId, minPrice, maxPrice } = req.query;
+    const { shopId } = req.query;
 
     const services = await prisma.service.findMany({
       where: {
         shopId,
-        shop: {
-          categoryId,
-          isOpen: true,
-        },
-        price: {
-          ...(minPrice && { gte: Number(minPrice) }),
-          ...(maxPrice && { lte: Number(maxPrice) }),
-        },
       },
       include: {
         shop: true,
@@ -34,7 +26,7 @@ serviceRouter.get("/", async (req: any, res: any) => {
   }
 });
 
-serviceRouter.get("/:id", authMiddleware, async (req: any, res: any) => {
+serviceRouter.get("/:id", async (req: any, res: any) => {
   try {
     const { id } = req.params;
 
@@ -60,56 +52,54 @@ serviceRouter.get("/:id", authMiddleware, async (req: any, res: any) => {
   }
 });
 
-serviceRouter.get(
-  "/:id/reviews",
-  authMiddleware,
-  async (req: any, res: any) => {
-    try {
-      const { id } = req.params;
-      const { cursor, limit } = getPaginationParams(req);
+serviceRouter.get("/:id/reviews", async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const { cursor, limit } = getPaginationParams(req);
 
-      const reviews = await prisma.review.findMany({
-        take: limit + 1,
-        skip: cursor ? 1 : 0,
-        ...(cursor && { cursor: { id: cursor } }),
+    const reviews = await prisma.review.findMany({
+      take: limit + 1,
+      skip: cursor ? 1 : 0,
+      ...(cursor && { cursor: { id: cursor } }),
 
-        where: {
-          serviceId: id,
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              avatarUrl: true,
-            },
+      where: {
+        serviceId: id,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            avatarUrl: true,
           },
-          service: true,
         },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
+        service: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-      let nextCursor = null;
+    let nextCursor = null;
 
-      if (reviews.length > limit) {
-        const nextItem = reviews.pop();
-        nextCursor = nextItem?.id;
-      }
-
-      res.json({
-        data: reviews,
-        nextCursor,
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+    if (reviews.length > limit) {
+      const nextItem = reviews.pop();
+      nextCursor = nextItem?.id;
     }
-  },
-);
+
+    res.json({
+      data: reviews,
+      nextCursor,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 serviceRouter.get("/trending/7days", async (req, res) => {
   try {
+    const { search = "" } = req.query as { search?: string };
+
     const trendingServices = await prisma.booking.groupBy({
       by: ["serviceId"],
       where: {
@@ -131,9 +121,25 @@ serviceRouter.get("/trending/7days", async (req, res) => {
 
     const serviceIds = trendingServices.map((t) => t.serviceId);
 
+    if (serviceIds.length === 0) {
+      return res.status(200).json([]);
+    }
+
     const services = await prisma.service.findMany({
       where: {
         id: { in: serviceIds },
+        ...(search
+          ? {
+              OR: [
+                { name: { contains: search, mode: "insensitive" } },
+                {
+                  shop: {
+                    name: { contains: search, mode: "insensitive" },
+                  },
+                },
+              ],
+            }
+          : {}),
       },
       include: {
         reviews: {
@@ -143,6 +149,8 @@ serviceRouter.get("/trending/7days", async (req, res) => {
         },
         shop: {
           select: {
+            id: true,
+            name: true,
             category: true,
           },
         },

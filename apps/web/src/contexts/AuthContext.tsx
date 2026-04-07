@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import type { AuthContextType, User } from "@shared/types/types";
+import type { AuthContextType, User } from "@shared/types/general_types";
 import api, {
   API_ENDPOINTS,
   clearPersistedAuth,
@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const mappedUser = mapApiUserToUser(profileData);
         setUser(mappedUser);
         const activeStorage = getStorageBySource(storedAuth?.source ?? "local");
-        activeStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mappedUser));
+        activeStorage?.setItem(USER_STORAGE_KEY, JSON.stringify(mappedUser));
       } catch {
         clearPersistedAuth();
         setUser(null);
@@ -111,6 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: string;
           name?: string;
           phoneNumber?: string;
+          avatarUrl?: string;
         };
       };
 
@@ -123,6 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: data.user.email,
         name: data.user.name || data.user.email.split("@")[0],
         phoneNumber: data.user.phoneNumber || undefined,
+        avatarUrl: data.user.avatarUrl || undefined,
         role: "USER",
         createdAt: new Date().toISOString(),
       };
@@ -205,6 +207,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateProfile = async (data: {
     name?: string;
+    email?: string;
     phoneNumber?: string;
     file?: File | null;
   }) => {
@@ -214,8 +217,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const formData = new FormData();
-      if (data.name) formData.append("name", data.name);
-      if (data.phoneNumber) formData.append("phoneNumber", data.phoneNumber);
+      if (data.name !== undefined) formData.append("name", data.name);
+      if (data.email !== undefined) formData.append("email", data.email);
+      if (data.phoneNumber !== undefined)
+        formData.append("phoneNumber", data.phoneNumber);
       if (data.file) formData.append("file", data.file);
 
       const response = await api.put(API_ENDPOINTS.users.profile, formData, {

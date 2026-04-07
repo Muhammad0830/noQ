@@ -1,24 +1,25 @@
 import { Router } from "express";
 import prisma from "../db/prisma.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
+import type { StatusProps } from "../../../../shared/types/bookings.js";
 
-type StatusProps =
-  | "PENDING"
-  | "CONFIRMED"
-  | "IN_PROGRESS"
-  | "COMPLETED"
-  | "CANCELLED"
-  | "NO_SHOW";
+const bookingRouter = Router();
 
 function getBookings({
   userId,
   shopId,
   status,
+  futureOnly = false,
+  inProgressOnly = false,
 }: {
   userId?: string;
   shopId?: string;
   status: StatusProps[];
+  futureOnly?: boolean;
+  inProgressOnly?: boolean;
 }) {
+  const now = new Date();
+
   return prisma.booking.findMany({
     where: {
       ...(userId && { userId }),
@@ -26,6 +27,19 @@ function getBookings({
       status: {
         in: status,
       },
+      ...(futureOnly && {
+        startTime: {
+          gt: now,
+        },
+      }),
+      ...(inProgressOnly && {
+        startTime: {
+          lt: now,
+        },
+        endTime: {
+          gt: now,
+        },
+      }),
     },
     include: {
       shop: true,
@@ -35,22 +49,118 @@ function getBookings({
   });
 }
 
-const bookingRouter = Router();
+const toMinutes = (value: string) => {
+  const [hours = 0, minutes = 0] = value.split(":").map(Number);
+  return hours * 60 + minutes;
+};
+
+const toTimeString = (totalMinutes: number) => {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+};
+
+bookingRouter.get("/available-slots", async (req, res) => {
+  try {
+    const { shopId, date, serviceId, staffId } = req.query as {
+      shopId?: string;
+      date?: string;
+      serviceId?: string;
+      staffId?: string;
+    };
+
+    if (!shopId || !date) {
+      return res.status(400).json({ message: "shopId and date are required" });
+    }
+
+    const dayOfWeek = new Date(date).getDay();
+
+    const schedules = await prisma.shopSchedule.findMany({
+      where: { shopId, dayOfWeek },
+      orderBy: { startTime: "asc" },
+    });
+
+    if (!schedules.length) {
+      return res.status(200).json([]);
+    }
+
+    const service = serviceId
+      ? await prisma.service.findUnique({ where: { id: serviceId } })
+      : null;
+
+    const durationMin = service?.durationMin ?? 45;
+    const startDay = new Date(`${date}T00:00:00`);
+    const endDay = new Date(`${date}T23:59:59`);
+
+    const bookings = await prisma.booking.findMany({
+      where: {
+        shopId,
+        ...(staffId ? { staffId } : {}),
+        startTime: { gte: startDay, lte: endDay },
+        status: { notIn: ["CANCELLED", "NO_SHOW"] },
+      },
+      select: { startTime: true, endTime: true },
+    });
+
+    const blocks = await prisma.shopBlock.findMany({
+      where: {
+        shopId,
+        startTime: { gte: startDay, lte: endDay },
+      },
+      select: { startTime: true, endTime: true },
+    });
+
+    const busyRanges = [...bookings, ...blocks];
+    const slots: { id: string; time: string; available: boolean }[] = [];
+
+    schedules.forEach((schedule) => {
+      let cursor = toMinutes(schedule.startTime);
+      const close = toMinutes(schedule.endTime);
+
+      while (cursor + durationMin <= close) {
+        const startTime = toTimeString(cursor);
+        const endTime = toTimeString(cursor + durationMin);
+        const slotStart = new Date(`${date}T${startTime}:00`);
+        const slotEnd = new Date(`${date}T${endTime}:00`);
+
+        const hasConflict = busyRanges.some(
+          (busy) => busy.startTime < slotEnd && busy.endTime > slotStart,
+        );
+
+        slots.push({
+          id: `${shopId}-${date}-${startTime}`,
+          time: startTime,
+          available: !hasConflict,
+        });
+
+        cursor += durationMin;
+      }
+    });
+
+    return res.status(200).json(slots);
+  } catch (error) {
+    console.error("Error fetching available slots:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 bookingRouter.get("/users/active", authMiddleware, async (req: any, res) => {
   try {
     const bookings = await getBookings({
       userId: req.user.id,
       status: ["PENDING", "CONFIRMED", "IN_PROGRESS"],
+      futureOnly: true,
+    });
+
+    const inProgressBookings = await getBookings({
+      userId: req.user.id,
+      status: ["PENDING", "CONFIRMED", "IN_PROGRESS"],
+      inProgressOnly: true,
     });
 
     const pendingBookings = bookings.filter((b) => b.status === "PENDING");
 
     const confirmedBookings = bookings.filter((b) => b.status === "CONFIRMED");
-
-    const inProgressBookings = bookings.filter(
-      (b) => b.status === "IN_PROGRESS",
-    );
 
     res.status(200).json({
       pending: pendingBookings,
@@ -100,6 +210,7 @@ bookingRouter.get(
       const bookings = await getBookings({
         shopId,
         status: ["PENDING", "CONFIRMED", "IN_PROGRESS"],
+        futureOnly: true,
       });
 
       const pendingBookings = bookings.filter((b) => b.status === "PENDING");
@@ -118,7 +229,7 @@ bookingRouter.get(
         inProgress: inProgressBookings,
       });
     } catch (error) {
-      console.log("error", error);
+      console.error("error", error);
       res.status(500).json({ message: "Internal server error" });
     }
   },

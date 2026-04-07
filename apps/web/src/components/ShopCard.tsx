@@ -11,7 +11,7 @@ import {
   Palette,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { Shop } from "@shared/types/types";
+import type { Shop } from "@shared/types/general_types";
 import Link from "next/link";
 import { getImageUrl } from "@/lib/supabaseClient";
 
@@ -106,7 +106,6 @@ const shopCard: React.FC<ShopCardProps> = ({
   const distance = "0.8 km";
   const driveTime = `12 ${t("shopCard.minDrive")}`;
   const nextSlot = `2:00 PM ${t("shopCard.today")}`;
-  console.log(shop);
   const title = shop.name;
   const shopId = shop.id || rootShop.id || "";
   const categoryIcon = getCategoryIcon(
@@ -116,8 +115,7 @@ const shopCard: React.FC<ShopCardProps> = ({
     (Array.isArray(shop.services) && shop.services) ||
     (Array.isArray((rootShop as any).services) && (rootShop as any).services) ||
     [];
-    console.log("shop", shop);
-    
+
   const serviceNames = Array.isArray(serviceNamesSource)
     ? serviceNamesSource
         .map((item) => (typeof item === "string" ? item : String(item)))

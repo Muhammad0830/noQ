@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   Bell,
   Calendar,
+  Camera,
   ChevronRight,
   CreditCard,
   HelpCircle,
@@ -13,13 +14,14 @@ import {
   Loader2,
   LogOut,
   Moon,
+  Pencil,
   Shield,
   Sun,
   User,
   X,
   Zap,
 } from "lucide-react";
-import type { Language } from "@shared/types/types";
+import type { Language } from "@shared/types/general_types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -37,6 +39,11 @@ type ProfileField = {
   value: string;
 };
 
+type InfoFormState = {
+  name: string;
+  phoneNumber: string;
+};
+
 const LOCALE_BY_LANGUAGE: Record<Language, string> = {
   "uz-latn": "uz-UZ",
   "uz-cyrl": "uz-Cyrl-UZ",
@@ -50,10 +57,20 @@ export default function ProfilePage() {
   const { theme, toggleTheme } = useTheme();
 
   const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [isSavingImage, setIsSavingImage] = useState(false);
 
   const [isProviderModeEnabled, setIsProviderModeEnabled] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
+  const [isEditingInfo, setIsEditingInfo] = useState(false);
+  const [isSavingInfo, setIsSavingInfo] = useState(false);
+  const [infoSaveError, setInfoSaveError] = useState("");
+  const [infoForm, setInfoForm] = useState<InfoFormState>({
+    name: "",
+    phoneNumber: "",
+  });
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -61,32 +78,40 @@ export default function ProfilePage() {
     }
   }, [isLoading, router, user]);
 
+  useEffect(() => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPreview(null);
+    }
+  }, [file]);
+
   const activeLanguage =
     LANGUAGES.find((item) => item.code === language)?.label ||
-    t("profile.language");  
+    t("profile.language");
 
   const profileFields = useMemo<ProfileField[]>(() => {
     if (!user) return [];
 
-    const optionalFields: ProfileField[] = [
-      { label: t("profile.field.phone"), value: user.phoneNumber || "" },
-      { label: t("profile.field.avatar"), value: user.avatarUrl || "" },
-    ];
-
-    return [
-      { label: t("profile.field.id"), value: user.id },
-      { label: t("profile.field.name"), value: user.name },
-      { label: t("profile.field.email"), value: user.email },
-      { label: t("profile.field.role"), value: user.role },
-      {
-        label: t("profile.field.createdAt"),
-        value: new Date(user.createdAt).toLocaleString(
-          LOCALE_BY_LANGUAGE[language],
-        ),
-      },
-      ...optionalFields.filter((field) => field.value.trim().length > 0),
-    ];
+    return [{ label: t("profile.field.role"), value: user.role }];
   }, [language, t, user]);
+
+  useEffect(() => {
+    if (!isInfoModalOpen || !user) {
+      return;
+    }
+
+    setInfoForm({
+      name: user.name || "",
+      phoneNumber: user.phoneNumber || "",
+    });
+    setIsEditingInfo(false);
+    setInfoSaveError("");
+  }, [isInfoModalOpen, user]);
 
   const memberSince = user?.createdAt
     ? `${t("profile.memberSince")} ${new Date(
@@ -106,11 +131,7 @@ export default function ProfilePage() {
     return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
   })();
 
-  if (isLoading) {
-    return <ProfilePageSkeleton />;
-  }
-
-  if (!user) {
+  if (!user && !isLoading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-700 dark:bg-[#060912] dark:text-slate-200">
         <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium shadow-sm dark:border-white/10 dark:bg-white/5">
@@ -121,115 +142,150 @@ export default function ProfilePage() {
     );
   }
 
-  const profileImageUrl = user.avatarUrl
+  const profileImageUrl = user?.avatarUrl
     ? getImageUrl(user.avatarUrl, "user_avatars")
     : null;
 
+  const showUserSkeleton = isLoading && !user;
+
+  const handleSaveImage = async () => {
+    if (!user || !file || isSavingImage) return;
+
+    setIsSavingImage(true);
+    try {
+      await updateProfile({
+        name: user.name,
+        phoneNumber: user.phoneNumber,
+        file,
+      });
+
+      // Hide Save/Cancel actions once upload succeeds.
+      setFile(null);
+      setPreview(null);
+    } finally {
+      setIsSavingImage(false);
+    }
+  };
+
+  const handleSavePersonalInfo = async () => {
+    if (!user || isSavingInfo) return;
+
+    setInfoSaveError("");
+    setIsSavingInfo(true);
+
+    try {
+      await updateProfile({
+        name: infoForm.name.trim(),
+        phoneNumber: infoForm.phoneNumber.trim(),
+      });
+      setIsEditingInfo(false);
+    } catch (error) {
+      setInfoSaveError(
+        error instanceof Error
+          ? error.message
+          : "Ma'lumotlarni saqlashda xatolik yuz berdi",
+      );
+    } finally {
+      setIsSavingInfo(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#060912] dark:text-white">
-      <div className="mx-auto w-full max-w-162.5 px-3 pb-24 pt-4 sm:px-6">
+      <div className="mx-auto w-full max-w-162.5 px-3 pb-2.25 pt-4 sm:px-6">
         <header className="mb-6 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:text-white/80 dark:hover:bg-white/10"
-            aria-label={t("profile.back")}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </button>
-
-          <h1 className="text-base font-semibold tracking-wide text-slate-900 dark:text-white">
-            {t("profile.title")}
-          </h1>
-
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-teal-300 bg-teal-50 text-teal-700 transition hover:bg-teal-100 dark:border-[#00e6d0]/30 dark:bg-[#0a1220] dark:text-[#00e6d0] dark:hover:bg-[#102036]"
-            aria-label={t("profile.toggleTheme")}
-            title={
-              theme === "dark" ? t("profile.lightMode") : t("profile.darkMode")
-            }
-          >
-            {theme === "dark" ? (
-              <Sun className="h-4 w-4" />
-            ) : (
-              <Moon className="h-4 w-4" />
-            )}
-          </button>
+          {/* Theme toggle moved to settings section */}
         </header>
 
-        <div className="w-full h-20 bg-red-500">
-          <input
-            type="file"
-            onChange={(e) => {
-              if (e.target.files) {
-                setFile(e.target.files[0]);
-              }
-            }}
-          />
-
-          <button
-            onClick={() =>
-              updateProfile({
-                name: user.name,
-                phoneNumber: user.phoneNumber,
-                file,
-              })
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            if (e.target.files) {
+              setFile(e.target.files[0]);
             }
-          >
-            Update
-          </button>
-        </div>
+          }}
+          className="hidden"
+          id="profile-image-input"
+        />
 
         <section className="relative mb-6 border-b border-slate-200 pb-6 text-center dark:border-white/10">
-          <div className="relative mx-auto mb-4 h-24 w-24 rounded-full p-0.5 ring-1 ring-[#00e6d0]/60">
-            {profileImageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={profileImageUrl}
-                alt={user.name}
-                className="h-full w-full rounded-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center rounded-full bg-slate-200 text-2xl font-bold text-slate-700 dark:bg-[#132235] dark:text-[#9ce9e2]">
-                {initials}
-              </div>
-            )}
+          <div className="relative mx-auto mb-4 inline-block">
+            <div className="relative h-24 w-24 rounded-full p-0.5 ring-1 ring-[#00e6d0]/60">
+              {preview ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={preview}
+                  alt="Profile preview"
+                  className="h-full w-full rounded-full object-cover"
+                />
+              ) : showUserSkeleton ? (
+                <Skeleton className="h-full w-full rounded-full" />
+              ) : profileImageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={profileImageUrl}
+                  alt={user?.name || "Profile image"}
+                  className="h-full w-full rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center rounded-full bg-slate-200 text-2xl font-bold text-slate-700 dark:bg-[#132235] dark:text-[#9ce9e2]">
+                  {initials}
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                document.getElementById("profile-image-input")?.click()
+              }
+              className="absolute bottom-0 right-0 inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#0099ff] text-white shadow-lg transition hover:bg-blue-600 dark:bg-[#00d4ff] dark:text-slate-900 dark:hover:bg-[#00b8dd]"
+              aria-label="Update profile image"
+              title="Click to change profile image"
+            >
+              <Camera className="h-4 w-4" />
+            </button>
           </div>
 
-          <h2 className="text-3xl font-semibold leading-tight text-slate-900 dark:text-white">
-            {user.name}
-          </h2>
-          <p className="mt-1 text-sm font-medium text-teal-600 dark:text-[#00e6d0]">
-            {memberSince}
-          </p>
-        </section>
-
-        <section className="mb-5 grid grid-cols-2 gap-3">
-          <article className="rounded-2xl border border-teal-200 bg-linear-to-br from-white to-slate-100 p-4 shadow-sm dark:border-[#00e6d0]/20 dark:from-[#0a1e2b] dark:to-[#101729] dark:shadow-[0_0_0_1px_rgba(0,230,208,0.06)]">
-            <div className="mb-2 inline-flex h-7 w-7 items-center justify-center rounded-md bg-teal-100 text-teal-700 dark:bg-[#02282f] dark:text-[#00e6d0]">
-              <Calendar className="h-4 w-4" />
+          {file && user && (
+            <div className="mb-4 flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={handleSaveImage}
+                disabled={isSavingImage}
+                className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-teal-700 dark:bg-[#00e6d0] dark:text-slate-900 dark:hover:bg-[#00c4b0]"
+              >
+                {isSavingImage ? "Saving..." : "Save Image"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setFile(null);
+                  setPreview(null);
+                }}
+                disabled={isSavingImage}
+                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
+              >
+                Cancel
+              </button>
             </div>
-            <p className="text-2xl font-bold leading-none text-slate-900 dark:text-white">
-              24
-            </p>
-            <p className="mt-2 text-[11px] uppercase tracking-[0.12em] text-slate-500 dark:text-white/50">
-              {t("profile.totalBookings")}
-            </p>
-          </article>
+          )}
 
-          <article className="rounded-2xl border border-teal-200 bg-linear-to-br from-white to-slate-100 p-4 shadow-sm dark:border-[#00e6d0]/20 dark:from-[#0a1e2b] dark:to-[#101729] dark:shadow-[0_0_0_1px_rgba(0,230,208,0.06)]">
-            <div className="mb-2 inline-flex h-7 w-7 items-center justify-center rounded-md bg-teal-100 text-teal-700 dark:bg-[#02282f] dark:text-[#00e6d0]">
-              <Zap className="h-4 w-4" />
+          {showUserSkeleton ? (
+            <div className="space-y-2">
+              <Skeleton className="mx-auto h-9 w-52 rounded-md" />
+              <Skeleton className="mx-auto h-4 w-40 rounded-md" />
             </div>
-            <p className="text-2xl font-bold leading-none text-slate-900 dark:text-white">
-              12h
-            </p>
-            <p className="mt-2 text-[11px] uppercase tracking-[0.12em] text-slate-500 dark:text-white/50">
-              {t("profile.timeSaved")}
-            </p>
-          </article>
+          ) : (
+            <>
+              <h2 className="text-3xl font-semibold leading-tight text-slate-900 dark:text-white">
+                {user?.name}
+              </h2>
+              <p className="mt-1 text-sm font-medium text-teal-600 dark:text-[#00e6d0]">
+                {memberSince}
+              </p>
+            </>
+          )}
         </section>
 
         <section
@@ -267,6 +323,55 @@ export default function ProfilePage() {
                     : "left-1 bg-white ring-slate-300 dark:bg-slate-100 dark:ring-white/35"
                 }`}
               />
+            </button>
+          </div>
+        </section>
+
+        <section
+          className={`mb-5 rounded-2xl border p-4 ${
+            theme === "dark"
+              ? "border-[#00e6d0]/25 bg-[#071723] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
+              : "border-teal-200 bg-white shadow-sm"
+          }`}
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-base font-semibold text-teal-700 dark:text-[#00e6d0]">
+                {theme === "dark"
+                  ? t("profile.darkMode")
+                  : t("profile.lightMode")}
+              </p>
+              <p className="mt-1 text-xs text-slate-600 dark:text-white/60">
+                {theme === "dark"
+                  ? t("profile.lightMode")
+                  : t("profile.darkMode")}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className={`relative h-7 w-12 rounded-full border transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
+                theme === "dark"
+                  ? "border-teal-500 bg-teal-500/40 dark:border-[#00e6d0]/70 dark:bg-[#00e6d0]/35"
+                  : "border-slate-300 bg-slate-200 dark:border-white/25 dark:bg-white/10"
+              }`}
+              aria-label={t("profile.toggleTheme")}
+              aria-pressed={theme === "dark"}
+            >
+              <span
+                className={`absolute top-0.75 h-5 w-5 rounded-full ring-1 transition-all duration-200 flex items-center justify-center ${
+                  theme === "dark"
+                    ? "left-6 bg-teal-600 ring-teal-600/60 dark:bg-[#00e6d0] dark:ring-[#00e6d0]/70"
+                    : "left-1 bg-white ring-slate-300 dark:bg-slate-100 dark:ring-white/35"
+                }`}
+              >
+                {theme === "dark" ? (
+                  <Sun className="h-3 w-3 text-white" />
+                ) : (
+                  <Moon className="h-3 w-3 text-slate-600" />
+                )}
+              </span>
             </button>
           </div>
         </section>
@@ -353,10 +458,7 @@ export default function ProfilePage() {
 
         <button
           type="button"
-          onClick={() => {
-            logout();
-            router.replace("/login");
-          }}
+          onClick={() => setIsLogoutConfirmOpen(true)}
           className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-500 bg-red-500 py-3 font-semibold text-white transition hover:bg-red-500/10 hover:text-red-500"
         >
           <LogOut className="h-4 w-4" />
@@ -369,22 +471,132 @@ export default function ProfilePage() {
           title={t("profile.personalInfoModalTitle")}
           closeLabel={t("profile.closeModal")}
           onClose={() => setIsInfoModalOpen(false)}
+          headerAction={
+            <button
+              type="button"
+              onClick={() => {
+                setIsEditingInfo((prev) => !prev);
+                setInfoSaveError("");
+              }}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100 dark:border-white/15 dark:bg-white/5 dark:text-white/80 dark:hover:bg-white/10"
+              aria-label="Shaxsiy ma'lumotlarni tahrirlash"
+              title="Tahrirlash"
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+          }
         >
-          <div className="space-y-3">
-            {profileFields.map((item) => (
-              <div
-                key={item.label}
-                className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5"
-              >
+          {isEditingInfo ? (
+            <div className="space-y-3">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5">
                 <p className="text-xs uppercase tracking-[0.15em] text-slate-500 dark:text-white/45">
-                  {item.label}
+                  {t("profile.field.name")}
+                </p>
+                <input
+                  type="text"
+                  value={infoForm.name}
+                  onChange={(event) =>
+                    setInfoForm((prev) => ({
+                      ...prev,
+                      name: event.target.value,
+                    }))
+                  }
+                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-teal-500 dark:border-white/15 dark:bg-white/10 dark:text-white/90"
+                />
+              </div>
+
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5">
+                <p className="text-xs uppercase tracking-[0.15em] text-slate-500 dark:text-white/45">
+                  {t("profile.field.phone")}
+                </p>
+                <input
+                  type="tel"
+                  value={infoForm.phoneNumber}
+                  onChange={(event) =>
+                    setInfoForm((prev) => ({
+                      ...prev,
+                      phoneNumber: event.target.value,
+                    }))
+                  }
+                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-teal-500 dark:border-white/15 dark:bg-white/10 dark:text-white/90"
+                />
+              </div>
+
+              {infoSaveError && (
+                <p className="text-sm text-red-500">{infoSaveError}</p>
+              )}
+
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!user) return;
+                    setInfoForm({
+                      name: user.name || "",
+                      phoneNumber: user.phoneNumber || "",
+                    });
+                    setIsEditingInfo(false);
+                    setInfoSaveError("");
+                  }}
+                  disabled={isSavingInfo}
+                  className="flex h-12 w-full items-center justify-center rounded-xl border border-slate-300 px-4 text-base font-semibold text-slate-600 transition hover:bg-slate-100 disabled:opacity-60 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSavePersonalInfo}
+                  disabled={isSavingInfo}
+                  className="flex h-12 w-full items-center justify-center rounded-xl bg-teal-600 px-4 text-base font-semibold text-white transition hover:bg-teal-700 disabled:opacity-60 dark:bg-[#00e6d0] dark:text-slate-900 dark:hover:bg-[#00c4b0]"
+                >
+                  {isSavingInfo ? "Saqlanmoqda..." : "Saqlash"}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5">
+                <p className="text-xs uppercase tracking-[0.15em] text-slate-500 dark:text-white/45">
+                  {t("profile.field.name")}
                 </p>
                 <p className="mt-1 break-all text-sm text-slate-800 dark:text-white/90">
-                  {item.value}
+                  {user?.name || "-"}
                 </p>
               </div>
-            ))}
-          </div>
+
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5">
+                <p className="text-xs uppercase tracking-[0.15em] text-slate-500 dark:text-white/45">
+                  {t("profile.field.email")}
+                </p>
+                <p className="mt-1 break-all text-sm text-slate-800 dark:text-white/90">
+                  {user?.email || "-"}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5">
+                <p className="text-xs uppercase tracking-[0.15em] text-slate-500 dark:text-white/45">
+                  {t("profile.field.phone")}
+                </p>
+                <p className="mt-1 break-all text-sm text-slate-800 dark:text-white/90">
+                  {user?.phoneNumber || "-"}
+                </p>
+              </div>
+
+              {profileFields.map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5"
+                >
+                  <p className="text-xs uppercase tracking-[0.15em] text-slate-500 dark:text-white/45">
+                    {item.label}
+                  </p>
+                  <p className="mt-1 break-all text-sm text-slate-800 dark:text-white/90">
+                    {item.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </ModalShell>
       )}
 
@@ -419,97 +631,56 @@ export default function ProfilePage() {
           </div>
         </ModalShell>
       )}
-    </main>
-  );
-}
 
-function ProfilePageSkeleton() {
-  return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#060912] dark:text-white">
-      <div className="mx-auto w-full max-w-162.5 px-3 pb-24 pt-4 sm:px-6">
-        <header className="mb-6 flex items-center justify-between">
-          <Skeleton className="h-9 w-9 rounded-full" />
-          <Skeleton className="h-5 w-28 rounded-md" />
-          <Skeleton className="h-9 w-9 rounded-full" />
-        </header>
-
-        <section className="relative mb-6 border-b border-slate-200 pb-6 text-center dark:border-white/10">
-          <Skeleton className="mx-auto mb-4 h-24 w-24 rounded-full" />
-          <Skeleton className="mx-auto h-9 w-52 rounded-md" />
-          <Skeleton className="mx-auto mt-2 h-4 w-40 rounded-md" />
-        </section>
-
-        <section className="mb-5 grid grid-cols-2 gap-3">
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/5">
-            <Skeleton className="mb-2 h-7 w-7 rounded-md" />
-            <Skeleton className="h-8 w-16 rounded-md" />
-            <Skeleton className="mt-2 h-3 w-20 rounded-md" />
-          </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/5">
-            <Skeleton className="mb-2 h-7 w-7 rounded-md" />
-            <Skeleton className="h-8 w-16 rounded-md" />
-            <Skeleton className="mt-2 h-3 w-20 rounded-md" />
-          </div>
-        </section>
-
-        <section className="mb-5 rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/5">
-          <div className="flex items-center justify-between gap-4">
-            <div className="space-y-2">
-              <Skeleton className="h-5 w-28 rounded-md" />
-              <Skeleton className="h-3 w-40 rounded-md" />
+      {isLogoutConfirmOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 dark:bg-black/70"
+          onClick={() => setIsLogoutConfirmOpen(false)}
+          role="presentation"
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-[#0d1325]"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("profile.logoutConfirmTitle")}
+          >
+            <div className="mb-4 flex items-center justify-center">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-500/20">
+                <LogOut className="h-6 w-6 text-red-600 dark:text-red-400" />
+              </div>
             </div>
-            <Skeleton className="h-7 w-12 rounded-full" />
-          </div>
-        </section>
 
-        <section className="mb-6">
-          <Skeleton className="mb-2 h-3 w-40 rounded-md" />
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/5">
-            {[0, 1, 2].map((item) => (
-              <div
-                key={item}
-                className={`flex items-center gap-3 px-4 py-3 ${
-                  item > 0
-                    ? "border-t border-slate-200 dark:border-white/10"
-                    : ""
-                }`}
+            <h3 className="mb-2 text-center text-lg font-semibold text-slate-900 dark:text-white">
+              {t("profile.logoutConfirmTitle")}
+            </h3>
+
+            <p className="mb-6 text-center text-sm text-slate-600 dark:text-white/70">
+              {t("profile.logoutConfirmMessage")}
+            </p>
+
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setIsLogoutConfirmOpen(false)}
+                className="flex h-12 w-full items-center justify-center rounded-xl border border-slate-300 px-4 font-semibold text-slate-600 transition hover:bg-slate-100 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
               >
-                <Skeleton className="h-8 w-8 rounded-full" />
-                <div className="min-w-0 flex-1 space-y-2">
-                  <Skeleton className="h-4 w-36 rounded-md" />
-                  <Skeleton className="h-3 w-48 rounded-md" />
-                </div>
-                <Skeleton className="h-4 w-4 rounded-sm" />
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mb-8">
-          <Skeleton className="mb-2 h-3 w-40 rounded-md" />
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/5">
-            {[0, 1, 2].map((item) => (
-              <div
-                key={item}
-                className={`flex items-center gap-3 px-4 py-3 ${
-                  item > 0
-                    ? "border-t border-slate-200 dark:border-white/10"
-                    : ""
-                }`}
+                {t("profile.cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  router.replace("/login");
+                }}
+                className="flex h-12 w-full items-center justify-center rounded-xl bg-red-600 px-4 font-semibold text-white transition hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
               >
-                <Skeleton className="h-8 w-8 rounded-full" />
-                <div className="min-w-0 flex-1 space-y-2">
-                  <Skeleton className="h-4 w-32 rounded-md" />
-                  <Skeleton className="h-3 w-52 rounded-md" />
-                </div>
-                <Skeleton className="h-4 w-4 rounded-sm" />
-              </div>
-            ))}
+                {t("profile.logout")}
+              </button>
+            </div>
           </div>
-        </section>
-
-        <Skeleton className="h-12 w-full rounded-xl" />
-      </div>
+        </div>
+      )}
     </main>
   );
 }
@@ -560,22 +731,24 @@ function ProfileRow({
 function ModalShell({
   title,
   closeLabel,
+  headerAction,
   children,
   onClose,
 }: {
   title: string;
   closeLabel: string;
+  headerAction?: React.ReactNode;
   children: React.ReactNode;
   onClose: () => void;
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-3 dark:bg-black/70 sm:items-center"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 dark:bg-black/70"
       onClick={onClose}
       role="presentation"
     >
       <div
-        className="w-full max-w-155 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl dark:border-white/10 dark:bg-[#0d1325]"
+        className="max-h-[calc(100dvh-2rem)] w-full max-w-155 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl dark:border-white/10 dark:bg-[#0d1325]"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -585,17 +758,22 @@ function ModalShell({
           <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
             {title}
           </h3>
-          <button
-            type="button"
-            onClick={onClose}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100 dark:border-white/15 dark:bg-white/5 dark:text-white/80 dark:hover:bg-white/10"
-            aria-label={closeLabel}
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            {headerAction}
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100 dark:border-white/15 dark:bg-white/5 dark:text-white/80 dark:hover:bg-white/10"
+              aria-label={closeLabel}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
-        <div className="max-h-[65vh] overflow-y-auto pr-1">{children}</div>
+        <div className="max-h-[calc(100dvh-9rem)] overflow-y-auto pr-1">
+          {children}
+        </div>
       </div>
     </div>
   );

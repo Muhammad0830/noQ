@@ -64,9 +64,9 @@ export default function MyBookings() {
     (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
   );
 
-  const activeBooking = activeBookings[0]
-    ? buildOngoingCard(activeBookings[0])
-    : null;
+  const updatedActiveBookings = activeBookings.map((b) =>
+    b ? buildOngoingCard(b) : null,
+  );
 
   const completedHistory = (historyBookingsData?.completed || []).map((item) =>
     buildHistoryCard(item, "completed"),
@@ -99,16 +99,20 @@ export default function MyBookings() {
           }`}
         >
           <div>
-            <OngoingPanel
-              filter={filter}
-              isHydrated={isHydrated}
-              isLoading={isActiveLoading}
-              isError={isActiveError}
-              errorMessage={activeErrorMessage}
-              activeBooking={activeBooking}
-              onRetry={refetchActive}
-              t={t}
-            />
+            {updatedActiveBookings.map((b, index) => (
+              <div key={index}>
+                <OngoingPanel
+                  filter={filter}
+                  isHydrated={isHydrated}
+                  isLoading={isActiveLoading}
+                  isError={isActiveError}
+                  errorMessage={activeErrorMessage}
+                  activeBooking={b}
+                  onRetry={refetchActive}
+                  t={t}
+                />
+              </div>
+            ))}
           </div>
 
           <HistoryPanel

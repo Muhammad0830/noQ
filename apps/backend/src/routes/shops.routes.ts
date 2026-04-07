@@ -10,7 +10,7 @@ import { uploadImage } from "../utils/handleImage.js";
 
 const shopRouter = Router();
 
-shopRouter.get("/", authMiddleware, async (req, res) => {
+shopRouter.get("/", async (req, res) => {
   try {
     const {
       categoryId = "",
@@ -35,6 +35,9 @@ shopRouter.get("/", authMiddleware, async (req, res) => {
         where: {
           isOpen: true,
           name: { contains: search, mode: "insensitive" },
+        },
+        include: {
+          category: true,
         },
         orderBy: { createdAt: "desc" },
       });
@@ -90,6 +93,9 @@ shopRouter.get("/", authMiddleware, async (req, res) => {
           categoryId,
           ...(open === "true" && { isOpen: true }),
         },
+        include: {
+          category: true,
+        },
         orderBy: { createdAt: "desc" },
       });
 
@@ -132,6 +138,9 @@ shopRouter.get("/", authMiddleware, async (req, res) => {
         isOpen: true,
         ...(categoryId && { categoryId }),
         ...(open === "true" && { isOpen: true }),
+      },
+      include: {
+        category: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -278,61 +287,96 @@ shopRouter.get("/:id/reviews", async (req: any, res: any) => {
 });
 
 // GET /shops/:id/day-timeline?date=2026-01-20
-shopRouter.get("/:id/day-timeline", authMiddleware, async (req, res) => {
-  const { id } = req.params;
-  const { date } = req.query;
+shopRouter.get("/:id/day-timeline", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date } = req.query;
 
-  const day = new Date(date as string).getDay();
+    if (!date) {
+      return res.status(400).json({ message: "date is required" });
+    }
 
-  const schedules = await prisma.shopSchedule.findMany({
-    where: { shopId: id, dayOfWeek: day },
-    orderBy: { startTime: "asc" },
-  });
+    const day = new Date(date as string).getDay();
 
-  if (!schedules || !schedules.length || schedules.length === 0) {
-    return res.json({ open: null, close: null, disabled: [] });
-  }
+    const schedules = await prisma.$queryRaw<
+      {
+        id: string;
+        shopId: string;
+        dayOfWeek: number;
+        startTime: string;
+        endTime: string;
+      }[]
+    >`
+      SELECT "id", "shopId", "dayOfWeek", "startTime", "endTime"
+      FROM "ShopSchedule"
+      WHERE "shopId" = ${id} AND "dayOfWeek" = ${day}
+      ORDER BY "startTime" ASC
+    `;
 
-  const startDay = new Date(`${date}T00:00:00`);
-  const endDay = new Date(`${date}T23:59:59`);
+    if (!schedules.length) {
+      return res.json({ open: null, close: null, disabled: [], busy: [] });
+    }
 
-  const bookings = await prisma.booking.findMany({
-    where: {
-      shopId: id,
-      startTime: { gte: startDay, lte: endDay },
-      status: { notIn: ["CANCELLED", "NO_SHOW"] },
-    },
-  });
+    const startDay = new Date(`${date}T00:00:00`);
+    const endDay = new Date(`${date}T23:59:59`);
 
-  const blocks = await prisma.shopBlock.findMany({
-    where: {
-      shopId: id,
-      startTime: { gte: startDay, lte: endDay },
-    },
-  });
-
-  const busy = [
-    ...bookings.map((b) => ({ start: b.startTime, end: b.endTime })),
-    ...blocks.map((b) => ({ start: b.startTime, end: b.endTime })),
-  ];
-
-  const open = schedules[0]?.startTime ?? null;
-  const close = schedules[schedules.length - 1]?.endTime ?? null;
-
-  const disabled: { start: string; end: string }[] = [];
-
-  for (let i = 0; i < schedules.length - 1; i++) {
-    disabled.push({
-      start: schedules[i]?.endTime ?? "",
-      end: schedules[i + 1]?.startTime ?? "",
+    const bookings = await prisma.booking.findMany({
+      where: {
+        shopId: id,
+        startTime: { lt: endDay },
+        endTime: { gt: startDay },
+        status: { notIn: ["CANCELLED", "NO_SHOW"] },
+      },
     });
-  }
 
-  res.json({ open, close, disabled, busy });
+    const blocks = await prisma.shopBlock.findMany({
+      where: {
+        shopId: id,
+        startTime: { lt: endDay },
+        endTime: { gt: startDay },
+      },
+    });
+
+    const busy = [
+      ...bookings.map((b) => ({
+        start: b.startTime.toISOString(),
+        end: b.endTime.toISOString(),
+      })),
+      ...blocks.map((b) => ({
+        start: b.startTime.toISOString(),
+        end: b.endTime.toISOString(),
+      })),
+    ];
+
+    const open = schedules[0]?.startTime ?? null;
+    const close = schedules[schedules.length - 1]?.endTime ?? null;
+
+    const disabled: { start: string; end: string }[] = [];
+
+    for (let i = 0; i < schedules.length - 1; i++) {
+      const gapStart = schedules[i]?.endTime ?? "";
+      const gapEnd = schedules[i + 1]?.startTime ?? "";
+
+      disabled.push({
+        start: new Date(`${date}T${gapStart}:00`).toISOString(),
+        end: new Date(`${date}T${gapEnd}:00`).toISOString(),
+      });
+    }
+
+    return res.json({ open, close, disabled, busy });
+  } catch (error) {
+    console.error("Error building day timeline:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 shopRouter.get("/trending/7days", async (req, res) => {
   try {
+    const { search = "", categoryId = "" } = req.query as {
+      search?: string;
+      categoryId?: string;
+    };
+
     const trendingShops = await prisma.booking.groupBy({
       by: ["shopId"],
       where: {
@@ -354,9 +398,15 @@ shopRouter.get("/trending/7days", async (req, res) => {
 
     const shopIds = trendingShops.map((t) => t.shopId);
 
+    if (shopIds.length === 0) {
+      return res.status(200).json([]);
+    }
+
     const shops = await prisma.shop.findMany({
       where: {
         id: { in: shopIds },
+        ...(categoryId ? { categoryId } : {}),
+        ...(search ? { name: { contains: search, mode: "insensitive" } } : {}),
       },
       include: {
         reviews: {
