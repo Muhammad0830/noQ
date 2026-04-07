@@ -94,7 +94,9 @@ const useApiQuery = <T,>(
   // error handling
   useEffect(() => {
     if (error && !hasShownError.current) {
-      console.error("API Error:", error.data || error.message);
+      if (error.status !== 401) {
+        console.error("API Error:", error.data || error.message);
+      }
       hasShownError.current = true;
     }
 

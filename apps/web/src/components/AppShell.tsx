@@ -16,14 +16,14 @@ export default function AppShell({ children }: AppShellProps) {
     pathname.startsWith("/forgot-password");
 
   const mainClassName = isAuthPage
-    ? "min-h-[calc(100dvh-4rem)]"
+    ? "min-h-screen"
     : "min-h-[calc(100dvh-8rem)] md:min-h-[calc(100dvh-4rem)] pb-16 md:pb-0";
 
   return (
-    <>
+    <div className={isAuthPage ? "overflow-hidden" : ""}>
       <Header />
       <main className={mainClassName}>{children}</main>
       <ConditionalBottomNav />
-    </>
+    </div>
   );
 }
