@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { User, LogIn, LogOut, Bell, MapPin, ChevronDown } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { getImageUrl } from "@/lib/supabaseClient";
 
 export default function Header() {
@@ -120,10 +119,7 @@ export default function Header() {
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             {/* Auth Buttons / Profile */}
             {isLoading ? (
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-10 w-10 rounded-full sm:h-11 sm:w-11" />
-                <Skeleton className="h-10 w-10 rounded-full sm:h-11 sm:w-11" />
-              </div>
+              <div className="h-10 w-24 sm:h-11 sm:w-28" aria-hidden="true" />
             ) : isAuthenticated ? (
               <div className="flex items-center gap-3">
                 <button

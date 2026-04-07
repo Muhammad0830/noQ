@@ -142,17 +142,19 @@ router.post("/signin", async (req, res) => {
     email: data.user.email,
     name: userMetadataName || email.split("@")[0],
     phoneNumber: "" as string | undefined,
+    avatarUrl: "" as string | undefined,
   };
 
   // Try to get phone number from Prisma
   try {
     const prismaUser = await prisma.user.findUnique({
       where: { id: data.user.id },
-      select: { phoneNumber: true, name: true },
+      select: { phoneNumber: true, name: true, avatarUrl: true },
     });
     if (prismaUser) {
       userData.phoneNumber = prismaUser.phoneNumber || undefined;
       userData.name = prismaUser.name;
+      userData.avatarUrl = prismaUser.avatarUrl || undefined;
     }
   } catch (err) {
     // Silently fail, not critical

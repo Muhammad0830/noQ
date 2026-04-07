@@ -27,7 +27,7 @@ router.put(
   upload.single("file"),
   async (req: any, res) => {
     try {
-      const { name, phoneNumber } = req.body;
+      const { name, email, phoneNumber } = req.body;
       const file = req.file;
       const userId = req.user.id;
 
@@ -39,6 +39,7 @@ router.put(
 
       const updateData: any = {};
       if (name !== undefined) updateData.name = name;
+      if (email !== undefined) updateData.email = email.toLowerCase().trim();
       if (phoneNumber !== undefined) updateData.phoneNumber = phoneNumber;
       if (uploadedFilePath !== null) updateData.avatarUrl = uploadedFilePath;
 
@@ -48,7 +49,11 @@ router.put(
       });
 
       res.status(200).json(updatedUser);
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.code === "P2002") {
+        return res.status(409).json({ error: "Bu email allaqachon mavjud" });
+      }
+
       console.error("Error updating profile:", error);
       return res.status(500).json({ error: "Failed to update profile" });
     }
