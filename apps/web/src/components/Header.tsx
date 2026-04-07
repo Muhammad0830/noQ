@@ -4,12 +4,14 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { User, LogIn, LogOut, Bell } from "lucide-react";
 import { getImageUrl } from "@/lib/supabaseClient";
 
 export default function Header() {
   const pathname = usePathname();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const { t } = useLanguage();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   const hideHeaderOnPages =
@@ -56,7 +58,7 @@ export default function Header() {
               <div className="flex items-center gap-3">
                 <button
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 sm:h-11 sm:w-11"
-                  aria-label="Notifications"
+                  aria-label={t("header.notifications")}
                 >
                   <Bell className="h-5 w-5" />
                 </button>
@@ -64,12 +66,12 @@ export default function Header() {
                   <button
                     onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                     className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-amber-100 dark:bg-amber-900/30 sm:h-11 sm:w-11"
-                    aria-label="Profile menu"
+                    aria-label={t("header.profileMenu")}
                   >
                     {avatarImageSrc ? (
                       <img
                         src={avatarImageSrc}
-                        alt={user?.name || "User avatar"}
+                        alt={user?.name || t("header.userAvatar")}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -90,7 +92,7 @@ export default function Header() {
                           className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                         >
                           <User className="w-4 h-4" />
-                          <span>Profile</span>
+                          <span>{t("nav.profile")}</span>
                         </Link>
 
                         <div className="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
@@ -102,7 +104,7 @@ export default function Header() {
                             className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full"
                           >
                             <LogOut className="w-4 h-4" />
-                            <span>Chiqish</span>
+                            <span>{t("profile.logout")}</span>
                           </button>
                         </div>
                       </div>
@@ -116,7 +118,7 @@ export default function Header() {
                 className="flex items-center space-x-2 rounded-lg bg-linear-to-r from-blue-600 to-purple-600 px-3 py-2 text-sm font-medium text-white transition-shadow hover:shadow-lg sm:px-4 sm:text-base"
               >
                 <LogIn className="w-4 h-4" />
-                <span>Sign in</span>
+                  <span>{t("nav.signin")}</span>
               </Link>
             )}
           </div>

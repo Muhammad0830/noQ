@@ -3,8 +3,10 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Heart, Trash2, MapPin, Star, Phone } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function MyFavorites() {
+  const { t } = useLanguage()
   const [favorites, setFavorites] = useState([
     {
       id: 1,
@@ -52,20 +54,22 @@ export default function MyFavorites() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">My Favorites</h1>
-          <span className="text-gray-600">{favorites.length} saved places</span>
+          <h1 className="text-3xl font-bold">{t('favorites.title')}</h1>
+          <span className="text-gray-600">
+            {t('favorites.savedPlaces', { count: favorites.length })}
+          </span>
         </div>
 
         {favorites.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
             <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">No favorites yet</h3>
-            <p className="text-gray-500 mb-6">Start adding your favorite shops to easily find them later!</p>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">{t('favorites.emptyTitle')}</h3>
+            <p className="text-gray-500 mb-6">{t('favorites.emptyDescription')}</p>
             <Link 
               href="/discover"
               className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              Discover Services
+              {t('favorites.discoverServices')}
             </Link>
           </div>
         ) : (
@@ -115,13 +119,13 @@ export default function MyFavorites() {
                         href={`/shop/${shop.id}`}
                         className="flex-1 text-center py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 text-sm"
                       >
-                        View
+                        {t('favorites.view')}
                       </Link>
                       <Link 
                         href={`/book/${shop.id}`}
                         className="flex-1 text-center py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
                       >
-                        Book
+                        {t('favorites.book')}
                       </Link>
                     </div>
                   </div>

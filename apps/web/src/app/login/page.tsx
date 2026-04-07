@@ -30,7 +30,7 @@ export default function Login() {
       router.push("/");
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Email yoki parol noto'g'ri",
+        err instanceof Error ? err.message : t("auth.invalidCredentials"),
       );
     } finally {
       setIsLoading(false);
@@ -54,7 +54,7 @@ export default function Login() {
             {t("nav.signin")}
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
-            Hisobingizga kiring
+            {t("auth.signInToAccount")}
           </p>
         </div>
 
@@ -74,7 +74,7 @@ export default function Login() {
             {/* Email */}
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-                Email
+                {t("auth.email")}
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
@@ -86,7 +86,7 @@ export default function Login() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  placeholder="your@email.com"
+                  placeholder={t("auth.emailPlaceholder")}
                   className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
                   disabled={isLoading}
                 />
@@ -96,7 +96,7 @@ export default function Login() {
             {/* Password */}
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-                Parol
+                {t("auth.password")}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
@@ -108,7 +108,7 @@ export default function Login() {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  placeholder="Parolingizni kiriting"
+                  placeholder={t("auth.passwordPlaceholder")}
                   className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg pl-10 pr-12 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
                   disabled={isLoading}
                 />
@@ -139,14 +139,14 @@ export default function Login() {
                   disabled={isLoading}
                 />
                 <span className="text-sm text-gray-700 dark:text-gray-300">
-                  Eslab qolish
+                  {t("auth.rememberMe")}
                 </span>
               </label>
               <Link
                 href="/forgot-password"
                 className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
               >
-                Parolni unutdingizmi?
+                {t("auth.forgotPassword")}
               </Link>
             </div>
 
@@ -159,22 +159,22 @@ export default function Login() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Yuklanmoqda...</span>
+                  <span>{t("common.loading")}</span>
                 </>
               ) : (
-                <span>Kirish</span>
+                <span>{t("nav.signin")}</span>
               )}
             </button>
           </form>
 
           {/* Sign Up Link */}
           <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-            Hisobingiz yo'qmi?{" "}
+            {t("auth.noAccount")} {" "}
             <Link
               href="/signup"
               className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"
             >
-              Ro'yxatdan o'tish
+              {t("nav.signup")}
             </Link>
           </p>
         </div>
