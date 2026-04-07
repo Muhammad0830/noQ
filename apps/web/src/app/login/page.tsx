@@ -38,8 +38,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-full w-full bg-linear-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 px-4 py-4 sm:py-8 md:py-10">
-      <div className="mx-auto w-full max-w-md">
+    <div className="flex min-h-screen w-full items-center justify-center overflow-hidden bg-linear-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 px-4 py-4">
+      <div className="w-full max-w-md">
         {/* Logo */}
         <div className="mb-5 text-center sm:mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-4">

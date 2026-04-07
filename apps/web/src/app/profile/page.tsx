@@ -41,7 +41,6 @@ type ProfileField = {
 
 type InfoFormState = {
   name: string;
-  email: string;
   phoneNumber: string;
 };
 
@@ -64,12 +63,12 @@ export default function ProfilePage() {
   const [isProviderModeEnabled, setIsProviderModeEnabled] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const [isEditingInfo, setIsEditingInfo] = useState(false);
   const [isSavingInfo, setIsSavingInfo] = useState(false);
   const [infoSaveError, setInfoSaveError] = useState("");
   const [infoForm, setInfoForm] = useState<InfoFormState>({
     name: "",
-    email: "",
     phoneNumber: "",
   });
 
@@ -108,7 +107,6 @@ export default function ProfilePage() {
 
     setInfoForm({
       name: user.name || "",
-      email: user.email || "",
       phoneNumber: user.phoneNumber || "",
     });
     setIsEditingInfo(false);
@@ -178,7 +176,6 @@ export default function ProfilePage() {
     try {
       await updateProfile({
         name: infoForm.name.trim(),
-        email: infoForm.email.trim(),
         phoneNumber: infoForm.phoneNumber.trim(),
       });
       setIsEditingInfo(false);
@@ -195,7 +192,7 @@ export default function ProfilePage() {
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#060912] dark:text-white">
-      <div className="mx-auto w-full max-w-162.5 px-3 pb-24 pt-4 sm:px-6">
+      <div className="mx-auto w-full max-w-162.5 px-3 pb-2.25 pt-4 sm:px-6">
         <header className="mb-6 flex items-center justify-between">
           {/* Theme toggle moved to settings section */}
         </header>
@@ -461,10 +458,7 @@ export default function ProfilePage() {
 
         <button
           type="button"
-          onClick={() => {
-            logout();
-            router.replace("/login");
-          }}
+          onClick={() => setIsLogoutConfirmOpen(true)}
           className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-500 bg-red-500 py-3 font-semibold text-white transition hover:bg-red-500/10 hover:text-red-500"
         >
           <LogOut className="h-4 w-4" />
@@ -513,23 +507,6 @@ export default function ProfilePage() {
 
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5">
                 <p className="text-xs uppercase tracking-[0.15em] text-slate-500 dark:text-white/45">
-                  {t("profile.field.email")}
-                </p>
-                <input
-                  type="email"
-                  value={infoForm.email}
-                  onChange={(event) =>
-                    setInfoForm((prev) => ({
-                      ...prev,
-                      email: event.target.value,
-                    }))
-                  }
-                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-teal-500 dark:border-white/15 dark:bg-white/10 dark:text-white/90"
-                />
-              </div>
-
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5">
-                <p className="text-xs uppercase tracking-[0.15em] text-slate-500 dark:text-white/45">
                   {t("profile.field.phone")}
                 </p>
                 <input
@@ -549,21 +526,20 @@ export default function ProfilePage() {
                 <p className="text-sm text-red-500">{infoSaveError}</p>
               )}
 
-              <div className="flex items-center justify-end gap-2 pt-1">
+              <div className="grid grid-cols-2 gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => {
                     if (!user) return;
                     setInfoForm({
                       name: user.name || "",
-                      email: user.email || "",
                       phoneNumber: user.phoneNumber || "",
                     });
                     setIsEditingInfo(false);
                     setInfoSaveError("");
                   }}
                   disabled={isSavingInfo}
-                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 disabled:opacity-60 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
+                  className="flex h-12 w-full items-center justify-center rounded-xl border border-slate-300 px-4 text-base font-semibold text-slate-600 transition hover:bg-slate-100 disabled:opacity-60 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
                 >
                   Bekor qilish
                 </button>
@@ -571,7 +547,7 @@ export default function ProfilePage() {
                   type="button"
                   onClick={handleSavePersonalInfo}
                   disabled={isSavingInfo}
-                  className="rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-teal-700 disabled:opacity-60 dark:bg-[#00e6d0] dark:text-slate-900 dark:hover:bg-[#00c4b0]"
+                  className="flex h-12 w-full items-center justify-center rounded-xl bg-teal-600 px-4 text-base font-semibold text-white transition hover:bg-teal-700 disabled:opacity-60 dark:bg-[#00e6d0] dark:text-slate-900 dark:hover:bg-[#00c4b0]"
                 >
                   {isSavingInfo ? "Saqlanmoqda..." : "Saqlash"}
                 </button>
@@ -654,6 +630,56 @@ export default function ProfilePage() {
             })}
           </div>
         </ModalShell>
+      )}
+
+      {isLogoutConfirmOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 dark:bg-black/70"
+          onClick={() => setIsLogoutConfirmOpen(false)}
+          role="presentation"
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-[#0d1325]"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("profile.logoutConfirmTitle")}
+          >
+            <div className="mb-4 flex items-center justify-center">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-500/20">
+                <LogOut className="h-6 w-6 text-red-600 dark:text-red-400" />
+              </div>
+            </div>
+
+            <h3 className="mb-2 text-center text-lg font-semibold text-slate-900 dark:text-white">
+              {t("profile.logoutConfirmTitle")}
+            </h3>
+
+            <p className="mb-6 text-center text-sm text-slate-600 dark:text-white/70">
+              {t("profile.logoutConfirmMessage")}
+            </p>
+
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setIsLogoutConfirmOpen(false)}
+                className="flex h-12 w-full items-center justify-center rounded-xl border border-slate-300 px-4 font-semibold text-slate-600 transition hover:bg-slate-100 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
+              >
+                {t("profile.cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  router.replace("/login");
+                }}
+                className="flex h-12 w-full items-center justify-center rounded-xl bg-red-600 px-4 font-semibold text-white transition hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
+              >
+                {t("profile.logout")}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </main>
   );

@@ -255,12 +255,7 @@ export default function BookingPage({
     [effectiveDate, shopId, selectedService, timelineData],
   );
 
-  const bookingMutation = useApiMutation(API_ENDPOINTS.bookings, "post", () => {
-    const token = localStorage.getItem("token");
-    const headers: Record<string, string> = {};
-    if (token) headers.Authorization = `Bearer ${token}`;
-    return headers;
-  });
+  const {mutateAsync: bookingMutation, isPending} = useApiMutation(API_ENDPOINTS.bookings, "post");
 
   const toggleServices = () => {
     setShowServices((prev) => !prev);
@@ -270,7 +265,7 @@ export default function BookingPage({
     if (!selectedService || !selectedTime) return;
 
     try {
-      await bookingMutation.mutateAsync({
+      await bookingMutation({
         shopId,
         serviceId: selectedService.id,
         staffId: activeStaffId || undefined,
@@ -605,11 +600,11 @@ export default function BookingPage({
           <button
             onClick={handleConfirmBooking}
             disabled={
-              !selectedService || !selectedTime || bookingMutation.isPending
+              !selectedService || !selectedTime || isPending
             }
             className="w-full py-3 rounded-full bg-linear-to-r from-cyan-400 to-emerald-400 text-[#04212b] font-bold tracking-wide disabled:opacity-50"
           >
-            {bookingMutation.isPending
+            {isPending
               ? t("booking.processing")
               : t("booking.confirmBooking")}
           </button>
