@@ -1,7 +1,7 @@
 import { AuthStorageSource, User } from "@shared/types/general_types";
 import axios from "axios";
 
-const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://10.20.9.253:3001";
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://10.20.11.99:3001/api";
 const normalizedApiUrl = rawApiUrl.replace(/\/+$/, "");
 const API_BASE_URL = /\/api$/i.test(normalizedApiUrl)
   ? normalizedApiUrl
