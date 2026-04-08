@@ -94,7 +94,7 @@ const shopCard: React.FC<ShopCardProps> = ({
 }) => {
   const { t } = useLanguage();
   const rootShop = shop as Partial<Shop> & {
-    id?: string;  
+    id?: string;
     logoUrl?: string;
     backgroundImageUrl?: string;
     isOpen?: boolean;
@@ -125,38 +125,37 @@ const shopCard: React.FC<ShopCardProps> = ({
   const rawImage = rootShop.backgroundImageUrl;
   const imageUrl = rawImage ? getImageUrl(rawImage, "shop_images") : null;
 
-
   return (
     <Link href={`/shop/${shopId}`} className="block">
-      <div className="group overflow-hidden rounded-3xl bg-linear-to-br from-blue-50 via-white to-purple-50 dark:from-blue-900/20 dark:via-gray-900 dark:to-purple-900/20 border border-blue-100 dark:border-blue-800/40 shadow-sm hover:shadow-lg transition-all duration-300">
+      <div className="group overflow-hidden rounded-3xl border border-[#f1c894] bg-linear-to-br from-[#fff8f0] via-white to-[#f6e4cd] shadow-sm transition-all duration-300 hover:shadow-[0_18px_36px_rgba(244,155,51,0.18)] dark:border-[#F49B33]/20 dark:from-[#2b170b] dark:via-[#211201] dark:to-[#1a0e06] dark:shadow-none">
         {/* Image Section */}
         <div className="relative h-52 overflow-hidden">
           {imageUrl ? (
             <img
               src={imageUrl}
               alt={title}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-amber-200 via-orange-200 to-amber-300 dark:from-amber-900/40 dark:via-orange-900/40 dark:to-amber-800/40">
-              <span className="text-6xl font-bold text-white/80">
+            <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-[#ffd8a6] via-[#f49b33] to-[#f08a17] dark:from-[#4a2e1b] dark:via-[#2b170b] dark:to-[#1a0e06]">
+              <span className="text-6xl font-bold text-white/90">
                 {shop.name.charAt(0)}
               </span>
             </div>
           )}
 
-          <div className="absolute top-3 right-3 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-gray-800 flex items-center gap-1">
-            <Star className="w-4 h-4 fill-cyan-400 text-cyan-400" />
+          <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-[#8a5620] shadow-sm dark:bg-[#fff3e6] dark:text-[#8a5620]">
+            <Star className="h-4 w-4 fill-[#F49B33] text-[#F49B33]" />
             {rating}
           </div>
 
-          <div className="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/95 text-blue-600 dark:text-blue-300 flex items-center justify-center shadow-sm">
+          <div className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-[#F49B33] shadow-sm dark:bg-[#fff3e6] dark:text-[#F49B33]">
             {categoryIcon}
           </div>
 
           <div
             className={`absolute bottom-3 left-3 rounded-full px-2.5 py-1 text-[10px] sm:text-xs font-semibold text-white ${
-              isCurrentlyOpen ? "bg-emerald-500" : "bg-red-500"
+              isCurrentlyOpen ? "bg-[#F49B33]" : "bg-red-500"
             }`}
           >
             {isCurrentlyOpen
@@ -169,36 +168,36 @@ const shopCard: React.FC<ShopCardProps> = ({
         <div className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white line-clamp-1">
+              <h3 className="line-clamp-1 text-base font-bold text-slate-900 dark:text-white sm:text-lg">
                 {title}
               </h3>
-              <p className="mt-1 text-xs sm:text-sm text-gray-500 dark:text-gray-400 line-clamp-1">
+              <p className="line-clamp-1 text-xs text-slate-500 dark:text-slate-300 sm:text-sm">
                 {serviceNames}
               </p>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-sm sm:text-base font-bold text-cyan-500">
+              <p className="text-sm font-bold text-[#F49B33] sm:text-base">
                 {distance}
               </p>
-              <p className="text-[11px] sm:text-xs text-gray-400">
+              <p className="text-[11px] text-slate-400 sm:text-xs dark:text-slate-400">
                 {driveTime}
               </p>
             </div>
           </div>
 
-          <div className="my-4 h-px bg-linear-to-r from-blue-100 via-purple-100 to-pink-100 dark:from-blue-800/40 dark:via-purple-800/40 dark:to-pink-800/40" />
+          <div className="my-4 h-px bg-linear-to-r from-[#f1c894] via-[#f49b33] to-[#f1c894] dark:from-[#4a2e1b] dark:via-[#f49b33] dark:to-[#4a2e1b]" />
 
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-[11px] font-semibold tracking-wide text-gray-400 uppercase">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-400">
                 {t("shopCard.nextSlot")}
               </p>
-              <p className="mt-1 text-sm sm:text-base font-bold text-gray-800 dark:text-gray-200">
+              <p className="mt-1 text-sm font-bold text-slate-800 dark:text-slate-100 sm:text-base">
                 {nextSlot}
               </p>
             </div>
 
-            <button className="px-5 py-2 rounded-full bg-linear-to-r from-blue-500/15 to-purple-500/15 text-blue-600 dark:text-blue-300 text-xs sm:text-sm font-semibold hover:from-blue-500/25 hover:to-purple-500/25 transition-colors">
+            <button className="rounded-full bg-[#F49B33] px-5 py-2 text-xs font-semibold text-white shadow-[0_10px_18px_rgba(244,155,51,0.24)] transition hover:bg-[#e28a20] sm:text-sm">
               {t("shops.book")}
             </button>
           </div>

@@ -38,7 +38,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center overflow-hidden bg-linear-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 px-4 py-4">
+    <div className="flex min-h-screen w-full items-center justify-center overflow-hidden bg-white dark:bg-[#211201] px-4 py-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="mb-5 text-center sm:mb-8">
@@ -169,7 +169,7 @@ export default function Login() {
 
           {/* Sign Up Link */}
           <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-            {t("auth.noAccount")} {" "}
+            {t("auth.noAccount")}{" "}
             <Link
               href="/signup"
               className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"

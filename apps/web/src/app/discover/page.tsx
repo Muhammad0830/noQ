@@ -1,16 +1,22 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { ChevronRight, Clock3, Search, SlidersHorizontal, X } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import ShopCard from '@/components/ShopCard';
-import { Skeleton } from '@/components/ui/skeleton';
-import { API_ENDPOINTS } from '@/lib/api';
-import { getImageUrl } from '@/lib/supabaseClient';
-import type { Shop, ShopCategory } from '@shared/types/general_types';
-import useApiQuery from '@/hooks/useApiQuery';
+import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import {
+  ChevronRight,
+  Clock3,
+  Search,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import ShopCard from "@/components/ShopCard";
+import { Skeleton } from "@/components/ui/skeleton";
+import { API_ENDPOINTS } from "@/lib/api";
+import { getImageUrl } from "@/lib/supabaseClient";
+import type { Shop, ShopCategory } from "@shared/types/general_types";
+import useApiQuery from "@/hooks/useApiQuery";
 
 type TrendingService = {
   id: string;
@@ -37,11 +43,11 @@ type ShopsListResponse =
 export default function DiscoverServices() {
   const { t, language } = useLanguage();
   const searchParams = useSearchParams();
-  const initialCategoryId = searchParams.get('categoryId');
-  const initialSearch = searchParams.get('q') ?? '';
-  const shouldFocusSearch = searchParams.get('focus') === 'search';
-  const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const initialCategoryId = searchParams.get("categoryId");
+  const initialSearch = searchParams.get("q") ?? "";
+  const shouldFocusSearch = searchParams.get("focus") === "search";
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [appliedCategories, setAppliedCategories] = useState<string[]>([]);
@@ -63,18 +69,16 @@ export default function DiscoverServices() {
   const { data: filterCategoriesData = [] } = useApiQuery<ShopCategory[]>(
     categoriesUrl,
     {
-      key: ['discover-filter-categories', language],
-    }
+      key: ["discover-filter-categories", language],
+    },
   );
 
   const filterCategories = useMemo(
     () => filterCategoriesData,
-    [filterCategoriesData]
+    [filterCategoriesData],
   );
 
-  const hasAppliedFilters =
-    appliedCategories.length > 0 ||
-    appliedPriceEnabled;
+  const hasAppliedFilters = appliedCategories.length > 0 || appliedPriceEnabled;
 
   const hasCategoryFilter = appliedCategories.length > 0;
   const hasPriceFilter = appliedPriceEnabled;
@@ -83,7 +87,9 @@ export default function DiscoverServices() {
 
   const searchOnlyMode = search.trim().length > 0 && !hasAppliedFilters;
   const shouldShowContent = !(
-    isSearchFocused && search.trim().length === 0 && !hasAppliedFilters
+    isSearchFocused &&
+    search.trim().length === 0 &&
+    !hasAppliedFilters
   );
   const shouldShowShops =
     shouldShowContent &&
@@ -91,7 +97,12 @@ export default function DiscoverServices() {
     !isPriceOnlyFilter &&
     (searchOnlyMode || hasCategoryFilter || !hasAppliedFilters);
   const shouldShowServices =
-    shouldShowContent && !isTypingSearch && (isPriceOnlyFilter || hasCategoryFilter || searchOnlyMode || !hasAppliedFilters);
+    shouldShowContent &&
+    !isTypingSearch &&
+    (isPriceOnlyFilter ||
+      hasCategoryFilter ||
+      searchOnlyMode ||
+      !hasAppliedFilters);
 
   const searchTerm = debouncedSearch.toLowerCase().trim();
   const useListLayoutForShops = hasCategoryFilter || searchTerm.length > 0;
@@ -144,8 +155,8 @@ export default function DiscoverServices() {
       setSearch(initialSearch);
       setDebouncedSearch(initialSearch);
     } else {
-      setSearch('');
-      setDebouncedSearch('');
+      setSearch("");
+      setDebouncedSearch("");
     }
   }, [initialCategoryId, initialSearch]);
 
@@ -172,21 +183,21 @@ export default function DiscoverServices() {
   const shouldUseFullCatalog = isSearching || hasAppliedFilters;
 
   const shopsUrl = shouldUseFullCatalog
-    ? `${API_ENDPOINTS.shops}?limit=1000${isSearching ? `&search=${encodeURIComponent(debouncedSearch)}` : ''}`
+    ? `${API_ENDPOINTS.shops}?limit=1000${isSearching ? `&search=${encodeURIComponent(debouncedSearch)}` : ""}`
     : `${API_ENDPOINTS.shops_trending}?search=${encodeURIComponent(debouncedSearch)}`;
 
   const servicesUrl = shouldUseFullCatalog
-    ? `${API_ENDPOINTS.services}?limit=1000${isSearching ? `&search=${encodeURIComponent(debouncedSearch)}` : ''}${hasPriceFilter ? `&minPrice=${appliedMinPrice}&maxPrice=${appliedMaxPrice}` : ''}`
+    ? `${API_ENDPOINTS.services}?limit=1000${isSearching ? `&search=${encodeURIComponent(debouncedSearch)}` : ""}${hasPriceFilter ? `&minPrice=${appliedMinPrice}&maxPrice=${appliedMaxPrice}` : ""}`
     : `${API_ENDPOINTS.services_trending}?search=${encodeURIComponent(debouncedSearch)}`;
 
   const { data: popularShopsData, isLoading: isPopularShopsLoading } =
     useApiQuery<ShopsListResponse>(shopsUrl, {
       key: [
-        'discover-popular-purchases',
-        shouldUseFullCatalog ? 'all-shops' : 'trending-shops',
+        "discover-popular-purchases",
+        shouldUseFullCatalog ? "all-shops" : "trending-shops",
         debouncedSearch,
-        appliedCategories.join(','),
-        appliedPriceEnabled ? 'price-on' : 'price-off',
+        appliedCategories.join(","),
+        appliedPriceEnabled ? "price-on" : "price-off",
         appliedMinPrice,
         appliedMaxPrice,
       ],
@@ -205,33 +216,31 @@ export default function DiscoverServices() {
   }, [popularShopsData]);
 
   const { data: popularServices = [], isLoading: isPopularServicesLoading } =
-    useApiQuery<TrendingService[]>(
-      servicesUrl,
-      {
-        key: [
-          'discover-popular-services',
-          shouldUseFullCatalog ? 'all-services' : 'trending-services',
-          debouncedSearch,
-          appliedCategories.join(','),
-          appliedPriceEnabled ? 'price-on' : 'price-off',
-          appliedMinPrice,
-          appliedMaxPrice,
-        ],
-      }
-    );
+    useApiQuery<TrendingService[]>(servicesUrl, {
+      key: [
+        "discover-popular-services",
+        shouldUseFullCatalog ? "all-services" : "trending-services",
+        debouncedSearch,
+        appliedCategories.join(","),
+        appliedPriceEnabled ? "price-on" : "price-off",
+        appliedMinPrice,
+        appliedMaxPrice,
+      ],
+    });
 
   const filteredServices = useMemo(() => {
     return popularServices.filter((item) => {
       if (
         searchTerm &&
         !item.name.toLowerCase().includes(searchTerm) &&
-        !(item.shop?.name ?? '').toLowerCase().includes(searchTerm)
+        !(item.shop?.name ?? "").toLowerCase().includes(searchTerm)
       ) {
         return false;
       }
 
       if (appliedCategories.length > 0) {
-        const categoryId = item.shop?.category?.id ?? item.shop?.categoryId ?? '';
+        const categoryId =
+          item.shop?.category?.id ?? item.shop?.categoryId ?? "";
         if (!appliedCategories.includes(categoryId)) {
           return false;
         }
@@ -267,9 +276,10 @@ export default function DiscoverServices() {
       // filterCategories.length > 0 check - data loading bo'lganida to'g'ri ishlay
       if (
         appliedCategories.length > 0 &&
-        filterCategories.length > 0 && appliedCategories.length < filterCategories.length
+        filterCategories.length > 0 &&
+        appliedCategories.length < filterCategories.length
       ) {
-        const categoryId = shop.category?.id ?? shop.categoryId ?? '';
+        const categoryId = shop.category?.id ?? shop.categoryId ?? "";
         if (!appliedCategories.includes(categoryId)) {
           return false;
         }
@@ -280,16 +290,47 @@ export default function DiscoverServices() {
   }, [popularShops, searchTerm, appliedCategories, filterCategories.length]);
 
   const shouldHideServicesSectionForEmptyCategory =
-    hasCategoryFilter && !isPopularServicesLoading && filteredServices.length === 0;
+    hasCategoryFilter &&
+    !isPopularServicesLoading &&
+    filteredServices.length === 0;
 
   useEffect(() => {
     setActivePopularDot(0);
     if (popularScrollRef.current) {
-      popularScrollRef.current.scrollTo({ left: 0, behavior: 'auto' });
+      popularScrollRef.current.scrollTo({ left: 0, behavior: "auto" });
     }
   }, [searchTerm, appliedCategories]);
 
   const popularIndicatorCount = Math.max(1, filteredPopularShops.length);
+
+  const sliderTrackStyle = {
+    background: "linear-gradient(90deg, #e2e8f0 0%, #cbd5e1 100%)",
+    width: "100%",
+    zIndex: 1,
+    boxShadow: "inset 0 1px 1px rgba(15, 23, 42, 0.08)",
+  } as const;
+
+  const sliderRangeStyle = {
+    background: "#f49b33",
+    zIndex: 2,
+    boxShadow:
+      "0 0 0 1px rgba(244, 155, 51, 0.26), 0 0 12px rgba(244, 155, 51, 0.38)",
+  } as const;
+
+  const sliderLeftValueStyle = { left: 0 } as const;
+  const sliderRightValueStyle = { right: 0 } as const;
+
+  const thumbStyle = {
+    WebkitAppearance: "none",
+    WebkitTapHighlightColor: "transparent",
+    pointerEvents: "none",
+    position: "absolute",
+    height: 0,
+    width: "100%",
+    outline: "none",
+    top: 10,
+    background: "none",
+  } as const;
 
   const updatePopularActiveDot = () => {
     const el = popularScrollRef.current;
@@ -311,24 +352,24 @@ export default function DiscoverServices() {
 
     const maxScroll = el.scrollWidth - el.clientWidth;
     const target = (maxScroll * index) / Math.max(1, popularIndicatorCount - 1);
-    el.scrollTo({ left: target, behavior: 'smooth' });
+    el.scrollTo({ left: target, behavior: "smooth" });
   };
 
   const toggleCategory = (category: string) => {
     setDraftCategories((prev) =>
       prev.includes(category)
         ? prev.filter((item) => item !== category)
-        : [...prev, category]
+        : [...prev, category],
     );
   };
 
   const PopularShopCardSkeleton = () => (
-    <div className="overflow-hidden rounded-3xl border border-blue-100 bg-linear-to-br from-blue-50 via-white to-purple-50 shadow-sm dark:border-blue-800/40 dark:from-blue-900/20 dark:via-gray-900 dark:to-purple-900/20 dark:shadow-none">
+    <div className="overflow-hidden rounded-3xl border border-[#f1c894] bg-linear-to-br from-[#fff8f0] via-white to-[#f6e4cd] shadow-sm dark:border-[#F49B33]/20 dark:from-[#2b170b] dark:via-[#211201] dark:to-[#1a0e06] dark:shadow-none">
       <div className="relative h-52 overflow-hidden">
-        <div className="h-full w-full bg-linear-to-br from-slate-200 via-slate-100 to-slate-200 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800" />
+        <div className="h-full w-full bg-linear-to-br from-[#f4eadf] via-[#fff7ef] to-[#f1c894] dark:from-[#3a2415] dark:via-[#2b170b] dark:to-[#1a0e06]" />
 
-        <Skeleton className="absolute top-3 right-3 h-7 w-14 rounded-full bg-white/95 dark:bg-white/10" />
-        <Skeleton className="absolute top-3 left-3 h-8 w-8 rounded-full bg-white/95 dark:bg-white/10" />
+        <Skeleton className="absolute right-3 top-3 h-7 w-14 rounded-full bg-white/95 dark:bg-white/10" />
+        <Skeleton className="absolute left-3 top-3 h-8 w-8 rounded-full bg-white/95 dark:bg-white/10" />
         <Skeleton className="absolute bottom-3 left-3 h-6 w-20 rounded-full bg-white/95 dark:bg-white/10" />
       </div>
 
@@ -345,7 +386,7 @@ export default function DiscoverServices() {
           </div>
         </div>
 
-        <div className="my-4 h-px bg-linear-to-r from-blue-100 via-purple-100 to-pink-100 dark:from-blue-800/40 dark:via-purple-800/40 dark:to-pink-800/40" />
+        <div className="my-4 h-px bg-linear-to-r from-[#f1c894] via-[#f49b33] to-[#f1c894] dark:from-[#4a2e1b] dark:via-[#f49b33] dark:to-[#4a2e1b]" />
 
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -374,7 +415,9 @@ export default function DiscoverServices() {
   );
 
   const CompactShopRowSkeleton = ({ isLast = false }: { isLast?: boolean }) => (
-    <div className={`flex items-center gap-3 px-2 py-3 ${isLast ? '' : 'border-b border-slate-200/70 dark:border-slate-800/80'}`}>
+    <div
+      className={`flex items-center gap-3 px-2 py-3 ${isLast ? "" : "border-b border-slate-200/70 dark:border-slate-800/80"}`}
+    >
       <Skeleton className="h-14 w-14 shrink-0 rounded-2xl bg-slate-200 dark:bg-slate-700" />
       <div className="min-w-0 flex-1">
         <Skeleton className="h-5 w-36 rounded-full bg-slate-200 dark:bg-slate-700" />
@@ -384,15 +427,21 @@ export default function DiscoverServices() {
     </div>
   );
 
-  const CompactShopRow = ({ shop, isLast = false }: { shop: Shop; isLast?: boolean }) => {
+  const CompactShopRow = ({
+    shop,
+    isLast = false,
+  }: {
+    shop: Shop;
+    isLast?: boolean;
+  }) => {
     const imageUrl = shop.backgroundImageUrl
-      ? getImageUrl(shop.backgroundImageUrl, 'shop_images')
+      ? getImageUrl(shop.backgroundImageUrl, "shop_images")
       : null;
 
     return (
       <Link
         href={`/shop/${shop.id}`}
-        className={`group flex items-center gap-3 px-2 py-3 ${isLast ? '' : 'border-b border-slate-200/70 dark:border-slate-800/80'}`}
+        className={`group flex items-center gap-3 px-2 py-3 ${isLast ? "" : "border-b border-slate-200/70 dark:border-slate-800/80"}`}
       >
         <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-slate-200 dark:bg-slate-800">
           {imageUrl ? (
@@ -413,7 +462,7 @@ export default function DiscoverServices() {
             {shop.name}
           </p>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            {t('discover.distanceAway', { distance: '1.5' })}
+            {t("discover.distanceAway", { distance: "1.5" })}
           </p>
         </div>
 
@@ -423,10 +472,10 @@ export default function DiscoverServices() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#070d18] dark:text-white">
+    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#211201] dark:text-white">
       <div className="mx-auto w-full max-w-md px-4 pb-8 pt-3">
-        <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm dark:border-slate-700 dark:bg-white">
-          <Search className="h-5 w-5 text-slate-400 dark:text-slate-400" />
+        <div className="flex items-center gap-2 rounded-2xl border border-[#f1c894] bg-white px-3 py-2.5 shadow-sm dark:border-[#4a2e1b] dark:bg-white">
+          <Search className="h-5 w-5 text-[#F49B33] dark:text-[#F49B33]" />
           <input
             ref={searchInputRef}
             type="text"
@@ -434,19 +483,19 @@ export default function DiscoverServices() {
             onChange={(e) => setSearch(e.target.value)}
             onFocus={() => setIsSearchFocused(true)}
             onBlur={() => setIsSearchFocused(false)}
-            placeholder={t('hero.search.placeholder')}
-            className="h-6 w-full bg-transparent text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+            placeholder={t("hero.search.placeholder")}
+            className="h-6 w-full bg-transparent text-sm font-medium text-slate-900 outline-none placeholder:text-[#d0954d]"
           />
           {search.length > 0 && (
             <button
               type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
-                setSearch('');
-                setDebouncedSearch('');
+                setSearch("");
+                setDebouncedSearch("");
               }}
-              className="rounded-lg bg-slate-100 p-2 text-slate-600 transition hover:bg-slate-200"
-              aria-label={t('common.clearSearch')}
+              className="rounded-lg bg-[#fff3e6] p-2 text-[#F49B33] transition hover:bg-[#fce2c4]"
+              aria-label={t("common.clearSearch")}
             >
               <X className="h-4 w-4" />
             </button>
@@ -455,8 +504,8 @@ export default function DiscoverServices() {
             <button
               type="button"
               onClick={openFilterModal}
-              className="rounded-lg bg-slate-100 p-2 text-slate-600 transition hover:bg-slate-200"
-              aria-label={t('filter.title')}
+              className="rounded-lg bg-[#fff3e6] p-2 text-[#F49B33] transition hover:bg-[#fce2c4]"
+              aria-label={t("filter.title")}
             >
               <SlidersHorizontal className="h-4 w-4" />
             </button>
@@ -469,16 +518,18 @@ export default function DiscoverServices() {
             onClick={() => setIsFilterOpen(false)}
           >
             <div
-              className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-4 text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-[#1b2230] dark:text-slate-100"
+              className="w-full max-w-md rounded-3xl border border-[#f1c894] bg-white p-4 text-slate-900 shadow-2xl dark:border-[#4a2e1b] dark:bg-[#2b170b] dark:text-slate-100"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-2xl font-bold">{t('filter.title')}</h3>
+                <h3 className="text-2xl font-bold text-[#F49B33]">
+                  {t("filter.title")}
+                </h3>
                 <button
                   type="button"
                   onClick={() => setIsFilterOpen(false)}
-                  className="rounded-full bg-slate-100 p-2 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-200 dark:hover:bg-white/20"
-                  aria-label={t('common.close')}
+                  className="rounded-full bg-[#fff3e6] p-2 text-[#F49B33] hover:bg-[#fce2c4] dark:bg-[#3a2415] dark:text-[#F49B33] dark:hover:bg-[#4a2e1b]"
+                  aria-label={t("common.close")}
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -487,10 +538,10 @@ export default function DiscoverServices() {
               <div className="mb-5">
                 <div className="mb-2 flex items-center justify-between">
                   <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                    {t('filter.category').toUpperCase()}
+                    {t("filter.category").toUpperCase()}
                   </p>
-                  <span className="text-[10px] font-bold tracking-[0.14em] text-[#00c9a7] dark:text-[#00f5c4]">
-                    {t('filter.multiSelect').toUpperCase()}
+                  <span className="text-[10px] font-bold tracking-[0.14em] text-[#F49B33] dark:text-[#F49B33]">
+                    {t("filter.multiSelect").toUpperCase()}
                   </span>
                 </div>
 
@@ -505,8 +556,8 @@ export default function DiscoverServices() {
                         onClick={() => toggleCategory(category.id)}
                         className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                           active
-                            ? 'bg-[#00f5c4] text-slate-950 dark:text-slate-900'
-                            : 'bg-slate-100 text-slate-700 dark:bg-[#111827] dark:text-slate-300'
+                            ? "bg-[#F49B33] text-slate-950 dark:text-slate-900"
+                            : "bg-[#fff3e6] text-[#8a5620] dark:bg-[#3a2415] dark:text-[#ffd4a6]"
                         }`}
                       >
                         {category.name}
@@ -519,10 +570,10 @@ export default function DiscoverServices() {
               <div>
                 <div className="mb-2 flex items-center justify-between gap-2">
                   <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                    {t('filter.priceRange').toUpperCase()}
+                    {t("filter.priceRange").toUpperCase()}
                   </p>
                   <div className="flex min-w-0 items-center justify-end gap-2">
-                    <span className="whitespace-nowrap text-base font-bold text-[#00c9a7] dark:text-[#00f5c4] sm:text-lg">
+                    <span className="whitespace-nowrap text-base font-bold text-[#F49B33] dark:text-[#F49B33] sm:text-lg">
                       ${draftMinPrice} - ${draftMaxPrice}
                     </span>
                     <button
@@ -539,22 +590,24 @@ export default function DiscoverServices() {
                       }}
                       className={`relative inline-flex h-6 w-11 shrink-0 items-center overflow-hidden rounded-full p-0.5 transition ${
                         draftPriceEnabled
-                          ? 'bg-[#00c9a7]'
-                          : 'bg-slate-300 dark:bg-slate-600'
+                          ? "bg-[#F49B33]"
+                          : "bg-slate-300 dark:bg-slate-600"
                       }`}
-                      aria-label={t('filter.togglePrice')}
+                      aria-label={t("filter.togglePrice")}
                       aria-pressed={draftPriceEnabled}
                     >
                       <span
                         className={`block h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                          draftPriceEnabled ? 'translate-x-5' : 'translate-x-0'
+                          draftPriceEnabled ? "translate-x-5" : "translate-x-0"
                         }`}
                       />
                     </button>
                   </div>
                 </div>
 
-                <div className={`rangePrice mt-0.5 ${draftPriceEnabled ? '' : 'opacity-45'}`}>
+                <div
+                  className={`rangePrice mt-0.5 ${draftPriceEnabled ? "" : "opacity-45"}`}
+                >
                   <div className="slider">
                     <input
                       type="range"
@@ -567,7 +620,8 @@ export default function DiscoverServices() {
                         const nextMin = Number(e.target.value);
                         setDraftMinPrice(Math.min(nextMin, draftMaxPrice));
                       }}
-                      className={`thumb ${draftMinPrice > DEFAULT_MAX_PRICE - 20 ? 'thumb--zindex-5' : 'thumb--zindex-3'}`}
+                      className={`range-thumb ${draftMinPrice > DEFAULT_MAX_PRICE - 20 ? "range-thumb--zindex-5" : "range-thumb--zindex-3"}`}
+                      style={thumbStyle}
                     />
 
                     <input
@@ -581,13 +635,27 @@ export default function DiscoverServices() {
                         const nextMax = Number(e.target.value);
                         setDraftMaxPrice(Math.max(nextMax, draftMinPrice));
                       }}
-                      className="thumb thumb--zindex-4"
+                      className="range-thumb range-thumb--zindex-4"
+                      style={thumbStyle}
                     />
 
-                    <div className="slider__track" />
-                    <div className="slider__range" style={priceTrackStyle} />
-                    <div className="slider__left-value">${DEFAULT_MIN_PRICE}</div>
-                    <div className="slider__right-value">${DEFAULT_MAX_PRICE}</div>
+                    <div className="slider-track" style={sliderTrackStyle} />
+                    <div
+                      className="slider-range"
+                      style={{ ...sliderRangeStyle, ...priceTrackStyle }}
+                    />
+                    <div
+                      className="slider-left-value"
+                      style={sliderLeftValueStyle}
+                    >
+                      ${DEFAULT_MIN_PRICE}
+                    </div>
+                    <div
+                      className="slider-right-value"
+                      style={sliderRightValueStyle}
+                    >
+                      ${DEFAULT_MAX_PRICE}
+                    </div>
                   </div>
                 </div>
 
@@ -595,16 +663,16 @@ export default function DiscoverServices() {
                   <button
                     type="button"
                     onClick={resetDraftFilters}
-                    className="flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-[#111827] dark:text-slate-200 dark:hover:bg-slate-800"
+                    className="flex-1 rounded-2xl border border-[#f1c894] bg-[#fff8f1] px-4 py-3 text-sm font-semibold text-[#8a5620] transition hover:bg-[#fce8d0] dark:border-[#4a2e1b] dark:bg-[#2b170b] dark:text-[#ffd4a6] dark:hover:bg-[#3a2415]"
                   >
-                    {t('filter.reset')}
+                    {t("filter.reset")}
                   </button>
                   <button
                     type="button"
                     onClick={applyFilters}
-                    className="flex-1 rounded-2xl bg-[#00f5c4] px-4 py-3 text-sm font-bold text-slate-950 transition hover:opacity-90"
+                    className="flex-1 rounded-2xl bg-[#F49B33] px-4 py-3 text-sm font-bold text-white transition hover:opacity-90"
                   >
-                    {t('common.save')}
+                    {t("common.save")}
                   </button>
                 </div>
               </div>
@@ -615,12 +683,12 @@ export default function DiscoverServices() {
         {shouldShowShops && (
           <div className="mt-5">
             <p className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
-              {t('discover.popularShops')}
+              {t("discover.popularShops")}
             </p>
 
             {isPopularShopsLoading ? (
               useListLayoutForShops ? (
-                <div className="rounded-2xl border border-slate-200 bg-white px-2 dark:border-slate-800 dark:bg-[#0e1726]">
+                <div className="rounded-2xl border border-slate-200 bg-white px-2 dark:border-slate-800 dark:bg-[#211201]">
                   {Array.from({ length: 3 }).map((_, i) => (
                     <CompactShopRowSkeleton
                       key={`discover-popular-list-skeleton-${i}`}
@@ -642,7 +710,7 @@ export default function DiscoverServices() {
               )
             ) : filteredPopularShops.length > 0 ? (
               useListLayoutForShops ? (
-                <div className="rounded-2xl border border-slate-200 bg-white px-2 dark:border-slate-800 dark:bg-[#0e1726]">
+                <div className="rounded-2xl border border-slate-200 bg-white px-2 dark:border-slate-800 dark:bg-[#211201]">
                   {filteredPopularShops.map((shop, index) => (
                     <CompactShopRow
                       key={shop.id}
@@ -653,48 +721,55 @@ export default function DiscoverServices() {
                 </div>
               ) : (
                 <>
-                <div className="sm:hidden">
-                  <div
-                    ref={popularScrollRef}
-                    onScroll={updatePopularActiveDot}
-                    className="flex gap-4 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-                  >
-                    {filteredPopularShops.map((shop) => (
-                      <div key={shop.id} className="w-[70vw] max-w-85 min-w-65 shrink-0">
-                        <ShopCard shop={shop} />
-                      </div>
-                    ))}
-                  </div>
-
-                  {popularIndicatorCount > 1 && (
-                    <div className="mt-3 flex justify-center gap-2">
-                      {Array.from({ length: popularIndicatorCount }).map((_, i) => (
-                        <button
-                          key={`popular-dot-${i}`}
-                          type="button"
-                          onClick={() => scrollToPopularDot(i)}
-                          className={`h-2 w-2 rounded-full transition-colors ${
-                            i === activePopularDot
-                              ? 'bg-cyan-500 dark:bg-cyan-400'
-                              : 'bg-slate-300 dark:bg-slate-600'
-                          }`}
-                          aria-label={t('discover.goToCard', { index: i + 1 })}
-                        />
+                  <div className="sm:hidden">
+                    <div
+                      ref={popularScrollRef}
+                      onScroll={updatePopularActiveDot}
+                      className="flex gap-4 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                    >
+                      {filteredPopularShops.map((shop) => (
+                        <div
+                          key={shop.id}
+                          className="w-[70vw] max-w-85 min-w-65 shrink-0"
+                        >
+                          <ShopCard shop={shop} />
+                        </div>
                       ))}
                     </div>
-                  )}
-                </div>
 
-                <div className="hidden gap-4 sm:grid sm:grid-cols-2">
-                  {filteredPopularShops.slice(0, 4).map((shop) => (
-                    <ShopCard key={shop.id} shop={shop} />
-                  ))}
-                </div>
-              </>
+                    {popularIndicatorCount > 1 && (
+                      <div className="mt-3 flex justify-center gap-2">
+                        {Array.from({ length: popularIndicatorCount }).map(
+                          (_, i) => (
+                            <button
+                              key={`popular-dot-${i}`}
+                              type="button"
+                              onClick={() => scrollToPopularDot(i)}
+                              className={`h-2 w-2 rounded-full transition-colors ${
+                                i === activePopularDot
+                                  ? "bg-[#F49B33] dark:bg-[#F49B33]"
+                                  : "bg-slate-300 dark:bg-slate-600"
+                              }`}
+                              aria-label={t("discover.goToCard", {
+                                index: i + 1,
+                              })}
+                            />
+                          ),
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="hidden gap-4 sm:grid sm:grid-cols-2">
+                    {filteredPopularShops.slice(0, 4).map((shop) => (
+                      <ShopCard key={shop.id} shop={shop} />
+                    ))}
+                  </div>
+                </>
               )
             ) : (
-              <div className="rounded-xl border border-slate-200 bg-white px-3 py-5 text-center text-sm text-slate-500 shadow-sm dark:border-slate-800 dark:bg-[#0e1726] dark:text-slate-400 dark:shadow-none">
-                {t('discover.noShopsFound')}
+              <div className="rounded-xl border border-slate-200 bg-white px-3 py-5 text-center text-sm text-slate-500 shadow-sm dark:border-slate-800 dark:bg-[#211201] dark:text-slate-400 dark:shadow-none">
+                {t("discover.noShopsFound")}
               </div>
             )}
           </div>
@@ -703,12 +778,14 @@ export default function DiscoverServices() {
         {shouldShowServices && !shouldHideServicesSectionForEmptyCategory && (
           <div className="mt-6">
             <p className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
-              {t('services.title')}
+              {t("services.title")}
             </p>
-            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-1 shadow-sm dark:border-slate-800 dark:bg-[#0e1726] dark:shadow-none">
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-1 shadow-sm dark:border-slate-800 dark:bg-[#211201] dark:shadow-none">
               {isPopularServicesLoading
                 ? Array.from({ length: 3 }).map((_, i) => (
-                    <ServiceCardSkeleton key={`popular-service-skeleton-${i}`} />
+                    <ServiceCardSkeleton
+                      key={`popular-service-skeleton-${i}`}
+                    />
                   ))
                 : filteredServices.map((item) => {
                     const priceValue =
@@ -716,7 +793,8 @@ export default function DiscoverServices() {
                         ? Number.NaN
                         : Number(item.price);
                     const durationValue =
-                      item.durationMin === null || item.durationMin === undefined
+                      item.durationMin === null ||
+                      item.durationMin === undefined
                         ? 0
                         : Number(item.durationMin);
                     const targetShopId = item.shopId || item.shop?.id;
@@ -727,29 +805,37 @@ export default function DiscoverServices() {
                         href={
                           targetShopId
                             ? `/book/${targetShopId}?service=${item.id}`
-                            : '/discover'
+                            : "/discover"
                         }
                         className="block border-b border-slate-200/70 py-4 last:border-b-0 dark:border-slate-800/80"
                       >
                         <div className="flex items-center justify-between gap-4">
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-lg font-semibold text-slate-900 dark:text-slate-100 sm:text-base">{item.name}</p>
-                          <p className="mt-1 flex items-center gap-1.5 text-xs tracking-wide text-slate-500 dark:text-slate-400">
-                            <Clock3 className="h-4 w-4" />
-                            <span className="truncate">
-                              {Number.isFinite(durationValue) ? durationValue : 0} {t('services.duration')} • {item.shop?.name ?? t('services.unknownShop')}
-                            </span>
-                          </p>
-                        </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-lg font-semibold text-slate-900 dark:text-slate-100 sm:text-base">
+                              {item.name}
+                            </p>
+                            <p className="mt-1 flex items-center gap-1.5 text-xs tracking-wide text-slate-500 dark:text-slate-400">
+                              <Clock3 className="h-4 w-4" />
+                              <span className="truncate">
+                                {Number.isFinite(durationValue)
+                                  ? durationValue
+                                  : 0}{" "}
+                                {t("services.duration")} •{" "}
+                                {item.shop?.name ?? t("services.unknownShop")}
+                              </span>
+                            </p>
+                          </div>
 
-                        <div className="shrink-0 text-right">
-                          <p className="text-2xl font-bold text-slate-800 dark:text-slate-100 sm:text-xl">
-                            {Number.isFinite(priceValue) ? `$${priceValue.toFixed(2)}` : '--'}
-                          </p>
-                          <span className="mt-1 inline-block text-xs font-semibold text-emerald-500">
-                            {t('shops.book').toUpperCase()}
-                          </span>
-                        </div>
+                          <div className="shrink-0 text-right">
+                            <p className="text-2xl font-bold text-slate-800 dark:text-slate-100 sm:text-xl">
+                              {Number.isFinite(priceValue)
+                                ? `$${priceValue.toFixed(2)}`
+                                : "--"}
+                            </p>
+                            <span className="mt-1 inline-block text-xs font-semibold text-[#F49B33]">
+                              {t("shops.book").toUpperCase()}
+                            </span>
+                          </div>
                         </div>
                       </Link>
                     );
@@ -757,133 +843,12 @@ export default function DiscoverServices() {
 
               {!isPopularServicesLoading && filteredServices.length === 0 && (
                 <div className="py-5 text-center text-sm text-slate-500 dark:text-slate-400">
-                  {t('services.noResults')}
+                  {t("services.noResults")}
                 </div>
               )}
             </div>
           </div>
         )}
-
-        <style jsx>{`
-          .rangePrice {
-            height: 46px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-
-          .slider {
-            position: relative;
-            width: 100%;
-          }
-
-          .slider__track,
-          .slider__range,
-          .slider__left-value,
-          .slider__right-value {
-            position: absolute;
-          }
-
-          .slider__track,
-          .slider__range {
-            border-radius: 3px;
-            height: 5px;
-            top: 10px;
-          }
-
-          .slider__track {
-            background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e1 100%);
-            width: 100%;
-            z-index: 1;
-            box-shadow: inset 0 1px 1px rgba(15, 23, 42, 0.08);
-          }
-
-          .slider__range {
-            background: #00c9a7;
-            z-index: 2;
-            box-shadow: 0 0 0 1px rgba(0, 201, 167, 0.22), 0 0 12px rgba(0, 201, 167, 0.35);
-          }
-
-          .slider__left-value,
-          .slider__right-value {
-            color: #64748b;
-            font-size: 12px;
-            font-weight: 700;
-            margin-top: 20px;
-          }
-
-          .slider__left-value {
-            left: 0;
-          }
-
-          .slider__right-value {
-            right: 0;
-          }
-
-          .thumb,
-          .thumb::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            -webkit-tap-highlight-color: transparent;
-          }
-
-          .thumb {
-            pointer-events: none;
-            position: absolute;
-            height: 0;
-            width: 100%;
-            outline: none;
-            top: 10px;
-            background: none;
-          }
-
-          .thumb--zindex-3 {
-            z-index: 3;
-          }
-
-          .thumb--zindex-4 {
-            z-index: 4;
-          }
-
-          .thumb--zindex-5 {
-            z-index: 5;
-          }
-
-          .thumb::-webkit-slider-thumb {
-            background: radial-gradient(circle at 30% 30%, #ffffff 0%, #ecfeff 45%, #ccfbf1 100%);
-            border: 2px solid #00c9a7;
-            border-radius: 50%;
-            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.2), 0 0 0 3px rgba(0, 201, 167, 0.28);
-            cursor: pointer;
-            height: 18px;
-            width: 18px;
-            margin-top: 4px;
-            pointer-events: all;
-            position: relative;
-            transition: transform 0.15s ease, box-shadow 0.2s ease;
-          }
-
-          .thumb::-webkit-slider-thumb:hover {
-            transform: scale(1.06);
-          }
-
-          .thumb::-moz-range-thumb {
-            background: radial-gradient(circle at 30% 30%, #ffffff 0%, #ecfeff 45%, #ccfbf1 100%);
-            border: 2px solid #00c9a7;
-            border-radius: 50%;
-            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.2), 0 0 0 3px rgba(0, 201, 167, 0.28);
-            cursor: pointer;
-            height: 18px;
-            width: 18px;
-            margin-top: 4px;
-            pointer-events: all;
-            position: relative;
-            transition: transform 0.15s ease, box-shadow 0.2s ease;
-          }
-
-          .thumb::-moz-range-thumb:hover {
-            transform: scale(1.06);
-          }
-        `}</style>
       </div>
     </div>
   );

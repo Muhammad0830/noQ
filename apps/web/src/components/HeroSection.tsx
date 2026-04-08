@@ -83,23 +83,23 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
   };
 
   return (
-    <section className="bg-white dark:bg-gray-900">
+    <section className="bg-white dark:bg-[#211201]">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-2">
         <form className="w-full">
-          <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm dark:border-slate-700 dark:bg-white">
-            <Search className="h-5 w-5 text-slate-400 dark:text-slate-400" />
+          <div className="flex items-center gap-2 rounded-2xl border border-[#f1c894] bg-white px-3 py-2.5 shadow-sm dark:border-[#4a2e1b] dark:bg-white">
+            <Search className="h-5 w-5 text-[#F49B33] dark:text-[#F49B33]" />
             <input
               type="text"
               placeholder={t('hero.search.placeholder')}
               readOnly
               onClick={openDiscover}
               onFocus={openDiscover}
-              className="h-6 w-full bg-transparent text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+              className="h-6 w-full bg-transparent text-sm font-medium text-slate-900 outline-none placeholder:text-[#d0954d]"
             />
             <button
               type="button"
               onClick={openDiscover}
-              className="rounded-lg bg-slate-100 p-2 text-slate-600 transition hover:bg-slate-200"
+              className="rounded-lg bg-[#fff3e6] p-2 text-[#F49B33] transition hover:bg-[#fce2c4]"
               aria-label={t('filter.title')}
             >
               <SlidersHorizontal className="h-4 w-4" />
@@ -135,7 +135,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
                 <div className="absolute inset-0 bg-black/35" />
                 <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/35 to-transparent" />
                 <div className="absolute left-3 sm:left-4 top-3 sm:top-4 z-10">
-                  <span className="inline-flex items-center rounded-md bg-emerald-400/90 px-2 py-1 text-[9px] sm:text-[10px] font-semibold tracking-wide text-white">
+                  <span className="inline-flex items-center rounded-md bg-[#F49B33] px-2 py-1 text-[9px] sm:text-[10px] font-semibold tracking-wide text-white">
                     {banner.badge}
                   </span>
                 </div>
@@ -160,7 +160,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
               onClick={() => goToBanner(index)}
               className={`h-1.5 rounded-full transition-all ${
                 activeBanner === index
-                  ? 'w-5 bg-blue-600 dark:bg-blue-400'
+                  ? 'w-5 bg-[#F49B33] dark:bg-[#F49B33]'
                   : 'w-1.5 bg-gray-300 dark:bg-gray-600'
               }`}
               aria-label={t('hero.goToBanner', { index: index + 1 })}
