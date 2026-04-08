@@ -192,7 +192,7 @@ export default function ProfilePage() {
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#060912] dark:text-white">
-      <div className="mx-auto w-full max-w-162.5 px-3 pb-2.25 pt-4 sm:px-6">
+      <div className="mx-auto w-full px-3 pb-2.25 pt-4 sm:px-6" style={{ maxWidth: 650 }}>
         <header className="mb-6 flex items-center justify-between">
           {/* Theme toggle moved to settings section */}
         </header>

@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import { Bell, Moon, Globe, Lock, CreditCard, MapPin, HelpCircle, Shield, Smartphone } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function AppSettings() {
+  const { t } = useLanguage()
   const [settings, setSettings] = useState({
     emailNotifications: true,
     pushNotifications: true,
@@ -23,20 +25,20 @@ export default function AppSettings() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-8">Settings</h1>
+        <h1 className="text-3xl font-bold mb-8">{t('settings.title')}</h1>
 
         <div className="space-y-6">
           {/* Notifications */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center gap-3 mb-6">
               <Bell className="w-6 h-6 text-blue-600" />
-              <h2 className="text-xl font-bold">Notifications</h2>
+              <h2 className="text-xl font-bold">{t('settings.notifications')}</h2>
             </div>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="font-semibold">Email Notifications</p>
-                  <p className="text-sm text-gray-600">Receive updates via email</p>
+                  <p className="font-semibold">{t('settings.emailNotifications')}</p>
+                  <p className="text-sm text-gray-600">{t('settings.emailNotificationsDesc')}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input 
@@ -45,14 +47,14 @@ export default function AppSettings() {
                     onChange={() => toggleSetting('emailNotifications')}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                 </label>
               </div>
 
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="font-semibold">Push Notifications</p>
-                  <p className="text-sm text-gray-600">Get alerts on your device</p>
+                  <p className="font-semibold">{t('settings.pushNotifications')}</p>
+                  <p className="text-sm text-gray-600">{t('settings.pushNotificationsDesc')}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input 
@@ -61,14 +63,14 @@ export default function AppSettings() {
                     onChange={() => toggleSetting('pushNotifications')}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                 </label>
               </div>
 
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="font-semibold">SMS Notifications</p>
-                  <p className="text-sm text-gray-600">Receive text messages</p>
+                  <p className="font-semibold">{t('settings.smsNotifications')}</p>
+                  <p className="text-sm text-gray-600">{t('settings.smsNotificationsDesc')}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input 
@@ -77,14 +79,14 @@ export default function AppSettings() {
                     onChange={() => toggleSetting('smsNotifications')}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                 </label>
               </div>
 
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="font-semibold">Booking Reminders</p>
-                  <p className="text-sm text-gray-600">Reminders before appointments</p>
+                  <p className="font-semibold">{t('settings.bookingReminders')}</p>
+                  <p className="text-sm text-gray-600">{t('settings.bookingRemindersDesc')}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input 
@@ -93,14 +95,14 @@ export default function AppSettings() {
                     onChange={() => toggleSetting('bookingReminders')}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                 </label>
               </div>
 
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="font-semibold">Promotional Emails</p>
-                  <p className="text-sm text-gray-600">Special offers and deals</p>
+                  <p className="font-semibold">{t('settings.promotionalEmails')}</p>
+                  <p className="text-sm text-gray-600">{t('settings.promotionalEmailsDesc')}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input 
@@ -109,7 +111,7 @@ export default function AppSettings() {
                     onChange={() => toggleSetting('promotionalEmails')}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                 </label>
               </div>
             </div>
@@ -119,12 +121,12 @@ export default function AppSettings() {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center gap-3 mb-6">
               <Moon className="w-6 h-6 text-blue-600" />
-              <h2 className="text-xl font-bold">Appearance</h2>
+              <h2 className="text-xl font-bold">{t('settings.appearance')}</h2>
             </div>
             <div className="flex justify-between items-center">
               <div>
-                <p className="font-semibold">Dark Mode</p>
-                <p className="text-sm text-gray-600">Use dark theme</p>
+                <p className="font-semibold">{t('settings.darkMode')}</p>
+                <p className="text-sm text-gray-600">{t('settings.darkModeDesc')}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input 
@@ -133,7 +135,7 @@ export default function AppSettings() {
                   onChange={() => toggleSetting('darkMode')}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
               </label>
             </div>
           </div>
@@ -142,11 +144,11 @@ export default function AppSettings() {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center gap-3 mb-6">
               <Globe className="w-6 h-6 text-blue-600" />
-              <h2 className="text-xl font-bold">Language & Region</h2>
+              <h2 className="text-xl font-bold">{t('settings.languageRegion')}</h2>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Language</label>
+                <label className="block text-sm font-medium mb-2">{t('settings.language')}</label>
                 <select 
                   value={settings.language}
                   onChange={(e) => setSettings({...settings, language: e.target.value})}
@@ -159,7 +161,7 @@ export default function AppSettings() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Currency</label>
+                <label className="block text-sm font-medium mb-2">{t('settings.currency')}</label>
                 <select 
                   value={settings.currency}
                   onChange={(e) => setSettings({...settings, currency: e.target.value})}
@@ -177,12 +179,12 @@ export default function AppSettings() {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center gap-3 mb-6">
               <MapPin className="w-6 h-6 text-blue-600" />
-              <h2 className="text-xl font-bold">Location</h2>
+              <h2 className="text-xl font-bold">{t('settings.location')}</h2>
             </div>
             <div className="flex justify-between items-center">
               <div>
-                <p className="font-semibold">Auto-detect Location</p>
-                <p className="text-sm text-gray-600">Use GPS to find nearby services</p>
+                <p className="font-semibold">{t('settings.autoLocation')}</p>
+                <p className="text-sm text-gray-600">{t('settings.autoLocationDesc')}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input 
@@ -191,7 +193,7 @@ export default function AppSettings() {
                   onChange={() => toggleSetting('autoLocation')}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
               </label>
             </div>
           </div>
@@ -200,13 +202,13 @@ export default function AppSettings() {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center gap-3 mb-6">
               <Shield className="w-6 h-6 text-blue-600" />
-              <h2 className="text-xl font-bold">Account & Security</h2>
+              <h2 className="text-xl font-bold">{t('settings.accountSecurity')}</h2>
             </div>
             <div className="space-y-3">
               <button className="w-full flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
                 <div className="flex items-center gap-3">
                   <Lock className="w-5 h-5 text-gray-400" />
-                  <span className="font-semibold">Change Password</span>
+                  <span className="font-semibold">{t('settings.changePassword')}</span>
                 </div>
                 <span className="text-gray-400">→</span>
               </button>
@@ -214,7 +216,7 @@ export default function AppSettings() {
               <button className="w-full flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
                 <div className="flex items-center gap-3">
                   <Smartphone className="w-5 h-5 text-gray-400" />
-                  <span className="font-semibold">Two-Factor Authentication</span>
+                  <span className="font-semibold">{t('settings.twoFactor')}</span>
                 </div>
                 <span className="text-gray-400">→</span>
               </button>
@@ -222,7 +224,7 @@ export default function AppSettings() {
               <button className="w-full flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
                 <div className="flex items-center gap-3">
                   <CreditCard className="w-5 h-5 text-gray-400" />
-                  <span className="font-semibold">Payment Methods</span>
+                  <span className="font-semibold">{t('settings.paymentMethods')}</span>
                 </div>
                 <span className="text-gray-400">→</span>
               </button>
@@ -233,26 +235,26 @@ export default function AppSettings() {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center gap-3 mb-6">
               <HelpCircle className="w-6 h-6 text-blue-600" />
-              <h2 className="text-xl font-bold">Support</h2>
+              <h2 className="text-xl font-bold">{t('settings.support')}</h2>
             </div>
             <div className="space-y-3">
               <button className="w-full flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                <span className="font-semibold">Help Center</span>
+                <span className="font-semibold">{t('settings.helpCenter')}</span>
                 <span className="text-gray-400">→</span>
               </button>
 
               <button className="w-full flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                <span className="font-semibold">Contact Us</span>
+                <span className="font-semibold">{t('settings.contactUs')}</span>
                 <span className="text-gray-400">→</span>
               </button>
 
               <button className="w-full flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                <span className="font-semibold">Privacy Policy</span>
+                <span className="font-semibold">{t('settings.privacyPolicy')}</span>
                 <span className="text-gray-400">→</span>
               </button>
 
               <button className="w-full flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                <span className="font-semibold">Terms of Service</span>
+                <span className="font-semibold">{t('settings.termsOfService')}</span>
                 <span className="text-gray-400">→</span>
               </button>
             </div>
@@ -260,7 +262,7 @@ export default function AppSettings() {
 
           {/* About */}
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="font-semibold mb-2">App Version</h3>
+            <h3 className="font-semibold mb-2">{t('settings.appVersion')}</h3>
             <p className="text-gray-600">v1.0.0</p>
           </div>
         </div>

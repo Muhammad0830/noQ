@@ -9,7 +9,7 @@ import ShopCard from '@/components/ShopCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { API_ENDPOINTS } from '@/lib/api';
 import { getImageUrl } from '@/lib/supabaseClient';
-import type { Shop, ShopCategory } from '@shared/types/types';
+import type { Shop, ShopCategory } from '@shared/types/general_types';
 import useApiQuery from '@/hooks/useApiQuery';
 
 type TrendingService = {
@@ -35,7 +35,7 @@ type ShopsListResponse =
     };
 
 export default function DiscoverServices() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const searchParams = useSearchParams();
   const initialCategoryId = searchParams.get('categoryId');
   const initialSearch = searchParams.get('q') ?? '';
@@ -58,11 +58,12 @@ export default function DiscoverServices() {
 
   const DEFAULT_MIN_PRICE = 0;
   const DEFAULT_MAX_PRICE = 200;
+  const categoriesUrl = `${API_ENDPOINTS.categories}?lang=${encodeURIComponent(language)}`;
 
   const { data: filterCategoriesData = [] } = useApiQuery<ShopCategory[]>(
-    API_ENDPOINTS.categories,
+    categoriesUrl,
     {
-      key: ['discover-filter-categories'],
+      key: ['discover-filter-categories', language],
     }
   );
 
@@ -412,7 +413,9 @@ export default function DiscoverServices() {
           <p className="truncate text-lg font-semibold leading-tight text-slate-900 dark:text-slate-100 sm:text-xl">
             {shop.name}
           </p>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">1.5 km away</p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            {t('discover.distanceAway', { distance: '1.5' })}
+          </p>
         </div>
 
         <ChevronRight className="h-5 w-5 text-slate-400 transition-colors group-hover:text-slate-300" />
@@ -444,7 +447,7 @@ export default function DiscoverServices() {
                 setDebouncedSearch('');
               }}
               className="rounded-lg bg-slate-100 p-2 text-slate-600 transition hover:bg-slate-200"
-              aria-label="Clear search"
+              aria-label={t('common.clearSearch')}
             >
               <X className="h-4 w-4" />
             </button>
@@ -476,7 +479,7 @@ export default function DiscoverServices() {
                   type="button"
                   onClick={() => setIsFilterOpen(false)}
                   className="rounded-full bg-slate-100 p-2 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-200 dark:hover:bg-white/20"
-                  aria-label="Close filter"
+                  aria-label={t('common.close')}
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -540,7 +543,7 @@ export default function DiscoverServices() {
                           ? 'bg-[#00c9a7]'
                           : 'bg-slate-300 dark:bg-slate-600'
                       }`}
-                      aria-label="Toggle price filter"
+                      aria-label={t('filter.togglePrice')}
                       aria-pressed={draftPriceEnabled}
                     >
                       <span
@@ -676,7 +679,7 @@ export default function DiscoverServices() {
                               ? 'bg-cyan-500 dark:bg-cyan-400'
                               : 'bg-slate-300 dark:bg-slate-600'
                           }`}
-                          aria-label={`Go to card ${i + 1}`}
+                          aria-label={t('discover.goToCard', { index: i + 1 })}
                         />
                       ))}
                     </div>
@@ -735,7 +738,7 @@ export default function DiscoverServices() {
                           <p className="mt-1 flex items-center gap-1.5 text-xs tracking-wide text-slate-500 dark:text-slate-400">
                             <Clock3 className="h-4 w-4" />
                             <span className="truncate">
-                              {Number.isFinite(durationValue) ? durationValue : 0} MIN • {item.shop?.name ?? t('services.unknownShop')}
+                              {Number.isFinite(durationValue) ? durationValue : 0} {t('services.duration')} • {item.shop?.name ?? t('services.unknownShop')}
                             </span>
                           </p>
                         </div>

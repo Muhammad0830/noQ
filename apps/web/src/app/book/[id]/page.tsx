@@ -70,7 +70,7 @@ export default function BookingPage({
 }) {
   const { id: shopId } = use(params);
   const { service: serviceFromQuery } = use(searchParams);
-  const { t, language } = useLanguage();
+  const { t, locale } = useLanguage();
 
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(
     serviceFromQuery ?? null,
@@ -132,66 +132,18 @@ export default function BookingPage({
     ? addMinutes(selectedTime, duration)
     : null;
   const totalPrice = selectedService?.price ?? 0;
-  const localeMap = {
-    "uz-latn": "uz-UZ",
-    "uz-cyrl": "uz-Cyrl-UZ",
-    ru: "ru-RU",
-  } as const;
-  const currentLocale = localeMap[language];
+  const monthYearFormatter = useMemo(
+    () => new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }),
+    [locale],
+  );
 
-  const weekdayShortMap = {
-    "uz-latn": ["Yak", "Dush", "Sesh", "Chor", "Pay", "Juma", "Shan"],
-    "uz-cyrl": ["Як", "Душ", "Сеш", "Чор", "Пай", "Жума", "Шан"],
-    ru: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
-  } as const;
-
-  const monthNameMap = {
-    "uz-latn": [
-      "Yanvar",
-      "Fevral",
-      "Mart",
-      "Aprel",
-      "May",
-      "Iyun",
-      "Iyul",
-      "Avgust",
-      "Sentabr",
-      "Oktabr",
-      "Noyabr",
-      "Dekabr",
-    ],
-    "uz-cyrl": [
-      "Январ",
-      "Феврал",
-      "Март",
-      "Апрел",
-      "Май",
-      "Июн",
-      "Июл",
-      "Август",
-      "Сентябр",
-      "Октябр",
-      "Ноябр",
-      "Декабр",
-    ],
-    ru: [
-      "Январь",
-      "Февраль",
-      "Март",
-      "Апрель",
-      "Май",
-      "Июнь",
-      "Июль",
-      "Август",
-      "Сентябрь",
-      "Октябрь",
-      "Ноябрь",
-      "Декабрь",
-    ],
-  } as const;
+  const weekdayShortFormatter = useMemo(
+    () => new Intl.DateTimeFormat(locale, { weekday: "short" }),
+    [locale],
+  );
 
   const monthYearLabel = selectedDateObj
-    ? `${monthNameMap[language][selectedDateObj.getMonth()]} ${selectedDateObj.getFullYear()}`
+    ? monthYearFormatter.format(selectedDateObj)
     : "";
 
   const getInitials = (name: string) =>
@@ -304,7 +256,7 @@ export default function BookingPage({
               {t("booking.title")}
             </p>
             <p className="text-[10px] text-cyan-600 dark:text-teal-400 uppercase tracking-[0.2em]">
-              {shop?.name || "Luxe Studio"}
+              {shop?.name || t("booking.defaultShop")}
             </p>
           </div>
 
@@ -327,7 +279,7 @@ export default function BookingPage({
                   </span>
                   <span className="text-slate-400 dark:text-gray-500">·</span>
                   <span className="text-slate-500 dark:text-gray-400">
-                    {duration} min
+                    {duration} {t("services.duration")}
                   </span>
                 </div>
               </div>
@@ -361,7 +313,7 @@ export default function BookingPage({
               >
                 <p className="text-sm font-medium">{service.name}</p>
                 <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
-                  ${service.price ?? 0} · {service.durationMin ?? 45} min
+                  ${service.price ?? 0} · {service.durationMin ?? 45} {t("services.duration")}
                 </p>
               </button>
             ))}
@@ -448,7 +400,7 @@ export default function BookingPage({
                   }`}
                 >
                   <p className="text-[10px] uppercase">
-                    {weekdayShortMap[language][day.getDay()]}
+                    {weekdayShortFormatter.format(day)}
                   </p>
                   <p className="text-lg font-semibold leading-5 mt-1">
                     {day.getDate()}
@@ -503,23 +455,13 @@ export default function BookingPage({
                     : isBooked
                       ? "booked"
                       : "available";
-                const breakLabelMap = {
-                  "uz-latn": "tanaffus",
-                  "uz-cyrl": "танаффус",
-                  ru: "перерыв",
-                } as const;
-                const selectedLabelMap = {
-                  "uz-latn": "tanlangan",
-                  "uz-cyrl": "танланган",
-                  ru: "выбрано",
-                } as const;
                 const statusLabel =
                   status === "selected"
-                    ? selectedLabelMap[language]
+                    ? t("booking.selected")
                     : status === "available"
                       ? t("booking.availableSlot")
                       : status === "break"
-                        ? breakLabelMap[language]
+                        ? t("booking.break")
                         : t("booking.alreadyReserved");
                 const timeColorClass =
                   status === "selected"

@@ -188,7 +188,7 @@ const ServicesList: React.FC<ServicesListProps> = ({
         ) : (
           <div className="text-center py-12">
             <Filter className="mx-auto mb-4 text-muted-foreground" />
-            <p>{isError ? "Error" : "No results"}</p>
+            <p>{isError ? t("common.error") : t("services.noResults")}</p>
           </div>
         )}
       </div>

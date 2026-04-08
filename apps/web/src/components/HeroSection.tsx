@@ -22,18 +22,18 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
     {
       id: 'barbershop',
       image: barbershopBanner,
-      alt: 'Barbershop banner',
-      badge: 'MAXSUS TAKLIF',
-      title: 'Birinchi barber tashrifiga 30% chegirma',
-      subtitle: 'Qulay vaqtingizni hozir band qiling',
+      alt: t('hero.banner.barbershop.alt'),
+      badge: t('hero.banner.barbershop.badge'),
+      title: t('hero.banner.barbershop.title'),
+      subtitle: t('hero.banner.barbershop.subtitle'),
     },
     {
       id: 'dental-clinic',
       image: dentalClinicBanner,
-      alt: 'Dental clinic banner',
-      badge: 'YANGI TAKLIF',
-      title: 'Yangi: dental paketlar',
-      subtitle: 'Cheklangan vaqt uchun',
+      alt: t('hero.banner.dental.alt'),
+      badge: t('hero.banner.dental.badge'),
+      title: t('hero.banner.dental.title'),
+      subtitle: t('hero.banner.dental.subtitle'),
     },
   ];
 
@@ -100,7 +100,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
               type="button"
               onClick={openDiscover}
               className="rounded-lg bg-slate-100 p-2 text-slate-600 transition hover:bg-slate-200"
-              aria-label="Open filters"
+              aria-label={t('filter.title')}
             >
               <SlidersHorizontal className="h-4 w-4" />
             </button>
@@ -163,7 +163,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
                   ? 'w-5 bg-blue-600 dark:bg-blue-400'
                   : 'w-1.5 bg-gray-300 dark:bg-gray-600'
               }`}
-              aria-label={`Go to banner ${index + 1}`}
+              aria-label={t('hero.goToBanner', { index: index + 1 })}
             />
           ))}
         </div>

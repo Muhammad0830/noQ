@@ -8,14 +8,17 @@ import ServicesList from "@/components/ShopList";
 import { API_ENDPOINTS } from "@/lib/api";
 import useApiQuery from "@/hooks/useApiQuery";
 import type { ShopCategory } from "@shared/types/general_types";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Home() {
   const router = useRouter();
+  const { language } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const categoriesUrl = `${API_ENDPOINTS.categories}?lang=${encodeURIComponent(language)}`;
   const { data: categoriesData = [], isLoading: isCategoriesLoading } =
-    useApiQuery<unknown[]>(API_ENDPOINTS.categories, {
-      key: ["home-categories"],
+    useApiQuery<unknown[]>(categoriesUrl, {
+      key: ["home-categories", language],
     });
 
   const categories = useMemo<ShopCategory[]>(

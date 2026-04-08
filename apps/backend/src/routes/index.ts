@@ -6,6 +6,7 @@ import favouriteRouter from "./favourites.routes.js";
 import serviceRouter from "./services.routes.js";
 import shopRouter from "./shops.routes.js";
 import reviewsRouter from "./reviews.routes.js";
+import dashboardRouter from "./dashboard.routes.js";
 
 export {
   categoryRouter,
@@ -16,4 +17,5 @@ export {
   serviceRouter,
   shopRouter,
   reviewsRouter,
+  dashboardRouter
 };
