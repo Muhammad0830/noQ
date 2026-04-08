@@ -36,7 +36,9 @@ const ServicesList: React.FC<ServicesListProps> = ({
     }
 
     const query = params.toString();
-    return query ? `${API_ENDPOINTS.shops_trending}?${query}` : API_ENDPOINTS.shops_trending;
+    return query
+      ? `${API_ENDPOINTS.shops_trending}?${query}`
+      : API_ENDPOINTS.shops_trending;
   }, [searchQuery, selectedCategory]);
 
   // 🔥 API CALL
@@ -94,7 +96,7 @@ const ServicesList: React.FC<ServicesListProps> = ({
   const skeletonCountDesktop = 8;
 
   return (
-    <section className="pt-6 pb-12 sm:pt-8 sm:pb-16 bg-gray-50 dark:bg-gray-800">
+    <section className="bg-white pt-6 pb-12 sm:pt-8 sm:pb-16 dark:bg-[#211201]">
       {error?.message ?? ""}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* HEADER */}
@@ -102,7 +104,7 @@ const ServicesList: React.FC<ServicesListProps> = ({
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
             {t("services.homePopularPurchases")}
           </h2>
-          <div className="w-20 h-1 bg-linear-to-r from-blue-600 to-purple-600 rounded-full"></div>
+          <div className="w-20 h-1 rounded-full bg-[#F49B33]"></div>
         </div>
 
         {/* LOADING */}
@@ -166,7 +168,7 @@ const ServicesList: React.FC<ServicesListProps> = ({
                       key={i}
                       onClick={() => scrollToDot(i)}
                       className={`w-2 h-2 rounded-full ${
-                        i === activeDot ? "bg-blue-500" : "bg-gray-300"
+                        i === activeDot ? "bg-[#F49B33]" : "bg-gray-300"
                       }`}
                     />
                   ))}

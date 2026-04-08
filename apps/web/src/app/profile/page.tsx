@@ -133,7 +133,7 @@ export default function ProfilePage() {
 
   if (!user && !isLoading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-700 dark:bg-[#060912] dark:text-slate-200">
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-700 dark:bg-[#211201] dark:text-slate-200">
         <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium shadow-sm dark:border-white/10 dark:bg-white/5">
           <Loader2 className="h-4 w-4 animate-spin" />
           <span>{t("common.loading")}</span>
@@ -191,8 +191,11 @@ export default function ProfilePage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#060912] dark:text-white">
-      <div className="mx-auto w-full px-3 pb-2.25 pt-4 sm:px-6" style={{ maxWidth: 650 }}>
+    <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#211201] dark:text-white">
+      <div
+        className="mx-auto w-full px-3 pb-2.25 pt-4 sm:px-6"
+        style={{ maxWidth: 650 }}
+      >
         <header className="mb-6 flex items-center justify-between">
           {/* Theme toggle moved to settings section */}
         </header>
@@ -211,7 +214,7 @@ export default function ProfilePage() {
 
         <section className="relative mb-6 border-b border-slate-200 pb-6 text-center dark:border-white/10">
           <div className="relative mx-auto mb-4 inline-block">
-            <div className="relative h-24 w-24 rounded-full p-0.5 ring-1 ring-[#00e6d0]/60">
+            <div className="relative h-24 w-24 rounded-full p-0.5 ring-1 ring-[#F49B33]/60">
               {preview ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -239,7 +242,7 @@ export default function ProfilePage() {
               onClick={() =>
                 document.getElementById("profile-image-input")?.click()
               }
-              className="absolute bottom-0 right-0 inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#0099ff] text-white shadow-lg transition hover:bg-blue-600 dark:bg-[#00d4ff] dark:text-slate-900 dark:hover:bg-[#00b8dd]"
+              className="absolute bottom-0 right-0 inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#F49B33] text-white shadow-lg transition hover:bg-blue-600 dark:bg-[#F49B33] dark:text-slate-900 dark:hover:bg-[#00b8dd]"
               aria-label="Update profile image"
               title="Click to change profile image"
             >
@@ -253,7 +256,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={handleSaveImage}
                 disabled={isSavingImage}
-                className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-teal-700 dark:bg-[#00e6d0] dark:text-slate-900 dark:hover:bg-[#00c4b0]"
+                className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-teal-700 dark:bg-[#F49B33] dark:text-slate-900 dark:hover:bg-[#00c4b0]"
               >
                 {isSavingImage ? "Saving..." : "Save Image"}
               </button>
@@ -281,7 +284,7 @@ export default function ProfilePage() {
               <h2 className="text-3xl font-semibold leading-tight text-slate-900 dark:text-white">
                 {user?.name}
               </h2>
-              <p className="mt-1 text-sm font-medium text-teal-600 dark:text-[#00e6d0]">
+              <p className="mt-1 text-sm font-medium text-teal-600 dark:text-[#F49B33]">
                 {memberSince}
               </p>
             </>
@@ -291,13 +294,13 @@ export default function ProfilePage() {
         <section
           className={`mb-5 rounded-2xl border p-4 ${
             theme === "dark"
-              ? "border-[#00e6d0]/25 bg-[#071723] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
-              : "border-teal-200 bg-white shadow-sm"
+              ? "border-[#F49B33]/25 bg-[#211201] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
+              : "border-[#f1c894] bg-white shadow-sm"
           }`}
         >
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-base font-semibold text-teal-700 dark:text-[#00e6d0]">
+              <p className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
                 {t("profile.admin")}
               </p>
               <p className="mt-1 text-xs text-slate-600 dark:text-white/60">
@@ -308,9 +311,9 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => setIsProviderModeEnabled((prev) => !prev)}
-              className={`relative h-7 w-12 rounded-full border transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
+              className={`relative h-7 w-12 rounded-full border transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F49B33]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
                 isProviderModeEnabled
-                  ? "border-teal-500 bg-teal-500/40 dark:border-[#00e6d0]/70 dark:bg-[#00e6d0]/35"
+                  ? "border-[#F49B33]/60 bg-[#F49B33]/25 dark:border-[#F49B33]/70 dark:bg-[#F49B33]/35"
                   : "border-slate-300 bg-slate-200 dark:border-white/25 dark:bg-white/10"
               }`}
               aria-label={t("profile.toggleProviderMode")}
@@ -319,7 +322,7 @@ export default function ProfilePage() {
               <span
                 className={`absolute top-0.75 h-5 w-5 rounded-full ring-1 transition-all duration-200 ${
                   isProviderModeEnabled
-                    ? "left-6 bg-teal-600 ring-teal-600/60 dark:bg-[#00e6d0] dark:ring-[#00e6d0]/70"
+                    ? "left-6 bg-[#F49B33] ring-[#F49B33]/60 dark:bg-[#F49B33] dark:ring-[#F49B33]/70"
                     : "left-1 bg-white ring-slate-300 dark:bg-slate-100 dark:ring-white/35"
                 }`}
               />
@@ -330,13 +333,13 @@ export default function ProfilePage() {
         <section
           className={`mb-5 rounded-2xl border p-4 ${
             theme === "dark"
-              ? "border-[#00e6d0]/25 bg-[#071723] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
-              : "border-teal-200 bg-white shadow-sm"
+              ? "border-[#F49B33]/25 bg-[#211201] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
+              : "border-[#f1c894] bg-white shadow-sm"
           }`}
         >
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-base font-semibold text-teal-700 dark:text-[#00e6d0]">
+              <p className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
                 {theme === "dark"
                   ? t("profile.darkMode")
                   : t("profile.lightMode")}
@@ -351,9 +354,9 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={toggleTheme}
-              className={`relative h-7 w-12 rounded-full border transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
+              className={`relative h-7 w-12 rounded-full border transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F49B33]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
                 theme === "dark"
-                  ? "border-teal-500 bg-teal-500/40 dark:border-[#00e6d0]/70 dark:bg-[#00e6d0]/35"
+                  ? "border-[#F49B33]/60 bg-[#F49B33]/25 dark:border-[#F49B33]/70 dark:bg-[#F49B33]/35"
                   : "border-slate-300 bg-slate-200 dark:border-white/25 dark:bg-white/10"
               }`}
               aria-label={t("profile.toggleTheme")}
@@ -362,7 +365,7 @@ export default function ProfilePage() {
               <span
                 className={`absolute top-0.75 h-5 w-5 rounded-full ring-1 transition-all duration-200 flex items-center justify-center ${
                   theme === "dark"
-                    ? "left-6 bg-teal-600 ring-teal-600/60 dark:bg-[#00e6d0] dark:ring-[#00e6d0]/70"
+                    ? "left-6 bg-[#F49B33] ring-[#F49B33]/60 dark:bg-[#F49B33] dark:ring-[#F49B33]/70"
                     : "left-1 bg-white ring-slate-300 dark:bg-slate-100 dark:ring-white/35"
                 }`}
               >
@@ -377,27 +380,35 @@ export default function ProfilePage() {
         </section>
 
         <section className="mb-6">
-          <p className="mb-2 px-1 text-[11px] uppercase tracking-[0.2em] text-slate-500 dark:text-white/45">
+          <p className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
             {t("profile.accountSettings")}
           </p>
 
           <div
             className={`overflow-hidden rounded-2xl border ${
               theme === "dark"
-                ? "border-white/10 bg-[#111528]"
-                : "border-slate-200 bg-white shadow-sm"
+                ? "border-[#F49B33]/25 bg-[#211201] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
+                : "border-[#f1c894] bg-white shadow-sm"
             }`}
           >
             <ProfileRow
               icon={<User className="h-4 w-4" />}
-              title={t("profile.personalInfo")}
+              title={
+                <span className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
+                  {t("profile.personalInfo")}
+                </span>
+              }
               subtitle={t("profile.personalInfoSubtitle")}
               onClick={() => setIsInfoModalOpen(true)}
             />
 
             <ProfileRow
               icon={<Shield className="h-4 w-4" />}
-              title={t("profile.security")}
+              title={
+                <span className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
+                  {t("profile.security")}
+                </span>
+              }
               subtitle={t("profile.securitySubtitle")}
               onClick={() => router.push("/profile/security")}
               bordered
@@ -405,7 +416,11 @@ export default function ProfilePage() {
 
             <ProfileRow
               icon={<CreditCard className="h-4 w-4" />}
-              title={t("profile.paymentMethods")}
+              title={
+                <span className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
+                  {t("profile.paymentMethods")}
+                </span>
+              }
               subtitle={t("profile.paymentMethodsSubtitle")}
               onClick={() => router.push("/profile/payments")}
               bordered
@@ -414,20 +429,24 @@ export default function ProfilePage() {
         </section>
 
         <section className="mb-8">
-          <p className="mb-2 px-1 text-[11px] uppercase tracking-[0.2em] text-slate-500 dark:text-white/45">
+          <p className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
             {t("profile.appPreferences")}
           </p>
 
           <div
-            className={`overflow-hidden rounded-2xl border ${
+            className={`overflow-hidden rounded-2xl border${
               theme === "dark"
-                ? "border-white/10 bg-[#111528]"
-                : "border-slate-200 bg-white shadow-sm"
+                ? "border-[#F49B33]/25 bg-[#211201] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
+                : "border-[#f1c894] bg-white shadow-sm"
             }`}
           >
             <ProfileRow
               icon={<Bell className="h-4 w-4" />}
-              title={t("profile.notifications")}
+              title={
+                <span className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
+                  {t("profile.notifications")}
+                </span>
+              }
               subtitle={t("profile.notificationsSubtitle")}
               onClick={() => router.push("/profile/notifications")}
               bordered
@@ -435,7 +454,11 @@ export default function ProfilePage() {
 
             <ProfileRow
               icon={<Languages className="h-4 w-4" />}
-              title={t("profile.language")}
+              title={
+                <span className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
+                  {t("profile.language")}
+                </span>
+              }
               subtitle={activeLanguage}
               trailing={
                 <span className="rounded-md px-2 py-1 text-xs font-medium text-slate-500 dark:text-white/70">
@@ -448,7 +471,11 @@ export default function ProfilePage() {
 
             <ProfileRow
               icon={<HelpCircle className="h-4 w-4" />}
-              title={t("profile.helpSupport")}
+              title={
+                <span className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
+                  {t("profile.helpSupport")}
+                </span>
+              }
               subtitle={t("profile.helpSupportSubtitle")}
               onClick={() => router.push("/profile/support")}
               bordered
@@ -547,7 +574,7 @@ export default function ProfilePage() {
                   type="button"
                   onClick={handleSavePersonalInfo}
                   disabled={isSavingInfo}
-                  className="flex h-12 w-full items-center justify-center rounded-xl bg-teal-600 px-4 text-base font-semibold text-white transition hover:bg-teal-700 disabled:opacity-60 dark:bg-[#00e6d0] dark:text-slate-900 dark:hover:bg-[#00c4b0]"
+                  className="flex h-12 w-full items-center justify-center rounded-xl bg-teal-600 px-4 text-base font-semibold text-white transition hover:bg-teal-700 disabled:opacity-60 dark:bg-[#F49B33] dark:text-slate-900 dark:hover:bg-[#00c4b0]"
                 >
                   {isSavingInfo ? "Saqlanmoqda..." : "Saqlash"}
                 </button>
@@ -620,7 +647,7 @@ export default function ProfilePage() {
                   }}
                   className={`w-full rounded-xl border px-4 py-3 text-left text-sm font-medium transition ${
                     isActive
-                      ? "border-teal-300 bg-teal-50 text-teal-700 dark:border-[#00e6d0]/60 dark:bg-[#00e6d0]/10 dark:text-[#8de8df]"
+                      ? "border-[#F49B33]/30 bg-[#fff3e6] text-[#F49B33] dark:border-[#F49B33]/60 dark:bg-[#F49B33]/10 dark:text-[#F49B33]"
                       : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:text-white/80 dark:hover:bg-white/10"
                   }`}
                 >
@@ -639,7 +666,7 @@ export default function ProfilePage() {
           role="presentation"
         >
           <div
-            className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-[#0d1325]"
+            className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-[#211201]"
             onClick={(event) => event.stopPropagation()}
             role="dialog"
             aria-modal="true"
@@ -694,7 +721,7 @@ function ProfileRow({
   bordered = false,
 }: {
   icon: React.ReactNode;
-  title: string;
+  title: React.ReactNode;
   subtitle: string;
   onClick: () => void;
   trailing?: React.ReactNode;
@@ -704,11 +731,11 @@ function ProfileRow({
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-slate-50 dark:hover:bg-white/5 ${
-        bordered ? "border-t border-slate-200 dark:border-white/10" : ""
+      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-[#fff3e6] dark:hover:bg-[#F49B33]/10 ${
+        bordered ? "border-t border-[#f1c894] dark:border-[#F49B33]/20" : ""
       }`}
     >
-      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 dark:bg-[#18203a] dark:text-[#a5b4d6]">
+      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#fff3e6] text-[#F49B33] dark:bg-[#F49B33]/15 dark:text-[#F49B33]">
         {icon}
       </span>
 
@@ -722,7 +749,7 @@ function ProfileRow({
       </span>
 
       {trailing || (
-        <ChevronRight className="h-4 w-4 shrink-0 text-slate-400 dark:text-white/35" />
+        <ChevronRight className="h-4 w-4 shrink-0 text-[#F49B33] dark:text-[#F49B33]/70" />
       )}
     </button>
   );
@@ -748,7 +775,7 @@ function ModalShell({
       role="presentation"
     >
       <div
-        className="max-h-[calc(100dvh-2rem)] w-full max-w-155 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl dark:border-white/10 dark:bg-[#0d1325]"
+        className="max-h-[calc(100dvh-2rem)] w-full max-w-155 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl dark:border-white/10 dark:bg-[#211201]"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"

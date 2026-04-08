@@ -8,7 +8,7 @@ export default function SecurityPasswordPage() {
   const { t } = useLanguage();
 
   return (
-    <main className="min-h-screen bg-[#060912] px-4 py-6 text-white">
+    <main className="min-h-screen bg-[#211201] px-4 py-6 text-white">
       <div className="mx-auto w-full" style={{ maxWidth: 650 }}>
         <button
           type="button"

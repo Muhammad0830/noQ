@@ -23,7 +23,12 @@ interface CategoriesSectionProps {
 const ToothIcon: React.FC<{ className?: string }> = ({
   className = "w-6 h-6",
 }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor">
+  <svg
+    viewBox="0 0 24 24"
+    className={className}
+    fill="none"
+    stroke="currentColor"
+  >
     <path d="M7 5.5c1.5-1 2.9-1.5 5-1.5s3.5.5 5 1.5c1.8 1.2 2.3 3.4 1.9 5.4-.4 2.2-1.4 4.2-2.5 6.2-.8 1.4-1.4 2.9-2.8 2.9-1.2 0-1.6-1.1-1.6-2.3V16c0-.6-.4-1-1-1s-1 .4-1 1v1.7c0 1.2-.4 2.3-1.6 2.3-1.4 0-2-1.5-2.8-2.9-1.1-2-2.1-4-2.5-6.2-.4-2 .1-4.2 1.9-5.4Z" />
   </svg>
 );
@@ -66,7 +71,7 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
 
   const indicatorCount = useMemo(
     () => Math.max(1, categories.length),
-    [categories.length]
+    [categories.length],
   );
 
   const updateActiveDot = () => {
@@ -104,14 +109,14 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
   };
 
   return (
-    <section className="pt-8 pb-5 sm:pt-10 sm:pb-6 bg-white dark:bg-gray-900">
+    <section className="bg-white pt-8 pb-5 sm:pt-10 sm:pb-6 dark:bg-[#211201]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-left mb-8 sm:mb-10">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
+          <h2 className="mb-3 text-2xl font-bold text-slate-900 sm:text-3xl dark:text-white">
             {t("categories.title")}
           </h2>
-          <div className="w-20 h-1 bg-linear-to-r from-blue-600 to-purple-600 rounded-full"></div>
+          <div className="h-1 w-20 rounded-full bg-[#F49B33]" />
         </div>
 
         {/* Categories */}
@@ -134,42 +139,42 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                     </div>
                   ))
                 : categories.map((category) => {
-                const isSelected = selectedCategory === category.id;
-                const icon = resolveCategoryIcon(category.icon);
+                    const isSelected = selectedCategory === category.id;
+                    const icon = resolveCategoryIcon(category.icon);
 
-                return (
-                  <button
-                    key={category.id}
-                    onClick={() => onCategorySelect?.(category.id)}
-                    className={`group min-w-28 sm:min-w-30 p-3 sm:p-4 rounded-xl border-2 transition-all duration-300 shrink-0 ${
-                      isSelected
-                        ? "border-blue-600 bg-blue-50 dark:bg-blue-900/20"
-                        : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:border-blue-400 hover:shadow-lg"
-                    }`}
-                  >
-                    <div className="flex flex-col items-center space-y-2">
-                      <div
-                        className={`w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center transition-all ${
+                    return (
+                      <button
+                        key={category.id}
+                        onClick={() => onCategorySelect?.(category.id)}
+                        className={`group min-w-28 sm:min-w-30 p-3 sm:p-4 rounded-xl border-2 transition-all duration-300 shrink-0 ${
                           isSelected
-                            ? "bg-linear-to-br from-blue-600 to-purple-600 text-white"
-                            : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-400 group-hover:bg-linear-to-br group-hover:from-blue-600 group-hover:to-purple-600 group-hover:text-white"
+                            ? "border-[#F49B33] bg-[#fff3e6] dark:bg-[#3a2415]"
+                            : "border-[#f1c894] dark:border-[#4a2e1b] bg-white dark:bg-[#2b170b] hover:border-[#F49B33] hover:shadow-[0_10px_18px_rgba(244,155,51,0.18)]"
                         }`}
                       >
-                        {icon}
-                      </div>
-                      <span
-                        className={`text-xs sm:text-sm font-semibold text-center leading-tight ${
-                          isSelected
-                            ? "text-blue-600 dark:text-blue-400"
-                            : "text-gray-700 dark:text-gray-300"
-                        }`}
-                      >
-                        {category.name}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
+                        <div className="flex flex-col items-center space-y-2">
+                          <div
+                            className={`w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center transition-all ${
+                              isSelected
+                                ? "bg-[#F49B33] text-white"
+                                : "bg-[#fff8f1] dark:bg-[#3a2415] text-[#F49B33] group-hover:bg-[#F49B33] group-hover:text-white"
+                            }`}
+                          >
+                            {icon}
+                          </div>
+                          <span
+                            className={`text-xs sm:text-sm font-semibold text-center leading-tight ${
+                              isSelected
+                                ? "text-[#F49B33] dark:text-[#ffd4a6]"
+                                : "text-slate-700 dark:text-slate-200"
+                            }`}
+                          >
+                            {category.name}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
             </div>
           </div>
         </div>
@@ -183,7 +188,7 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                 onClick={() => scrollToDot(i)}
                 className={`w-2 h-2 rounded-full ${
                   i === activeDot
-                    ? "bg-blue-600 dark:bg-blue-400"
+                    ? "bg-[#F49B33] dark:bg-[#F49B33]"
                     : "bg-gray-300 dark:bg-gray-600"
                 }`}
               />

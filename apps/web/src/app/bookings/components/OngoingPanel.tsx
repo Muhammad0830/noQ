@@ -6,6 +6,7 @@ import { getStatusColor, getStatusLabel } from "./booking-status";
 
 type Props = {
   filter: "ongoing" | "completed" | "cancelled";
+  showHeader?: boolean;
   isHydrated: boolean;
   isLoading: boolean;
   isError: boolean;
@@ -63,6 +64,7 @@ const ongoingSkeleton = (
 
 export default function OngoingPanel({
   filter,
+  showHeader = true,
   isHydrated,
   isLoading,
   isError,
@@ -112,17 +114,19 @@ export default function OngoingPanel({
 
   return (
     <>
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-[23px] font-semibold tracking-tight text-slate-900 dark:text-white sm:text-[30px]">
-          {t("history.nextAppointment")}
-        </h2>
-        <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${getStatusColor(activeBooking.status)}`}
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-300" />
-          {getStatusLabel(activeBooking.subtitle, t)}
-        </span>
-      </div>
+      {showHeader && (
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-[23px] font-semibold tracking-tight text-[#F49B33] sm:text-[30px]">
+            {t("history.nextAppointment")}
+          </h2>
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white ${getStatusColor(activeBooking.status)}`}
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-white/85" />
+            {getStatusLabel(activeBooking.subtitle, t)}
+          </span>
+        </div>
+      )}
 
       <div className="overflow-hidden rounded-3xl border border-slate-200 bg-[linear-gradient(180deg,#f8fcff_0%,#eef4fa_100%)] shadow-[0_18px_40px_rgba(56,88,120,0.2)] dark:border-white/10 dark:bg-[linear-gradient(180deg,#111c2f_0%,#0a101b_100%)] dark:shadow-[0_18px_42px_rgba(0,0,0,0.45)]">
         <div className="relative h-36 overflow-hidden border-b border-slate-200 bg-[linear-gradient(130deg,#cad7e2_0%,#9eb0bf_35%,#738b9d_100%)] dark:border-white/10 dark:bg-[linear-gradient(130deg,#9bb2c4_0%,#5f7282_35%,#2f3f4b_100%)] sm:h-44">
@@ -139,7 +143,7 @@ export default function OngoingPanel({
         <div className="p-4 sm:p-5">
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.15em] text-emerald-700 dark:text-emerald-300">
+              <p className="text-[11px] uppercase tracking-[0.15em] text-[#F49B33] dark:text-[#F49B33]">
                 {activeBooking.service}
               </p>
               <h3 className="mt-1 text-[32px] font-semibold leading-none tracking-tight text-slate-900 dark:text-white sm:text-[40px]">
@@ -149,7 +153,7 @@ export default function OngoingPanel({
                 {activeBooking.address}
               </p>
             </div>
-            <button className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/15 text-emerald-700 transition hover:bg-emerald-500/20 dark:border-emerald-300/35 dark:bg-emerald-400/15 dark:text-emerald-300 dark:hover:bg-emerald-400/20">
+            <button className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#F49B33]/55 bg-[#F49B33] text-white shadow-[0_8px_18px_rgba(244,155,51,0.32)] transition hover:bg-[#e28a20] dark:border-[#F49B33]/55 dark:bg-[#F49B33] dark:text-white dark:hover:bg-[#e28a20]">
               <Scissors className="h-5 w-5" />
             </button>
           </div>
@@ -159,7 +163,7 @@ export default function OngoingPanel({
           <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
             <div className="flex items-center gap-2.5">
               {activeBooking.remainingDays !== null ? (
-                <div className="flex h-14 w-20 flex-col items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-[0_8px_22px_rgba(16,185,129,0.34)] dark:bg-emerald-400 dark:text-[#032018] dark:shadow-[0_8px_22px_rgba(0,255,190,0.32)]">
+                <div className="flex h-14 w-20 flex-col items-center justify-center rounded-2xl bg-[#F49B33] text-white shadow-[0_8px_22px_rgba(244,155,51,0.34)] dark:bg-[#F49B33] dark:text-white dark:shadow-[0_8px_22px_rgba(244,155,51,0.32)]">
                   <span className="text-[22px] font-semibold leading-none">
                     {activeBooking.remainingDays}
                   </span>
@@ -169,7 +173,7 @@ export default function OngoingPanel({
                 </div>
               ) : (
                 <>
-                  <div className="flex h-14 w-14 flex-col items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-[0_8px_22px_rgba(16,185,129,0.34)] dark:bg-emerald-400 dark:text-[#032018] dark:shadow-[0_8px_22px_rgba(0,255,190,0.32)]">
+                  <div className="flex h-14 w-14 flex-col items-center justify-center rounded-2xl bg-[#F49B33] text-white shadow-[0_8px_22px_rgba(244,155,51,0.34)] dark:bg-[#F49B33] dark:text-white dark:shadow-[0_8px_22px_rgba(244,155,51,0.32)]">
                     <span className="text-[22px] font-semibold leading-none">
                       {activeBooking.remainingHours}
                     </span>
@@ -210,7 +214,7 @@ export default function OngoingPanel({
           <div className="flex items-center gap-2">
             <Link
               href={`/bookings/directions`}
-              className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-linear-to-r from-emerald-500 to-cyan-500 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(16,185,129,0.35)] transition hover:brightness-105 dark:from-emerald-400 dark:to-cyan-400 dark:text-[#032018] dark:shadow-[0_10px_26px_rgba(0,255,190,0.35)]"
+              className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[#F49B33] text-sm font-semibold text-white shadow-[0_10px_24px_rgba(244,155,51,0.35)] transition hover:bg-[#e28a20] dark:bg-[#F49B33] dark:text-white dark:shadow-[0_10px_26px_rgba(244,155,51,0.35)] dark:hover:bg-[#e28a20]"
             >
               <Navigation className="h-4 w-4" />
               {t("history.getDirections")}

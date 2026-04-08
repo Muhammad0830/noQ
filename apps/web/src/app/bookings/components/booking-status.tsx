@@ -3,7 +3,7 @@ import { AlertCircle, Check, Clock3, X } from "lucide-react";
 export const getStatusColor = (status: string) => {
   switch (status) {
     case "ongoing":
-      return "border border-emerald-400/35 bg-emerald-500/15 text-emerald-700 dark:border-emerald-400/25 dark:text-emerald-300";
+      return "border border-[#F49B33]/50 bg-[#F49B33] text-white dark:border-[#F49B33]/55 dark:bg-[#F49B33] dark:text-white";
     case "completed":
       return "border border-green-400/35 bg-green-500/15 text-green-700 dark:border-green-400/25 dark:text-green-300";
     case "cancelled":

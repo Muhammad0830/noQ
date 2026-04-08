@@ -53,20 +53,18 @@ export default function ShopProfile({
   });
 
   // 🔥 FETCH SERVICES
-  const { data: servicesData = [], isLoading: servicesLoading } = useApiQuery<Service[]>(
-    API_ENDPOINTS.shopServices(id),
-    {
-      key: ["services", id],
-    },
-  );
+  const { data: servicesData = [], isLoading: servicesLoading } = useApiQuery<
+    Service[]
+  >(API_ENDPOINTS.shopServices(id), {
+    key: ["services", id],
+  });
 
   // 🔥 FETCH REVIEWS
-  const { data: reviewsData = [], isLoading: reviewsLoading } = useApiQuery<Review[]>(
-    API_ENDPOINTS.shopReviews(id),
-    {
-      key: ["reviews", id],
-    },
-  );
+  const { data: reviewsData = [], isLoading: reviewsLoading } = useApiQuery<
+    Review[]
+  >(API_ENDPOINTS.shopReviews(id), {
+    key: ["reviews", id],
+  });
 
   const services = useMemo(() => {
     return (servicesData?.length > 0 ? servicesData : shop?.services) || [];
@@ -107,7 +105,10 @@ export default function ShopProfile({
 
           <div className="space-y-4">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="p-4 sm:p-5 bg-gray-50 dark:bg-gray-800 rounded-xl">
+              <div
+                key={i}
+                className="p-4 sm:p-5 bg-gray-50 dark:bg-gray-800 rounded-xl"
+              >
                 <Skeleton className="h-5 w-44 mb-3" />
                 <Skeleton className="h-4 w-60 mb-3" />
                 <div className="flex items-center justify-between">
@@ -119,7 +120,7 @@ export default function ShopProfile({
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   const shopData = shop || {
@@ -251,31 +252,31 @@ export default function ShopProfile({
             <div
               className={`grid ${hasPhone ? "grid-cols-4" : "grid-cols-3"} gap-3 sm:gap-4`}
             >
-              <div className="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
-                <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
+              <div className="flex flex-col items-center gap-2 sm:gap-3 rounded-2xl border border-[#f1c894] bg-[#fff8f1] p-3 text-center shadow-[0_10px_20px_rgba(244,155,51,0.12)] dark:border-[#F49B33]/25 dark:bg-[#2b170b]">
+                <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-[#F49B33] dark:text-[#F49B33]" />
+                <span className="text-xs font-semibold text-[#8a5620] dark:text-[#ffd4a6] sm:text-sm">
                   {distance}
                 </span>
               </div>
-              <div className="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-orange-50 dark:bg-orange-900/30 rounded-lg">
-                <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 dark:text-orange-400" />
-                <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
+              <div className="flex flex-col items-center gap-2 sm:gap-3 rounded-2xl border border-[#f1c894] bg-[#fff8f1] p-3 text-center shadow-[0_10px_20px_rgba(244,155,51,0.12)] dark:border-[#F49B33]/25 dark:bg-[#2b170b]">
+                <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-[#F49B33] dark:text-[#F49B33]" />
+                <span className="text-xs font-semibold text-[#8a5620] dark:text-[#ffd4a6] sm:text-sm">
                   {hours}
                 </span>
               </div>
-              <div className="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                <Map className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
-                <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
+              <div className="flex flex-col items-center gap-2 sm:gap-3 rounded-2xl border border-[#f1c894] bg-[#fff8f1] p-3 text-center shadow-[0_10px_20px_rgba(244,155,51,0.12)] dark:border-[#F49B33]/25 dark:bg-[#2b170b]">
+                <Map className="h-5 w-5 sm:h-6 sm:w-6 text-[#F49B33] dark:text-[#F49B33]" />
+                <span className="text-xs font-semibold text-[#8a5620] dark:text-[#ffd4a6] sm:text-sm">
                   {t("shop.viewDetails")}
                 </span>
               </div>
               {hasPhone && (
                 <a
                   href={`tel:${shopData.phone}`}
-                  className="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-purple-50 dark:bg-purple-900/30 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/50 transition"
+                  className="flex flex-col items-center gap-2 rounded-2xl border border-[#f1c894] bg-[#fff8f1] p-3 text-center shadow-[0_10px_20px_rgba(244,155,51,0.12)] transition hover:bg-[#fff3e6] dark:border-[#F49B33]/25 dark:bg-[#2b170b] dark:hover:bg-[#3a2415] sm:p-4 sm:gap-3"
                 >
-                  <Phone className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />
-                  <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
+                  <Phone className="h-5 w-5 sm:h-6 sm:w-6 text-[#F49B33] dark:text-[#F49B33]" />
+                  <span className="text-xs font-semibold text-[#8a5620] dark:text-[#ffd4a6] sm:text-sm">
                     {t("shop.phone")}
                   </span>
                 </a>
@@ -308,7 +309,10 @@ export default function ShopProfile({
           <div className="space-y-4">
             {servicesLoading ? (
               [...Array(4)].map((_, i) => (
-                <div key={i} className="p-4 sm:p-5 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                <div
+                  key={i}
+                  className="p-4 sm:p-5 bg-gray-50 dark:bg-gray-800 rounded-xl"
+                >
                   <Skeleton className="h-5 w-44 mb-3" />
                   <Skeleton className="h-4 w-60 mb-3" />
                   <div className="flex items-center justify-between">
@@ -393,7 +397,10 @@ export default function ShopProfile({
           <div className="space-y-4">
             {reviewsLoading ? (
               [...Array(3)].map((_, i) => (
-                <div key={i} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div
+                  key={i}
+                  className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                >
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <Skeleton className="h-4 w-28 mb-2" />
