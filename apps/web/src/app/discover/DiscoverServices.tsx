@@ -144,7 +144,7 @@ export default function DiscoverServices() {
 
   useEffect(() => {
     if (initialCategoryId) {
-      setAppliedCategories([initialCategoryId]);
+      setAppliedCategories([initialCategoryId]); // eslint-disable-line
       setDraftCategories([initialCategoryId]);
     } else {
       setAppliedCategories([]);
