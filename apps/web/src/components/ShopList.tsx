@@ -36,7 +36,9 @@ const ServicesList: React.FC<ServicesListProps> = ({
     }
 
     const query = params.toString();
-    return query ? `${API_ENDPOINTS.shops_trending}?${query}` : API_ENDPOINTS.shops_trending;
+    return query
+      ? `${API_ENDPOINTS.shops_trending}?${query}`
+      : API_ENDPOINTS.shops_trending;
   }, [searchQuery, selectedCategory]);
 
   // 🔥 API CALL

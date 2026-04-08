@@ -23,7 +23,12 @@ interface CategoriesSectionProps {
 const ToothIcon: React.FC<{ className?: string }> = ({
   className = "w-6 h-6",
 }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor">
+  <svg
+    viewBox="0 0 24 24"
+    className={className}
+    fill="none"
+    stroke="currentColor"
+  >
     <path d="M7 5.5c1.5-1 2.9-1.5 5-1.5s3.5.5 5 1.5c1.8 1.2 2.3 3.4 1.9 5.4-.4 2.2-1.4 4.2-2.5 6.2-.8 1.4-1.4 2.9-2.8 2.9-1.2 0-1.6-1.1-1.6-2.3V16c0-.6-.4-1-1-1s-1 .4-1 1v1.7c0 1.2-.4 2.3-1.6 2.3-1.4 0-2-1.5-2.8-2.9-1.1-2-2.1-4-2.5-6.2-.4-2 .1-4.2 1.9-5.4Z" />
   </svg>
 );
@@ -66,7 +71,7 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
 
   const indicatorCount = useMemo(
     () => Math.max(1, categories.length),
-    [categories.length]
+    [categories.length],
   );
 
   const updateActiveDot = () => {
@@ -134,42 +139,42 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                     </div>
                   ))
                 : categories.map((category) => {
-                const isSelected = selectedCategory === category.id;
-                const icon = resolveCategoryIcon(category.icon);
+                    const isSelected = selectedCategory === category.id;
+                    const icon = resolveCategoryIcon(category.icon);
 
-                return (
-                  <button
-                    key={category.id}
-                    onClick={() => onCategorySelect?.(category.id)}
-                    className={`group min-w-28 sm:min-w-30 p-3 sm:p-4 rounded-xl border-2 transition-all duration-300 shrink-0 ${
-                      isSelected
-                        ? "border-[#F49B33] bg-[#fff3e6] dark:bg-[#3a2415]"
-                        : "border-[#f1c894] dark:border-[#4a2e1b] bg-white dark:bg-[#2b170b] hover:border-[#F49B33] hover:shadow-[0_10px_18px_rgba(244,155,51,0.18)]"
-                    }`}
-                  >
-                    <div className="flex flex-col items-center space-y-2">
-                      <div
-                        className={`w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center transition-all ${
+                    return (
+                      <button
+                        key={category.id}
+                        onClick={() => onCategorySelect?.(category.id)}
+                        className={`group min-w-28 sm:min-w-30 p-3 sm:p-4 rounded-xl border-2 transition-all duration-300 shrink-0 ${
                           isSelected
-                            ? "bg-[#F49B33] text-white"
-                            : "bg-[#fff8f1] dark:bg-[#3a2415] text-[#F49B33] group-hover:bg-[#F49B33] group-hover:text-white"
+                            ? "border-[#F49B33] bg-[#fff3e6] dark:bg-[#3a2415]"
+                            : "border-[#f1c894] dark:border-[#4a2e1b] bg-white dark:bg-[#2b170b] hover:border-[#F49B33] hover:shadow-[0_10px_18px_rgba(244,155,51,0.18)]"
                         }`}
                       >
-                        {icon}
-                      </div>
-                      <span
-                        className={`text-xs sm:text-sm font-semibold text-center leading-tight ${
-                          isSelected
-                            ? "text-[#F49B33] dark:text-[#ffd4a6]"
-                            : "text-slate-700 dark:text-slate-200"
-                        }`}
-                      >
-                        {category.name}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
+                        <div className="flex flex-col items-center space-y-2">
+                          <div
+                            className={`w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center transition-all ${
+                              isSelected
+                                ? "bg-[#F49B33] text-white"
+                                : "bg-[#fff8f1] dark:bg-[#3a2415] text-[#F49B33] group-hover:bg-[#F49B33] group-hover:text-white"
+                            }`}
+                          >
+                            {icon}
+                          </div>
+                          <span
+                            className={`text-xs sm:text-sm font-semibold text-center leading-tight ${
+                              isSelected
+                                ? "text-[#F49B33] dark:text-[#ffd4a6]"
+                                : "text-slate-700 dark:text-slate-200"
+                            }`}
+                          >
+                            {category.name}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
             </div>
           </div>
         </div>

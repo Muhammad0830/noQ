@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
-import { Search, SlidersHorizontal } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useLanguage } from '@/contexts/LanguageContext';
-import barbershopBanner from '../../assets/Barbershop.png';
-import dentalClinicBanner from '../../assets/Dental clinic.png';
+import React, { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { Search, SlidersHorizontal } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useLanguage } from "@/contexts/LanguageContext";
+import barbershopBanner from "../../assets/Barbershop.png";
+import dentalClinicBanner from "../../assets/Dental clinic.png";
 
 interface HeroSectionProps {
   onSearch?: (query: string, location: string) => void;
@@ -20,20 +20,20 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
 
   const banners = [
     {
-      id: 'barbershop',
+      id: "barbershop",
       image: barbershopBanner,
-      alt: t('hero.banner.barbershop.alt'),
-      badge: t('hero.banner.barbershop.badge'),
-      title: t('hero.banner.barbershop.title'),
-      subtitle: t('hero.banner.barbershop.subtitle'),
+      alt: t("hero.banner.barbershop.alt"),
+      badge: t("hero.banner.barbershop.badge"),
+      title: t("hero.banner.barbershop.title"),
+      subtitle: t("hero.banner.barbershop.subtitle"),
     },
     {
-      id: 'dental-clinic',
+      id: "dental-clinic",
       image: dentalClinicBanner,
-      alt: t('hero.banner.dental.alt'),
-      badge: t('hero.banner.dental.badge'),
-      title: t('hero.banner.dental.title'),
-      subtitle: t('hero.banner.dental.subtitle'),
+      alt: t("hero.banner.dental.alt"),
+      badge: t("hero.banner.dental.badge"),
+      title: t("hero.banner.dental.title"),
+      subtitle: t("hero.banner.dental.subtitle"),
     },
   ];
 
@@ -79,7 +79,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
   };
 
   const openDiscover = () => {
-    router.push('/discover?focus=search');
+    router.push("/discover?focus=search");
   };
 
   return (
@@ -90,7 +90,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
             <Search className="h-5 w-5 text-[#F49B33] dark:text-[#F49B33]" />
             <input
               type="text"
-              placeholder={t('hero.search.placeholder')}
+              placeholder={t("hero.search.placeholder")}
               readOnly
               onClick={openDiscover}
               onFocus={openDiscover}
@@ -100,7 +100,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
               type="button"
               onClick={openDiscover}
               className="rounded-lg bg-[#fff3e6] p-2 text-[#F49B33] transition hover:bg-[#fce2c4]"
-              aria-label={t('filter.title')}
+              aria-label={t("filter.title")}
             >
               <SlidersHorizontal className="h-4 w-4" />
             </button>
@@ -160,10 +160,10 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
               onClick={() => goToBanner(index)}
               className={`h-1.5 rounded-full transition-all ${
                 activeBanner === index
-                  ? 'w-5 bg-[#F49B33] dark:bg-[#F49B33]'
-                  : 'w-1.5 bg-gray-300 dark:bg-gray-600'
+                  ? "w-5 bg-[#F49B33] dark:bg-[#F49B33]"
+                  : "w-1.5 bg-gray-300 dark:bg-gray-600"
               }`}
-              aria-label={t('hero.goToBanner', { index: index + 1 })}
+              aria-label={t("hero.goToBanner", { index: index + 1 })}
             />
           ))}
         </div>
