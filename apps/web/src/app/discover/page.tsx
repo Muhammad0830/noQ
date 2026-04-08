@@ -250,6 +250,7 @@ export default function DiscoverServices() {
     popularServices,
     searchTerm,
     appliedMinPrice,
+    appliedCategories,
     appliedMaxPrice,
     DEFAULT_MIN_PRICE,
     DEFAULT_MAX_PRICE,
