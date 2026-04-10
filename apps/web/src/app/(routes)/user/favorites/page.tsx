@@ -66,7 +66,7 @@ export default function MyFavorites() {
             <h3 className="text-xl font-semibold text-gray-600 mb-2">{t('favorites.emptyTitle')}</h3>
             <p className="text-gray-500 mb-6">{t('favorites.emptyDescription')}</p>
             <Link 
-              href="/discover"
+              href="/user/discover"
               className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               {t('favorites.discoverServices')}
@@ -80,7 +80,7 @@ export default function MyFavorites() {
                   <div className="w-40 h-40 bg-gray-200 shrink-0"></div>
                   <div className="flex-1 p-4">
                     <div className="flex justify-between items-start mb-2">
-                      <Link href={`/shop/${shop.id}`} className="font-bold text-lg hover:text-blue-600">
+                      <Link href={`/user/shop/${shop.id}`} className="font-bold text-lg hover:text-blue-600">
                         {shop.name}
                       </Link>
                       <button 
@@ -116,13 +116,13 @@ export default function MyFavorites() {
 
                     <div className="flex gap-2 mt-auto">
                       <Link 
-                        href={`/shop/${shop.id}`}
+                        href={`/user/shop/${shop.id}`}
                         className="flex-1 text-center py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 text-sm"
                       >
                         {t('favorites.view')}
                       </Link>
                       <Link 
-                        href={`/book/${shop.id}`}
+                        href={`/user/book/${shop.id}`}
                         className="flex-1 text-center py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
                       >
                         {t('favorites.book')}

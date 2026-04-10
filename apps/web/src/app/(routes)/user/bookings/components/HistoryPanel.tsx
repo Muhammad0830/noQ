@@ -187,7 +187,7 @@ export default function HistoryPanel({
                       {t("history.rateService")}
                     </button>
                     <Link
-                      href={`/book/${booking.id}`}
+                      href={`/user/book/${booking.id}`}
                       className="flex h-9 flex-1 items-center justify-center rounded-full border border-slate-300 bg-white text-xs font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-white/15 dark:bg-white/6 dark:text-slate-200 dark:hover:bg-white/10"
                     >
                       {t("history.rebook")}

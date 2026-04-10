@@ -213,7 +213,7 @@ export default function OngoingPanel({
 
           <div className="flex items-center gap-2">
             <Link
-              href={`/bookings/directions`}
+              href={`/user/bookings/directions`}
               className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[#F49B33] text-sm font-semibold text-white shadow-[0_10px_24px_rgba(244,155,51,0.35)] transition hover:bg-[#e28a20] dark:bg-[#F49B33] dark:text-white dark:shadow-[0_10px_26px_rgba(244,155,51,0.35)] dark:hover:bg-[#e28a20]"
             >
               <Navigation className="h-4 w-4" />

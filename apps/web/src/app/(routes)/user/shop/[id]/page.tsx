@@ -352,7 +352,7 @@ export default function ShopProfile({
                       </p>
                     </div>
                     <Link
-                      href={`/book/${id}?service=${service.id}`}
+                      href={`/user/book/${id}?service=${service.id}`}
                       className="px-4 sm:px-6 py-2 bg-teal-500 dark:bg-teal-600 text-white text-xs sm:text-sm font-medium rounded-full hover:bg-teal-600 dark:hover:bg-teal-700 transition whitespace-nowrap"
                     >
                       {t("shops.book")}

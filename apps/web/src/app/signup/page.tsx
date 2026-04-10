@@ -449,14 +449,14 @@ export default function SignUp() {
               <span className="text-sm text-gray-600 dark:text-gray-400">
                 Men{" "}
                 <Link
-                  href="/terms"
+                  href="/user/terms"
                   className="text-blue-600 dark:text-blue-400 hover:underline"
                 >
                   Foydalanish shartlari
                 </Link>{" "}
                 va{" "}
                 <Link
-                  href="/privacy"
+                  href="/user/privacy"
                   className="text-blue-600 dark:text-blue-400 hover:underline"
                 >
                   Maxfiylik siyosati

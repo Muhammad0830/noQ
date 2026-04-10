@@ -24,28 +24,28 @@ export default function BottomNav() {
 
   const navItems: NavItem[] = [
     {
-      href: '/',
+      href: '/user',
       label: t('bottomNav.home'),
       icon: <Home className="w-6 h-6" />,
-      activePatterns: ['^/$'],
+      activePatterns: ['^/user$', '^/user/home'],
     },
     {
-      href: '/discover',
+      href: '/user/discover',
       label: t('bottomNav.search'),
       icon: <Search className="w-6 h-6" />,
-      activePatterns: ['^/discover'],
+      activePatterns: ['^/user/discover'],
     },
     {
-      href: '/bookings',
+      href: '/user/bookings',
       label: t('bottomNav.history'),
       icon: <History className="w-6 h-6" />,
-      activePatterns: ['^/bookings'],
+      activePatterns: ['^/user/bookings'],
     },
     {
-      href: '/profile',
+      href: '/user/profile',
       label: t('bottomNav.profile'),
       icon: <User className="w-6 h-6" />,
-      activePatterns: ['^/profile', '^/settings'],
+      activePatterns: ['^/user/profile', '^/user/settings'],
     },
   ];
 

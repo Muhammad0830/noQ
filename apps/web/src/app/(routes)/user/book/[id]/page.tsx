@@ -229,7 +229,7 @@ export default function BookingPage({
       });
 
       alert(t("booking.success"));
-      window.location.href = "/bookings";
+      window.location.href = "/user/bookings";
     } catch {
       alert(t("booking.error"));
     }

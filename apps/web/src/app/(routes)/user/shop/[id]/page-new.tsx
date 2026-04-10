@@ -88,7 +88,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
   };
 
   const handleBooking = (service: any) => {
-    router.push(`/book/${params.id}?service=${service.id}`);
+    router.push(`/user/book/${params.id}?service=${service.id}`);
   };
 
   const formatPrice = (price: number) => {
@@ -342,7 +342,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
               
               <div className="space-y-4">
                 <button
-                  onClick={() => router.push(`/book/${params.id}`)}
+                  onClick={() => router.push(`/user/book/${params.id}`)}
                   className="w-full px-6 py-4 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2"
                 >
                   <CalendarIcon className="w-5 h-5" />

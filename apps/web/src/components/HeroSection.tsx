@@ -79,7 +79,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
   };
 
   const openDiscover = () => {
-    router.push("/discover?focus=search");
+    router.push("/user/discover?focus=search");
   };
 
   return (

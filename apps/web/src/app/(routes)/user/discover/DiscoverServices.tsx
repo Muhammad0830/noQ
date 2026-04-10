@@ -413,7 +413,7 @@ export default function DiscoverServices() {
 
     return (
       <Link
-        href={`/shop/${shop.id}`}
+        href={`/user/shop/${shop.id}`}
         className={`group flex items-center gap-3 px-2 py-3 ${isLast ? "" : "border-b border-slate-200/70 dark:border-slate-800/80"}`}
       >
         <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-slate-200 dark:bg-slate-800">
@@ -764,8 +764,8 @@ export default function DiscoverServices() {
                         key={item.id}
                         href={
                           targetShopId
-                            ? `/book/${targetShopId}?service=${item.id}`
-                            : "/discover"
+                            ? `/user/book/${targetShopId}?service=${item.id}`
+                            : "/user/discover"
                         }
                         className="block border-b border-slate-200/70 py-4 last:border-b-0 dark:border-slate-800/80"
                       >

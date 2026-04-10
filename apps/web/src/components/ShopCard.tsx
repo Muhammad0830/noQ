@@ -126,7 +126,7 @@ const shopCard: React.FC<ShopCardProps> = ({
   const imageUrl = rawImage ? getImageUrl(rawImage, "shop_images") : null;
 
   return (
-    <Link href={`/shop/${shopId}`} className="block">
+    <Link href={`/user/shop/${shopId}`} className="block">
       <div className="group overflow-hidden rounded-3xl border border-[#f1c894] bg-linear-to-br from-[#fff8f0] via-white to-[#f6e4cd] shadow-sm transition-all duration-300 hover:shadow-[0_18px_36px_rgba(244,155,51,0.18)] dark:border-[#F49B33]/20 dark:from-[#2b170b] dark:via-[#211201] dark:to-[#1a0e06] dark:shadow-none">
         {/* Image Section */}
         <div className="relative h-52 overflow-hidden">
