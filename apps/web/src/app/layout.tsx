@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ProviderModeProvider } from "@/contexts/ProviderModeContext";
 import Providers from "@/contexts/ReactQueryProvider";
 import AppShell from "@/components/AppShell";
 
@@ -36,7 +37,9 @@ export default function RootLayout({
           <ThemeProvider>
             <LanguageProvider>
               <AuthProvider>
-                <AppShell>{children}</AppShell>
+                <ProviderModeProvider>
+                  <AppShell>{children}</AppShell>
+                </ProviderModeProvider>
               </AuthProvider>
             </LanguageProvider>
           </ThemeProvider>

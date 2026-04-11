@@ -34,7 +34,7 @@ export default function AddNewService() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="bg-gray-50 py-8 pb-24">
       <div className="container mx-auto px-4 max-w-3xl">
         <div className="mb-6">
           <button onClick={() => router.back()} className="text-blue-600 hover:underline mb-2">

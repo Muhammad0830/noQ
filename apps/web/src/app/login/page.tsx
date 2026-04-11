@@ -6,11 +6,13 @@ import { useRouter } from "next/navigation";
 import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useProviderMode } from "@/contexts/ProviderModeContext";
 
 export default function Login() {
   const router = useRouter();
   const { login } = useAuth();
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -19,6 +21,8 @@ export default function Login() {
     password: "",
     remember: false,
   });
+  const [selectedRole, setSelectedRole] = useState<"user" | "admin">("user");
+  const { setProviderMode } = useProviderMode();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +31,14 @@ export default function Login() {
 
     try {
       await login(formData.email, formData.password, formData.remember);
-      router.push("/");
+      if (selectedRole === "admin") {
+        try {
+          setProviderMode(true);
+        } catch {}
+        router.push("/admin");
+      } else {
+        router.push("/user");
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : t("auth.invalidCredentials"),
@@ -58,7 +69,37 @@ export default function Login() {
           </p>
         </div>
 
-        <div className="rounded-2xl bg-white p-5 shadow-lg dark:bg-gray-800 sm:p-8">
+        <div className="relative rounded-2xl bg-white p-5 shadow-lg dark:bg-gray-800 sm:p-8">
+          <div className="absolute right-3 top-3">
+            <LanguageSwitcher />
+          </div>
+          {/* Role selection buttons */}
+          <div className="mb-4 flex items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => setSelectedRole("user")}
+              disabled={isLoading}
+              className={`px-4 py-2 rounded-lg font-medium transition ${
+                selectedRole === "user"
+                  ? "bg-[#F49B33] text-white"
+                  : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+              }`}
+            >
+              {t("auth.roleUser") || "User"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedRole("admin")}
+              disabled={isLoading}
+              className={`px-4 py-2 rounded-lg font-medium transition ${
+                selectedRole === "admin"
+                  ? "bg-[#F49B33] text-white"
+                  : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+              }`}
+            >
+              {t("auth.roleAdmin") || "Admin"}
+            </button>
+          </div>
           {/* Error Message */}
           {error && (
             <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">

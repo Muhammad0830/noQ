@@ -9,6 +9,8 @@ import {
   History,
   User,
 } from 'lucide-react';
+import { useProviderMode } from '@/contexts/ProviderModeContext';
+import { Scissors, BarChart2, History as HistoryIcon } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface NavItem {
@@ -56,30 +58,85 @@ export default function BottomNav() {
     });
   };
 
+  const adminNavItems: NavItem[] = [
+    {
+      href: '/admin',
+      label: t('bottomNav.adminDash') || 'Dash',
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.5}
+          className="w-6 h-6"
+        >
+          <rect x="3" y="3" width="7" height="7" rx="1.5" />
+          <rect x="14" y="3" width="7" height="7" rx="1.5" />
+          <rect x="3" y="14" width="7" height="7" rx="1.5" />
+          <rect x="14" y="14" width="7" height="7" rx="1.5" />
+        </svg>
+      ),
+      activePatterns: ['^/admin$'],
+    },
+    {
+      href: '/admin/services',
+      label: t('bottomNav.services'),
+      icon: <Scissors className="w-6 h-6" />,
+      activePatterns: ['^/admin/services'],
+    },
+    {
+      href: '/admin/staff',
+      label: t('bottomNav.history'),
+      icon: <HistoryIcon className="w-6 h-6" />,
+      activePatterns: ['^/admin/staff'],
+    },
+    {
+      href: '/admin/analytics',
+      label: t('bottomNav.adminAnalytics') || 'Analytics',
+      icon: <BarChart2 className="w-6 h-6" />,
+      activePatterns: ['^/admin/analytics'],
+    },
+    {
+      href: '/user/profile',
+      label: t('bottomNav.profile'),
+      icon: <User className="w-6 h-6" />,
+      activePatterns: ['^/user/profile'],
+    },
+  ];
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-40 md:hidden">
       <div className="flex h-16">
-        {navItems.map((item) => {
-          const active = isActive(item.activePatterns);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-1 transition-colors ${
-                active
-                  ? 'text-blue-600 dark:text-blue-400'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              <div className={active ? 'text-blue-600 dark:text-blue-400' : ''}>
-                {item.icon}
-              </div>
-              <span className="text-xs font-medium whitespace-nowrap">
-                {item.label}
-              </span>
-            </Link>
-          );
-        })}
+        {(() => {
+          const { providerMode } = useProviderMode();
+          const useAdmin =
+            providerMode &&
+            (pathname.startsWith('/user/profile') || pathname.startsWith('/admin'));
+          const items = useAdmin ? adminNavItems : navItems;
+
+          return items.map((item) => {
+            const active = isActive(item.activePatterns);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-1 transition-colors ${
+                  active
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                <div className={active ? 'text-blue-600 dark:text-blue-400' : ''}>
+                  {item.icon}
+                </div>
+                <span className="text-xs font-medium whitespace-nowrap">
+                  {item.label}
+                </span>
+              </Link>
+            );
+          });
+        })()}
       </div>
     </nav>
   );
