@@ -27,29 +27,9 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="bg-gray-50 py-8 pb-24">
       {/* Header */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-            <div className="flex gap-4">
-              <Link href="/admin/bookings" className="px-4 py-2 border rounded-lg hover:bg-gray-50">
-                Bookings
-              </Link>
-              <Link href="/admin/services" className="px-4 py-2 border rounded-lg hover:bg-gray-50">
-                Services
-              </Link>
-              <Link href="/admin/staff" className="px-4 py-2 border rounded-lg hover:bg-gray-50">
-                Staff
-              </Link>
-              <Link href="/admin/analytics" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                Analytics
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+     
 
       <div className="container mx-auto px-4 py-8">
         {/* Stats Grid */}

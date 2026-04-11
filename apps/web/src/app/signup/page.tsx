@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { User, Mail, Lock, Eye, EyeOff, Phone, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { API_ENDPOINTS } from "@/lib/api";
 
 type FieldErrors = {
@@ -18,7 +19,7 @@ type FieldErrors = {
 export default function SignUp() {
   const router = useRouter();
   const { signup } = useAuth();
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -47,23 +48,23 @@ export default function SignUp() {
 
   const validateEmail = (email: string) => {
     const value = email.trim();
-    if (!value) return "Email kiriting";
-    if (value.includes(" ")) return "Email ichida bo'sh joy bo'lmasligi kerak";
-    if (!value.includes("@")) return "Emailda @ belgisi yo'q";
+    if (!value) return t('signup.validation.email.required');
+    if (value.includes(' ')) return t('signup.validation.email.noSpace');
+    if (!value.includes('@')) return t('signup.validation.email.noAt');
 
-    const [localPart, domainPart] = value.split("@");
-    if (!localPart) return "@ dan oldingi qism to'ldirilmagan";
-    if (!domainPart) return "@ dan keyingi domen qismi yo'q";
-    if (!domainPart.includes(".")) {
-      return "Domen qismida nuqta yo'q (masalan: .com yoki .uz)";
+    const [localPart, domainPart] = value.split('@');
+    if (!localPart) return t('signup.validation.email.localMissing');
+    if (!domainPart) return t('signup.validation.email.domainMissing');
+    if (!domainPart.includes('.')) {
+      return t('signup.validation.email.noDot');
     }
 
-    const domainSuffix = domainPart.split(".").pop() || "";
+    const domainSuffix = domainPart.split('.').pop() || '';
     if (domainSuffix.length < 2) {
-      return "Email oxiri noto'g'ri (masalan: .com yoki .uz bo'lishi kerak)";
+      return t('signup.validation.email.suffixShort');
     }
 
-    return "";
+    return '';
   };
 
   const validateUzPhone = (phone: string) => {
@@ -84,35 +85,33 @@ export default function SignUp() {
       "99",
     ];
 
-    if (!value) return "Telefon raqam kiriting";
-    if (!value.startsWith("+"))
-      return "Telefon raqam + belgisi bilan boshlanishi kerak";
-    if (!value.startsWith("+998"))
-      return "Telefon raqam +998 bilan boshlanishi kerak";
+    if (!value) return t('signup.validation.phone.required');
+    if (!value.startsWith('+')) return t('signup.validation.phone.plus');
+    if (!value.startsWith('+998')) return t('signup.validation.phone.startsWith998');
 
-    const rest = value.slice(4).replace(/[\s()-]/g, "");
+    const rest = value.slice(4).replace(/[\s()-]/g, '');
     if (!/^\d*$/.test(rest)) {
-      return "+998 dan keyin faqat raqam kiriting";
+      return t('signup.validation.phone.invalidChars');
     }
 
     if (rest.length < 2) {
-      return "Telefon kompaniya kodi yo'q (masalan: 90, 91, 93...)";
+      return t('signup.validation.phone.noOperatorCode');
     }
 
     const operatorCode = rest.slice(0, 2);
     if (!allowedOperatorCodes.includes(operatorCode)) {
-      return "Telefon kompaniya kodi noto'g'ri";
+      return t('signup.validation.phone.invalidOperator');
     }
 
     if (rest.length < 9) {
-      return "Kompaniya kodidan keyin 7 ta raqam to'liq kiritilishi kerak";
+      return t('signup.validation.phone.lengthShort');
     }
 
     if (rest.length > 9) {
-      return "Telefon raqam uzunligi noto'g'ri (ortiqcha raqam bor)";
+      return t('signup.validation.phone.lengthLong');
     }
 
-    return "";
+    return '';
   };
 
   const checkEmailAlreadyRegistered = async (email: string) => {
@@ -143,7 +142,7 @@ export default function SignUp() {
       if (exists) {
         setFieldErrors((prev) => ({
           ...prev,
-          email: "Bu email avval ro'yxatdan o'tgan",
+          email: t('signup.email.exists'),
         }));
       }
     } finally {
@@ -157,11 +156,11 @@ export default function SignUp() {
     const phoneError = validateUzPhone(formData.phone);
     const confirmPasswordError =
       formData.password !== formData.confirmPassword
-        ? "Tasdiqlash paroli noto'g'ri"
+        ? t('signup.validation.confirmPassword')
         : "";
     const acceptTermsError = formData.acceptTerms
       ? ""
-      : "Shartlarni qabul qilishingiz kerak";
+      : t('signup.validation.acceptTerms');
 
     const nextFieldErrors: FieldErrors = {
       email: emailError,
@@ -173,7 +172,7 @@ export default function SignUp() {
     setFieldErrors(nextFieldErrors);
 
     if (Object.values(nextFieldErrors).some(Boolean)) {
-      setError("Formadagi xatolarni to'g'rilang");
+      setError(t('signup.validation.fixErrors'));
       return;
     }
 
@@ -187,9 +186,9 @@ export default function SignUp() {
       if (emailExists) {
         setFieldErrors((prev) => ({
           ...prev,
-          email: "Bu email avval ro'yxatdan o'tgan",
+          email: t('signup.email.exists'),
         }));
-        setError("Bu email avval ro'yxatdan o'tgan");
+        setError(t('signup.email.exists'));
         return;
       }
 
@@ -209,14 +208,10 @@ export default function SignUp() {
       ) {
         setFieldErrors((prev) => ({
           ...prev,
-          email: "Bu email avval ro'yxatdan o'tgan",
+          email: t('signup.email.exists'),
         }));
       }
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Ro'yxatdan o'tishda xatolik yuz berdi",
-      );
+      setError(err instanceof Error ? err.message : t('signup.error.general'));
     } finally {
       setIsLoading(false);
     }
@@ -239,11 +234,26 @@ export default function SignUp() {
             {t("nav.signup")}
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
-            Xizmatlardan foydalanishni boshlang
+            {t('signup.subtitle')}
           </p>
         </div>
 
-        <div className="rounded-2xl bg-white p-5 shadow-lg dark:bg-gray-800 sm:p-8">
+        <div className="relative rounded-2xl bg-white p-5 shadow-lg dark:bg-gray-800 sm:p-8">
+          {/* Language toggle (cycles supported langs) */}
+          <div className="absolute right-3 top-3">
+            <button
+              type="button"
+              onClick={() => {
+                const langs: Array<typeof language> = ["uz-latn", "uz-cyrl", "ru"];
+                const idx = langs.indexOf(language);
+                const next = langs[(idx + 1) % langs.length];
+                setLanguage(next);
+              }}
+              className="rounded-md border px-2 py-1 text-xs bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600"
+            >
+              {language === 'uz-latn' ? "UZ" : language === 'uz-cyrl' ? "ЎЗ" : "RU"}
+            </button>
+          </div>
           {/* Error Message */}
           {error && (
             <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
@@ -259,7 +269,7 @@ export default function SignUp() {
             {/* Full Name */}
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-                To&apos;liq ism
+                {t('signup.fullName')}
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
@@ -270,7 +280,7 @@ export default function SignUp() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  placeholder="Ismingiz"
+                  placeholder={t('signup.fullNamePlaceholder')}
                   className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
                   disabled={isLoading}
                 />
@@ -280,7 +290,7 @@ export default function SignUp() {
             {/* Email */}
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-                Email
+                {t('auth.email')}
               </label>
               {fieldErrors.email && (
                 <p className="mb-2 text-xs font-medium text-red-600 dark:text-red-400">
@@ -289,7 +299,7 @@ export default function SignUp() {
               )}
               {isCheckingEmail && !fieldErrors.email && (
                 <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
-                  Email tekshirilmoqda...
+                  {t('signup.checkingEmail')}
                 </p>
               )}
               <div className="relative">
@@ -310,7 +320,7 @@ export default function SignUp() {
                       }));
                     }
                   }}
-                  placeholder="your@email.com"
+                  placeholder={t('auth.emailPlaceholder')}
                   className={getInputClass(!!fieldErrors.email)}
                   disabled={isLoading}
                 />
@@ -320,7 +330,7 @@ export default function SignUp() {
             {/* Phone */}
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-                Telefon raqam
+                {t('signup.phone')}
               </label>
               {fieldErrors.phone && (
                 <p className="mb-2 text-xs font-medium text-red-600 dark:text-red-400">
@@ -349,7 +359,7 @@ export default function SignUp() {
                       }));
                     }
                   }}
-                  placeholder="+998 90 123 45 67"
+                  placeholder={t('signup.phonePlaceholder')}
                   className={getInputClass(!!fieldErrors.phone)}
                   disabled={isLoading}
                 />
@@ -359,7 +369,7 @@ export default function SignUp() {
             {/* Password */}
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-                Parol
+                {t('auth.password')}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
@@ -371,7 +381,7 @@ export default function SignUp() {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  placeholder="Kuchli parol yarating"
+                  placeholder={t('signup.passwordPlaceholder')}
                   className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg pl-10 pr-12 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
                   disabled={isLoading}
                 />
@@ -392,7 +402,7 @@ export default function SignUp() {
             {/* Confirm Password */}
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-                Parolni tasdiqlash
+                {t('signup.confirmPassword')}
               </label>
               {fieldErrors.confirmPassword && (
                 <p className="mb-2 text-xs font-medium text-red-600 dark:text-red-400">
@@ -418,12 +428,12 @@ export default function SignUp() {
                         ...prev,
                         confirmPassword:
                           formData.password === value
-                            ? ""
-                            : "Tasdiqlash paroli noto'g'ri",
+                            ? ''
+                            : t('signup.validation.confirmPassword'),
                       }));
                     }
                   }}
-                  placeholder="Parolni qayta kiriting"
+                  placeholder={t('signup.confirmPasswordPlaceholder')}
                   className={getInputClass(!!fieldErrors.confirmPassword)}
                   disabled={isLoading}
                 />
@@ -479,10 +489,10 @@ export default function SignUp() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Yuklanmoqda...</span>
+                  <span>{t('common.loading')}</span>
                 </>
               ) : (
-                <span>Ro&apos;yxatdan o&apos;tish</span>
+                <span>{t('signup.submit')}</span>
               )}
             </button>
           </form>
@@ -494,7 +504,7 @@ export default function SignUp() {
               href="/login"
               className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"
             >
-              Kirish
+              {t('nav.signin')}
             </Link>
           </p>
         </div>

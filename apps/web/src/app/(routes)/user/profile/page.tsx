@@ -25,6 +25,7 @@ import type { Language } from "@shared/types/general_types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useProviderMode } from "@/contexts/ProviderModeContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getImageUrl } from "@/lib/supabaseClient";
 
@@ -60,7 +61,7 @@ export default function ProfilePage() {
   const [preview, setPreview] = useState<string | null>(null);
   const [isSavingImage, setIsSavingImage] = useState(false);
 
-  const [isProviderModeEnabled, setIsProviderModeEnabled] = useState(false);
+  const { providerMode, setProviderMode } = useProviderMode();
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
@@ -310,20 +311,20 @@ export default function ProfilePage() {
 
             <button
               type="button"
-              onClick={() => setIsProviderModeEnabled((prev) => !prev)}
+              onClick={() => setProviderMode((prev) => !prev)}
               className={`relative h-7 w-12 rounded-full border transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F49B33]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
-                isProviderModeEnabled
-                  ? "border-[#F49B33]/60 bg-[#F49B33]/25 dark:border-[#F49B33]/70 dark:bg-[#F49B33]/35"
-                  : "border-slate-300 bg-slate-200 dark:border-white/25 dark:bg-white/10"
+                  providerMode
+                    ? "border-[#F49B33]/60 bg-[#F49B33]/25 dark:border-[#F49B33]/70 dark:bg-[#F49B33]/35"
+                    : "border-slate-300 bg-slate-200 dark:border-white/25 dark:bg-white/10"
               }`}
               aria-label={t("profile.toggleProviderMode")}
-              aria-pressed={isProviderModeEnabled}
+                aria-pressed={providerMode}
             >
               <span
                 className={`absolute top-0.75 h-5 w-5 rounded-full ring-1 transition-all duration-200 ${
-                  isProviderModeEnabled
-                    ? "left-6 bg-[#F49B33] ring-[#F49B33]/60 dark:bg-[#F49B33] dark:ring-[#F49B33]/70"
-                    : "left-1 bg-white ring-slate-300 dark:bg-slate-100 dark:ring-white/35"
+                    providerMode
+                      ? "left-6 bg-[#F49B33] ring-[#F49B33]/60 dark:bg-[#F49B33] dark:ring-[#F49B33]/70"
+                      : "left-1 bg-white ring-slate-300 dark:bg-slate-100 dark:ring-white/35"
                 }`}
               />
             </button>
