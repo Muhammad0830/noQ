@@ -16,8 +16,10 @@ interface LanguageContextType {
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
 const supportedLanguages: Language[] = ['uz-latn', 'uz-cyrl', 'ru'];
 const fallbackLanguage: Language = 'uz-latn';
+
 const localeByLanguage: Record<Language, string> = {
   'uz-latn': 'uz-UZ',
   'uz-cyrl': 'uz-Cyrl-UZ',
@@ -25,24 +27,33 @@ const localeByLanguage: Record<Language, string> = {
 };
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>(
-    (i18n.language as Language) || 'uz-latn',
-  );
+  const [language, setLanguageState] = useState<Language>('uz-latn');
+  const [mounted, setMounted] = useState(false);
   const [, setI18nTick] = useState(0);
 
+  // ✅ mount bo‘lishini kutamiz
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // ✅ localStorage + i18n sync
   useEffect(() => {
     const savedLang = localStorage.getItem('language') as Language | null;
-    if (savedLang && supportedLanguages.includes(savedLang) && savedLang !== i18n.language) {
-      void i18n.changeLanguage(savedLang);
-      setLanguageState(savedLang);
-      return;
-    }
 
-    if (supportedLanguages.includes(i18n.language as Language)) {
-      setLanguageState(i18n.language as Language);
+    if (savedLang && supportedLanguages.includes(savedLang)) {
+      setLanguageState(savedLang);
+      if (i18n.language !== savedLang) {
+        void i18n.changeLanguage(savedLang);
+      }
+    } else {
+      const current = i18n.language as Language;
+      if (supportedLanguages.includes(current)) {
+        setLanguageState(current);
+      }
     }
   }, []);
 
+  // ✅ i18n eventlar
   useEffect(() => {
     const onLanguageChanged = (lng: string) => {
       if (supportedLanguages.includes(lng as Language)) {
@@ -57,6 +68,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     i18n.on('languageChanged', onLanguageChanged);
     i18n.on('initialized', onI18nReady);
     i18n.on('loaded', onI18nReady);
+
     return () => {
       i18n.off('languageChanged', onLanguageChanged);
       i18n.off('initialized', onI18nReady);
@@ -64,6 +76,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  // ✅ html lang sync
   useEffect(() => {
     const htmlLangMap: Record<Language, string> = {
       'uz-latn': 'uz-Latn',
@@ -82,16 +95,17 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const t = (key: string, params?: TranslationParams): string => {
     const message = i18n.t(key, params as Record<string, string | number> | undefined);
+
     if (typeof message === 'string' && message !== key) {
       return message;
     }
 
     const dictionaryMessage =
-      translations[language]?.[key] ?? translations[fallbackLanguage]?.[key] ?? key;
+      translations[language]?.[key] ??
+      translations[fallbackLanguage]?.[key] ??
+      key;
 
-    if (!params) {
-      return dictionaryMessage;
-    }
+    if (!params) return dictionaryMessage;
 
     return Object.entries(params).reduce((acc, [paramKey, paramValue]) => {
       const pattern = new RegExp(`{{\\s*${paramKey}\\s*}}`, 'g');
@@ -100,6 +114,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   const locale = localeByLanguage[language];
+
+  // ❗ ENG MUHIM QATOR
+  if (!mounted) return null;
 
   return (
     <I18nextProvider i18n={i18n}>
