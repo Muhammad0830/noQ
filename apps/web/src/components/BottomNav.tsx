@@ -1,17 +1,12 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import {
-  Home,
-  Search,
-  History,
-  User,
-} from 'lucide-react';
-import { useProviderMode } from '@/contexts/ProviderModeContext';
-import { Scissors, BarChart2, History as HistoryIcon } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Home, Search, History, User } from "lucide-react";
+import { useProviderMode } from "@/contexts/ProviderModeContext";
+import { Scissors, BarChart2, History as HistoryIcon } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface NavItem {
   href: string;
@@ -20,48 +15,12 @@ interface NavItem {
   activePatterns: string[];
 }
 
-export default function BottomNav() {
-  const pathname = usePathname();
-  const { t } = useLanguage();
-
-  const navItems: NavItem[] = [
+// eslint-disable-next-line
+const adminNavItems = (t: any) => {
+  return [
     {
-      href: '/user',
-      label: t('bottomNav.home'),
-      icon: <Home className="w-6 h-6" />,
-      activePatterns: ['^/user$', '^/user/home'],
-    },
-    {
-      href: '/user/discover',
-      label: t('bottomNav.search'),
-      icon: <Search className="w-6 h-6" />,
-      activePatterns: ['^/user/discover'],
-    },
-    {
-      href: '/user/bookings',
-      label: t('bottomNav.history'),
-      icon: <History className="w-6 h-6" />,
-      activePatterns: ['^/user/bookings'],
-    },
-    {
-      href: '/user/profile',
-      label: t('bottomNav.profile'),
-      icon: <User className="w-6 h-6" />,
-      activePatterns: ['^/user/profile', '^/user/settings'],
-    },
-  ];
-
-  const isActive = (patterns: string[]) => {
-    return patterns.some((pattern) => {
-      const regex = new RegExp(pattern);
-      return regex.test(pathname);
-    });
-  };
-
-  const adminNavItems: NavItem[] = [
-    {
-      href: '/admin',
-      label: t('bottomNav.adminDash') || 'Dash',
+      href: "/admin",
+      label: t("bottomNav.adminDash") || "Dash",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -77,56 +36,105 @@ export default function BottomNav() {
           <rect x="14" y="14" width="7" height="7" rx="1.5" />
         </svg>
       ),
-      activePatterns: ['^/admin$'],
+      activePatterns: ["^/admin$"],
     },
     {
-      href: '/admin/services',
-      label: t('bottomNav.services'),
+      href: "/admin/services",
+      label: t("bottomNav.services"),
       icon: <Scissors className="w-6 h-6" />,
-      activePatterns: ['^/admin/services'],
+      activePatterns: ["^/admin/services"],
     },
     {
-      href: '/admin/staff',
-      label: t('bottomNav.history'),
+      href: "/admin/staff",
+      label: t("bottomNav.history"),
       icon: <HistoryIcon className="w-6 h-6" />,
-      activePatterns: ['^/admin/staff'],
+      activePatterns: ["^/admin/staff"],
     },
     {
-      href: '/admin/analytics',
-      label: t('bottomNav.adminAnalytics') || 'Analytics',
+      href: "/admin/analytics",
+      label: t("bottomNav.adminAnalytics") || "Analytics",
       icon: <BarChart2 className="w-6 h-6" />,
-      activePatterns: ['^/admin/analytics'],
+      activePatterns: ["^/admin/analytics"],
     },
     {
-      href: '/user/profile',
-      label: t('bottomNav.profile'),
+      href: "/user/profile",
+      label: t("bottomNav.profile"),
       icon: <User className="w-6 h-6" />,
-      activePatterns: ['^/user/profile'],
+      activePatterns: ["^/user/profile"],
     },
-  ];
+  ] as NavItem[];
+};
+
+// eslint-disable-next-line
+const navItems = (t: any) => {
+  return [
+    {
+      href: "/user",
+      label: t("bottomNav.home"),
+      icon: <Home className="w-6 h-6" />,
+      activePatterns: ["^/user$", "^/user/home"],
+    },
+    {
+      href: "/user/discover",
+      label: t("bottomNav.search"),
+      icon: <Search className="w-6 h-6" />,
+      activePatterns: ["^/user/discover"],
+    },
+    {
+      href: "/user/bookings",
+      label: t("bottomNav.history"),
+      icon: <History className="w-6 h-6" />,
+      activePatterns: ["^/user/bookings"],
+    },
+    {
+      href: "/user/profile",
+      label: t("bottomNav.profile"),
+      icon: <User className="w-6 h-6" />,
+      activePatterns: ["^/user/profile", "^/user/settings"],
+    },
+  ] as NavItem[];
+};
+
+export default function BottomNav() {
+  const pathname = usePathname();
+  const { t } = useLanguage();
+
+  const { providerMode } = useProviderMode();
+  const useAdmin =
+    providerMode &&
+    (pathname.startsWith("/user/profile") || pathname.startsWith("/admin"));
+
+  const userClass = `absolute inset-0 flex h-16 transition-transform duration-300 ease-in-out items-center ${
+    useAdmin
+      ? "translate-y-full opacity-0 pointer-events-none"
+      : "translate-y-0 opacity-100"
+  }`;
+
+  const adminClass = `absolute inset-0 flex h-16 transition-transform duration-300 ease-in-out items-center ${
+    useAdmin
+      ? "translate-y-0 opacity-100"
+      : "translate-y-full opacity-0 pointer-events-none"
+  }`;
+
+  const isActive = (patterns: string[]) => {
+    return patterns.some((pattern) => {
+      const regex = new RegExp(pattern);
+      return regex.test(pathname);
+    });
+  };
+
+  const navItemsArray = navItems(t);
+  const adminNavItemsArray = adminNavItems(t);
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-40 md:hidden">
       <div className="relative h-16 overflow-hidden">
         {/* two stacked bars: user (top) and admin (above) - animate translateY */}
         {(() => {
-          const { providerMode } = useProviderMode();
-          const useAdmin =
-            providerMode &&
-            (pathname.startsWith('/user/profile') || pathname.startsWith('/admin'));
-
-          const userClass = `absolute inset-0 flex h-16 transition-transform duration-300 ease-in-out items-center ${
-            useAdmin ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
-          }`;
-
-          const adminClass = `absolute inset-0 flex h-16 transition-transform duration-300 ease-in-out items-center ${
-            useAdmin ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'
-          }`;
-
           return (
             <>
               <div className={userClass} aria-hidden={useAdmin}>
-                {navItems.map((item) => {
+                {navItemsArray.map((item) => {
                   const active = isActive(item.activePatterns);
                   return (
                     <Link
@@ -134,11 +142,15 @@ export default function BottomNav() {
                       href={item.href}
                       className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-1 transition-colors ${
                         active
-                          ? 'text-blue-600 dark:text-blue-400'
-                          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                          ? "text-blue-600 dark:text-blue-400"
+                          : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                       }`}
                     >
-                      <div className={active ? 'text-blue-600 dark:text-blue-400' : ''}>
+                      <div
+                        className={
+                          active ? "text-blue-600 dark:text-blue-400" : ""
+                        }
+                      >
                         {item.icon}
                       </div>
                       <span className="text-xs font-medium whitespace-nowrap">
@@ -150,7 +162,7 @@ export default function BottomNav() {
               </div>
 
               <div className={adminClass} aria-hidden={!useAdmin}>
-                {adminNavItems.map((item) => {
+                {adminNavItemsArray.map((item) => {
                   const active = isActive(item.activePatterns);
                   return (
                     <Link
@@ -158,11 +170,15 @@ export default function BottomNav() {
                       href={item.href}
                       className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-1 transition-colors ${
                         active
-                          ? 'text-blue-600 dark:text-blue-400'
-                          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                          ? "text-blue-600 dark:text-blue-400"
+                          : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                       }`}
                     >
-                      <div className={active ? 'text-blue-600 dark:text-blue-400' : ''}>
+                      <div
+                        className={
+                          active ? "text-blue-600 dark:text-blue-400" : ""
+                        }
+                      >
                         {item.icon}
                       </div>
                       <span className="text-xs font-medium whitespace-nowrap">
