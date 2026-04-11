@@ -6,13 +6,11 @@ import { adminOnly } from "../middlewares/admin.middleware.js";
 const dashboardRouter = Router();
 
 dashboardRouter.get(
-  "/shops/:shopId/base_info",
+  "/base_info",
   authMiddleware,
   adminOnly,
   async (req: any, res) => {
     try {
-      const { shopId } = req.params;
-
       const now = new Date();
 
       // current 7 days
@@ -43,7 +41,7 @@ dashboardRouter.get(
         await Promise.all([
           prisma.booking.count({
             where: {
-              shopId,
+              shopId: req.shop.id,
               startTime: {
                 gte: currentStart,
                 lte: now,
@@ -52,13 +50,13 @@ dashboardRouter.get(
           }),
 
           prisma.staff.count({
-            where: { shopId },
+            where: { shopId: req.shop.id },
           }),
 
           // ✅ current 7 days
           prisma.booking.findMany({
             where: {
-              shopId,
+              shopId: req.shop.id,
               status: "COMPLETED",
               startTime: {
                 gte: currentStart,
@@ -75,7 +73,7 @@ dashboardRouter.get(
           // ✅ previous 7 days
           prisma.booking.findMany({
             where: {
-              shopId,
+              shopId: req.shop.id,
               status: "COMPLETED",
               startTime: {
                 gte: prevStart,

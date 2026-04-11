@@ -10,14 +10,16 @@ import {
   serviceRouter,
   shopRouter,
   reviewsRouter,
-  dashboardRouter
+  dashboardRouter,
+  analyticsRouter
 } from "./routes/index.js";
+import { shopValidateMiddleware } from "./middlewares/shopValidate.middleware.js";
 
 const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://10.20.9.253:3000", "https://no-q-bay.vercel.app/"],
+    origin: ["http://localhost:3000", "http://10.20.13.197:3000", "https://no-q-bay.vercel.app/"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
   }),
@@ -34,6 +36,7 @@ app.use("/api/favourites", favouriteRouter);
 app.use("/api/services", serviceRouter);
 app.use("/api/shops", shopRouter);
 app.use("/api/reviews", reviewsRouter);
-app.use("/api/dashboard", dashboardRouter);
+app.use("/api/dashboard", shopValidateMiddleware, dashboardRouter);
+app.use("/api/analytics", shopValidateMiddleware, analyticsRouter);
 
 export default app;
