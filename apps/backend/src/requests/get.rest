@@ -81,22 +81,26 @@ GET http://localhost:3001/api/services/trending/7days
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/dashboard/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89/base_info
+GET http://localhost:3001/api/dashboard/base_info
 Authorization: Bearer {{bearer_token}}
+x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/api/analytics/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89?type=all
+GET http://localhost:3001/api/analytics?type=all
 Authorization: Bearer {{bearer_token}}
+x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/api/analytics/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89/diagram_info?type=all
+GET http://localhost:3001/api/analytics/diagram_info?type=all
 Authorization: Bearer {{bearer_token}}
+x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/api/analytics/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89/famousServices?type=all
+GET http://localhost:3001/api/analytics/famousServices?type=all
 Authorization: Bearer {{bearer_token}}
+x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/api/analytics/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89/peak-hours?type=all
+GET http://localhost:3001/api/analytics/peak-hours?type=all
 Authorization: Bearer {{bearer_token}}
-
+x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89

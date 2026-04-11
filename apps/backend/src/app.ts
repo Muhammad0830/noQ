@@ -13,6 +13,7 @@ import {
   dashboardRouter,
   analyticsRouter
 } from "./routes/index.js";
+import { shopValidateMiddleware } from "./middlewares/shopValidate.middleware.js";
 
 const app = express();
 
@@ -35,7 +36,7 @@ app.use("/api/favourites", favouriteRouter);
 app.use("/api/services", serviceRouter);
 app.use("/api/shops", shopRouter);
 app.use("/api/reviews", reviewsRouter);
-app.use("/api/dashboard", dashboardRouter);
-app.use("/api/analytics", analyticsRouter);
+app.use("/api/dashboard", shopValidateMiddleware, dashboardRouter);
+app.use("/api/analytics", shopValidateMiddleware, analyticsRouter);
 
 export default app;

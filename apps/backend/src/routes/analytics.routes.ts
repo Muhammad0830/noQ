@@ -1,4 +1,5 @@
 import prisma from "@/db/prisma.js";
+import { shopValidateMiddleware } from "@/middlewares/shopValidate.middleware.js";
 import { Router } from "express";
 
 const analyticsRouter = Router();
@@ -67,26 +68,17 @@ function getDateRange(type: "week" | "month" | "year" | "all") {
   return { startDate, now };
 }
 
-analyticsRouter.get("/shops/:shopId", async (req: any, res) => {
+analyticsRouter.get("/", async (req: any, res) => {
   try {
-    const { shopId } = req.params;
     const { type = "week" } = req.query as {
       type: "week" | "month" | "year" | "all";
     };
-
-    const shop = await prisma.shop.findUnique({
-      where: { id: shopId },
-    });
-
-    if (!shop) {
-      return res.status(404).json({ error: "Shop not found" });
-    }
 
     if (type === "all") {
       const [bookings, reviews] = await Promise.all([
         prisma.booking.findMany({
           where: {
-            shopId,
+            shopId: req.shop.id,
             status: "COMPLETED",
           },
           select: {
@@ -95,7 +87,7 @@ analyticsRouter.get("/shops/:shopId", async (req: any, res) => {
         }),
 
         prisma.review.aggregate({
-          where: { shopId },
+          where: { shopId: req.shop.id },
           _avg: { rating: true },
           _count: { id: true },
         }),
@@ -132,7 +124,7 @@ analyticsRouter.get("/shops/:shopId", async (req: any, res) => {
     const [bookings, prevBookings] = await Promise.all([
       prisma.booking.findMany({
         where: {
-          shopId,
+          shopId: req.shop.id,
           status: "COMPLETED",
           createdAt: {
             gte: startDate,
@@ -146,7 +138,7 @@ analyticsRouter.get("/shops/:shopId", async (req: any, res) => {
 
       prisma.booking.findMany({
         where: {
-          shopId,
+          shopId: req.shop.id,
           status: "COMPLETED",
           createdAt: {
             gte: prevStartDate,
@@ -179,7 +171,7 @@ analyticsRouter.get("/shops/:shopId", async (req: any, res) => {
     const [reviews, prevReviews] = await Promise.all([
       prisma.review.aggregate({
         where: {
-          shopId,
+          shopId: req.shop.id,
           createdAt: { gte: startDate, lte: now },
         },
         _avg: { rating: true },
@@ -188,7 +180,7 @@ analyticsRouter.get("/shops/:shopId", async (req: any, res) => {
 
       prisma.review.aggregate({
         where: {
-          shopId,
+          shopId: req.shop.id,
           createdAt: { gte: prevStartDate, lte: startDate },
         },
         _avg: { rating: true },
@@ -223,23 +215,14 @@ analyticsRouter.get("/shops/:shopId", async (req: any, res) => {
   }
 });
 
-analyticsRouter.get("/shops/:shopId/diagram_info", async (req: any, res) => {
+analyticsRouter.get("/diagram_info", async (req: any, res) => {
   try {
-    const { shopId } = req.params;
     const { type = "week" } = req.query as {
       type: "week" | "month" | "year" | "all";
     };
 
     let startDate = new Date();
     let groupBy: "day" | "month" = "day";
-
-    const shop = await prisma.shop.findUnique({
-      where: { id: shopId },
-    });
-
-    if (!shop) {
-      return res.status(404).json({ error: "Shop not found" });
-    }
 
     switch (type) {
       case "week":
@@ -258,7 +241,7 @@ analyticsRouter.get("/shops/:shopId/diagram_info", async (req: any, res) => {
         break;
 
       case "all":
-        const createdYear = shop.createdAt.getFullYear();
+        const createdYear = req.shop.createdAt.getFullYear();
         startDate.setFullYear(createdYear);
         groupBy = "month";
         break;
@@ -271,7 +254,7 @@ analyticsRouter.get("/shops/:shopId/diagram_info", async (req: any, res) => {
       FROM "Booking" b
       JOIN "Service" s ON b."serviceId" = s.id
       WHERE 
-        b."shopId" = '${shopId}'
+        b."shopId" = '${req.shop.id}'
         AND b."status" = 'COMPLETED'
         AND b."createdAt" >= '${startDate.toISOString()}'
       GROUP BY bucket
@@ -295,9 +278,8 @@ analyticsRouter.get("/shops/:shopId/diagram_info", async (req: any, res) => {
   }
 });
 
-analyticsRouter.get("/shops/:shopId/famousServices", async (req: any, res) => {
+analyticsRouter.get("/famousServices", async (req: any, res) => {
   try {
-    const { shopId } = req.params;
     const { type = "all" } = req.query as {
       type: "week" | "month" | "year" | "all";
     };
@@ -305,7 +287,7 @@ analyticsRouter.get("/shops/:shopId/famousServices", async (req: any, res) => {
     const { startDate, now } = getDateRange(type);
 
     const services = await prisma.service.findMany({
-      where: { shopId },
+      where: { shopId: req.shop.id },
       include: {
         reviews: {
           where: {
@@ -370,9 +352,8 @@ analyticsRouter.get("/shops/:shopId/famousServices", async (req: any, res) => {
   }
 });
 
-analyticsRouter.get("/shops/:shopId/peak-hours", async (req, res) => {
+analyticsRouter.get("/peak-hours", async (req: any, res) => {
   try {
-    const { shopId } = req.params;
     const { type = "week" } = req.query as {
       type: "week" | "month" | "year" | "all";
     };
@@ -401,7 +382,7 @@ analyticsRouter.get("/shops/:shopId/peak-hours", async (req, res) => {
 
     const bookings = await prisma.booking.findMany({
       where: {
-        shopId,
+        shopId: req.shop.id,
         status: "COMPLETED",
         startTime: {
           gte: startTime,
