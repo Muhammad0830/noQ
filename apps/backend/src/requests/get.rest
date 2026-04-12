@@ -1,4 +1,4 @@
-@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc1ODE3MjQ0LCJpYXQiOjE3NzU4MTM2NDQsImVtYWlsIjoiYUBnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3NTgxMzY0NH1dLCJzZXNzaW9uX2lkIjoiNWUzOTBlNjgtOTg1ZC00OTI2LWI5ZjItMGFhNjk4ZmNhNDJhIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.RKgQCocJNkHqunwJp8r9hn6h6npE2i7GUaOHzaZlt0l9caSL1FcXCXXbHJInf5ITt5XZMBQUu8RW1WjL27pp7g
+@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc1OTgwNzk3LCJpYXQiOjE3NzU5NzcxOTcsImVtYWlsIjoiYUBnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3NTk3NzE5N31dLCJzZXNzaW9uX2lkIjoiNmQwNGVkYWUtZGNjNC00Mjk5LTk5YzktZGUwYWE1ZDAwMGU2IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.YL7K9k2MC1YbqvN4pAUHo46SPGi7iphPnbkucgdc6r4JOVTS929_zv2PGfACfLa067-kHpFs26EGcbT-Lh85xw
 
 ###
 GET http://localhost:3001/api/auth/me
@@ -81,26 +81,36 @@ GET http://localhost:3001/api/services/trending/7days
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/dashboard/base_info
+GET http://localhost:3001/api/admin/dashboard/base_info
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/api/analytics?type=all
+GET http://localhost:3001/api/admin/analytics?type=all
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/api/analytics/diagram_info?type=all
+GET http://localhost:3001/api/admin/analytics/diagram_info?type=all
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/api/analytics/famousServices?type=all
+GET http://localhost:3001/api/admin/analytics/famousServices?type=all
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/api/analytics/peak-hours?type=all
+GET http://localhost:3001/api/admin/analytics/peak-hours?type=all
+Authorization: Bearer {{bearer_token}}
+x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
+
+###
+GET http://localhost:3001/api/admin/history?date=2026-04-12
+Authorization: Bearer {{bearer_token}}
+x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
+
+###
+GET http://localhost:3001/api/admin/services
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89

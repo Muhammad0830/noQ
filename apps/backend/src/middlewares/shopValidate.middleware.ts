@@ -19,6 +19,10 @@ export async function shopValidateMiddleware(req: any, res: any, next: any) {
       return res.status(401).json({ message: "Shop not found" });
     }
 
+    if (req.user.id !== shop.ownerId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
     req.shop = shop;
 
     next();

@@ -1,8 +1,8 @@
 import { Router } from "express";
-import prisma from "../db/prisma.js";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
-import { getPaginationParams } from "../utils/pagination.js";
-import { adminOnly } from "../middlewares/admin.middleware.js";
+import prisma from "../../db/prisma.js";
+import { authMiddleware } from "../../middlewares/auth.middleware.js";
+import { getPaginationParams } from "../../utils/pagination.js";
+import { adminOnly } from "../../middlewares/admin.middleware.js";
 
 const serviceRouter = Router();
 
@@ -179,37 +179,5 @@ serviceRouter.get("/trending/7days", async (req: any, res) => {
     res.status(500).json({ error: "Failed to fetch famous services" });
   }
 });
-
-serviceRouter.post(
-  "/",
-  authMiddleware,
-  adminOnly,
-  async (req: any, res: any) => {
-    try {
-      const { shopId, name, price, durationMin } = req.body;
-
-      const shop = await prisma.shop.findUnique({
-        where: { id: shopId },
-      });
-
-      if (!shop) {
-        return res.status(404).json({ message: "Shop not found" });
-      }
-
-      const service = await prisma.service.create({
-        data: {
-          shopId,
-          name,
-          price,
-          durationMin,
-        },
-      });
-
-      res.status(200).json(service);
-    } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
-    }
-  },
-);
 
 export default serviceRouter;
