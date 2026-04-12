@@ -27,6 +27,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useProviderMode } from "@/contexts/ProviderModeContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import LogoutConfirmModal from "@/components/LogoutConfirmModal";
 import { getImageUrl } from "@/lib/supabaseClient";
 
 const LANGUAGES: { code: Language; label: string }[] = [
@@ -313,18 +314,18 @@ export default function ProfilePage() {
               type="button"
               onClick={() => setProviderMode((prev) => !prev)}
               className={`relative h-7 w-12 rounded-full border transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F49B33]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
-                  providerMode
-                    ? "border-[#F49B33]/60 bg-[#F49B33]/25 dark:border-[#F49B33]/70 dark:bg-[#F49B33]/35"
-                    : "border-slate-300 bg-slate-200 dark:border-white/25 dark:bg-white/10"
+                providerMode
+                  ? "border-[#F49B33]/60 bg-[#F49B33]/25 dark:border-[#F49B33]/70 dark:bg-[#F49B33]/35"
+                  : "border-slate-300 bg-slate-200 dark:border-white/25 dark:bg-white/10"
               }`}
               aria-label={t("profile.toggleProviderMode")}
-                aria-pressed={providerMode}
+              aria-pressed={providerMode}
             >
               <span
                 className={`absolute top-0.75 h-5 w-5 rounded-full ring-1 transition-all duration-200 ${
-                    providerMode
-                      ? "left-6 bg-[#F49B33] ring-[#F49B33]/60 dark:bg-[#F49B33] dark:ring-[#F49B33]/70"
-                      : "left-1 bg-white ring-slate-300 dark:bg-slate-100 dark:ring-white/35"
+                  providerMode
+                    ? "left-6 bg-[#F49B33] ring-[#F49B33]/60 dark:bg-[#F49B33] dark:ring-[#F49B33]/70"
+                    : "left-1 bg-white ring-slate-300 dark:bg-slate-100 dark:ring-white/35"
                 }`}
               />
             </button>
@@ -660,55 +661,19 @@ export default function ProfilePage() {
         </ModalShell>
       )}
 
-      {isLogoutConfirmOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 dark:bg-black/70"
-          onClick={() => setIsLogoutConfirmOpen(false)}
-          role="presentation"
-        >
-          <div
-            className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-[#211201]"
-            onClick={(event) => event.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-label={t("profile.logoutConfirmTitle")}
-          >
-            <div className="mb-4 flex items-center justify-center">
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-500/20">
-                <LogOut className="h-6 w-6 text-red-600 dark:text-red-400" />
-              </div>
-            </div>
-
-            <h3 className="mb-2 text-center text-lg font-semibold text-slate-900 dark:text-white">
-              {t("profile.logoutConfirmTitle")}
-            </h3>
-
-            <p className="mb-6 text-center text-sm text-slate-600 dark:text-white/70">
-              {t("profile.logoutConfirmMessage")}
-            </p>
-
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setIsLogoutConfirmOpen(false)}
-                className="flex h-12 w-full items-center justify-center rounded-xl border border-slate-300 px-4 font-semibold text-slate-600 transition hover:bg-slate-100 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
-              >
-                {t("profile.cancel")}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  logout();
-                  router.replace("/login");
-                }}
-                className="flex h-12 w-full items-center justify-center rounded-xl bg-red-600 px-4 font-semibold text-white transition hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
-              >
-                {t("profile.logout")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <LogoutConfirmModal
+        open={isLogoutConfirmOpen}
+        title={t("profile.logoutConfirmTitle")}
+        message={t("profile.logoutConfirmMessage")}
+        cancelText={t("profile.cancel")}
+        confirmText={t("profile.logout")}
+        onCancel={() => setIsLogoutConfirmOpen(false)}
+        onConfirm={() => {
+          logout();
+          setIsLogoutConfirmOpen(false);
+          router.replace("/login");
+        }}
+      />
     </main>
   );
 }
