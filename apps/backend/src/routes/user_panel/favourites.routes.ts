@@ -1,6 +1,6 @@
 import { Router } from "express";
-import prisma from "../db/prisma.js";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
+import prisma from "../../db/prisma.js";
+import { authMiddleware } from "../../middlewares/auth.middleware.js";
 
 const favouriteRouter = Router();
 

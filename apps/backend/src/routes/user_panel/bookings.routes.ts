@@ -1,7 +1,8 @@
 import { Router } from "express";
-import prisma from "../db/prisma.js";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
-import type { StatusProps } from "../../../../shared/types/bookings.js";
+import prisma from "../../db/prisma.js";
+import { authMiddleware } from "../../middlewares/auth.middleware.js";
+import type { StatusProps } from "../../../../../shared/types/bookings.js";
+import { bookingScheduleValidate } from "../validateFunctions/bookingScheduleValidate.js";
 
 const bookingRouter = Router();
 
@@ -275,7 +276,7 @@ bookingRouter.get(
 
 bookingRouter.post("/", authMiddleware, async (req: any, res) => {
   try {
-    const { shopId, serviceId, startTime } = req.body;
+    const { shopId, serviceId, startTime, staffId } = req.body;
 
     const service = await prisma.service.findUnique({
       where: { id: serviceId },
@@ -284,6 +285,13 @@ bookingRouter.post("/", authMiddleware, async (req: any, res) => {
     const start = new Date(startTime);
     const end = new Date(start);
     end.setMinutes(end.getMinutes() + service!.durationMin);
+
+    const validateResult: { hasError: boolean; status?: number; json?: any } =
+      await bookingScheduleValidate(shopId, start, end);
+
+    if (validateResult.hasError) {
+      return res.status(validateResult.status!).json(validateResult.json);
+    }
 
     // check booking conflicts
     const conflictBooking = await prisma.booking.findFirst({
@@ -317,6 +325,7 @@ bookingRouter.post("/", authMiddleware, async (req: any, res) => {
         serviceId,
         startTime: start,
         endTime: end,
+        staffId,
       },
     });
 

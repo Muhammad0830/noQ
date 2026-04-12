@@ -1,5 +1,4 @@
 import prisma from "@/db/prisma.js";
-import { shopValidateMiddleware } from "@/middlewares/shopValidate.middleware.js";
 import { Router } from "express";
 
 const analyticsRouter = Router();
