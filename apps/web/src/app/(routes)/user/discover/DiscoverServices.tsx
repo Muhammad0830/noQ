@@ -3,15 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import {
-  ChevronRight,
-  Clock3,
-  Search,
-  SlidersHorizontal,
-  X,
-} from "lucide-react";
+import { ChevronRight, Clock3, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ShopCard from "@/components/ShopCard";
+import AppSearchInput from "@/components/AppSearchInput";
 import { Skeleton } from "@/components/ui/skeleton";
 import { API_ENDPOINTS } from "@/lib/api";
 import { getImageUrl } from "@/lib/supabaseClient";
@@ -337,13 +332,13 @@ export default function DiscoverServices() {
   };
 
   const PopularShopCardSkeleton = () => (
-    <div className="overflow-hidden rounded-3xl border border-blue-100 bg-linear-to-br from-blue-50 via-white to-purple-50 shadow-sm dark:border-blue-800/40 dark:from-blue-900/20 dark:via-gray-900 dark:to-purple-900/20 dark:shadow-none">
+    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-[#0e1726] dark:shadow-none">
       <div className="relative h-52 overflow-hidden">
-        <div className="h-full w-full bg-linear-to-br from-slate-200 via-slate-100 to-slate-200 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800" />
+        <div className="h-full w-full bg-slate-200 dark:bg-slate-800" />
 
-        <Skeleton className="absolute top-3 right-3 h-7 w-14 rounded-full bg-white/95 dark:bg-white/10" />
-        <Skeleton className="absolute top-3 left-3 h-8 w-8 rounded-full bg-white/95 dark:bg-white/10" />
-        <Skeleton className="absolute bottom-3 left-3 h-6 w-20 rounded-full bg-white/95 dark:bg-white/10" />
+        <Skeleton className="absolute top-3 right-3 h-7 w-14 rounded-full bg-slate-200 dark:bg-slate-700" />
+        <Skeleton className="absolute top-3 left-3 h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-700" />
+        <Skeleton className="absolute bottom-3 left-3 h-6 w-20 rounded-full bg-slate-200 dark:bg-slate-700" />
       </div>
 
       <div className="p-4">
@@ -359,7 +354,7 @@ export default function DiscoverServices() {
           </div>
         </div>
 
-        <div className="my-4 h-px bg-linear-to-r from-blue-100 via-purple-100 to-pink-100 dark:from-blue-800/40 dark:via-purple-800/40 dark:to-pink-800/40" />
+        <div className="my-4 h-px bg-slate-200/70 dark:bg-slate-800/80" />
 
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -447,43 +442,23 @@ export default function DiscoverServices() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#070d18] dark:text-white">
       <div className="mx-auto w-full max-w-md px-4 pb-8 pt-3">
-        <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm dark:border-slate-700 dark:bg-white">
-          <Search className="h-5 w-5 text-slate-400 dark:text-slate-400" />
-          <input
-            ref={searchInputRef}
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onFocus={() => setIsSearchFocused(true)}
-            onBlur={() => setIsSearchFocused(false)}
-            placeholder={t("hero.search.placeholder")}
-            className="h-6 w-full bg-transparent text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
-          />
-          {search.length > 0 && (
-            <button
-              type="button"
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => {
-                setSearch("");
-                setDebouncedSearch("");
-              }}
-              className="rounded-lg bg-slate-100 p-2 text-slate-600 transition hover:bg-slate-200"
-              aria-label={t("common.clearSearch")}
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-          {search.length === 0 && (
-            <button
-              type="button"
-              onClick={openFilterModal}
-              className="rounded-lg bg-slate-100 p-2 text-slate-600 transition hover:bg-slate-200"
-              aria-label={t("filter.title")}
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-            </button>
-          )}
-        </div>
+        <AppSearchInput
+          value={search}
+          inputRef={searchInputRef}
+          onValueChange={setSearch}
+          onFocus={() => setIsSearchFocused(true)}
+          onBlur={() => setIsSearchFocused(false)}
+          placeholder={t("hero.search.placeholder")}
+          showClearButton={search.length > 0}
+          onClear={() => {
+            setSearch("");
+            setDebouncedSearch("");
+          }}
+          showFilterButton={search.length === 0}
+          onFilterClick={openFilterModal}
+          clearAriaLabel={t("common.clearSearch")}
+          filterAriaLabel={t("filter.title")}
+        />
 
         {isFilterOpen && (
           <div
@@ -491,7 +466,7 @@ export default function DiscoverServices() {
             onClick={() => setIsFilterOpen(false)}
           >
             <div
-              className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-4 text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-[#1b2230] dark:text-slate-100"
+              className="w-full max-w-md rounded-3xl border border-[#f1c894] bg-white p-4 text-slate-900 shadow-2xl dark:border-[#4a2e1b] dark:bg-[#2b170b] dark:text-[#ffd4a6]"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mb-4 flex items-center justify-between">
@@ -499,7 +474,7 @@ export default function DiscoverServices() {
                 <button
                   type="button"
                   onClick={() => setIsFilterOpen(false)}
-                  className="rounded-full bg-slate-100 p-2 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-200 dark:hover:bg-white/20"
+                  className="rounded-full bg-[#fff3e6] p-2 text-[#8a5620] transition hover:bg-[#fce2c4] dark:bg-[#3a2415] dark:text-[#ffd4a6] dark:hover:bg-[#4a2e1b]"
                   aria-label={t("common.close")}
                 >
                   <X className="h-4 w-4" />
@@ -508,10 +483,10 @@ export default function DiscoverServices() {
 
               <div className="mb-5">
                 <div className="mb-2 flex items-center justify-between">
-                  <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                  <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500 dark:text-[#ffddbb]/80">
                     {t("filter.category").toUpperCase()}
                   </p>
-                  <span className="text-[10px] font-bold tracking-[0.14em] text-[#00c9a7] dark:text-[#00f5c4]">
+                  <span className="text-[10px] font-bold tracking-[0.14em] text-[#F49B33] dark:text-[#f7b86b]">
                     {t("filter.multiSelect").toUpperCase()}
                   </span>
                 </div>
@@ -527,8 +502,8 @@ export default function DiscoverServices() {
                         onClick={() => toggleCategory(category.id)}
                         className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                           active
-                            ? "bg-[#00f5c4] text-slate-950 dark:text-slate-900"
-                            : "bg-slate-100 text-slate-700 dark:bg-[#111827] dark:text-slate-300"
+                            ? "bg-[#F49B33] text-white dark:bg-[#F49B33] dark:text-white"
+                            : "bg-[#fff3e6] text-[#8a5620] dark:bg-[#3a2415] dark:text-[#ffd4a6]"
                         }`}
                       >
                         {category.name}
@@ -540,11 +515,11 @@ export default function DiscoverServices() {
 
               <div>
                 <div className="mb-2 flex items-center justify-between gap-2">
-                  <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                  <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500 dark:text-[#ffddbb]/80">
                     {t("filter.priceRange").toUpperCase()}
                   </p>
                   <div className="flex min-w-0 items-center justify-end gap-2">
-                    <span className="whitespace-nowrap text-base font-bold text-[#00c9a7] dark:text-[#00f5c4] sm:text-lg">
+                    <span className="whitespace-nowrap text-base font-bold text-[#F49B33] dark:text-[#f7b86b] sm:text-lg">
                       ${draftMinPrice} - ${draftMaxPrice}
                     </span>
                     <button
@@ -561,8 +536,8 @@ export default function DiscoverServices() {
                       }}
                       className={`relative inline-flex h-6 w-11 shrink-0 items-center overflow-hidden rounded-full p-0.5 transition ${
                         draftPriceEnabled
-                          ? "bg-[#00c9a7]"
-                          : "bg-slate-300 dark:bg-slate-600"
+                          ? "bg-[#F49B33]"
+                          : "bg-slate-300 dark:bg-[#4a2e1b]"
                       }`}
                       aria-label={t("filter.togglePrice")}
                       aria-pressed={draftPriceEnabled}
@@ -623,14 +598,14 @@ export default function DiscoverServices() {
                   <button
                     type="button"
                     onClick={resetDraftFilters}
-                    className="flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-[#111827] dark:text-slate-200 dark:hover:bg-slate-800"
+                    className="flex-1 rounded-2xl border border-[#f1c894] bg-[#fff3e6] px-4 py-3 text-sm font-semibold text-[#8a5620] transition hover:bg-[#fce2c4] dark:border-[#4a2e1b] dark:bg-[#3a2415] dark:text-[#ffd4a6] dark:hover:bg-[#4a2e1b]"
                   >
                     {t("filter.reset")}
                   </button>
                   <button
                     type="button"
                     onClick={applyFilters}
-                    className="flex-1 rounded-2xl bg-[#00f5c4] px-4 py-3 text-sm font-bold text-slate-950 transition hover:opacity-90"
+                    className="flex-1 rounded-2xl bg-[#F49B33] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#e58d26]"
                   >
                     {t("common.save")}
                   </button>
@@ -838,23 +813,23 @@ export default function DiscoverServices() {
           }
 
           .slider__track {
-            background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e1 100%);
+            background: linear-gradient(90deg, #f7e4cc 0%, #f0d2a8 100%);
             width: 100%;
             z-index: 1;
             box-shadow: inset 0 1px 1px rgba(15, 23, 42, 0.08);
           }
 
           .slider__range {
-            background: #00c9a7;
+            background: #f49b33;
             z-index: 2;
             box-shadow:
-              0 0 0 1px rgba(0, 201, 167, 0.22),
-              0 0 12px rgba(0, 201, 167, 0.35);
+              0 0 0 1px rgba(244, 155, 51, 0.28),
+              0 0 12px rgba(244, 155, 51, 0.35);
           }
 
           .slider__left-value,
           .slider__right-value {
-            color: #64748b;
+            color: #8a5620;
             font-size: 12px;
             font-weight: 700;
             margin-top: 20px;
@@ -900,14 +875,14 @@ export default function DiscoverServices() {
             background: radial-gradient(
               circle at 30% 30%,
               #ffffff 0%,
-              #ecfeff 45%,
-              #ccfbf1 100%
+              #fff3e6 45%,
+              #ffe2bf 100%
             );
-            border: 2px solid #00c9a7;
+            border: 2px solid #f49b33;
             border-radius: 50%;
             box-shadow:
               0 2px 10px rgba(15, 23, 42, 0.2),
-              0 0 0 3px rgba(0, 201, 167, 0.28);
+              0 0 0 3px rgba(244, 155, 51, 0.28);
             cursor: pointer;
             height: 18px;
             width: 18px;
@@ -927,14 +902,14 @@ export default function DiscoverServices() {
             background: radial-gradient(
               circle at 30% 30%,
               #ffffff 0%,
-              #ecfeff 45%,
-              #ccfbf1 100%
+              #fff3e6 45%,
+              #ffe2bf 100%
             );
-            border: 2px solid #00c9a7;
+            border: 2px solid #f49b33;
             border-radius: 50%;
             box-shadow:
               0 2px 10px rgba(15, 23, 42, 0.2),
-              0 0 0 3px rgba(0, 201, 167, 0.28);
+              0 0 0 3px rgba(244, 155, 51, 0.28);
             cursor: pointer;
             height: 18px;
             width: 18px;

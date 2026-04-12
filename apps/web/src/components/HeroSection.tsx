@@ -2,9 +2,9 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Search, SlidersHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
+import AppSearchInput from "@/components/AppSearchInput";
 import barbershopBanner from "../../assets/Barbershop.png";
 import dentalClinicBanner from "../../assets/Dental clinic.png";
 
@@ -86,25 +86,15 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
     <section className="bg-white dark:bg-[#211201]">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-2">
         <form className="w-full">
-          <div className="flex items-center gap-2 rounded-2xl border border-[#f1c894] bg-white px-3 py-2.5 shadow-sm dark:border-[#4a2e1b] dark:bg-white">
-            <Search className="h-5 w-5 text-[#F49B33] dark:text-[#F49B33]" />
-            <input
-              type="text"
-              placeholder={t("hero.search.placeholder")}
-              readOnly
-              onClick={openDiscover}
-              onFocus={openDiscover}
-              className="h-6 w-full bg-transparent text-sm font-medium text-slate-900 outline-none placeholder:text-[#d0954d]"
-            />
-            <button
-              type="button"
-              onClick={openDiscover}
-              className="rounded-lg bg-[#fff3e6] p-2 text-[#F49B33] transition hover:bg-[#fce2c4]"
-              aria-label={t("filter.title")}
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-            </button>
-          </div>
+          <AppSearchInput
+            placeholder={t("hero.search.placeholder")}
+            readOnly
+            onInputClick={openDiscover}
+            onFocus={openDiscover}
+            showFilterButton
+            onFilterClick={openDiscover}
+            filterAriaLabel={t("filter.title")}
+          />
         </form>
 
         <div

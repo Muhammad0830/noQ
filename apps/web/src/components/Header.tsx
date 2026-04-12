@@ -2,17 +2,20 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { User, LogIn, LogOut, Bell } from "lucide-react";
 import { getImageUrl } from "@/lib/supabaseClient";
+import LogoutConfirmModal from "@/components/LogoutConfirmModal";
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const { t } = useLanguage();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -121,8 +124,8 @@ export default function Header() {
                       <div className="border-t border-[#f1c894] dark:border-[#4a2e1b] mt-2 pt-2">
                         <button
                           onClick={() => {
-                            logout();
                             setProfileMenuOpen(false);
+                            setIsLogoutConfirmOpen(true);
                           }}
                           className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-[#fff3e6] dark:hover:bg-[#3a2415] transition-colors w-full"
                         >
@@ -146,6 +149,20 @@ export default function Header() {
           </div>
         </div>
       </div>
+
+      <LogoutConfirmModal
+        open={isLogoutConfirmOpen}
+        title={t("profile.logoutConfirmTitle")}
+        message={t("profile.logoutConfirmMessage")}
+        cancelText={t("profile.cancel")}
+        confirmText={t("profile.logout")}
+        onCancel={() => setIsLogoutConfirmOpen(false)}
+        onConfirm={() => {
+          logout();
+          setIsLogoutConfirmOpen(false);
+          router.replace("/login");
+        }}
+      />
     </header>
   );
 }
