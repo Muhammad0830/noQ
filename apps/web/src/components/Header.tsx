@@ -45,6 +45,7 @@ export default function Header() {
   const hideHeaderOnPages =
     pathname.startsWith("/book/") ||
     pathname.startsWith("/shop/") ||
+    pathname.startsWith("/admin") ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/signup") ||
     pathname.startsWith("/forgot-password");
