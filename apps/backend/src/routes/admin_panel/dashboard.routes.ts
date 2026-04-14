@@ -89,11 +89,11 @@ dashboardRouter.get(
         ]);
 
       // 💰 calculate revenue
-      const currentRevenue = currentCompleted.reduce((acc, b) => {
+      const currentRevenue = currentCompleted.reduce((acc: number, b) => {
         return acc + Number(b.service.price);
       }, 0);
 
-      const prevRevenue = prevCompleted.reduce((acc, b) => {
+      const prevRevenue = prevCompleted.reduce((acc: number, b) => {
         return acc + Number(b.service.price);
       }, 0);
 
