@@ -14,14 +14,21 @@ export default function AppShell({ children }: AppShellProps) {
     pathname.startsWith("/login") ||
     pathname.startsWith("/signup") ||
     pathname.startsWith("/forgot-password");
+  const isStaffHistoryPage = pathname === "/admin/staff";
+  const isStaffManagePage = pathname.startsWith("/admin/staff/menage");
+  const isAdminServicePage = pathname.startsWith("/admin/services");
 
   const mainClassName = isAuthPage
     ? "min-h-screen"
-    : "min-h-[calc(100dvh-8rem)] md:min-h-[calc(100dvh-4rem)] pb-16 md:pb-0";
+    : isStaffHistoryPage || isStaffManagePage || isAdminServicePage
+      ? "min-h-dvh pb-16 md:pb-0"
+      : "min-h-[calc(100dvh-8rem)] md:min-h-[calc(100dvh-4rem)] pb-16 md:pb-0";
 
   return (
     <div className={isAuthPage ? "overflow-hidden" : ""}>
-      <Header />
+      {!isStaffHistoryPage && !isStaffManagePage && !isAdminServicePage && (
+        <Header />
+      )}
       <main className={mainClassName}>{children}</main>
       <ConditionalBottomNav />
     </div>
