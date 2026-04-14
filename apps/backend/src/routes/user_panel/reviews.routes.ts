@@ -1,8 +1,8 @@
 import { Router } from "express";
-import prisma from "../db/prisma.js";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
-import { getPaginationParams } from "../utils/pagination.js";
-import { adminOnly } from "../middlewares/admin.middleware.js";
+import prisma from "../../db/prisma.js";
+import { authMiddleware } from "../../middlewares/auth.middleware.js";
+import { getPaginationParams } from "../../utils/pagination.js";
+import { adminOnly } from "../../middlewares/admin.middleware.js";
 
 const reviewRouter = Router();
 

@@ -1,11 +1,11 @@
 import { Router } from "express";
-import prisma from "../db/prisma.js";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
-import { adminOnly } from "../middlewares/admin.middleware.js";
+import prisma from "../../db/prisma.js";
+import { authMiddleware } from "../../middlewares/auth.middleware.js";
+import { adminOnly } from "../../middlewares/admin.middleware.js";
 import {
   resolveRequestLanguage,
   translateCategoryName,
-} from "../utils/categoryTranslations.js";
+} from "../../utils/categoryTranslations.js";
 const categoryRouter = Router();
 
 categoryRouter.get("/", async (req, res) => {

@@ -1,8 +1,8 @@
 import { Router } from "express";
-import prisma from "../db/prisma.js";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
-import { getPaginationParams } from "../utils/pagination.js";
-import { adminOnly } from "../middlewares/admin.middleware.js";
+import prisma from "../../db/prisma.js";
+import { authMiddleware } from "../../middlewares/auth.middleware.js";
+import { getPaginationParams } from "../../utils/pagination.js";
+import { adminOnly } from "../../middlewares/admin.middleware.js";
 
 const serviceRouter = Router();
 
@@ -96,38 +96,16 @@ serviceRouter.get("/:id/reviews", async (req: any, res: any) => {
   }
 });
 
-serviceRouter.get("/trending/7days", async (req, res) => {
+serviceRouter.get("/trending/7days", async (req: any, res) => {
   try {
     const { search = "" } = req.query as { search?: string };
+    const now = new Date();
 
-    const trendingServices = await prisma.booking.groupBy({
-      by: ["serviceId"],
-      where: {
-        status: "COMPLETED",
-        createdAt: {
-          gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // last 7 days
-        },
-      },
-      _count: {
-        serviceId: true,
-      },
-      orderBy: {
-        _count: {
-          serviceId: "desc",
-        },
-      },
-      take: 10,
-    });
-
-    const serviceIds = trendingServices.map((t) => t.serviceId);
-
-    if (serviceIds.length === 0) {
-      return res.status(200).json([]);
-    }
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(now.getDate() - 7);
 
     const services = await prisma.service.findMany({
       where: {
-        id: { in: serviceIds },
         ...(search
           ? {
               OR: [
@@ -155,25 +133,32 @@ serviceRouter.get("/trending/7days", async (req, res) => {
           },
         },
         _count: {
-          select: { reviews: true },
+          select: {
+            reviews: true,
+            bookings: {
+              where: {
+                status: "COMPLETED",
+                createdAt: {
+                  gte: sevenDaysAgo,
+                  lte: now,
+                },
+              },
+            },
+          },
         },
       },
+      take: 10,
     });
 
-    const result = serviceIds
-      .map((id) => {
-        const service = services.find((s) => s.id === id);
+    if (services.length === 0) {
+      return res.status(404).json({ error: "No services found for this shop" });
+    }
 
-        if (!service) return null;
+    const result = services
+      .map((service) => {
+        const bookingCount = service._count.bookings;
 
-        const bookingCount =
-          trendingServices.find((t) => t.serviceId === id)?._count.serviceId ||
-          0;
-
-        const total = service.reviews.reduce(
-          (acc: number, rev: { rating: number }) => acc + rev.rating,
-          0,
-        );
+        const total = service.reviews.reduce((acc, rev) => acc + rev.rating, 0);
 
         const avg =
           service.reviews.length > 0 ? total / service.reviews.length : 0;
@@ -182,48 +167,17 @@ serviceRouter.get("/trending/7days", async (req, res) => {
 
         return {
           ...rest,
-          booking_count_last_week: bookingCount,
+          booking_count: bookingCount,
           averageRating: parseFloat(avg.toFixed(1)),
         };
       })
-      .filter(Boolean);
+      .sort((a, b) => b.booking_count - a.booking_count);
 
     return res.status(200).json(result);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Error fetching famous services:", error);
+    res.status(500).json({ error: "Failed to fetch famous services" });
   }
 });
-
-serviceRouter.post(
-  "/",
-  authMiddleware,
-  adminOnly,
-  async (req: any, res: any) => {
-    try {
-      const { shopId, name, price, durationMin } = req.body;
-
-      const shop = await prisma.shop.findUnique({
-        where: { id: shopId },
-      });
-
-      if (!shop) {
-        return res.status(404).json({ message: "Shop not found" });
-      }
-
-      const service = await prisma.service.create({
-        data: {
-          shopId,
-          name,
-          price,
-          durationMin,
-        },
-      });
-
-      res.status(200).json(service);
-    } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
-    }
-  },
-);
 
 export default serviceRouter;
