@@ -28,14 +28,6 @@ serviceRouter.post("/", async (req: any, res: any) => {
   try {
     const { name, price, durationMin } = req.body;
 
-    const shop = await prisma.shop.findUnique({
-      where: { id: req.shop.id },
-    });
-
-    if (!shop) {
-      return res.status(404).json({ message: "Shop not found" });
-    }
-
     const service = await prisma.service.create({
       data: {
         shopId: req.shop.id,
@@ -46,6 +38,35 @@ serviceRouter.post("/", async (req: any, res: any) => {
     });
 
     res.status(200).json(service);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+serviceRouter.post("/isActive/toggle", async (req: any, res: any) => {
+  try {
+    const { id } = req.body;
+
+    const service = await prisma.service.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+
+    await prisma.service.update({
+      where: {
+        id,
+      },
+      data: {
+        isActive: !service.isActive,
+      },
+    });
+
+    res.status(200).json({ message: "Service isActive toggled successfully" });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
