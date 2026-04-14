@@ -10,6 +10,7 @@ import reviewsRouter from "./user_panel/reviews.routes.js";
 import dashboardRouter from "./admin_panel/dashboard.routes.js";
 import analyticsRouter from "./admin_panel/analytics.routes.js";
 import historyRouter from "./admin_panel/history.routes.js";
+import staffRouter from "./admin_panel/staff.routes.js";
 
 export const userRoutes = {
   categoryRouter,
@@ -24,7 +25,8 @@ export const adminRoutes = {
   dashboardRouter,
   analyticsRouter,
   historyRouter,
-  adminServicePanel
+  adminServicePanel,
+  staffRouter
 };
 
 export const generalRoutes = {

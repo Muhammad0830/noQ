@@ -82,7 +82,6 @@ export default function ProfilePage() {
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
   const { providerMode, setProviderMode } = useProviderMode();
-  
 
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -163,15 +162,16 @@ export default function ProfilePage() {
     : null;
 
   const isAdmin = user?.role === "ADMIN";
-  const { data: shopsResponse, isLoading: isLoadingShops } = useApiQuery<
-    ShopsResponse
-  >(isAdmin ? API_ENDPOINTS.shops : null, {
-    key: ["admin-shops", user?.id || "guest"],
-    enabled: Boolean(isAdmin && user?.id && !(user?.shops && user.shops.length > 0)),
-    staleTime: 30_000,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-  });
+  const { data: shopsResponse, isLoading: isLoadingShops } =
+    useApiQuery<ShopsResponse>(isAdmin ? API_ENDPOINTS.shops : null, {
+      key: ["admin-shops", user?.id || "guest"],
+      enabled: Boolean(
+        isAdmin && user?.id && !(user?.shops && user.shops.length > 0),
+      ),
+      staleTime: 30_000,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+    });
 
   const adminShops = useMemo<AdminShop[]>(() => {
     if (!user?.id) return [];
@@ -436,29 +436,8 @@ export default function ProfilePage() {
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
-
-            <button
-              type="button"
-              onClick={() => setProviderMode((prev) => !prev)}
-              className={`relative h-7 w-12 rounded-full border transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F49B33]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
-                providerMode
-                  ? "border-[#F49B33]/60 bg-[#F49B33]/25 dark:border-[#F49B33]/70 dark:bg-[#F49B33]/35"
-                  : "border-slate-300 bg-slate-200 dark:border-white/25 dark:bg-white/10"
-              }`}
-              aria-label={t("profile.toggleProviderMode")}
-              aria-pressed={providerMode}
-            >
-              <span
-                className={`absolute top-0.75 h-5 w-5 rounded-full ring-1 transition-all duration-200 ${
-                  providerMode
-                    ? "left-6 bg-[#F49B33] ring-[#F49B33]/60 dark:bg-[#F49B33] dark:ring-[#F49B33]/70"
-                    : "left-1 bg-white ring-slate-300 dark:bg-slate-100 dark:ring-white/35"
-                }`}
-              />
-            </button>
-          </div>
-        </section>
-)}
+          </section>
+        )}
 
         <section
           className={`mb-5 rounded-2xl border p-4 ${
