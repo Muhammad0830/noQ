@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { User, LogIn, LogOut, Bell } from "lucide-react";
 import { getImageUrl } from "@/lib/supabaseClient";
 import LogoutConfirmModal from "@/components/LogoutConfirmModal";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Header() {
   const pathname = usePathname();
@@ -85,7 +86,10 @@ export default function Header() {
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             {/* Auth Buttons / Profile */}
             {isLoading ? (
-              <div className="h-10 w-24 sm:h-11 sm:w-28" aria-hidden="true" />
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-10 rounded-full sm:h-11 sm:w-11" />
+                <Skeleton className="h-10 w-10 rounded-full sm:h-11 sm:w-11" />
+              </div>
             ) : isAuthenticated ? (
               <div className="flex items-center gap-3">
                 <button
