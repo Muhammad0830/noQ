@@ -17,6 +17,7 @@ import {
   Pencil,
   Shield,
   Sun,
+  Plus,
   User,
   X,
   Zap,
@@ -27,6 +28,14 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useProviderMode } from "@/contexts/ProviderModeContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import useApiQuery from "@/hooks/useApiQuery";
+import { API_ENDPOINTS } from "@/lib/api";
 import LogoutConfirmModal from "@/components/LogoutConfirmModal";
 import { getImageUrl } from "@/lib/supabaseClient";
 
@@ -46,6 +55,21 @@ type InfoFormState = {
   phoneNumber: string;
 };
 
+type AdminShop = {
+  id: string;
+  name: string;
+  address?: string;
+  ownerId?: string;
+  isOpen?: boolean;
+};
+
+type ShopsResponse =
+  | AdminShop[]
+  | {
+      shops?: AdminShop[];
+      data?: AdminShop[];
+    };
+
 const LOCALE_BY_LANGUAGE: Record<Language, string> = {
   "uz-latn": "uz-UZ",
   "uz-cyrl": "uz-Cyrl-UZ",
@@ -57,12 +81,13 @@ export default function ProfilePage() {
   const { user, isLoading, updateProfile, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+  const { providerMode, setProviderMode } = useProviderMode();
+  
 
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isSavingImage, setIsSavingImage] = useState(false);
 
-  const { providerMode, setProviderMode } = useProviderMode();
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
@@ -133,6 +158,47 @@ export default function ProfilePage() {
     return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
   })();
 
+  const profileImageUrl = user?.avatarUrl
+    ? getImageUrl(user.avatarUrl, "user_avatars")
+    : null;
+
+  const isAdmin = user?.role === "ADMIN";
+  const { data: shopsResponse, isLoading: isLoadingShops } = useApiQuery<
+    ShopsResponse
+  >(isAdmin ? API_ENDPOINTS.shops : null, {
+    key: ["admin-shops", user?.id || "guest"],
+    enabled: Boolean(isAdmin && user?.id && !(user?.shops && user.shops.length > 0)),
+    staleTime: 30_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+
+  const adminShops = useMemo<AdminShop[]>(() => {
+    if (!user?.id) return [];
+
+    if (user.shops && user.shops.length > 0) {
+      return user.shops.map((shop) => ({
+        id: shop.id,
+        name: shop.name,
+        address: shop.address,
+        ownerId: shop.ownerId,
+        isOpen: shop.isOpen,
+      }));
+    }
+
+    if (!shopsResponse) return [];
+
+    const shops = Array.isArray(shopsResponse)
+      ? shopsResponse
+      : Array.isArray(shopsResponse.shops)
+        ? shopsResponse.shops
+        : Array.isArray(shopsResponse.data)
+          ? shopsResponse.data
+          : [];
+
+    return shops.filter((shop) => shop.ownerId === user.id);
+  }, [shopsResponse, user?.id]);
+
   if (!user && !isLoading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-700 dark:bg-[#211201] dark:text-slate-200">
@@ -143,10 +209,6 @@ export default function ProfilePage() {
       </main>
     );
   }
-
-  const profileImageUrl = user?.avatarUrl
-    ? getImageUrl(user.avatarUrl, "user_avatars")
-    : null;
 
   const showUserSkeleton = isLoading && !user;
 
@@ -293,14 +355,14 @@ export default function ProfilePage() {
           )}
         </section>
 
-        <section
-          className={`mb-5 rounded-2xl border p-4 ${
-            theme === "dark"
-              ? "border-[#F49B33]/25 bg-[#211201] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
-              : "border-[#f1c894] bg-white shadow-sm"
-          }`}
-        >
-          <div className="flex items-center justify-between gap-4">
+        {isAdmin && (
+          <section
+            className={`mb-5 rounded-2xl border p-4 ${
+              theme === "dark"
+                ? "border-[#F49B33]/25 bg-[#211201] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
+                : "border-[#f1c894] bg-white shadow-sm"
+            }`}
+          >
             <div>
               <p className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
                 {t("profile.admin")}
@@ -309,6 +371,71 @@ export default function ProfilePage() {
                 {t("profile.switchToAdmin")}
               </p>
             </div>
+
+            <Accordion type="single" collapsible className="mt-3 w-full">
+              <AccordionItem
+                value="admin-shops"
+                className="border-[#F49B33]/25 dark:border-white/10"
+              >
+                <AccordionTrigger className="text-[#F49B33] dark:text-[#F49B33]">
+                  {t("profile.adminShops")} ({adminShops.length})
+                </AccordionTrigger>
+                <AccordionContent>
+                  {providerMode && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProviderMode(false);
+                        router.push("/user");
+                      }}
+                      className="mb-3 w-full rounded-lg border border-[#F49B33] px-3 py-2 text-sm font-semibold text-[#F49B33] transition hover:bg-[#F49B33]/10"
+                    >
+                      {t("profile.goToUserPanel")}
+                    </button>
+                  )}
+
+                  {isLoadingShops ? (
+                    <p className="text-sm text-slate-500 dark:text-white/60">
+                      {t("common.loading")}
+                    </p>
+                  ) : adminShops.length === 0 ? (
+                    <p className="text-sm text-slate-500 dark:text-white/60">
+                      {t("profile.noAdminShops")}
+                    </p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {adminShops.map((shop) => (
+                        <li key={shop.id}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setProviderMode(true);
+                              router.push(`/admin?shopId=${shop.id}`);
+                            }}
+                            className="w-full rounded-lg border border-slate-200 px-3 py-3 text-left text-sm dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5"
+                          >
+                            <p className="font-semibold text-slate-800 dark:text-white/90">
+                              {shop.name}
+                            </p>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <div className="mt-3 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => router.push("/admin/services/new")}
+                      aria-label={t("profile.addNewShop")}
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#F49B33] text-white transition hover:opacity-90"
+                    >
+                      <Plus className="h-5 w-5" />
+                    </button>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
 
             <button
               type="button"
@@ -331,6 +458,7 @@ export default function ProfilePage() {
             </button>
           </div>
         </section>
+)}
 
         <section
           className={`mb-5 rounded-2xl border p-4 ${
