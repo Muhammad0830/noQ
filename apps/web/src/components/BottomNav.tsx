@@ -57,10 +57,10 @@ const adminNavItems = (t: any) => {
       activePatterns: ["^/admin/analytics"],
     },
     {
-      href: "/user/profile",
+      href: "/profile",
       label: t("bottomNav.profile"),
       icon: <User className="w-6 h-6" />,
-      activePatterns: ["^/user/profile"],
+      activePatterns: ["^/profile"],
     },
   ];
 };
@@ -87,10 +87,10 @@ const navItems = (t: any) => {
       activePatterns: ["^/user/bookings"],
     },
     {
-      href: "/user/profile",
+      href: "/profile",
       label: t("bottomNav.profile"),
       icon: <User className="w-6 h-6" />,
-      activePatterns: ["^/user/profile", "^/user/settings"],
+      activePatterns: ["^/profile", "^/user/settings"],
     },
   ] as NavItem[];
 };
@@ -103,7 +103,7 @@ export default function BottomNav() {
 
   const useAdmin =
     providerMode &&
-    (pathname.startsWith("/user/profile") || pathname.startsWith("/admin"));
+    (pathname.startsWith("/profile") || pathname.startsWith("/admin"));
 
   const isActive = (patterns: string[]) => {
     return patterns.some((pattern) => {
@@ -165,7 +165,7 @@ export default function BottomNav() {
               <div className={adminClass} aria-hidden={!useAdmin}>
                 {adminNavItemsArray.map((item) => {
                   const active = isActive(item.activePatterns);
-                  const isProfileItem = item.href === "/user/profile";
+                  const isProfileItem = item.href === "/profile";
 
                   if (isProfileItem) {
                     return (
@@ -174,7 +174,7 @@ export default function BottomNav() {
                         type="button"
                         onClick={() => {
                           setProviderMode(false);
-                          router.push("/user/profile");
+                          router.push("/profile");
                         }}
                         className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-1 transition-colors ${
                           active

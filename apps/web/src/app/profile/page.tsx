@@ -519,7 +519,7 @@ export default function ProfilePage() {
                 </span>
               }
               subtitle={t("profile.securitySubtitle")}
-              onClick={() => router.push("/user/profile/security")}
+              onClick={() => router.push("/profile/security")}
               bordered
             />
 
@@ -531,7 +531,7 @@ export default function ProfilePage() {
                 </span>
               }
               subtitle={t("profile.paymentMethodsSubtitle")}
-              onClick={() => router.push("/user/profile/payments")}
+              onClick={() => router.push("/profile/payments")}
               bordered
             />
           </div>
@@ -557,7 +557,7 @@ export default function ProfilePage() {
                 </span>
               }
               subtitle={t("profile.notificationsSubtitle")}
-              onClick={() => router.push("/user/profile/notifications")}
+              onClick={() => router.push("/profile/notifications")}
               bordered
             />
 
@@ -586,7 +586,7 @@ export default function ProfilePage() {
                 </span>
               }
               subtitle={t("profile.helpSupportSubtitle")}
-              onClick={() => router.push("/user/profile/support")}
+              onClick={() => router.push("/profile/support")}
               bordered
             />
           </div>
