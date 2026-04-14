@@ -49,6 +49,7 @@ export default function Header() {
   const hideHeaderOnPages =
     pathname.startsWith("/book/") ||
     pathname.startsWith("/shop/") ||
+    pathname.startsWith("/admin") ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/signup") ||
     pathname.startsWith("/forgot-password");
@@ -117,7 +118,7 @@ export default function Header() {
                   {profileMenuOpen && (
                     <div className="absolute right-0 z-20 mt-2 w-48 rounded-lg border border-[#f1c894] bg-white py-2 shadow-lg dark:border-[#4a2e1b] dark:bg-[#2b170b]">
                       <Link
-                        href="/user/profile"
+                        href="/profile"
                         onClick={() => setProfileMenuOpen(false)}
                         className="flex items-center gap-3 px-4 py-2 text-sm text-[#8a5620] dark:text-[#ffd4a6] hover:bg-[#fff3e6] dark:hover:bg-[#3a2415] transition-colors"
                       >

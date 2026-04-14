@@ -17,7 +17,7 @@ export const translations: Translations = {
     'bottomNav.services': 'Xizmatlar',
     'bottomNav.history': 'Tarix',
     'bottomNav.profile': 'Profil',
-    'bottomNav.adminDash': 'Dash',
+    'bottomNav.adminDash': 'Dashbord',
     'bottomNav.adminServices': 'Xizmatlar (admin)',
     'bottomNav.adminStaff': 'Xodimlar',
     'bottomNav.adminAnalytics': 'Analytics',
@@ -226,6 +226,13 @@ export const translations: Translations = {
     'profile.paymentsPageDesc': 'To\'lov usullari sahifasi uchun joy tayyorlandi.',
     'profile.supportPageTitle': 'Yordam',
     'profile.supportPageDesc': 'Yordam sahifasi uchun joy tayyorlandi.',
+    'profile.adminShops': 'Mening shoplarim',
+    'profile.noAdminShops': "Sizda hozircha shop yo'q.",
+    'profile.missingAddress': "Manzil ko'rsatilmagan",
+    'profile.goToAdmin': "Admin panelga o'tish",
+    'profile.goToUserPanel': "Foydalanuvchi paneliga o'tish",
+    'profile.extraShops': "Qo'shimcha shoplar",
+    'profile.addNewShop': "Yangi shop qo'shish",
 
     // Header & Auth
     'header.notifications': 'Bildirishnomalar',
@@ -243,7 +250,7 @@ export const translations: Translations = {
     'auth.roleUser': 'Foydalanuvchi',
     'auth.roleAdmin': 'Admin',
 
-    // Signup
+    // Signup (uz-latn)
     'signup.subtitle': "Xizmatlardan foydalanishni boshlang",
     'signup.fullName': "To'liq ism",
     'signup.fullNamePlaceholder': 'Ismingiz',
@@ -335,7 +342,7 @@ export const translations: Translations = {
     'bottomNav.services': 'Хизматлар',
     'bottomNav.history': 'Тарих',
     'bottomNav.profile': 'Профил',
-    'bottomNav.adminDash': 'Dash',
+    'bottomNav.adminDash': 'Админ панели',
     'bottomNav.adminServices': 'Хизматлар (админ)',
     'bottomNav.adminStaff': 'Ходимлар',
     'bottomNav.adminAnalytics': 'Аналитика',
@@ -544,6 +551,13 @@ export const translations: Translations = {
     'profile.paymentsPageDesc': 'Тўлов усуллари саҳифаси учун жой тайёрланди.',
     'profile.supportPageTitle': 'Ёрдам',
     'profile.supportPageDesc': 'Ёрдам саҳифаси учун жой тайёрланди.',
+    'profile.adminShops': 'Менинг шопларим',
+    'profile.noAdminShops': 'Сизда ҳозирча шоп йўқ.',
+    'profile.missingAddress': 'Манзил кўрсатилмаган',
+    'profile.goToAdmin': 'Админ панелга ўтиш',
+    'profile.goToUserPanel': 'Фойдаланувчи панелига ўтиш',
+    'profile.extraShops': 'Қўшимча шоплар',
+    'profile.addNewShop': 'Янги шоп қўшиш',
 
     // Header & Auth
     'header.notifications': 'Билдиришномалар',
@@ -653,7 +667,7 @@ export const translations: Translations = {
     'bottomNav.services': 'Услуги',
     'bottomNav.history': 'История',
     'bottomNav.profile': 'Профиль',
-    'bottomNav.adminDash': 'Панель',
+    'bottomNav.adminDash': 'Дашборд',
     'bottomNav.adminServices': 'Услуги (админ)',
     'bottomNav.adminStaff': 'Персонал',
     'bottomNav.adminAnalytics': 'Аналитика',
@@ -862,6 +876,13 @@ export const translations: Translations = {
     'profile.paymentsPageDesc': 'Страница способов оплаты готовится.',
     'profile.supportPageTitle': 'Поддержка',
     'profile.supportPageDesc': 'Страница поддержки готовится.',
+    'profile.adminShops': 'Мои салоны',
+    'profile.noAdminShops': 'У вас пока нет салонов.',
+    'profile.missingAddress': 'Адрес не указан',
+    'profile.goToAdmin': 'Перейти в админ-панель',
+    'profile.goToUserPanel': 'Перейти в пользовательскую панель',
+    'profile.extraShops': 'Дополнительные салоны',
+    'profile.addNewShop': 'Добавить новый салон',
 
     // Header & Auth
     'header.notifications': 'Уведомления',

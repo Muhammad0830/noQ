@@ -60,5 +60,13 @@ app.use(
   adminOnly,
   adminRoutes.adminServicePanel,
 );
+app.use(
+  "/api/admin/staffs",
+  authMiddleware,
+  shopValidateMiddleware,
+  adminOnly,
+  adminRoutes.staffRouter,
+);
+
 
 export default app;

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import type { AuthContextType, User } from "@shared/types/general_types";
+import type { AuthContextType, Shop, User } from "@shared/types/general_types";
 import api, {
   API_ENDPOINTS,
   clearPersistedAuth,
@@ -10,6 +10,7 @@ import api, {
   persistAuth,
   USER_STORAGE_KEY,
 } from "@/lib/api";
+import { useApiMutation } from "@/hooks/useApiMutation";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -21,6 +22,25 @@ type ApiUserPayload = {
   avatarUrl?: string | null;
   role?: "USER" | "ADMIN";
   createdAt?: string;
+  shops?: Shop[];
+};
+
+type SignInPayload = {
+  email: string;
+  password: string;
+};
+
+type SignInResponse = {
+  access_token?: string;
+  refresh_token?: string;
+  user?: ApiUserPayload;
+};
+
+type SignUpPayload = {
+  email: string;
+  password: string;
+  name: string;
+  phoneNumber?: string;
 };
 
 const mapApiUserToUser = (apiUser: ApiUserPayload): User => ({
@@ -31,20 +51,21 @@ const mapApiUserToUser = (apiUser: ApiUserPayload): User => ({
   avatarUrl: apiUser.avatarUrl || undefined,
   role: apiUser.role || "USER",
   createdAt: apiUser.createdAt || new Date().toISOString(),
+  shops: apiUser.shops || [],
 });
-
-const parseErrorMessage = async (response: Response) => {
-  try {
-    const errorData = await response.json();
-    return errorData?.error || errorData?.message || "So'rov bajarilmadi";
-  } catch {
-    return "So'rov bajarilmadi";
-  }
-};
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const signInMutation = useApiMutation<SignInResponse, SignInPayload>(
+    API_ENDPOINTS.auth.signin,
+    "post",
+  );
+  const signUpMutation = useApiMutation<unknown, SignUpPayload>(
+    API_ENDPOINTS.auth.signup,
+    "post",
+  );
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -61,17 +82,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       try {
-        const profileResponse = await fetch(API_ENDPOINTS.auth.me, {
+        const profileResponse = await api.get<ApiUserPayload>(
+          API_ENDPOINTS.auth.me,
+          {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
+          },
+        );
 
-        if (!profileResponse.ok) {
-          throw new Error("Sessiya yaroqsiz yoki muddati tugagan");
-        }
-
-        const profileData = await profileResponse.json();
+        const profileData = profileResponse.data;
         const mappedUser = mapApiUserToUser(profileData);
         setUser(mappedUser);
         const activeStorage = getStorageBySource(storedAuth?.source ?? "local");
@@ -90,50 +110,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string, remember = true) => {
     setIsLoading(true);
     try {
-      const response = await fetch(API_ENDPOINTS.auth.signin, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        const errorPayload = (await response.json().catch(() => null)) as {
-          error?: string;
-        } | null;
-        throw new Error(errorPayload?.error || "Login failed");
-      }
-
-      const data = (await response.json()) as {
-        access_token?: string;
-        refresh_token?: string;
-        user?: {
-          id: string;
-          email: string;
-          name?: string;
-          phoneNumber?: string;
-          avatarUrl?: string;
-        };
-      };
+      const data = await signInMutation.mutateAsync({ email, password });
 
       if (!data.access_token || !data.user) {
         throw new Error("Invalid login response");
       }
 
-      const userData: User = {
-        id: data.user.id,
-        email: data.user.email,
-        name: data.user.name || data.user.email.split("@")[0],
-        phoneNumber: data.user.phoneNumber || undefined,
-        avatarUrl: data.user.avatarUrl || undefined,
-        role: "USER",
-        createdAt: new Date().toISOString(),
-      };
+      const profileResponse = await api.get<ApiUserPayload>(API_ENDPOINTS.auth.me, {
+        headers: {
+          Authorization: `Bearer ${data.access_token}`,
+        },
+      });
 
-      setUser(userData);
+      const profileData = profileResponse.data;
+      const mappedUser = mapApiUserToUser(profileData);
+
+      setUser(mappedUser);
       persistAuth(
         data.access_token,
         data.refresh_token ?? null,
-        userData,
+        mappedUser,
         remember ? "local" : "session",
       );
     } catch (error) {
@@ -179,23 +175,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   ) => {
     setIsLoading(true);
     try {
-      const response = await fetch(API_ENDPOINTS.auth.signup, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password,
-          name,
-          ...(phone ? { phoneNumber: phone } : {}),
-        }),
+      await signUpMutation.mutateAsync({
+        email,
+        password,
+        name,
+        ...(phone ? { phoneNumber: phone } : {}),
       });
-
-      if (!response.ok) {
-        const errorPayload = (await response.json().catch(() => null)) as {
-          error?: string;
-        } | null;
-        throw new Error(errorPayload?.error || "Signup failed");
-      }
 
       await login(email, password);
     } catch (error) {

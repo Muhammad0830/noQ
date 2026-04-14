@@ -114,3 +114,8 @@ x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 GET http://localhost:3001/api/admin/services
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
+
+###
+GET http://localhost:3001/api/admin/staffs
+Authorization: Bearer {{bearer_token}}
+x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89

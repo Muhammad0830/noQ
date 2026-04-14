@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Home, Search, History, User } from "lucide-react";
 import { useProviderMode } from "@/contexts/ProviderModeContext";
 import { Scissors, BarChart2, History as HistoryIcon } from "lucide-react";
@@ -57,12 +57,12 @@ const adminNavItems = (t: any) => {
       activePatterns: ["^/admin/analytics"],
     },
     {
-      href: "/user/profile",
+      href: "/profile",
       label: t("bottomNav.profile"),
       icon: <User className="w-6 h-6" />,
-      activePatterns: ["^/user/profile"],
+      activePatterns: ["^/profile"],
     },
-  ] as NavItem[];
+  ];
 };
 
 // eslint-disable-next-line
@@ -87,34 +87,23 @@ const navItems = (t: any) => {
       activePatterns: ["^/user/bookings"],
     },
     {
-      href: "/user/profile",
+      href: "/profile",
       label: t("bottomNav.profile"),
       icon: <User className="w-6 h-6" />,
-      activePatterns: ["^/user/profile", "^/user/settings"],
+      activePatterns: ["^/profile", "^/user/settings"],
     },
   ] as NavItem[];
 };
 
 export default function BottomNav() {
-  const pathname = usePathname();
+  const router = useRouter();
   const { t } = useLanguage();
+  const { providerMode, setProviderMode } = useProviderMode();
+  const pathname = usePathname();
 
-  const { providerMode } = useProviderMode();
   const useAdmin =
     providerMode &&
-    (pathname.startsWith("/user/profile") || pathname.startsWith("/admin"));
-
-  const userClass = `absolute inset-0 flex h-16 transition-transform duration-300 ease-in-out items-center ${
-    useAdmin
-      ? "translate-y-full opacity-0 pointer-events-none"
-      : "translate-y-0 opacity-100"
-  }`;
-
-  const adminClass = `absolute inset-0 flex h-16 transition-transform duration-300 ease-in-out items-center ${
-    useAdmin
-      ? "translate-y-0 opacity-100"
-      : "translate-y-full opacity-0 pointer-events-none"
-  }`;
+    (pathname.startsWith("/profile") || pathname.startsWith("/admin"));
 
   const isActive = (patterns: string[]) => {
     return patterns.some((pattern) => {
@@ -131,6 +120,18 @@ export default function BottomNav() {
       <div className="relative h-16 overflow-hidden">
         {/* two stacked bars: user (top) and admin (above) - animate translateY */}
         {(() => {
+          const userClass = `absolute inset-0 flex h-16 transition-transform duration-300 ease-in-out items-center ${
+            useAdmin
+              ? "translate-y-full opacity-0 pointer-events-none"
+              : "translate-y-0 opacity-100"
+          }`;
+
+          const adminClass = `absolute inset-0 flex h-16 transition-transform duration-300 ease-in-out items-center ${
+            useAdmin
+              ? "translate-y-0 opacity-100"
+              : "translate-y-full opacity-0 pointer-events-none"
+          }`;
+
           return (
             <>
               <div className={userClass} aria-hidden={useAdmin}>
@@ -164,6 +165,37 @@ export default function BottomNav() {
               <div className={adminClass} aria-hidden={!useAdmin}>
                 {adminNavItemsArray.map((item) => {
                   const active = isActive(item.activePatterns);
+                  const isProfileItem = item.href === "/profile";
+
+                  if (isProfileItem) {
+                    return (
+                      <button
+                        key={item.href}
+                        type="button"
+                        onClick={() => {
+                          setProviderMode(false);
+                          router.push("/profile");
+                        }}
+                        className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-1 transition-colors ${
+                          active
+                            ? "text-blue-600 dark:text-blue-400"
+                            : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                        }`}
+                      >
+                        <div
+                          className={
+                            active ? "text-blue-600 dark:text-blue-400" : ""
+                          }
+                        >
+                          {item.icon}
+                        </div>
+                        <span className="text-xs font-medium whitespace-nowrap">
+                          {item.label}
+                        </span>
+                      </button>
+                    );
+                  }
+
                   return (
                     <Link
                       key={item.href}
