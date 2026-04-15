@@ -7,6 +7,117 @@ import { schedulePostValidate } from "../validateFunctions/bookingScheduleValida
 
 const scheduleRouter = Router();
 
+scheduleRouter.get(
+  "/",
+  authMiddleware,
+  adminOnly,
+  shopValidateMiddleware,
+  async (req: any, res) => {
+    try {
+      const { date } = req.query as { date?: string };
+
+      if (!date) {
+        return res.status(400).json({ message: "date is required" });
+      }
+
+      const startOfDay = new Date(`${date}T00:00:00`);
+      const endOfDay = new Date(`${date}T23:59:59`);
+
+      // ✅ fetch bookings with full relations
+      const bookings = await prisma.booking.findMany({
+        where: {
+          shopId: req.shop.id,
+          startTime: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              avatarUrl: true,
+              phoneNumber: true,
+            },
+          },
+          service: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              durationMin: true,
+            },
+          },
+          shop: {
+            select: {
+              id: true,
+              name: true,
+              address: true,
+            },
+          },
+          staff: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          startTime: "asc",
+        },
+      });
+
+      // ✅ also include one-time blocks (important for admin view)
+      const blocks = await prisma.shopBlock.findMany({
+        where: {
+          shopId: req.shop.id,
+          startTime: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+        },
+        orderBy: {
+          startTime: "asc",
+        },
+      });
+
+      // ✅ recurring blocks (from schedule)
+      const dayOfWeek = new Date(date).getDay();
+
+      const recurringBlocks = await prisma.shopSchedule.findMany({
+        where: {
+          shopId: req.shop.id,
+          dayOfWeek,
+          type: "BLOCK",
+        },
+      });
+
+      const recurringBlocksFormatted = recurringBlocks.map((b) => ({
+        id: b.id,
+        startTime: new Date(`${date}T${b.startTime}:00`),
+        endTime: new Date(`${date}T${b.endTime}:00`),
+        type: "RECURRING_BLOCK",
+      }));
+
+      return res.status(200).json({
+        date,
+        bookings,
+        blocks,
+        recurringBlocks: recurringBlocksFormatted,
+      });
+    } catch (error) {
+      console.error("Schedule fetch error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
+
 scheduleRouter.post(
   "/",
   authMiddleware,
