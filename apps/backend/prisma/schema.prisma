@@ -67,6 +67,7 @@ model Service {
   durationMin Int
   isActive    Boolean @default(true)
   shopId      String
+  bufferTime  Int?
 
   shop      Shop              @relation(fields: [shopId], references: [id])
   bookings  Booking[]
@@ -81,7 +82,7 @@ model Booking {
   userId    String
   shopId    String
   serviceId String
-  staffId   String? // optional staff assignment
+  staffId   String? 
   startTime DateTime
   endTime   DateTime
   status    BookingStatus @default(PENDING)
@@ -149,6 +150,7 @@ model ShopSchedule {
   dayOfWeek Int
   startTime String
   endTime   String
+  type      ScheduleType @default(OPEN)
 
   shop Shop @relation(fields: [shopId], references: [id])
 
@@ -202,4 +204,9 @@ enum StaffRole {
   OWNER
   MANAGER
   STAFF
+}
+
+enum ScheduleType {
+  OPEN
+  BLOCK
 }

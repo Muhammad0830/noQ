@@ -13,6 +13,10 @@ GET http://localhost:3001/api/bookings/users/history
 Authorization: Bearer {{bearer_token}}
 
 ###
+GET http://localhost:3001/api/bookings/available-slots?shopId=4c953f8f-f7c8-4860-962d-21a2f06bcb89&serviceId=89629de1-2a63-43b2-821a-e84ddf1ce1b8&date=2026-04-06
+Authorization: Bearer {{bearer_token}}
+
+###
 GET http://localhost:3001/api/bookings/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89/active
 Authorization: Bearer {{bearer_token}}
 
