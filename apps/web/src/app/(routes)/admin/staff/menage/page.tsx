@@ -57,7 +57,7 @@ const staffMembers: StaffMember[] = [
   },
 ];
 
-export default function StaffMenagePage() {
+export default function Page() {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [activeStaffId, setActiveStaffId] = useState<number>(1);
