@@ -11,6 +11,7 @@ import dashboardRouter from "./admin_panel/dashboard.routes.js";
 import analyticsRouter from "./admin_panel/analytics.routes.js";
 import historyRouter from "./admin_panel/history.routes.js";
 import staffRouter from "./admin_panel/staff.routes.js";
+import scheduleRouter from "./admin_panel/schedule.routes.js";
 
 export const userRoutes = {
   categoryRouter,
@@ -26,7 +27,8 @@ export const adminRoutes = {
   analyticsRouter,
   historyRouter,
   adminServicePanel,
-  staffRouter
+  staffRouter,
+  scheduleRouter,
 };
 
 export const generalRoutes = {

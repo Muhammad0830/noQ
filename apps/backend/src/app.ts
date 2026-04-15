@@ -67,6 +67,14 @@ app.use(
   adminOnly,
   adminRoutes.staffRouter,
 );
+app.use(
+  "/api/admin/schedule",
+  authMiddleware,
+  shopValidateMiddleware,
+  adminOnly,
+  adminRoutes.scheduleRouter,
+);
+
 
 
 export default app;

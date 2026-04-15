@@ -90,6 +90,10 @@ bookingRouter.get("/available-slots", async (req, res) => {
       : null;
 
     const durationMin = service?.durationMin ?? 45;
+    const bufferTimeMin = service?.bufferTime ?? 0;
+
+    const effectiveDuration = durationMin + bufferTimeMin;
+
     const startDay = new Date(`${date}T00:00:00`);
     const endDay = new Date(`${date}T23:59:59`);
 
@@ -111,16 +115,30 @@ bookingRouter.get("/available-slots", async (req, res) => {
       select: { startTime: true, endTime: true },
     });
 
-    const busyRanges = [...bookings, ...blocks];
-    const slots: { id: string; time: string; available: boolean }[] = [];
+    const busyRanges = [
+      ...bookings.map((b) => ({
+        startTime: b.startTime,
+        endTime: new Date(b.endTime.getTime() + bufferTimeMin * 60 * 1000),
+      })),
+      ...blocks,
+    ];
+
+    const slots: {
+      id: string;
+      time: string;
+      available: boolean;
+      duration: number;
+      bufferTime: number;
+    }[] = [];
 
     schedules.forEach((schedule) => {
       let cursor = toMinutes(schedule.startTime);
       const close = toMinutes(schedule.endTime);
 
-      while (cursor + durationMin <= close) {
+      while (cursor + effectiveDuration <= close) {
         const startTime = toTimeString(cursor);
-        const endTime = toTimeString(cursor + durationMin);
+        const endTime = toTimeString(cursor + effectiveDuration);
+
         const slotStart = new Date(`${date}T${startTime}:00`);
         const slotEnd = new Date(`${date}T${endTime}:00`);
 
@@ -131,10 +149,12 @@ bookingRouter.get("/available-slots", async (req, res) => {
         slots.push({
           id: `${shopId}-${date}-${startTime}`,
           time: startTime,
+          duration: durationMin,
+          bufferTime: bufferTimeMin,
           available: !hasConflict,
         });
 
-        cursor += durationMin;
+        cursor += effectiveDuration;
       }
     });
 
@@ -284,7 +304,9 @@ bookingRouter.post("/", authMiddleware, async (req: any, res) => {
 
     const start = new Date(startTime);
     const end = new Date(start);
-    end.setMinutes(end.getMinutes() + service!.durationMin);
+    end.setMinutes(
+      end.getMinutes() + service!.durationMin + (service!.bufferTime ?? 0),
+    );
 
     const validateResult: { hasError: boolean; status?: number; json?: any } =
       await bookingScheduleValidate(shopId, start, end);
