@@ -11,7 +11,7 @@ import {
   UserRound,
 } from "lucide-react";
 
-export default function ManageStaff() {
+export default function Page() {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [activeDay, setActiveDay] = useState("thu");
