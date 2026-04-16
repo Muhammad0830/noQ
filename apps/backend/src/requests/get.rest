@@ -65,7 +65,7 @@ GET http://localhost:3001/api/shops/925e1f3b-b646-42a7-8235-1b2c612dee94/reviews
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89/day-timeline?date=2026-04-06
+GET http://localhost:3001/api/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89/day-timeline?date=2026-04-14
 Authorization: Bearer {{bearer_token}}
 
 ###

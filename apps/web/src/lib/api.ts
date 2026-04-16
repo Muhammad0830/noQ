@@ -1,7 +1,8 @@
 import { AuthStorageSource, User } from "@shared/types/general_types";
 import axios from "axios";
 
-const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://10.20.11.99:3001/api";
+const rawApiUrl =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 const normalizedApiUrl = rawApiUrl.replace(/\/+$/, "");
 const API_BASE_URL = /\/api$/i.test(normalizedApiUrl)
   ? normalizedApiUrl
@@ -159,6 +160,12 @@ export const API_ENDPOINTS = {
   // Users
   users: {
     profile: `${API_BASE_URL}/users/profile`,
+  },
+
+  // Admin
+  admin: {
+    dashboardBaseInfo: `${API_BASE_URL}/admin/dashboard/base_info`,
+    dashboardHistory: `${API_BASE_URL}/admin/history`,
   },
 };
 

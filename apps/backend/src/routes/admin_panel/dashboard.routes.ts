@@ -92,7 +92,6 @@ dashboardRouter.get(
       const currentRevenue = currentCompleted.reduce((acc, b) => {
         return acc + Number(b.service.price);
       }, 0);
-
       const prevRevenue = prevCompleted.reduce((acc, b) => {
         return acc + Number(b.service.price);
       }, 0);

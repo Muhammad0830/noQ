@@ -15,6 +15,7 @@ type UseApiQueryOptions<T> = {
   staleTime?: number;
   refetchOnMount?: boolean | "always";
   refetchOnWindowFocus?: boolean;
+  headers?: HeadersInit;
 
   queryOptions?: Omit<
     UseQueryOptions<T, ApiError, T, readonly unknown[]>,
@@ -30,6 +31,7 @@ const useApiQuery = <T,>(
     staleTime = 0,
     refetchOnMount = "always",
     refetchOnWindowFocus = true,
+    headers,
     queryOptions,
   }: UseApiQueryOptions<T>,
 ) => {
@@ -47,6 +49,7 @@ const useApiQuery = <T,>(
         method: "GET",
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(headers || {}),
           "Content-Type": "application/json",
         },
         cache: "no-store",

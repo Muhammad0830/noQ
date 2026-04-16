@@ -9,18 +9,17 @@ datasource db {
 }
 
 model User {
-  id          String   @id
-  email       String   @unique
-  name        String
-  avatarUrl   String?
-  createdAt   DateTime @default(now())
-  role        Role     @default(USER)
-  phoneNumber String?
-
+  id               String            @id
+  email            String            @unique
+  name             String
+  avatarUrl        String?
+  createdAt        DateTime          @default(now())
+  role             Role              @default(USER)
+  phoneNumber      String?
   bookings         Booking[]         @relation("UserBookings")
-  reviews          Review[]          @relation("UserReviews")
-  favoriteShops    FavoriteShop[]    @relation("UserFavoriteShops")
   favoriteServices FavoriteService[] @relation("UserFavoriteServices")
+  favoriteShops    FavoriteShop[]    @relation("UserFavoriteShops")
+  reviews          Review[]          @relation("UserReviews")
   shops            Shop[]            @relation("ShopOwner")
   staffs           Staff[]           @relation("UserStaffs")
 }
@@ -33,7 +32,7 @@ model ShopCategory {
 }
 
 model Shop {
-  id                 String   @id @default(uuid())
+  id                 String         @id @default(uuid())
   name               String
   description        String?
   logoUrl            String?
@@ -41,37 +40,36 @@ model Shop {
   phone              String?
   categoryId         String
   ownerId            String
-  isOpen             Boolean  @default(true)
-  createdAt          DateTime @default(now())
+  isOpen             Boolean        @default(true)
+  createdAt          DateTime       @default(now())
   backgroundImageUrl String?
-
-  category      ShopCategory   @relation(fields: [categoryId], references: [id])
-  owner         User           @relation("ShopOwner", fields: [ownerId], references: [id])
-  services      Service[]
-  bookings      Booking[]
-  reviews       Review[]
-  favoriteShops FavoriteShop[]
-  staffs        Staff[]        @relation("ShopStaffs")
-  shopSchedules ShopSchedule[]
-  blocks        ShopBlock[]
+  bookings           Booking[]
+  favoriteShops      FavoriteShop[]
+  reviews            Review[]
+  services           Service[]
+  category           ShopCategory   @relation(fields: [categoryId], references: [id])
+  owner              User           @relation("ShopOwner", fields: [ownerId], references: [id])
+  blocks             ShopBlock[]
+  shopSchedules      ShopSchedule[]
+  staffs             Staff[]        @relation("ShopStaffs")
 
   @@index([categoryId])
   @@index([ownerId])
 }
 
 model Service {
-  id          String  @id @default(uuid())
+  id          String            @id @default(uuid())
   name        String
   description String?
-  price       Decimal @db.Decimal(10, 2)
+  price       Decimal           @db.Decimal(10, 2)
   durationMin Int
-  isActive    Boolean @default(true)
+  isActive    Boolean           @default(true)
   shopId      String
-
-  shop      Shop              @relation(fields: [shopId], references: [id])
-  bookings  Booking[]
-  reviews   Review[]
-  favorites FavoriteService[]
+  bufferTime  Int?
+  bookings    Booking[]
+  favorites   FavoriteService[]
+  reviews     Review[]
+  shop        Shop              @relation(fields: [shopId], references: [id])
 
   @@index([shopId])
 }
@@ -81,16 +79,15 @@ model Booking {
   userId    String
   shopId    String
   serviceId String
-  staffId   String? // optional staff assignment
   startTime DateTime
   endTime   DateTime
   status    BookingStatus @default(PENDING)
   createdAt DateTime      @default(now())
-
-  user    User    @relation("UserBookings", fields: [userId], references: [id])
-  shop    Shop    @relation(fields: [shopId], references: [id])
-  service Service @relation(fields: [serviceId], references: [id])
-  staff   Staff?  @relation("StaffBookings", fields: [staffId], references: [id])
+  staffId   String?
+  service   Service       @relation(fields: [serviceId], references: [id])
+  shop      Shop          @relation(fields: [shopId], references: [id])
+  staff     Staff?        @relation("StaffBookings", fields: [staffId], references: [id])
+  user      User          @relation("UserBookings", fields: [userId], references: [id])
 
   @@index([userId])
   @@index([shopId, startTime])
@@ -107,10 +104,9 @@ model Review {
   shopId    String?
   serviceId String?
   createdAt DateTime @default(now())
-
-  user    User     @relation("UserReviews", fields: [userId], references: [id])
-  shop    Shop?    @relation(fields: [shopId], references: [id])
-  service Service? @relation(fields: [serviceId], references: [id])
+  service   Service? @relation(fields: [serviceId], references: [id])
+  shop      Shop?    @relation(fields: [shopId], references: [id])
+  user      User     @relation("UserReviews", fields: [userId], references: [id])
 
   @@index([userId])
   @@index([shopId])
@@ -121,9 +117,8 @@ model FavoriteShop {
   id     String @id @default(uuid())
   userId String
   shopId String
-
-  user User @relation("UserFavoriteShops", fields: [userId], references: [id])
-  shop Shop @relation(fields: [shopId], references: [id])
+  shop   Shop   @relation(fields: [shopId], references: [id])
+  user   User   @relation("UserFavoriteShops", fields: [userId], references: [id])
 
   @@unique([userId, shopId])
   @@index([userId])
@@ -131,12 +126,11 @@ model FavoriteShop {
 }
 
 model FavoriteService {
-  id        String @id @default(uuid())
+  id        String  @id @default(uuid())
   userId    String
   serviceId String
-
-  user    User    @relation("UserFavoriteServices", fields: [userId], references: [id])
-  service Service @relation(fields: [serviceId], references: [id])
+  service   Service @relation(fields: [serviceId], references: [id])
+  user      User    @relation("UserFavoriteServices", fields: [userId], references: [id])
 
   @@unique([userId, serviceId])
   @@index([userId])
@@ -144,13 +138,13 @@ model FavoriteService {
 }
 
 model ShopSchedule {
-  id        String @id @default(uuid())
+  id        String       @id @default(uuid())
   shopId    String
   dayOfWeek Int
   startTime String
   endTime   String
-
-  shop Shop @relation(fields: [shopId], references: [id])
+  type      ScheduleType @default(OPEN)
+  shop      Shop         @relation(fields: [shopId], references: [id])
 
   @@index([shopId])
 }
@@ -162,8 +156,7 @@ model ShopBlock {
   endTime   DateTime
   reason    String?
   createdAt DateTime @default(now())
-
-  shop Shop @relation(fields: [shopId], references: [id])
+  shop      Shop     @relation(fields: [shopId], references: [id])
 
   @@index([shopId])
 }
@@ -174,10 +167,9 @@ model Staff {
   shopId    String
   role      StaffRole @default(STAFF)
   createdAt DateTime  @default(now())
-
-  shop     Shop      @relation("ShopStaffs", fields: [shopId], references: [id])
-  user     User      @relation("UserStaffs", fields: [userId], references: [id])
-  bookings Booking[] @relation("StaffBookings")
+  bookings  Booking[] @relation("StaffBookings")
+  shop      Shop      @relation("ShopStaffs", fields: [shopId], references: [id])
+  user      User      @relation("UserStaffs", fields: [userId], references: [id])
 
   @@unique([userId, shopId])
   @@index([userId])
@@ -202,4 +194,9 @@ enum StaffRole {
   OWNER
   MANAGER
   STAFF
+}
+
+enum ScheduleType {
+  OPEN
+  BLOCK
 }

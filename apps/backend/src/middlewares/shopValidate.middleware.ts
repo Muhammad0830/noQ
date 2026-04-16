@@ -2,10 +2,14 @@ import prisma from "@/db/prisma.js";
 
 export async function shopValidateMiddleware(req: any, res: any, next: any) {
   try {
-    const shopId = req.headers["x-shopid"];
+    const headerShopId = req.headers["x-shopid"] ?? req.headers["x-shop-id"];
+    const rawShopId = Array.isArray(headerShopId)
+      ? headerShopId[0]
+      : headerShopId ?? req.query?.shopId;
+    const shopId = typeof rawShopId === "string" ? rawShopId.trim() : "";
 
     if (!shopId) {
-      return res.status(401).json({ message: "No shopId" });
+      return res.status(400).json({ message: "No shopId" });
     }
 
     const shop = await prisma.shop.findUnique({
