@@ -4,83 +4,57 @@ import type { Booking } from "@shared/types/bookings.js";
 
 const historyRouter = Router();
 
+const getDayRange = (rawDate?: string) => {
+  const parsed = rawDate ? new Date(rawDate) : new Date();
+  const safeDate = Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+
+  const startOfDay = new Date(
+    safeDate.getFullYear(),
+    safeDate.getMonth(),
+    safeDate.getDate(),
+    0,
+    0,
+    0,
+    0,
+  );
+  const endOfDay = new Date(startOfDay);
+  endOfDay.setDate(endOfDay.getDate() + 1);
+
+  return { startOfDay, endOfDay };
+};
+
 historyRouter.get("/", async (req: any, res: any) => {
   try {
-    const { date, search } = req.query;
-
-    const selectedDate = new Date(date);
-
-    // build date range
-    let startDate = new Date(selectedDate);
-    let endDate = new Date(selectedDate);
-
-    if (selectedDate.getDate() === new Date().getDate()) {
-      endDate = new Date(); // today → until now
-    } else {
-      endDate.setDate(endDate.getDate() + 1); // next day
-    }
+    const { date } = req.query as { date?: string };
+    const { startOfDay, endOfDay } = getDayRange(date);
 
     const bookings = await prisma.booking.findMany({
       where: {
         shopId: req.shop.id,
         startTime: {
-          gte: startDate,
-          lte: endDate,
+          gte: startOfDay,
+          lt: endOfDay,
         },
-        OR: [
-          {
-            user: {
-              name: {
-                contains: search,
-                mode: "insensitive",
-              },
-            },
-          },
-          {
-            staff: {
-              user: {
-                name: {
-                  contains: search,
-                  mode: "insensitive",
-                },
-              },
-            },
-          },
-        ],
+      },
+      orderBy: {
+        startTime: "asc",
       },
       include: {
         shop: true,
         service: true,
         user: true,
-        staff: true,
-      },
-    });
-
-    const dayBookings = await prisma.booking.findMany({
-      where: {
-        shopId: req.shop.id,
-        startTime: {
-          gte: startDate,
-          lte: endDate,
+        staff: {
+          include: {
+            user: true,
+          },
         },
       },
-      include: {
-        service: true,
-      },
     });
 
-    const dayRevenue = dayBookings.reduce((acc, booking) => {
-      if (booking.service?.price) {
-        const servicePrice = Number(booking.service.price);
-        return acc + servicePrice;
-      }
-      return acc;
-    }, 0);
-
-    return res.status(200).json({ bookings, dayRevenue });
+    return res.status(200).json(bookings);
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Something went wrong" });
+    console.error("Error fetching admin history:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 });
 

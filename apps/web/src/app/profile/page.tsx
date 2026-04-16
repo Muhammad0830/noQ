@@ -409,6 +409,12 @@ export default function ProfilePage() {
                           <button
                             type="button"
                             onClick={() => {
+                              if (typeof window !== "undefined") {
+                                window.localStorage.setItem(
+                                  "selected_shop_id",
+                                  shop.id,
+                                );
+                              }
                               setProviderMode(true);
                               router.push(`/admin?shopId=${shop.id}`);
                             }}
