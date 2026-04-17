@@ -105,7 +105,7 @@ x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 {
   "shopId": "4c953f8f-f7c8-4860-962d-21a2f06bcb89",
   "name": "Beard Trim", 
-  "price": 4.99,
+  "price": 5.99,
   "durationMin": 10
 }
 

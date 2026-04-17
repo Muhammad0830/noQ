@@ -73,4 +73,48 @@ serviceRouter.post("/isActive/toggle", async (req: any, res: any) => {
   }
 });
 
+serviceRouter.put(
+  "/:serviceId",
+  authMiddleware,
+  adminOnly,
+  shopValidateMiddleware,
+  async (req: any, res) => {
+    try {
+      const { name, price, durationMin, bufferTime = null } = req.body;
+
+      const { serviceId } = req.params;
+
+      const service = await prisma.service.findUnique({
+        where: {
+          id: serviceId,
+        },
+        include: {
+          shop: true,
+        },
+      });
+
+      if (!service) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+
+      await prisma.service.update({
+        where: {
+          id: serviceId,
+        },
+        data: {
+          name,
+          price,
+          durationMin,
+          bufferTime,
+        },
+      });
+
+      res.status(200).json({ message: "Service updated successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
+
 export default serviceRouter;
