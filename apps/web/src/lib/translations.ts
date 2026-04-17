@@ -20,6 +20,23 @@ export const translations: Translations = {
     'bottomNav.adminDash': 'Dashbord',
     'bottomNav.adminServices': 'Xizmatlar (admin)',
     'bottomNav.adminStaff': 'Xodimlar',
+    // Admin Dashboard
+    'admin.dashboard.panel': 'Admin panel',
+    'admin.dashboard.shopNotFound': "Shop topilmadi. Profil bo'limidan admin shopni tanlang.",
+    'admin.dashboard.revenue': 'Daromad',
+    'admin.dashboard.bookings': 'Bandlovlar',
+    'admin.dashboard.newAppointment': 'Yangi bandlov',
+    'admin.dashboard.staff': 'Xodimlar',
+    'admin.dashboard.openSchedule': 'Jadval sahifasini ochish',
+    'admin.dashboard.noBookingsForDate': "Tanlangan sana uchun bandlovlar topilmadi.",
+    'admin.dashboard.unknownCustomer': 'Nomaʼlum mijoz',
+    'admin.dashboard.unknownService': 'Nomaʼlum xizmat',
+    'admin.dashboard.notAssigned': 'Biriktirilmagan',
+    'admin.dashboard.period7d': '(7d)',
+    'admin.dashboard.error.baseInfoPrefix': "Dashboard ma'lumotlarini olishda xatolik: {{message}}",
+    'admin.dashboard.error.schedulePrefix': 'Jadvalni olishda xatolik: {{message}}',
+    'admin.dashboard.error.baseInfoFallback': "Dashboard statistikalarini yuklab bo'lmadi",
+    'admin.dashboard.error.scheduleFallback': "Dashboard jadvalini yuklab bo'lmadi",
     'bottomNav.adminAnalytics': 'Analytics',
 
     // Hero
@@ -173,6 +190,7 @@ export const translations: Translations = {
     'history.status.pending': 'Kutilmoqda',
     'history.status.confirmed': 'Tasdiqlangan',
     'history.status.inProgress': 'Jarayonda',
+    'history.status.noShow': 'Kelmagan',
 
     // Currency
     'currency.som': 'so\'m',
@@ -345,6 +363,23 @@ export const translations: Translations = {
     'bottomNav.adminDash': 'Админ панели',
     'bottomNav.adminServices': 'Хизматлар (админ)',
     'bottomNav.adminStaff': 'Ходимлар',
+    // Admin Dashboard
+    'admin.dashboard.panel': 'Админ панели',
+    'admin.dashboard.shopNotFound': 'Шоп топилмади. Профил бўлимидан админ шопни танланг.',
+    'admin.dashboard.revenue': 'Даромад',
+    'admin.dashboard.bookings': 'Бандловлар',
+    'admin.dashboard.newAppointment': 'Янги бандлов',
+    'admin.dashboard.staff': 'Ходимлар',
+    'admin.dashboard.openSchedule': 'Жадвал саҳифасини очиш',
+    'admin.dashboard.noBookingsForDate': 'Танланган сана учун бандловлар топилмади.',
+    'admin.dashboard.unknownCustomer': 'Номаълум мижоз',
+    'admin.dashboard.unknownService': 'Номаълум хизмат',
+    'admin.dashboard.notAssigned': 'Бириктирилмаган',
+    'admin.dashboard.period7d': '(7д)',
+    'admin.dashboard.error.baseInfoPrefix': "Dashboard маълумотларини олишда хатолик: {{message}}",
+    'admin.dashboard.error.schedulePrefix': 'Жадвални олишда хатолик: {{message}}',
+    'admin.dashboard.error.baseInfoFallback': 'Dashboard статистикаларини юклаб бўлмади',
+    'admin.dashboard.error.scheduleFallback': 'Dashboard жадвалини юклаб бўлмади',
     'bottomNav.adminAnalytics': 'Аналитика',
 
     // Hero
@@ -498,6 +533,7 @@ export const translations: Translations = {
     'history.status.pending': 'Кутилмоқда',
     'history.status.confirmed': 'Тасдиқланган',
     'history.status.inProgress': 'Жараёнда',
+    'history.status.noShow': 'Келмаган',
 
     // Currency
     'currency.som': 'сўм',
@@ -670,6 +706,23 @@ export const translations: Translations = {
     'bottomNav.adminDash': 'Дашборд',
     'bottomNav.adminServices': 'Услуги (админ)',
     'bottomNav.adminStaff': 'Персонал',
+    // Admin Dashboard
+    'admin.dashboard.panel': 'Админ панель',
+    'admin.dashboard.shopNotFound': 'Салон не найден. Выберите админ-салон в профиле.',
+    'admin.dashboard.revenue': 'Доход',
+    'admin.dashboard.bookings': 'Бронирования',
+    'admin.dashboard.newAppointment': 'Новая запись',
+    'admin.dashboard.staff': 'Персонал',
+    'admin.dashboard.openSchedule': 'Открыть страницу расписания',
+    'admin.dashboard.noBookingsForDate': 'На выбранную дату бронирований не найдено.',
+    'admin.dashboard.unknownCustomer': 'Неизвестный клиент',
+    'admin.dashboard.unknownService': 'Неизвестная услуга',
+    'admin.dashboard.notAssigned': 'Не назначен',
+    'admin.dashboard.period7d': '(7д)',
+    'admin.dashboard.error.baseInfoPrefix': 'Ошибка при загрузке данных дашборда: {{message}}',
+    'admin.dashboard.error.schedulePrefix': 'Ошибка при загрузке расписания: {{message}}',
+    'admin.dashboard.error.baseInfoFallback': 'Не удалось загрузить статистику дашборда',
+    'admin.dashboard.error.scheduleFallback': 'Не удалось загрузить расписание дашборда',
     'bottomNav.adminAnalytics': 'Аналитика',
 
     // Hero
@@ -823,6 +876,7 @@ export const translations: Translations = {
     'history.status.pending': 'Ожидание',
     'history.status.confirmed': 'Подтверждено',
     'history.status.inProgress': 'В процессе',
+    'history.status.noShow': 'Не пришёл',
 
     // Currency
     'currency.som': 'сум',

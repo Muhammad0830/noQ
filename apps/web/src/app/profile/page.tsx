@@ -93,10 +93,16 @@ export default function ProfilePage() {
   const [isEditingInfo, setIsEditingInfo] = useState(false);
   const [isSavingInfo, setIsSavingInfo] = useState(false);
   const [infoSaveError, setInfoSaveError] = useState("");
+  const [selectedShopId, setSelectedShopId] = useState<string | null>(null);
   const [infoForm, setInfoForm] = useState<InfoFormState>({
     name: "",
     phoneNumber: "",
   });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setSelectedShopId(window.localStorage.getItem("selected_shop_id"));
+  }, []);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -198,6 +204,11 @@ export default function ProfilePage() {
 
     return shops.filter((shop) => shop.ownerId === user.id);
   }, [shopsResponse, user?.id]);
+
+  const visibleAdminShops = useMemo(() => {
+    if (!providerMode || !selectedShopId) return adminShops;
+    return adminShops.filter((shop) => shop.id !== selectedShopId);
+  }, [adminShops, providerMode, selectedShopId]);
 
   if (!user && !isLoading) {
     return (
@@ -378,7 +389,7 @@ export default function ProfilePage() {
                 className="border-[#F49B33]/25 dark:border-white/10"
               >
                 <AccordionTrigger className="text-[#F49B33] dark:text-[#F49B33]">
-                  {t("profile.adminShops")} ({adminShops.length})
+                  {t("profile.adminShops")}
                 </AccordionTrigger>
                 <AccordionContent>
                   {providerMode && (
@@ -398,13 +409,13 @@ export default function ProfilePage() {
                     <p className="text-sm text-slate-500 dark:text-white/60">
                       {t("common.loading")}
                     </p>
-                  ) : adminShops.length === 0 ? (
+                  ) : visibleAdminShops.length === 0 ? (
                     <p className="text-sm text-slate-500 dark:text-white/60">
                       {t("profile.noAdminShops")}
                     </p>
                   ) : (
                     <ul className="space-y-2">
-                      {adminShops.map((shop) => (
+                      {visibleAdminShops.map((shop) => (
                         <li key={shop.id}>
                           <button
                             type="button"
