@@ -12,7 +12,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "http://10.20.13.197:3000",
+      "http://10.20.20.15:3000",
       "https://no-q-bay.vercel.app/",
     ],
     credentials: true,

@@ -26,7 +26,7 @@ serviceRouter.get("/", async (req: any, res: any) => {
 
 serviceRouter.post("/", async (req: any, res: any) => {
   try {
-    const { name, price, durationMin } = req.body;
+    const { name, price, durationMin, bufferTime = null } = req.body;
 
     const service = await prisma.service.create({
       data: {
@@ -34,6 +34,7 @@ serviceRouter.post("/", async (req: any, res: any) => {
         name,
         price,
         durationMin,
+        bufferTime,
       },
     });
 
