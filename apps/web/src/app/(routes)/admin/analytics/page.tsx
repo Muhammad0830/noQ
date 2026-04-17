@@ -1,216 +1,280 @@
 'use client'
 
-import { useState } from 'react'
-import { BarChart3, TrendingUp, DollarSign, Users, Calendar, Star } from 'lucide-react'
+import { useMemo, useState, type ReactNode } from 'react'
+import { Bell, CalendarDays, Star } from 'lucide-react'
 
-export default function ShopAnalytics() {
-  const [period, setPeriod] = useState('month')
+const tabs = ['This Week', 'Last 30 Days', 'Annual']
+
+const popularServices = [
+  { name: 'Classic Haircut', bookings: 86, width: 86 },
+  { name: 'Beard Sculpting', bookings: 42, width: 42 },
+  { name: 'Luxury Shave', bookings: 16, width: 16 },
+]
+
+const peakHours = [
+  { hour: '08:00', value: 34 },
+  { hour: '', value: 62 },
+  { hour: '', value: 78 },
+  { hour: '', value: 66 },
+  { hour: '14:00', value: 92, active: true },
+  { hour: '', value: 84 },
+  { hour: '', value: 58 },
+  { hour: '', value: 66 },
+  { hour: '', value: 74 },
+  { hour: '', value: 60 },
+  { hour: '', value: 45 },
+  { hour: '20:00', value: 30 },
+]
+
+const weeklyRevenue = [42, 58, 50, 72, 18, 84, 66]
+
+function MetricCard({
+  icon,
+  label,
+  value,
+  change,
+  changeClassName,
+}: {
+  icon: ReactNode
+  label: string
+  value: string
+  change: string
+  changeClassName: string
+}) {
+  return (
+    <div className="rounded-[22px] bg-white p-4 shadow-[0_10px_30px_rgba(15,17,21,0.06)]">
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#fff2df] text-[#f3a137]">
+          {icon}
+        </div>
+        <span className={`text-[11px] font-semibold ${changeClassName}`}>{change}</span>
+      </div>
+      <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.28em] text-[#c2c2c2]">
+        {label}
+      </p>
+      <p className="text-[30px] font-bold tracking-tight text-[#111111]">{value}</p>
+    </div>
+  )
+}
+
+function RevenueChart() {
+  const { path, area } = useMemo(() => {
+    const width = 320
+    const height = 160
+    const paddingX = 18
+    const paddingY = 18
+    const points = weeklyRevenue.map((value, index) => {
+      const x = paddingX + (index * (width - paddingX * 2)) / (weeklyRevenue.length - 1)
+      const y = height - paddingY - (value / 100) * (height - paddingY * 2)
+      return { x, y }
+    })
+
+    const line = points.map((point) => `${point.x},${point.y}`).join(' ')
+    const fill = `${points.map((point) => `${point.x},${point.y}`).join(' ')} ${width - paddingX},${height - paddingY} ${paddingX},${height - paddingY}`
+
+    return { path: line, area: fill, points }
+  }, [])
+
+  const dot = useMemo(() => {
+    const width = 320
+    const height = 160
+    const paddingX = 18
+    const paddingY = 18
+    const index = 5
+    const x = paddingX + (index * (width - paddingX * 2)) / (weeklyRevenue.length - 1)
+    const y = height - paddingY - (weeklyRevenue[index] / 100) * (height - paddingY * 2)
+    return { x, y }
+  }, [])
 
   return (
-    <div className="bg-gray-50 py-8 pb-24">
-      <div className="container mx-auto px-4 max-w-7xl">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Shop Analytics</h1>
-          <div className="flex gap-2">
-            {['week', 'month', 'year'].map((p) => (
-              <button
-                key={p}
-                onClick={() => setPeriod(p)}
-                className={`px-4 py-2 rounded-lg font-semibold ${
-                  period === p 
-                    ? 'bg-blue-600 text-white' 
-                    : 'border hover:bg-gray-50'
-                }`}
-              >
-                {p.charAt(0).toUpperCase() + p.slice(1)}
-              </button>
+    <div className="rounded-[24px] bg-white p-4 shadow-[0_10px_30px_rgba(15,17,21,0.06)]">
+      <div className="mb-4 flex items-center gap-2 text-[13px] font-semibold text-[#111111]">
+        <span className="h-2 w-2 rounded-full bg-[#f39c33]" />
+        Daily Revenue Trends
+      </div>
+
+      <div className="relative overflow-hidden rounded-4xl bg-linear-to-b from-[#fff8ef] to-[#fffdf8] px-2 py-4">
+        <svg viewBox="0 0 320 180" className="h-47.5 w-full overflow-visible">
+          <defs>
+            <linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#f7a03a" stopOpacity="0.26" />
+              <stop offset="100%" stopColor="#f7a03a" stopOpacity="0.02" />
+            </linearGradient>
+            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="8" stdDeviation="8" floodColor="#f39c33" floodOpacity="0.18" />
+            </filter>
+          </defs>
+
+          <path
+            d={`M ${area} Z`}
+            fill="url(#revenueFill)"
+          />
+
+          <polyline
+            points={path}
+            fill="none"
+            stroke="#f39c33"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            filter="url(#shadow)"
+          />
+
+          <circle cx={dot.x} cy={dot.y} r="5" fill="#f39c33" stroke="#fff" strokeWidth="4" />
+
+          <g transform={`translate(${dot.x - 22}, ${dot.y - 34})`}>
+            <rect x="0" y="0" width="64" height="22" rx="11" fill="#f39c33" />
+            <polygon points="28,22 34,22 31,28" fill="#f39c33" />
+            <text x="32" y="15" textAnchor="middle" className="fill-white text-[10px] font-semibold">
+              SAT $840
+            </text>
+          </g>
+        </svg>
+
+        <div className="-mt-2 grid grid-cols-7 text-center text-[10px] font-semibold uppercase tracking-[0.24em] text-[#8b8b8b]">
+          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => (
+            <span key={day} className={index === 5 ? 'text-[#f39c33]' : ''}>
+              {day}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function ShopAnalytics() {
+  const [activeTab, setActiveTab] = useState(0)
+
+  return (
+    <div className="min-h-screen bg-[#f5f4f2] px-4 py-4 pb-8 text-[#111111]">
+      <div className="mx-auto flex w-full max-w-107.5 flex-col gap-4">
+        <header className="flex items-center justify-between px-1 py-1">
+          <div className="flex items-center gap-3">
+            <div className="h-11 w-11 overflow-hidden rounded-full bg-[url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80')] bg-cover bg-center shadow-sm" />
+            <div>
+              <p className="text-[16px] font-bold leading-tight text-[#111111]">The Loft Studio</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-[#f39c33]">
+                Admin Panel
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#1f1f1f] shadow-[0_10px_24px_rgba(15,17,21,0.06)]"
+          >
+            <Bell className="h-4 w-4" />
+          </button>
+        </header>
+
+        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+          {tabs.map((tab, index) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActiveTab(index)}
+              className={`shrink-0 rounded-full px-4 py-2 text-[12px] font-semibold transition ${
+                activeTab === index
+                  ? 'bg-[#f39c33] text-white shadow-[0_10px_24px_rgba(243,156,51,0.32)]'
+                  : 'bg-white text-[#7b7b7b] shadow-[0_10px_24px_rgba(15,17,21,0.05)]'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        <div className="rounded-[24px] bg-white p-4 shadow-[0_10px_30px_rgba(15,17,21,0.06)]">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#bdbdbd]">
+              Total Revenue
+            </p>
+            <span className="rounded-full bg-[#fff1df] px-2.5 py-1 text-[10px] font-semibold text-[#f39c33]">
+              +12.4%
+            </span>
+          </div>
+
+          <div className="flex items-end gap-2">
+            <h2 className="text-[42px] font-bold leading-none tracking-tight text-[#111111]">
+              $4,250.00
+            </h2>
+            <span className="pb-1 text-[12px] font-semibold text-[#9a9a9a]">USD</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <MetricCard
+            icon={<CalendarDays className="h-4 w-4" />}
+            label="Bookings"
+            value="142"
+            change="+8%"
+            changeClassName="text-[#5d8dff]"
+          />
+
+          <MetricCard
+            icon={<Star className="h-4 w-4 fill-[#f39c33] text-[#f39c33]" />}
+            label="Rating"
+            value="4.9"
+            change="+0.2"
+            changeClassName="text-[#f39c33]"
+          />
+        </div>
+
+        <RevenueChart />
+
+        <section className="rounded-[24px] bg-white p-4 shadow-[0_10px_30px_rgba(15,17,21,0.06)]">
+          <h3 className="mb-4 text-[13px] font-bold uppercase tracking-[0.28em] text-[#111111]">
+            Most Popular Services
+          </h3>
+
+          <div className="space-y-4">
+            {popularServices.map((service) => (
+              <div key={service.name}>
+                <div className="mb-2 flex items-center justify-between gap-3 text-[12px]">
+                  <div className="font-medium text-[#1a1a1a]">{service.name}</div>
+                  <div className="text-[#8f8f8f]">{service.bookings} bookings</div>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-[#f1e3d0]">
+                  <div
+                    className="h-full rounded-full bg-[#f4a341]"
+                    style={{ width: `${service.width}%` }}
+                  />
+                </div>
+              </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-blue-500 p-3 rounded-lg text-white">
-                <DollarSign className="w-6 h-6" />
-              </div>
-              <span className="text-green-600 text-sm font-semibold">+12.5%</span>
-            </div>
-            <p className="text-gray-600 text-sm mb-1">Total Revenue</p>
-            <p className="text-3xl font-bold">15.2M UZS</p>
-            <p className="text-xs text-gray-500 mt-1">vs last month: 13.5M</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-green-500 p-3 rounded-lg text-white">
-                <Calendar className="w-6 h-6" />
-              </div>
-              <span className="text-green-600 text-sm font-semibold">+8.2%</span>
-            </div>
-            <p className="text-gray-600 text-sm mb-1">Total Bookings</p>
-            <p className="text-3xl font-bold">1,248</p>
-            <p className="text-xs text-gray-500 mt-1">vs last month: 1,154</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-purple-500 p-3 rounded-lg text-white">
-                <Users className="w-6 h-6" />
-              </div>
-              <span className="text-green-600 text-sm font-semibold">+15.3%</span>
-            </div>
-            <p className="text-gray-600 text-sm mb-1">New Clients</p>
-            <p className="text-3xl font-bold">86</p>
-            <p className="text-xs text-gray-500 mt-1">vs last month: 75</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-yellow-500 p-3 rounded-lg text-white">
-                <Star className="w-6 h-6" />
-              </div>
-              <span className="text-green-600 text-sm font-semibold">+0.2</span>
-            </div>
-            <p className="text-gray-600 text-sm mb-1">Average Rating</p>
-            <p className="text-3xl font-bold">4.8</p>
-            <p className="text-xs text-gray-500 mt-1">from 245 reviews</p>
-          </div>
-        </div>
-
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Revenue Chart */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="font-bold text-lg mb-4">Revenue Trend</h3>
-            <div className="h-64 flex items-end justify-around gap-2">
-              {[65, 45, 75, 55, 85, 70, 90, 80, 95, 85, 100, 90].map((height, idx) => (
-                <div key={idx} className="flex-1 bg-blue-200 rounded-t hover:bg-blue-400 cursor-pointer" style={{ height: `${height}%` }}></div>
-              ))}
-            </div>
-            <div className="flex justify-between mt-2 text-xs text-gray-600">
-              <span>Jan</span>
-              <span>Feb</span>
-              <span>Mar</span>
-              <span>Apr</span>
-              <span>May</span>
-              <span>Jun</span>
+        <section className="rounded-[24px] bg-white p-4 shadow-[0_10px_30px_rgba(15,17,21,0.06)]">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-[13px] font-bold uppercase tracking-[0.28em] text-[#111111]">
+              Peak Hours
+            </h3>
+            <div className="flex gap-1.5 text-[#f39c33]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#f39c33]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-[#f7c57f]" />
             </div>
           </div>
 
-          {/* Bookings Chart */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="font-bold text-lg mb-4">Bookings by Service</h3>
-            <div className="space-y-4">
-              {[
-                { name: 'Haircut', value: 45, color: 'bg-blue-500' },
-                { name: 'Coloring', value: 25, color: 'bg-purple-500' },
-                { name: 'Styling', value: 15, color: 'bg-green-500' },
-                { name: 'Treatment', value: 10, color: 'bg-yellow-500' },
-                { name: 'Other', value: 5, color: 'bg-gray-500' }
-              ].map((service) => (
-                <div key={service.name}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="font-medium">{service.name}</span>
-                    <span className="text-gray-600">{service.value}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className={`${service.color} h-2 rounded-full`} style={{ width: `${service.value}%` }}></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Tables */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Top Services */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="font-bold text-lg mb-4">Top Services</h3>
-            <table className="w-full">
-              <thead className="border-b">
-                <tr className="text-left text-sm">
-                  <th className="pb-3">Service</th>
-                  <th className="pb-3 text-right">Bookings</th>
-                  <th className="pb-3 text-right">Revenue</th>
-                </tr>
-              </thead>
-              <tbody className="text-sm">
-                {[
-                  { name: 'Haircut', bookings: 562, revenue: '28.1M' },
-                  { name: 'Hair Coloring', bookings: 312, revenue: '46.8M' },
-                  { name: 'Styling', bookings: 187, revenue: '13.1M' },
-                  { name: 'Treatment', bookings: 125, revenue: '12.5M' },
-                  { name: 'Beard Trim', bookings: 62, revenue: '1.9M' }
-                ].map((service, idx) => (
-                  <tr key={idx} className="border-b last:border-0">
-                    <td className="py-3 font-medium">{service.name}</td>
-                    <td className="py-3 text-right text-gray-600">{service.bookings}</td>
-                    <td className="py-3 text-right font-semibold">{service.revenue}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="mb-3 flex items-end gap-1.5">
+            {peakHours.map((slot) => (
+              <div
+                key={`${slot.hour}-${slot.value}`}
+                className={`flex-1 rounded-md ${slot.active ? 'bg-[#f39c33]' : 'bg-[#f8c877]'}`}
+                style={{ height: `${slot.value}px` }}
+              />
+            ))}
           </div>
 
-          {/* Top Staff */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="font-bold text-lg mb-4">Top Performers</h3>
-            <table className="w-full">
-              <thead className="border-b">
-                <tr className="text-left text-sm">
-                  <th className="pb-3">Staff</th>
-                  <th className="pb-3 text-right">Bookings</th>
-                  <th className="pb-3 text-right">Rating</th>
-                </tr>
-              </thead>
-              <tbody className="text-sm">
-                {[
-                  { name: 'Sarah Johnson', bookings: 145, rating: 4.9 },
-                  { name: 'Mike Davis', bookings: 128, rating: 4.8 },
-                  { name: 'Emma Wilson', bookings: 112, rating: 4.9 },
-                  { name: 'Lisa Brown', bookings: 98, rating: 4.7 },
-                  { name: 'Tom Anderson', bookings: 87, rating: 4.8 }
-                ].map((staff, idx) => (
-                  <tr key={idx} className="border-b last:border-0">
-                    <td className="py-3 font-medium">{staff.name}</td>
-                    <td className="py-3 text-right text-gray-600">{staff.bookings}</td>
-                    <td className="py-3 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                        <span className="font-semibold">{staff.rating}</span>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="flex justify-between text-[10px] font-semibold text-[#7d7d7d]">
+            {peakHours.map((slot, index) => (
+              <span key={`${slot.hour}-${index}`} className={slot.hour ? 'min-w-7' : 'min-w-4'}>
+                {slot.hour}
+              </span>
+            ))}
           </div>
-        </div>
-
-        {/* Additional Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h4 className="font-semibold mb-2">Peak Hours</h4>
-            <p className="text-2xl font-bold mb-1">2:00 PM - 5:00 PM</p>
-            <p className="text-sm text-gray-600">45% of daily bookings</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h4 className="font-semibold mb-2">Avg. Booking Value</h4>
-            <p className="text-2xl font-bold mb-1">95,000 UZS</p>
-            <p className="text-sm text-green-600">+5.2% from last month</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h4 className="font-semibold mb-2">Client Retention</h4>
-            <p className="text-2xl font-bold mb-1">78%</p>
-            <p className="text-sm text-green-600">+3% from last month</p>
-          </div>
-        </div>
+        </section>
       </div>
     </div>
   )
