@@ -37,63 +37,87 @@ dashboardRouter.get(
       const endOfDay = new Date();
       endOfDay.setHours(23, 59, 59, 999);
 
-      const [sevenDayBookings, staffCount, currentCompleted, prevCompleted] =
-        await Promise.all([
-          prisma.booking.count({
-            where: {
-              shopId: req.shop.id,
-              startTime: {
-                gte: currentStart,
-                lte: now,
-              },
+      const [
+        sevenDayBookingsCount,
+        prevSevenDayBookingsCount,
+        staffCount,
+        currentCompleted,
+        prevCompleted,
+      ] = await Promise.all([
+        prisma.booking.count({
+          where: {
+            shopId: req.shop.id,
+            status: "COMPLETED",
+            startTime: {
+              gte: currentStart,
+              lte: now,
             },
-          }),
+          },
+        }),
 
-          prisma.staff.count({
-            where: { shopId: req.shop.id },
-          }),
+        prisma.booking.count({
+          where: {
+            shopId: req.shop.id,
+            status: "COMPLETED",
+            startTime: {
+              gte: prevStart,
+              lte: currentStart,
+            },
+          },
+        }),
 
-          // ✅ current 7 days
-          prisma.booking.findMany({
-            where: {
-              shopId: req.shop.id,
-              status: "COMPLETED",
-              startTime: {
-                gte: currentStart,
-                lte: now,
-              },
-            },
-            select: {
-              service: {
-                select: { price: true },
-              },
-            },
-          }),
+        prisma.staff.count({
+          where: { shopId: req.shop.id },
+        }),
 
-          // ✅ previous 7 days
-          prisma.booking.findMany({
-            where: {
-              shopId: req.shop.id,
-              status: "COMPLETED",
-              startTime: {
-                gte: prevStart,
-                lte: prevEnd,
-              },
+        // ✅ current 7 days
+        prisma.booking.findMany({
+          where: {
+            shopId: req.shop.id,
+            status: "COMPLETED",
+            startTime: {
+              gte: currentStart,
+              lte: now,
             },
-            select: {
-              service: {
-                select: { price: true },
-              },
+          },
+          select: {
+            service: {
+              select: { price: true },
             },
-          }),
-        ]);
+          },
+        }),
+
+        // ✅ previous 7 days
+        prisma.booking.findMany({
+          where: {
+            shopId: req.shop.id,
+            status: "COMPLETED",
+            startTime: {
+              gte: prevStart,
+              lte: prevEnd,
+            },
+          },
+          select: {
+            service: {
+              select: { price: true },
+            },
+          },
+        }),
+      ]);
+
+      const bookingsCountChange = prevSevenDayBookingsCount
+        ? ((sevenDayBookingsCount - prevSevenDayBookingsCount) / prevSevenDayBookingsCount) *
+          100
+        : sevenDayBookingsCount > 0
+          ? 100
+          : 0;
 
       // 💰 calculate revenue
       const currentRevenue = currentCompleted.reduce((acc: number, b) => {
-        return acc + Number(b.service.price);
+        return acc + parseFloat(b.service.price.toString());
       }, 0);
-      const prevRevenue = prevCompleted.reduce((acc, b) => {
-        return acc + Number(b.service.price);
+      const prevRevenue = prevCompleted.reduce((acc: number, b) => {
+        return acc + parseFloat(b.service.price.toString());
       }, 0);
 
       let revenueChange = 0;
@@ -105,11 +129,14 @@ dashboardRouter.get(
       }
 
       return res.json({
-        sevenDayBookings,
+        sevenDayBookingsCount,
+        prevSevenDayBookingsCount,
+        bookingsCountChange,
         staffCount,
         currentRevenue,
         prevRevenue,
         revenueChange,
+        
       });
     } catch (error) {
       console.error(error);
