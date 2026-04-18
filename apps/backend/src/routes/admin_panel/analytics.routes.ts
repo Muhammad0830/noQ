@@ -167,11 +167,11 @@ analyticsRouter.get("/", async (req: any, res) => {
           : 0
         : ((currentRevenue - prevRevenue) / prevRevenue) * 100;
 
-    const [reviews, prevReviews] = await Promise.all([
+    const [currentReviews, previousReviews] = await Promise.all([
       prisma.review.aggregate({
         where: {
           shopId: req.shop.id,
-          createdAt: { gte: startDate, lte: now },
+          createdAt: { lte: now },
         },
         _avg: { rating: true },
         _count: { id: true },
@@ -180,7 +180,7 @@ analyticsRouter.get("/", async (req: any, res) => {
       prisma.review.aggregate({
         where: {
           shopId: req.shop.id,
-          createdAt: { gte: prevStartDate, lte: startDate },
+          createdAt: { lte: startDate },
         },
         _avg: { rating: true },
         _count: { id: true },
@@ -194,8 +194,10 @@ analyticsRouter.get("/", async (req: any, res) => {
           : 0
         : ((bookings.length - prevBookings.length) / prevBookings.length) * 100;
 
-    const averageRatingChange =
-      (reviews._avg.rating ?? 0) - (prevReviews._avg.rating ?? 0);
+    const currentAvg = currentReviews._avg.rating ?? 0;
+    const previousAvg = previousReviews._avg.rating ?? 0;
+
+    const averageRatingChange = currentAvg - previousAvg;
 
     return res.status(200).json({
       currentRevenue,
@@ -204,8 +206,8 @@ analyticsRouter.get("/", async (req: any, res) => {
       currentBookingsCount: bookings.length,
       prevBookingsCount: prevBookings.length,
       bookingsNumberChange,
-      currentAverageRating: reviews._avg.rating || 0,
-      prevAverageRating: prevReviews._avg.rating || 0,
+      currentAverageRating: currentAvg,
+      prevAverageRating: previousAvg,
       averageRatingChange,
     });
   } catch (error) {
