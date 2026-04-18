@@ -19,7 +19,9 @@ import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS } from "@/lib/api";
 
 type DashboardBaseInfoResponse = {
-  sevenDayBookings: number;
+  sevenDayBookingsCount: number;
+  prevSevenDayBookingsCount: number;
+  bookingsCountChange: number;
   staffCount: number;
   currentRevenue: number;
   prevRevenue: number;
@@ -55,6 +57,7 @@ type TimelineAppointment = {
   id: string;
   startTime: string;
   endTime: string;
+  durationMin?: number | null;
   time: string;
   timeRange: string;
   timeMinutes: string;
@@ -80,9 +83,12 @@ type ShopsResponse =
 
 export default function AdminDashboard() {
   const { user } = useAuth();
+  const { locale, t, language } = useLanguage();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [persistedShopId, setPersistedShopId] = useState<string | null>(null);
+  const [hasLoadedPersistedShop, setHasLoadedPersistedShop] =
+    useState<boolean>(false);
 
   const shopId = searchParams.get("shopId");
 
@@ -92,6 +98,7 @@ export default function AdminDashboard() {
     if (saved) {
       setPersistedShopId(saved);
     }
+    setHasLoadedPersistedShop(true);
   }, []);
 
   const isAdmin = user?.role === "ADMIN";
@@ -133,6 +140,8 @@ export default function AdminDashboard() {
   }, [shopsResponse, user?.id, user?.shops]);
 
   const activeShopId = useMemo(() => {
+    if (!hasLoadedPersistedShop) return null;
+
     if (shopId && adminShops.some((shop) => shop.id === shopId)) return shopId;
     if (
       persistedShopId &&
@@ -143,26 +152,31 @@ export default function AdminDashboard() {
     if (user?.shops?.[0]?.id) return user.shops[0].id;
     if (adminShops[0]?.id) return adminShops[0].id;
     return null;
-  }, [shopId, persistedShopId, user?.shops, adminShops]);
+  }, [hasLoadedPersistedShop, shopId, persistedShopId, user?.shops, adminShops]);
 
   useEffect(() => {
-    if (!activeShopId || typeof window === "undefined") return;
+    if (!hasLoadedPersistedShop || !activeShopId || typeof window === "undefined") return;
     window.localStorage.setItem("selected_shop_id", activeShopId);
-  }, [activeShopId]);
+  }, [activeShopId, hasLoadedPersistedShop]);
+
+  const getAdminHrefWithShopId = (path: string) => {
+    if (!activeShopId) return path;
+    return `${path}?shopId=${encodeURIComponent(activeShopId)}`;
+  };
 
   const currentShopName = useMemo(() => {
-    if (!user) return "Admin Panel";
+    if (!user) return t("admin.dashboard.panel");
 
     if (activeShopId) {
       const foundInUser = (user.shops || []).find(
         (s: any) => s.id === activeShopId,
       );
       const foundInFallback = adminShops.find((s) => s.id === activeShopId);
-      return foundInUser?.name || foundInFallback?.name || "Admin Panel";
+      return foundInUser?.name || foundInFallback?.name || t("admin.dashboard.panel");
     }
 
-    return user.shops?.[0]?.name || adminShops[0]?.name || "Admin Panel";
-  }, [activeShopId, adminShops, user]);
+    return user.shops?.[0]?.name || adminShops[0]?.name || t("admin.dashboard.panel");
+  }, [activeShopId, adminShops, t, user]);
 
   const {
     data: baseInfo,
@@ -193,11 +207,10 @@ export default function AdminDashboard() {
         "string" &&
       (baseInfoError.data as { message: string }).message) ||
     baseInfoError?.message ||
-    "Failed to load dashboard stats";
+    t("admin.dashboard.error.baseInfoFallback");
 
   const [now, setNow] = useState<Date>(() => new Date());
   const currentDate = now;
-  const { locale, t, language } = useLanguage();
 
   const revenue = useMemo(() => {
     const value = baseInfo?.currentRevenue ?? 0;
@@ -209,10 +222,12 @@ export default function AdminDashboard() {
     }).format(value);
   }, [baseInfo?.currentRevenue, locale]);
 
-  const bookingsCount = baseInfo?.sevenDayBookings ?? 0;
+  const bookingsCount = baseInfo?.sevenDayBookingsCount ?? 0;
+  const bookingsCountChange = baseInfo?.bookingsCountChange ?? 0;
   const staffCount = baseInfo?.staffCount ?? 0;
   const revenueChange = baseInfo?.revenueChange ?? 0;
-  const revenueChangeText = `${revenueChange >= 0 ? "+" : ""}${revenueChange.toFixed(1)}% (7d)`;
+  const revenueChangeText = `${revenueChange >= 0 ? "+" : ""}${revenueChange.toFixed(1)}% ${t("admin.dashboard.period7d")}`;
+  const bookingsChangeText = `${bookingsCountChange >= 0 ? "+" : ""}${bookingsCountChange.toFixed(1)}% ${t("admin.dashboard.period7d")}`;
   const monthNames: Record<string, string[]> = {
     'uz-latn': ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktyabr','Noyabr','Dekabr'],
     'uz-cyrl': ['Январ','Феврал','Март','Апрел','Май','Июн','Июл','Август','Сентябр','Октябр','Ноябр','Декабр'],
@@ -236,6 +251,7 @@ export default function AdminDashboard() {
   const monthDropdownRef = useRef<HTMLDivElement | null>(null);
   const timelineListRef = useRef<HTMLDivElement | null>(null);
   const appointmentRowRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const appointmentCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const monthOptions = useMemo(() => {
     const currentYear = currentDate.getFullYear();
@@ -419,17 +435,20 @@ export default function AdminDashboard() {
           new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
       )
       .map((booking) => {
-        const customer = booking.user?.name?.trim() || "Unknown customer";
-        const serviceName = booking.service?.name?.trim() || "Unknown service";
+        const customer =
+          booking.user?.name?.trim() || t("admin.dashboard.unknownCustomer");
+        const serviceName =
+          booking.service?.name?.trim() || t("admin.dashboard.unknownService");
         const stylistName =
           booking.staff?.user?.name?.trim() ||
           booking.user?.name?.trim() ||
-          "Not assigned";
+          t("admin.dashboard.notAssigned");
 
         return {
           id: booking.id,
           startTime: booking.startTime,
           endTime: booking.endTime,
+          durationMin: booking.service?.durationMin ?? null,
           time: formatTime(booking.startTime),
           timeRange: formatTimeRange(booking.startTime, booking.endTime),
           timeMinutes: formatMinutesLabel(
@@ -444,7 +463,7 @@ export default function AdminDashboard() {
           status: booking.status,
         };
       });
-  }, [historyBookings, locale]);
+  }, [historyBookings, locale, t]);
 
   const isSelectedToday = useMemo(
     () => selectedDate.toDateString() === new Date().toDateString(),
@@ -460,18 +479,45 @@ export default function AdminDashboard() {
     const points = timelineAppointments
       .map((appointment) => {
         const rowEl = appointmentRowRefs.current[appointment.id];
+        const cardEl = appointmentCardRefs.current[appointment.id];
         if (!rowEl) return null;
 
-        const timeMs = new Date(appointment.startTime).getTime();
-        if (Number.isNaN(timeMs)) return null;
+        const startMs = new Date(appointment.startTime).getTime();
+        const fallbackEndMs = new Date(appointment.endTime).getTime();
+        const durationBasedEndMs =
+          typeof appointment.durationMin === "number" && appointment.durationMin > 0
+            ? startMs + appointment.durationMin * 60 * 1000
+            : NaN;
+        const endMs = Number.isNaN(durationBasedEndMs)
+          ? fallbackEndMs
+          : durationBasedEndMs;
+
+        if (Number.isNaN(startMs) || Number.isNaN(endMs)) return null;
+
+        const startY = rowEl.offsetTop + 14;
+        const cardBottomY = cardEl
+          ? rowEl.offsetTop + cardEl.offsetTop + cardEl.offsetHeight
+          : rowEl.offsetTop + rowEl.offsetHeight;
+        const endY = Math.max(startY, cardBottomY);
 
         return {
-          timeMs,
-          y: rowEl.offsetTop + 14,
+          startMs,
+          endMs: Math.max(endMs, startMs),
+          startY,
+          endY,
         };
       })
-      .filter((point): point is { timeMs: number; y: number } => Boolean(point))
-      .sort((a, b) => a.timeMs - b.timeMs);
+      .filter(
+        (
+          point,
+        ): point is {
+          startMs: number;
+          endMs: number;
+          startY: number;
+          endY: number;
+        } => Boolean(point),
+      )
+      .sort((a, b) => a.startMs - b.startMs);
 
     if (points.length === 0) {
       setNowMarkerTop(null);
@@ -480,33 +526,37 @@ export default function AdminDashboard() {
 
     const nowMs = now.getTime();
 
-    if (nowMs <= points[0].timeMs) {
-      setNowMarkerTop(points[0].y);
+    if (nowMs <= points[0].startMs) {
+      setNowMarkerTop(points[0].startY);
       return;
     }
 
-    for (let i = 0; i < points.length - 1; i += 1) {
+    for (let i = 0; i < points.length; i += 1) {
       const current = points[i];
       const next = points[i + 1];
+      const duration = Math.max(current.endMs - current.startMs, 1);
 
-      if (nowMs >= current.timeMs && nowMs <= next.timeMs) {
-        const ratio = (nowMs - current.timeMs) / (next.timeMs - current.timeMs);
-        setNowMarkerTop(current.y + (next.y - current.y) * ratio);
+      // If current time is inside a service, move marker through that card.
+      if (nowMs >= current.startMs && nowMs <= current.endMs) {
+        const ratio = (nowMs - current.startMs) / duration;
+        setNowMarkerTop(
+          current.startY + (current.endY - current.startY) * ratio,
+        );
+        return;
+      }
+
+      // If between current service end and next service start, keep at current card bottom.
+      if (next && nowMs > current.endMs && nowMs < next.startMs) {
+        setNowMarkerTop(current.endY);
         return;
       }
     }
 
-    if (points.length >= 2) {
-      const prev = points[points.length - 2];
-      const last = points[points.length - 1];
-      const minutesBetween = Math.max((last.timeMs - prev.timeMs) / 60000, 1);
-      const yPerMinute = (last.y - prev.y) / minutesBetween;
-      const minutesAfterLast = (nowMs - last.timeMs) / 60000;
-      setNowMarkerTop(last.y + minutesAfterLast * yPerMinute);
-      return;
-    }
-
-    setNowMarkerTop(points[0].y);
+    // After the last service, keep marker at the very bottom of timeline content.
+    const timelineBottomY = timelineListRef.current?.scrollHeight;
+    setNowMarkerTop(
+      Math.max(points[points.length - 1].endY, timelineBottomY || 0),
+    );
   }, [isSelectedToday, now, timelineAppointments]);
 
   const timelineSkeletonItems = useMemo(() => Array.from({ length: 3 }), []);
@@ -519,7 +569,16 @@ export default function AdminDashboard() {
         "string" &&
       (historyError.data as { message: string }).message) ||
     historyError?.message ||
-    "Failed to load dashboard schedule";
+    t("admin.dashboard.error.scheduleFallback");
+
+  const statusLabels: Record<AdminDashboardBooking["status"], string> = {
+    PENDING: t("history.status.pending"),
+    CONFIRMED: t("history.status.confirmed"),
+    IN_PROGRESS: t("history.status.inProgress"),
+    COMPLETED: t("history.status.completed"),
+    CANCELLED: t("history.status.cancelled"),
+    NO_SHOW: t("history.status.noShow"),
+  };
 
   const statusStyles = {
     CONFIRMED: {
@@ -576,7 +635,7 @@ export default function AdminDashboard() {
             <div>
               <div className="text-sm font-semibold">{currentShopName}</div>
               <div className="text-xs text-orange-400 uppercase font-semibold">
-                Admin Panel
+                {t("admin.dashboard.panel")}
               </div>
             </div>
           </div>
@@ -595,13 +654,13 @@ export default function AdminDashboard() {
       <div className="container mx-auto px-4 mt-5">
         {!activeShopId && (
           <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-            Shop topilmadi. Profil bo'limidan admin shopni tanlang.
+            {t("admin.dashboard.shopNotFound")}
           </div>
         )}
 
         {isBaseInfoError && (
           <div className="mb-4 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
-            Dashboard ma'lumotlarini olishda xatolik: {baseInfoErrorMessage}
+            {t("admin.dashboard.error.baseInfoPrefix", { message: baseInfoErrorMessage })}
           </div>
         )}
 
@@ -614,7 +673,7 @@ export default function AdminDashboard() {
               </div>
               <div className="flex items-start">
                 <div>
-                  <p className="text-xs text-gray-500">Revenue</p>
+                  <p className="text-xs text-gray-500">{t("admin.dashboard.revenue")}</p>
                     {isBaseInfoLoading ? (
                       <div className="mt-2 space-y-2 animate-pulse">
                         <div className="h-8 w-24 rounded-full bg-gray-200" />
@@ -644,7 +703,7 @@ export default function AdminDashboard() {
               </div>
               <div className="flex items-start">
                 <div>
-                  <p className="text-xs text-gray-500">Bookings</p>
+                  <p className="text-xs text-gray-500">{t("admin.dashboard.bookings")}</p>
                     {isBaseInfoLoading ? (
                       <div className="mt-2 space-y-2 animate-pulse">
                         <div className="h-8 w-16 rounded-full bg-gray-200" />
@@ -655,7 +714,13 @@ export default function AdminDashboard() {
                         <p className="text-xl sm:text-2xl font-bold mt-2">
                           {bookingsCount}
                         </p>
-                        <div className="mt-3 text-[11px] text-orange-400">Last 7 days</div>
+                        <div
+                          className={`mt-3 text-[11px] ${
+                            bookingsCountChange >= 0 ? "text-green-600" : "text-red-500"
+                          }`}
+                        >
+                          {bookingsChangeText}
+                        </div>
                       </>
                     )}
                 </div>
@@ -665,24 +730,24 @@ export default function AdminDashboard() {
 
           <div className="flex flex-row items-center gap-2 sm:gap-3 md:ml-4 w-full">
             <button
-              onClick={() => router.push("/admin/bookings/new")}
+              onClick={() => router.push(getAdminHrefWithShopId("/admin/bookings/new"))}
               className="flex-1 flex items-center justify-center gap-2 sm:gap-3 bg-orange-400 text-white px-3 sm:px-4 py-3 rounded-full shadow-lg"
             >
               <span className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-white flex items-center justify-center shrink-0">
                 <PlusCircle className="w-4 h-4 text-orange-400" />
               </span>
-              <span className="font-semibold text-[10px] sm:text-xs uppercase text-center leading-tight">New Appointment</span>
+              <span className="font-semibold text-[10px] sm:text-xs uppercase text-center leading-tight">{t("admin.dashboard.newAppointment")}</span>
             </button>
 
             <Link
-              href="/admin/staff"
+              href={getAdminHrefWithShopId("/admin/staff")}
               className="flex-1 flex items-center justify-center gap-2 sm:gap-3 bg-white border border-gray-200 px-3 sm:px-4 py-3 rounded-full shadow"
             >
               <span className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-white flex items-center justify-center shrink-0">
                 <Users className="w-4 h-4 text-orange-400" />
               </span>
               <span className="font-semibold text-[10px] sm:text-xs uppercase text-center leading-tight">
-                Staff ({isBaseInfoLoading ? "..." : staffCount})
+                {t("admin.dashboard.staff")} ({isBaseInfoLoading ? "..." : staffCount})
               </span>
             </Link>
           </div>
@@ -747,9 +812,9 @@ export default function AdminDashboard() {
                 </div>
                 
                 <Link
-                  href="/admin/schedule"
+                  href={getAdminHrefWithShopId("/admin/schedule")}
                   className="inline-flex items-center justify-center p-2 bg-orange-400 text-white rounded-full hover:bg-orange-500 transition"
-                  aria-label="Open schedule page"
+                  aria-label={t("admin.dashboard.openSchedule")}
                 >
                   <SquareArrowOutUpRight className="w-5 h-5" />
                 </Link>
@@ -757,7 +822,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Date strip */}
-            <div className="flex items-center gap-3 mb-6 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div className="p-1 flex items-center gap-3 mb-6 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {weekDates.map((d) => {
                 const isToday = d.toDateString() === currentDate.toDateString()
                 const isSelected = d.toDateString() === selectedDate.toDateString()
@@ -785,10 +850,10 @@ export default function AdminDashboard() {
             </div>
 
             {/* Timeline area (time and schedule are separated) */}
-            <div className="max-h-130 overflow-y-auto pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div className="pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {isHistoryError && (
                 <div className="mb-4 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
-                  Jadvalni olishda xatolik: {historyErrorMessage}
+                  {t("admin.dashboard.error.schedulePrefix", { message: historyErrorMessage })}
                 </div>
               )}
 
@@ -829,7 +894,7 @@ export default function AdminDashboard() {
 
               {!isHistoryLoading && !isHistoryError && timelineAppointments.length === 0 && (
                 <div className="mb-4 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
-                  Tanlangan sana uchun bandlovlar topilmadi.
+                  {t("admin.dashboard.noBookingsForDate")}
                 </div>
               )}
 
@@ -878,6 +943,9 @@ export default function AdminDashboard() {
 
                         <div className="min-w-0 pl-1 sm:pl-1.5">
                           <div
+                            ref={(el) => {
+                              appointmentCardRefs.current[appointment.id] = el;
+                            }}
                             className={`rounded-3xl px-4 sm:px-5 py-4 shadow-sm ${statusStyle.card}`}
                             style={
                               isCompleted
@@ -891,7 +959,7 @@ export default function AdminDashboard() {
                             <div className="mb-1 flex items-start justify-between gap-2 sm:gap-3 min-w-0">
                               <p className="flex-1 min-w-0 text-base sm:text-lg font-bold leading-tight text-gray-900 wrap-break-word">{appointment.customer}</p>
                               <span className={`shrink-0 rounded-full px-2 sm:px-2.5 py-1 text-[8px] sm:text-[9px] font-bold tracking-widest whitespace-nowrap ${statusStyle.badge}`}>
-                                {appointment.status.replace("_", " ")}
+                                {statusLabels[appointment.status] || appointment.status.replace("_", " ")}
                               </span>
                             </div>
                             <div className="mt-1 flex items-center gap-2 min-w-0 text-xs text-gray-400">
@@ -912,7 +980,7 @@ export default function AdminDashboard() {
                                   .join("")
                                   .toUpperCase()}
                               </span>
-                              <span className="truncate">Stylist: <span className="font-semibold text-gray-700">{appointment.stylist}</span></span>
+                              <span className="truncate">{t("booking.staff")}: <span className="font-semibold text-gray-700">{appointment.stylist}</span></span>
                             </div>
                           </div>
                         </div>

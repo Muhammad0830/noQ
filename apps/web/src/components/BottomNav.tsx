@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Home, Search, History, User } from "lucide-react";
 import { useProviderMode } from "@/contexts/ProviderModeContext";
 import { Scissors, BarChart2, History as HistoryIcon } from "lucide-react";
@@ -96,14 +96,29 @@ const navItems = (t: any) => {
 };
 
 export default function BottomNav() {
-  const router = useRouter();
   const { t } = useLanguage();
-  const { providerMode, setProviderMode } = useProviderMode();
+  const { providerMode } = useProviderMode();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [persistedShopId, setPersistedShopId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setPersistedShopId(window.localStorage.getItem("selected_shop_id"));
+  }, [pathname]);
 
   const useAdmin =
     providerMode &&
     (pathname.startsWith("/profile") || pathname.startsWith("/admin"));
+
+  const activeAdminShopId = useMemo(() => {
+    return searchParams.get("shopId") || persistedShopId;
+  }, [searchParams, persistedShopId]);
+
+  const getAdminHref = (href: string) => {
+    if (!href.startsWith("/admin") || !activeAdminShopId) return href;
+    return `${href}?shopId=${encodeURIComponent(activeAdminShopId)}`;
+  };
 
   const isActive = (patterns: string[]) => {
     return patterns.some((pattern) => {
@@ -140,7 +155,7 @@ export default function BottomNav() {
                   return (
                     <Link
                       key={item.href}
-                      href={item.href}
+                      href={getAdminHref(item.href)}
                       className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-1 transition-colors ${
                         active
                           ? "text-blue-600 dark:text-blue-400"
@@ -165,41 +180,10 @@ export default function BottomNav() {
               <div className={adminClass} aria-hidden={!useAdmin}>
                 {adminNavItemsArray.map((item) => {
                   const active = isActive(item.activePatterns);
-                  const isProfileItem = item.href === "/profile";
-
-                  if (isProfileItem) {
-                    return (
-                      <button
-                        key={item.href}
-                        type="button"
-                        onClick={() => {
-                          setProviderMode(false);
-                          router.push("/profile");
-                        }}
-                        className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-1 transition-colors ${
-                          active
-                            ? "text-blue-600 dark:text-blue-400"
-                            : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                        }`}
-                      >
-                        <div
-                          className={
-                            active ? "text-blue-600 dark:text-blue-400" : ""
-                          }
-                        >
-                          {item.icon}
-                        </div>
-                        <span className="text-xs font-medium whitespace-nowrap">
-                          {item.label}
-                        </span>
-                      </button>
-                    );
-                  }
-
                   return (
                     <Link
                       key={item.href}
-                      href={item.href}
+                      href={getAdminHref(item.href)}
                       className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-1 transition-colors ${
                         active
                           ? "text-blue-600 dark:text-blue-400"

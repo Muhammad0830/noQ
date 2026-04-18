@@ -54,9 +54,24 @@ const mapApiUserToUser = (apiUser: ApiUserPayload): User => ({
   shops: apiUser.shops || [],
 });
 
+function readCachedUser(): User | null {
+  if (typeof window === "undefined") return null;
+  const storedAuth = getStoredAuth();
+  if (!storedAuth?.token || !storedAuth?.savedUser) return null;
+  try {
+    return JSON.parse(storedAuth.savedUser) as User;
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(readCachedUser);
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    const storedAuth = getStoredAuth();
+    return !!storedAuth?.token && !storedAuth?.savedUser;
+  });
 
   const signInMutation = useApiMutation<SignInResponse, SignInPayload>(
     API_ENDPOINTS.auth.signin,
@@ -71,23 +86,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initializeAuth = async () => {
       const storedAuth = getStoredAuth();
       const token = storedAuth?.token ?? null;
-      const savedUser = storedAuth?.savedUser ?? null;
+      const savedUserRaw = storedAuth?.savedUser ?? null;
 
       if (!token) {
-        if (savedUser) {
+        if (savedUserRaw) {
           localStorage.removeItem(USER_STORAGE_KEY);
         }
         setIsLoading(false);
         return;
       }
 
+      // User already hydrated synchronously via useState(readCachedUser).
+      // Just clear any blocking loading state.
+      setIsLoading(false);
+
       try {
         const profileResponse = await api.get<ApiUserPayload>(
           API_ENDPOINTS.auth.me,
           {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
         );
 
@@ -99,8 +118,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch {
         clearPersistedAuth();
         setUser(null);
-      } finally {
-        setIsLoading(false);
       }
     };
 
