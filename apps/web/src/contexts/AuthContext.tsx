@@ -54,6 +54,12 @@ const mapApiUserToUser = (apiUser: ApiUserPayload): User => ({
   shops: apiUser.shops || [],
 });
 
+function clearProviderSessionState() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem("providerMode");
+  window.localStorage.removeItem("selected_shop_id");
+}
+
 function readCachedUser(): User | null {
   if (typeof window === "undefined") return null;
   const storedAuth = getStoredAuth();
@@ -112,11 +118,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         const profileData = profileResponse.data;
         const mappedUser = mapApiUserToUser(profileData);
+        if (mappedUser.role !== "ADMIN") {
+          clearProviderSessionState();
+        }
         setUser(mappedUser);
         const activeStorage = getStorageBySource(storedAuth?.source ?? "local");
         activeStorage?.setItem(USER_STORAGE_KEY, JSON.stringify(mappedUser));
       } catch {
         clearPersistedAuth();
+        clearProviderSessionState();
         setUser(null);
       }
     };
@@ -141,6 +151,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const profileData = profileResponse.data;
       const mappedUser = mapApiUserToUser(profileData);
+      if (mappedUser.role !== "ADMIN") {
+        clearProviderSessionState();
+      }
 
       setUser(mappedUser);
       persistAuth(
@@ -254,6 +267,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null);
     clearPersistedAuth();
+    clearProviderSessionState();
   };
 
   return (
