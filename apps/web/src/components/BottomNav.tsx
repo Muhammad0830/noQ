@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Home, Search, History, User } from "lucide-react";
 import { useProviderMode } from "@/contexts/ProviderModeContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Scissors, BarChart2, History as HistoryIcon } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -97,6 +98,7 @@ const navItems = (t: any) => {
 
 export default function BottomNav() {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const { providerMode } = useProviderMode();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -107,13 +109,16 @@ export default function BottomNav() {
     setPersistedShopId(window.localStorage.getItem("selected_shop_id"));
   }, [pathname]);
 
-  const useAdmin =
-    providerMode &&
-    (pathname.startsWith("/profile") || pathname.startsWith("/admin"));
-
   const activeAdminShopId = useMemo(() => {
     return searchParams.get("shopId") || persistedShopId;
   }, [searchParams, persistedShopId]);
+
+  const isAdminUser = user?.role === "ADMIN";
+  const useAdmin =
+    providerMode &&
+    isAdminUser &&
+    !!activeAdminShopId &&
+    (pathname.startsWith("/profile") || pathname.startsWith("/admin"));
 
   const getAdminHref = (href: string) => {
     if (!href.startsWith("/admin") || !activeAdminShopId) return href;
