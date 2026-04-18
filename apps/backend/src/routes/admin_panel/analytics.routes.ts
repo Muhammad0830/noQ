@@ -4,15 +4,13 @@ import { Router } from "express";
 const analyticsRouter = Router();
 
 function formatLocalDate(date: Date, type: string) {
-  if (type === "year") {
-    return `${date.getFullYear()}-${(date.getMonth() + 1)
-      .toString()
-      .padStart(2, "0")}-01`;
-  } else {
-    return `${date.getFullYear()}-${(date.getMonth() + 1)
-      .toString()
-      .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
+  if (type === "year" || type === "all") {
+    return `${date.getFullYear()}-01-01`;
   }
+
+  return `${date.getFullYear()}-${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
 }
 
 function fillMissingDates(data: any[], type: string, startDate: Date) {
@@ -34,6 +32,8 @@ function fillMissingDates(data: any[], type: string, startDate: Date) {
 
     if (type === "year") {
       current.setMonth(current.getMonth() + 1);
+    } else if (type === "all") {
+      current.setFullYear(current.getFullYear() + 1); // 🔥 NEW
     } else {
       current.setDate(current.getDate() + 1);
     }
@@ -221,8 +221,9 @@ analyticsRouter.get("/diagram_info", async (req: any, res) => {
     };
 
     let startDate = new Date();
-    let groupBy: "day" | "month" = "day";
+    let groupBy: "day" | "month" | "year" = "day";
 
+    // 🔥 determine grouping + range
     switch (type) {
       case "week":
         startDate.setDate(startDate.getDate() - 6);
@@ -240,36 +241,57 @@ analyticsRouter.get("/diagram_info", async (req: any, res) => {
         break;
 
       case "all":
-        const createdYear = req.shop.createdAt.getFullYear();
-        startDate.setFullYear(createdYear);
-        groupBy = "month";
+        groupBy = "year";
         break;
     }
 
+    // 🔥 get earliest booking for "all"
+    if (type === "all") {
+      const firstBooking = await prisma.booking.findFirst({
+        where: { shopId: req.shop.id },
+        orderBy: { createdAt: "asc" },
+        select: { createdAt: true },
+      });
+
+      if (firstBooking) {
+        startDate = new Date(firstBooking.createdAt);
+      }
+    }
+
+    // 🔥 build WHERE condition safely
+    let dateFilter = "";
+    if (type !== "all") {
+      dateFilter = `AND b."createdAt" >= '${startDate.toISOString()}'`;
+    }
+
+    // 🔥 FINAL QUERY (fixed syntax)
     const result: any[] = await prisma.$queryRawUnsafe(`
       SELECT 
-        date_trunc('${groupBy}', b."createdAt") as bucket,
-        SUM(s.price)::float as revenue
+        date_trunc('${groupBy}', b."createdAt") AS bucket,
+        COALESCE(SUM(s.price), 0)::float AS revenue
       FROM "Booking" b
       JOIN "Service" s ON b."serviceId" = s.id
       WHERE 
         b."shopId" = '${req.shop.id}'
         AND b."status" = 'COMPLETED'
-        AND b."startTime" >= '${startDate.toISOString()}'
+        ${dateFilter}
       GROUP BY bucket
       ORDER BY bucket ASC;
     `);
 
+    // 🔥 fill missing dates (supports "all")
+    const filled = fillMissingDates(
+      result.map((r: any) => ({
+        date: r.bucket,
+        revenue: r.revenue || 0,
+      })),
+      type,
+      startDate,
+    );
+
     return res.json({
       type,
-      data: fillMissingDates(
-        result.map((r) => ({
-          date: r.bucket,
-          revenue: r.revenue || 0,
-        })),
-        type,
-        startDate,
-      ),
+      data: filled,
     });
   } catch (error) {
     console.error("Error fetching diagram info:", error);
