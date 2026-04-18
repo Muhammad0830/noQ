@@ -124,6 +124,6 @@ Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/api/admin/schedule?date=2026-04-14
+GET http://localhost:3001/api/admin/schedule?date=all
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89

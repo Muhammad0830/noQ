@@ -19,65 +19,72 @@ scheduleRouter.get(
       if (!date) {
         return res.status(400).json({ message: "date is required" });
       }
+
+      const shopId = req.shop.id;
+
+      // =========================
+      // 🔵 WEEKLY SCHEDULE
+      // =========================
       if (date === "all") {
-        const week = {
-          "0": "Sunday",
-          "1": "Monday",
-          "2": "Tuesday",
-          "3": "Wednesday",
-          "4": "Thursday",
-          "5": "Friday",
-          "6": "Saturday",
-        };
         const weeklySchedule = await prisma.shopSchedule.findMany({
-          where: {
-            shopId: req.shop.id,
-            type: "OPEN",
-          },
+          where: { shopId },
+          orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
         });
 
-        const schedule = {} as any;
+        // ✅ group in ONE pass (O(n))
+        const schedule: Record<string, { opens: any[]; blocks: any[] }> = {};
 
-        for (const day of Object.entries(week) as any[]) {
-          const dayOfWeekSchedule = weeklySchedule.filter(
-            (s) => String(s.dayOfWeek) == day[0],
-          );
+        const weekMap = [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ];
 
-          if (dayOfWeekSchedule) {
-            const blocks = [];
-            const opens = [];
-            for (const block of dayOfWeekSchedule) {
-              if (block.type == "OPEN") {
-                opens.push(block);
-              } else {
-                blocks.push(block);
-              }
-            }
+        for (const item of weeklySchedule) {
+          const dayName = weekMap[item.dayOfWeek];
 
-            schedule[day[1]] = { opens, blocks };
+          if (!dayName) {
+            return res.status(500).json({ message: "Internal server error" });
+          }
+
+          if (!schedule[dayName]) {
+            schedule[dayName] = { opens: [], blocks: [] };
+          }
+
+          if (item.type === "OPEN") {
+            schedule[dayName].opens.push(item);
+          } else {
+            schedule[dayName].blocks.push(item);
           }
         }
 
-        res.status(200).json({ schedule });
-      } else {
-        const startOfDay = new Date(`${date}T00:00:00`);
-        const endOfDay = new Date(`${date}T23:59:59`);
+        return res.status(200).json({ schedule });
+      }
 
-        // ✅ fetch bookings with full relations
-        const bookings = await prisma.booking.findMany({
+      // =========================
+      // 🔵 DAY VIEW
+      // =========================
+
+      const startOfDay = new Date(`${date}T00:00:00`);
+      const endOfDay = new Date(`${date}T23:59:59`);
+      const dayOfWeek = startOfDay.getDay();
+
+      // ✅ run queries in parallel (FASTER)
+      const [bookings, blocks, recurringBlocks] = await Promise.all([
+        prisma.booking.findMany({
           where: {
-            shopId: req.shop.id,
-            startTime: {
-              gte: startOfDay,
-              lte: endOfDay,
-            },
+            shopId,
+            startTime: { gte: startOfDay, lte: endOfDay },
           },
           include: {
             user: {
               select: {
                 id: true,
                 name: true,
-                email: true,
                 avatarUrl: true,
                 phoneNumber: true,
               },
@@ -88,70 +95,51 @@ scheduleRouter.get(
                 name: true,
                 price: true,
                 durationMin: true,
-              },
-            },
-            shop: {
-              select: {
-                id: true,
-                name: true,
-                address: true,
+                bufferTime: true,
               },
             },
             staff: {
               include: {
                 user: {
-                  select: {
-                    id: true,
-                    name: true,
-                  },
+                  select: { id: true, name: true },
                 },
               },
             },
           },
-          orderBy: {
-            startTime: "asc",
-          },
-        });
+          orderBy: { startTime: "asc" },
+        }),
 
-        // ✅ also include one-time blocks (important for admin view)
-        const blocks = await prisma.shopBlock.findMany({
+        prisma.shopBlock.findMany({
           where: {
-            shopId: req.shop.id,
-            startTime: {
-              gte: startOfDay,
-              lte: endOfDay,
-            },
+            shopId,
+            startTime: { gte: startOfDay, lte: endOfDay },
           },
-          orderBy: {
-            startTime: "asc",
-          },
-        });
+          orderBy: { startTime: "asc" },
+        }),
 
-        // ✅ recurring blocks (from schedule)
-        const dayOfWeek = new Date(date).getDay();
-
-        const recurringBlocks = await prisma.shopSchedule.findMany({
+        prisma.shopSchedule.findMany({
           where: {
-            shopId: req.shop.id,
+            shopId,
             dayOfWeek,
             type: "BLOCK",
           },
-        });
+        }),
+      ]);
 
-        const recurringBlocksFormatted = recurringBlocks.map((b) => ({
-          id: b.id,
-          startTime: new Date(`${date}T${b.startTime}:00`),
-          endTime: new Date(`${date}T${b.endTime}:00`),
-          type: "RECURRING_BLOCK",
-        }));
+      // ✅ format recurring blocks
+      const formattedRecurringBlocks = recurringBlocks.map((b) => ({
+        id: b.id,
+        startTime: new Date(`${date}T${b.startTime}:00`),
+        endTime: new Date(`${date}T${b.endTime}:00`),
+        type: "RECURRING_BLOCK",
+      }));
 
-        return res.status(200).json({
-          date,
-          bookings,
-          blocks,
-          recurringBlocks: recurringBlocksFormatted,
-        });
-      }
+      return res.status(200).json({
+        date,
+        bookings,
+        blocks,
+        recurringBlocks: formattedRecurringBlocks,
+      });
     } catch (error) {
       console.error("Schedule fetch error:", error);
       res.status(500).json({ message: "Internal server error" });
