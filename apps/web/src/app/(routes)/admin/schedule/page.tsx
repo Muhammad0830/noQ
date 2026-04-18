@@ -17,6 +17,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS, getStoredAuth } from "@/lib/api";
 import type {
@@ -140,7 +141,7 @@ const getDefaultDays = (): DaySchedule[] =>
     openStart: meta.defaultStart,
     openEnd: meta.defaultEnd,
     breaks: [],
-    enabled: meta.day !== "Sunday",
+    enabled: meta.id !== "sunday",
   }));
 
 const mapBackendToDays = (response?: BackendWeeklyScheduleResponse): DaySchedule[] => {
@@ -177,6 +178,7 @@ const mapBackendToDays = (response?: BackendWeeklyScheduleResponse): DaySchedule
 
 export default function AdminSchedulePage() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<"schedule" | "exceptions">(
@@ -417,7 +419,7 @@ export default function AdminSchedulePage() {
 
   const saveSchedule = async () => {
     if (!activeShopId) {
-      setToast({ message: "No shop selected", kind: "error" });
+      setToast({ message: t("admin.schedule.noShopSelected"), kind: "error" });
       return;
     }
 
@@ -451,20 +453,22 @@ export default function AdminSchedulePage() {
       if (!response.ok) {
         throw new Error(
           (json && typeof json.message === "string" && json.message) ||
-            "Failed to save schedule",
+            t("admin.schedule.saveFailed"),
         );
       }
 
-      setToast({ message: "Schedule saved successfully", kind: "success" });
+      setToast({ message: t("admin.schedule.saveSuccess"), kind: "success" });
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Failed to save schedule";
+        error instanceof Error ? error.message : t("admin.schedule.saveFailed");
 
       setToast({ message, kind: "error" });
     } finally {
       setIsSaving(false);
     }
   };
+
+  const getDayLabel = (dayId: string) => t(`admin.schedule.day.${dayId}`);
 
   return (
     <div className="px-3 py-2 sm:px-4">
@@ -488,7 +492,12 @@ export default function AdminSchedulePage() {
           </div>
         )}
 
-        <ScheduleHeader title="Schedule Setup" onBack={() => router.back()} />
+        <ScheduleHeader
+          title={t("admin.schedule.title")}
+          onBack={() => router.back()}
+          backAriaLabel={t("common.back")}
+          moreAriaLabel={t("common.close")}
+        />
 
         <main className="space-y-3 px-3 pb-5">
           <section className="grid grid-cols-2 gap-2">
@@ -502,7 +511,7 @@ export default function AdminSchedulePage() {
               }`}
             >
               <CalendarClock className="h-4 w-4" />
-              Schedule
+              {t("admin.schedule.tab.schedule")}
             </button>
             <button
               type="button"
@@ -514,14 +523,14 @@ export default function AdminSchedulePage() {
               }`}
             >
               <CalendarClock className="h-4 w-4" />
-              Exceptions
+              {t("admin.schedule.tab.exceptions")}
             </button>
           </section>
 
           {activeTab === "schedule" ? (
             <section>
               <h3 className="pb-2 text-[21px] font-bold tracking-tight text-[#1f1f1f]">
-                Weekly Schedule
+                {t("admin.schedule.weekly")}
               </h3>
 
               <div className="space-y-2.5">
@@ -546,9 +555,10 @@ export default function AdminSchedulePage() {
                   : days.map((item) => {
                   const isExpanded = expandedDay === item.id;
                   const breaksCount = item.breaks.length;
+                  const dayLabel = getDayLabel(item.id);
                   const hoursText = item.enabled
                     ? `${item.openStart} - ${item.openEnd}`
-                    : "Closed";
+                    : t("admin.schedule.closed");
 
                   return (
                     <article
@@ -561,11 +571,11 @@ export default function AdminSchedulePage() {
                         <div>
                           <div className="flex items-center gap-2">
                             <p className="text-[18px] font-semibold tracking-tight text-[#252a31]">
-                              {item.day}
+                              {dayLabel}
                             </p>
-                            {item.day === "Thursday" && (
+                            {item.id === "thursday" && (
                               <span className="rounded-full bg-[#f9b15a] px-2 py-0.5 text-[9px] font-bold uppercase text-white">
-                                Today
+                                {t("admin.schedule.today")}
                               </span>
                             )}
                           </div>
@@ -575,7 +585,9 @@ export default function AdminSchedulePage() {
                               <>
                                 <span className="mx-1 text-[#d6d9de]">•</span>
                                 <span className="text-[#f39a36]">
-                                  {breaksCount} break
+                                  {t("admin.schedule.breakCount", {
+                                    count: breaksCount,
+                                  })}
                                 </span>
                               </>
                             )}
@@ -589,7 +601,9 @@ export default function AdminSchedulePage() {
                             className={`relative h-6 w-11 rounded-full transition-colors ${
                               item.enabled ? "bg-[#24b565]" : "bg-[#dbdde2]"
                             }`}
-                            aria-label={`${item.day} toggle`}
+                            aria-label={t("admin.schedule.aria.toggleDay", {
+                              day: dayLabel,
+                            })}
                             aria-pressed={item.enabled}
                           >
                             <span
@@ -611,7 +625,9 @@ export default function AdminSchedulePage() {
                                 ? "h-9 w-9 rounded-2xl bg-[#f2f3f5] text-[#20b35f]"
                                 : "h-9 w-9 rounded-full text-[#b8bdc8] hover:bg-[#f3f4f6]"
                             } ${!item.enabled ? "cursor-not-allowed opacity-40 hover:bg-transparent" : ""}`}
-                            aria-label="Edit day"
+                            aria-label={t("admin.schedule.aria.editDay", {
+                              day: dayLabel,
+                            })}
                           >
                             {isExpanded ? (
                               <Check className="h-4 w-4 text-[#21b462]" />
@@ -630,7 +646,7 @@ export default function AdminSchedulePage() {
                                 <Clock3 className="h-4 w-4" />
                               </div>
                               <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#959daa]">
-                                Hours
+                                {t("admin.schedule.hours")}
                               </p>
                               <div className="inline-flex h-10 items-center justify-center rounded-xl border border-[#d9dde3] bg-[#f3f4f6] px-3 text-[15px] font-bold text-[#1e232b]">
                                 {item.openStart}
@@ -651,7 +667,7 @@ export default function AdminSchedulePage() {
                                     <Coffee className="h-4 w-4" />
                                   </div>
                                   <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#959daa]">
-                                    Break
+                                    {t("admin.schedule.break")}
                                   </p>
                                   <button
                                     type="button"
@@ -684,7 +700,7 @@ export default function AdminSchedulePage() {
                                     type="button"
                                     onClick={() => removeBreak(item.id, breakIndex)}
                                     className="inline-flex h-7 w-7 items-center justify-center text-[#ff6662]"
-                                    aria-label="Delete break"
+                                    aria-label={t("admin.schedule.aria.deleteBreak")}
                                   >
                                     <Trash2 className="h-4 w-4" />
                                   </button>
@@ -696,7 +712,7 @@ export default function AdminSchedulePage() {
                                   <Coffee className="h-4 w-4" />
                                 </div>
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#959daa]">
-                                  Break
+                                  {t("admin.schedule.break")}
                                 </p>
                                 <button
                                   type="button"
@@ -717,7 +733,7 @@ export default function AdminSchedulePage() {
                                   type="button"
                                   disabled
                                   className="inline-flex h-7 w-7 items-center justify-center text-[#ff6662]/40"
-                                  aria-label="Delete break"
+                                  aria-label={t("admin.schedule.aria.deleteBreak")}
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </button>
@@ -731,7 +747,7 @@ export default function AdminSchedulePage() {
                             className="mt-1 inline-flex items-center gap-2 text-[12px] font-semibold text-[#ef942b]"
                           >
                             <Plus className="h-4 w-4" />
-                            Add Break
+                            {t("admin.schedule.addBreak")}
                           </button>
                         </div>
                       )}
@@ -743,10 +759,10 @@ export default function AdminSchedulePage() {
           ) : (
             <section className="rounded-3xl border border-dashed border-[#d2d6de] bg-white px-4 py-8 text-center">
               <h3 className="text-[16px] font-semibold text-[#2e3440]">
-                Exceptions
+                {t("admin.schedule.exceptions.title")}
               </h3>
               <p className="mt-1 text-[13px] text-[#8f96a3]">
-                Special days and holiday hours can be added here.
+                {t("admin.schedule.exceptions.description")}
               </p>
             </section>
           )}
@@ -759,7 +775,7 @@ export default function AdminSchedulePage() {
             disabled={isSaving || !activeShopId}
             className="w-full rounded-full bg-[#f09a35] py-3.5 text-[14px] font-bold uppercase tracking-[0.08em] text-white shadow-[0_10px_30px_rgba(240,154,53,0.35)] transition-transform hover:-translate-y-0.5 active:translate-y-0"
           >
-            {isSaving ? "Saving..." : "Confirm Schedule"}
+            {isSaving ? t("admin.schedule.saving") : t("admin.schedule.save")}
           </button>
         </div>
 
@@ -774,7 +790,7 @@ export default function AdminSchedulePage() {
             >
               <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#d8dce2]" />
               <h4 className="mb-4 text-center text-[18px] font-semibold text-[#1f2530]">
-                Select Time
+                {t("admin.schedule.timePicker.title")}
               </h4>
 
               <div className="mb-5 flex items-center justify-center gap-2">
@@ -835,14 +851,14 @@ export default function AdminSchedulePage() {
                   onClick={closeTimePicker}
                   className="rounded-xl border border-[#d8dde5] py-2 text-[13px] font-semibold text-[#7f8794]"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button
                   type="button"
                   onClick={confirmTimePicker}
                   className="rounded-xl bg-[#f09a35] py-2 text-[13px] font-semibold text-white"
                 >
-                  Confirm
+                  {t("common.confirm")}
                 </button>
               </div>
             </div>
