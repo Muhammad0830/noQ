@@ -57,6 +57,7 @@ type TimelineAppointment = {
   id: string;
   startTime: string;
   endTime: string;
+  durationMin?: number | null;
   time: string;
   timeRange: string;
   timeMinutes: string;
@@ -250,6 +251,7 @@ export default function AdminDashboard() {
   const monthDropdownRef = useRef<HTMLDivElement | null>(null);
   const timelineListRef = useRef<HTMLDivElement | null>(null);
   const appointmentRowRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const appointmentCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const monthOptions = useMemo(() => {
     const currentYear = currentDate.getFullYear();
@@ -446,6 +448,7 @@ export default function AdminDashboard() {
           id: booking.id,
           startTime: booking.startTime,
           endTime: booking.endTime,
+          durationMin: booking.service?.durationMin ?? null,
           time: formatTime(booking.startTime),
           timeRange: formatTimeRange(booking.startTime, booking.endTime),
           timeMinutes: formatMinutesLabel(
@@ -476,18 +479,45 @@ export default function AdminDashboard() {
     const points = timelineAppointments
       .map((appointment) => {
         const rowEl = appointmentRowRefs.current[appointment.id];
+        const cardEl = appointmentCardRefs.current[appointment.id];
         if (!rowEl) return null;
 
-        const timeMs = new Date(appointment.startTime).getTime();
-        if (Number.isNaN(timeMs)) return null;
+        const startMs = new Date(appointment.startTime).getTime();
+        const fallbackEndMs = new Date(appointment.endTime).getTime();
+        const durationBasedEndMs =
+          typeof appointment.durationMin === "number" && appointment.durationMin > 0
+            ? startMs + appointment.durationMin * 60 * 1000
+            : NaN;
+        const endMs = Number.isNaN(durationBasedEndMs)
+          ? fallbackEndMs
+          : durationBasedEndMs;
+
+        if (Number.isNaN(startMs) || Number.isNaN(endMs)) return null;
+
+        const startY = rowEl.offsetTop + 14;
+        const cardBottomY = cardEl
+          ? rowEl.offsetTop + cardEl.offsetTop + cardEl.offsetHeight
+          : rowEl.offsetTop + rowEl.offsetHeight;
+        const endY = Math.max(startY, cardBottomY);
 
         return {
-          timeMs,
-          y: rowEl.offsetTop + 14,
+          startMs,
+          endMs: Math.max(endMs, startMs),
+          startY,
+          endY,
         };
       })
-      .filter((point): point is { timeMs: number; y: number } => Boolean(point))
-      .sort((a, b) => a.timeMs - b.timeMs);
+      .filter(
+        (
+          point,
+        ): point is {
+          startMs: number;
+          endMs: number;
+          startY: number;
+          endY: number;
+        } => Boolean(point),
+      )
+      .sort((a, b) => a.startMs - b.startMs);
 
     if (points.length === 0) {
       setNowMarkerTop(null);
@@ -496,33 +526,37 @@ export default function AdminDashboard() {
 
     const nowMs = now.getTime();
 
-    if (nowMs <= points[0].timeMs) {
-      setNowMarkerTop(points[0].y);
+    if (nowMs <= points[0].startMs) {
+      setNowMarkerTop(points[0].startY);
       return;
     }
 
-    for (let i = 0; i < points.length - 1; i += 1) {
+    for (let i = 0; i < points.length; i += 1) {
       const current = points[i];
       const next = points[i + 1];
+      const duration = Math.max(current.endMs - current.startMs, 1);
 
-      if (nowMs >= current.timeMs && nowMs <= next.timeMs) {
-        const ratio = (nowMs - current.timeMs) / (next.timeMs - current.timeMs);
-        setNowMarkerTop(current.y + (next.y - current.y) * ratio);
+      // If current time is inside a service, move marker through that card.
+      if (nowMs >= current.startMs && nowMs <= current.endMs) {
+        const ratio = (nowMs - current.startMs) / duration;
+        setNowMarkerTop(
+          current.startY + (current.endY - current.startY) * ratio,
+        );
+        return;
+      }
+
+      // If between current service end and next service start, keep at current card bottom.
+      if (next && nowMs > current.endMs && nowMs < next.startMs) {
+        setNowMarkerTop(current.endY);
         return;
       }
     }
 
-    if (points.length >= 2) {
-      const prev = points[points.length - 2];
-      const last = points[points.length - 1];
-      const minutesBetween = Math.max((last.timeMs - prev.timeMs) / 60000, 1);
-      const yPerMinute = (last.y - prev.y) / minutesBetween;
-      const minutesAfterLast = (nowMs - last.timeMs) / 60000;
-      setNowMarkerTop(last.y + minutesAfterLast * yPerMinute);
-      return;
-    }
-
-    setNowMarkerTop(points[0].y);
+    // After the last service, keep marker at the very bottom of timeline content.
+    const timelineBottomY = timelineListRef.current?.scrollHeight;
+    setNowMarkerTop(
+      Math.max(points[points.length - 1].endY, timelineBottomY || 0),
+    );
   }, [isSelectedToday, now, timelineAppointments]);
 
   const timelineSkeletonItems = useMemo(() => Array.from({ length: 3 }), []);
@@ -909,6 +943,9 @@ export default function AdminDashboard() {
 
                         <div className="min-w-0 pl-1 sm:pl-1.5">
                           <div
+                            ref={(el) => {
+                              appointmentCardRefs.current[appointment.id] = el;
+                            }}
                             className={`rounded-3xl px-4 sm:px-5 py-4 shadow-sm ${statusStyle.card}`}
                             style={
                               isCompleted
