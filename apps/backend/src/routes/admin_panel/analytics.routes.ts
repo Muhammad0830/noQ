@@ -255,7 +255,7 @@ analyticsRouter.get("/diagram_info", async (req: any, res) => {
       WHERE 
         b."shopId" = '${req.shop.id}'
         AND b."status" = 'COMPLETED'
-        AND b."createdAt" >= '${startDate.toISOString()}'
+        AND b."startTime" >= '${startDate.toISOString()}'
       GROUP BY bucket
       ORDER BY bucket ASC;
     `);
