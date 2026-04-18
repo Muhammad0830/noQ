@@ -36,11 +36,20 @@ staffRouter.get("/", async (req: any, res) => {
       include: {
         shop: true,
         user: true,
-      }
+      },
     });
 
     res.status(200).json({ owner, staffMembers });
   } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+staffRouter.post("/", async (req: any, res) => {
+  try {
+    
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
