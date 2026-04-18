@@ -114,11 +114,10 @@ export default function BottomNav() {
   }, [searchParams, persistedShopId]);
 
   const isAdminUser = user?.role === "ADMIN";
+  const isOnAdminRoute = pathname.startsWith("/admin");
+  const isOnProfileRoute = pathname.startsWith("/profile");
   const useAdmin =
-    providerMode &&
-    isAdminUser &&
-    !!activeAdminShopId &&
-    (pathname.startsWith("/profile") || pathname.startsWith("/admin"));
+    isAdminUser && (isOnAdminRoute || (providerMode && isOnProfileRoute));
 
   const getAdminHref = (href: string) => {
     if (!href.startsWith("/admin") || !activeAdminShopId) return href;
