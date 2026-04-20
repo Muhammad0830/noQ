@@ -48,9 +48,10 @@ serviceRouter.post("/isActive/toggle", async (req: any, res: any) => {
   try {
     const { id } = req.body;
 
-    const service = await prisma.service.findUnique({
+    const service = await prisma.service.findFirst({
       where: {
         id,
+        shopId: req.shop.id,
       },
     });
 
@@ -58,7 +59,7 @@ serviceRouter.post("/isActive/toggle", async (req: any, res: any) => {
       return res.status(404).json({ message: "Service not found" });
     }
 
-    await prisma.service.update({
+    const updated = await prisma.service.update({
       where: {
         id,
       },
@@ -67,7 +68,10 @@ serviceRouter.post("/isActive/toggle", async (req: any, res: any) => {
       },
     });
 
-    res.status(200).json({ message: "Service isActive toggled successfully" });
+    res.status(200).json({
+      message: "Service isActive toggled successfully",
+      service: updated,
+    });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }

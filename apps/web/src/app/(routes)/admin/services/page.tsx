@@ -1,163 +1,196 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ChevronLeft,
   Clock3,
-  Droplets,
+  Loader2,
   MoreVertical,
   PenLine,
-  Scissors,
   Search,
-  Sparkles,
-  ThermometerSnowflake,
-  UserRound,
+  Scissors,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import useApiQuery from "@/hooks/useApiQuery";
+import { API_ENDPOINTS, getStoredAuth } from "@/lib/api";
 
-type ServiceItem = {
+type AdminService = {
   id: string;
   name: string;
-  duration: string;
+  description: string | null;
   price: string;
-  staffCount: number;
-  icon: typeof Scissors;
-  iconBg: string;
-  iconColor: string;
-  muted: boolean;
+  durationMin: number;
+  isActive: boolean;
+  shopId: string;
+  bufferTime: number | null;
+  shop?: {
+    name?: string;
+  };
 };
 
-const services: ServiceItem[] = [
-  {
-    id: "classicFade",
-    name: "Classic Fade",
-    duration: "45 min",
-    price: "$45",
-    staffCount: 3,
-    icon: Scissors,
-    iconBg: "bg-[#fff2e5]",
-    iconColor: "text-[#f3a33d]",
-    muted: false,
-  },
-  {
-    id: "razorShave",
-    name: "Razor Shave",
-    duration: "30 min",
-    price: "$35",
-    staffCount: 2,
-    icon: Sparkles,
-    iconBg: "bg-[#fff2e5]",
-    iconColor: "text-[#f3a33d]",
-    muted: false,
-  },
-  {
-    id: "luxuryFacial",
-    name: "Luxury Facial",
-    duration: "60 min",
-    price: "$85",
-    staffCount: 1,
-    icon: Droplets,
-    iconBg: "bg-[#fff2e5]",
-    iconColor: "text-[#f3a33d]",
-    muted: false,
-  },
-  {
-    id: "beardGrooming",
-    name: "Beard Grooming",
-    duration: "20 min",
-    price: "$25",
-    staffCount: 1,
-    icon: Scissors,
-    iconBg: "bg-[#f3f4f6]",
-    iconColor: "text-[#a4abb6]",
-    muted: true,
-  },
-  {
-    id: "hotTowelScrub",
-    name: "Hot Towel Scrub",
-    duration: "15 min",
-    price: "$15",
-    staffCount: 1,
-    icon: ThermometerSnowflake,
-    iconBg: "bg-[#f3f4f6]",
-    iconColor: "text-[#a4abb6]",
-    muted: true,
-  },
-  {
-    id: "signatureTint",
-    name: "Signature Tint",
-    duration: "30 min",
-    price: "$30",
-    staffCount: 1,
-    icon: UserRound,
-    iconBg: "bg-[#f3f4f6]",
-    iconColor: "text-[#a4abb6]",
-    muted: true,
-  },
-];
+const headersByShop = (shopId: string) => ({
+  "x-shopid": shopId,
+  "x-shop-id": shopId,
+});
 
-const staffAvatars: Record<string, string[]> = {
-  classicFade: ["SJ", "MD", "+1"],
-  razorShave: ["MD", "EW"],
-  luxuryFacial: ["LW"],
-  beardGrooming: ["JD"],
-  hotTowelScrub: ["KB"],
-  signatureTint: ["AM"],
+const toPriceLabel = (price: string) => {
+  const parsed = Number(price);
+  if (Number.isNaN(parsed)) {
+    return `$${price}`;
+  }
+  return `$${parsed.toFixed(2)}`;
 };
 
 export default function AdminServicesPage() {
+  const { user } = useAuth();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [activeFilter, setActiveFilter] = useState<"active" | "inactive">(
-    "active",
-  );
-  const [serviceState, setServiceState] = useState<Record<string, boolean>>({
-    classicFade: true,
-    razorShave: true,
-    luxuryFacial: true,
-    beardGrooming: false,
-    hotTowelScrub: false,
-    signatureTint: false,
-  });
+  const [persistedShopId, setPersistedShopId] = useState<string | null>(null);
+  const [hasLoadedPersistedShop, setHasLoadedPersistedShop] =
+    useState<boolean>(false);
+  const [pendingIds, setPendingIds] = useState<Record<string, boolean>>({});
+  const [toggleError, setToggleError] = useState<string | null>(null);
 
-  const filteredServices = useMemo(() => {
+  const shopIdFromQuery = searchParams.get("shopId");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = window.localStorage.getItem("selected_shop_id");
+    if (saved) {
+      setPersistedShopId(saved);
+    }
+    setHasLoadedPersistedShop(true);
+  }, []);
+
+  const activeShopId = useMemo(() => {
+    if (!hasLoadedPersistedShop) return null;
+
+    const userShops = user?.shops || [];
+    if (
+      shopIdFromQuery &&
+      userShops.some((shop) => shop.id === shopIdFromQuery)
+    ) {
+      return shopIdFromQuery;
+    }
+    if (
+      persistedShopId &&
+      userShops.some((shop) => shop.id === persistedShopId)
+    ) {
+      return persistedShopId;
+    }
+
+    return userShops[0]?.id || null;
+  }, [hasLoadedPersistedShop, persistedShopId, shopIdFromQuery, user?.shops]);
+
+  useEffect(() => {
+    if (
+      !hasLoadedPersistedShop ||
+      !activeShopId ||
+      typeof window === "undefined"
+    ) {
+      return;
+    }
+    window.localStorage.setItem("selected_shop_id", activeShopId);
+  }, [activeShopId, hasLoadedPersistedShop]);
+
+  const {
+    data: services = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useApiQuery<AdminService[]>(
+    activeShopId
+      ? `${API_ENDPOINTS.admin.services}?shopId=${activeShopId}`
+      : null,
+    {
+      key: ["admin-services", activeShopId || "none"],
+      enabled: Boolean(activeShopId && user),
+      staleTime: 30_000,
+      refetchOnWindowFocus: false,
+      headers: activeShopId ? headersByShop(activeShopId) : undefined,
+    },
+  );
+
+  const filteredServices = useMemo<AdminService[]>(() => {
     const q = search.toLowerCase().trim();
 
     return services.filter((service) => {
-      const matchesFilter =
-        activeFilter === "active" ? !service.muted : service.muted;
       const matchesSearch =
         !q ||
         service.name.toLowerCase().includes(q) ||
-        service.duration.toLowerCase().includes(q) ||
-        service.price.toLowerCase().includes(q);
+        service.durationMin.toString().includes(q) ||
+        service.price.toString().includes(q);
 
-      return matchesFilter && matchesSearch;
+      return matchesSearch;
     });
-  }, [activeFilter, search]);
+  }, [search, services]);
 
-  const totalActive = services.filter((service) => !service.muted).length;
+  const activeServices = filteredServices.filter((service) => service.isActive);
+  const inactiveServices = filteredServices.filter(
+    (service) => !service.isActive,
+  );
+  const totalActive = services.filter((service) => service.isActive).length;
 
-  const toggleService = (id: string) => {
-    setServiceState((current) => ({
-      ...current,
-      [id]: !current[id],
-    }));
+  const toggleService = async (id: string) => {
+    if (!activeShopId || pendingIds[id]) return;
+
+    try {
+      setToggleError(null);
+      setPendingIds((current) => ({ ...current, [id]: true }));
+
+      const token = getStoredAuth()?.token;
+      const res = await fetch(API_ENDPOINTS.admin.toggleServiceActive, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...headersByShop(activeShopId),
+        },
+        body: JSON.stringify({ id }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        const message =
+          body && typeof body.message === "string"
+            ? body.message
+            : "Failed to toggle service";
+        throw new Error(message);
+      }
+
+      await refetch();
+    } catch (err) {
+      setToggleError(err instanceof Error ? err.message : "Toggle failed");
+    } finally {
+      setPendingIds((current) => ({ ...current, [id]: false }));
+    }
   };
 
-  const renderProfileStyleToggle = (enabled: boolean, label: string) => (
+  const getAdminHrefWithShopId = (path: string) => {
+    if (!activeShopId) return path;
+    return `${path}?shopId=${encodeURIComponent(activeShopId)}`;
+  };
+
+  const renderProfileStyleToggle = (enabled: boolean, id: string) => (
     <button
       type="button"
-      onClick={() => toggleService(label)}
+      onClick={() => void toggleService(id)}
+      disabled={pendingIds[id]}
       className={`relative h-7 w-12 rounded-full border transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F49B33]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
         enabled
           ? "border-[#F49B33]/60 bg-[#F49B33]/25 dark:border-[#F49B33]/70 dark:bg-[#F49B33]/35"
           : "border-slate-300 bg-slate-200 dark:border-white/25 dark:bg-white/10"
       }`}
-      aria-label={`Toggle ${label}`}
+      aria-label={`Toggle ${id}`}
       aria-pressed={enabled}
     >
+      {pendingIds[id] && (
+        <Loader2 className="absolute left-0 right-0 top-1/2 mx-auto h-3 w-3 -translate-y-1/2 animate-spin text-[#7a7a7a]" />
+      )}
       <span
         className={`absolute top-0.75 h-5 w-5 rounded-full ring-1 transition-all duration-200 ${
           enabled
@@ -195,9 +228,12 @@ export default function AdminServicesPage() {
               <div className="absolute right-0 top-11 w-44 rounded-xl border border-[#e5e7eb] bg-white p-1 shadow-lg">
                 <button
                   type="button"
+                  onClick={() =>
+                    router.push(getAdminHrefWithShopId("/admin/services/new"))
+                  }
                   className="w-full rounded-lg px-3 py-2 text-left text-xs font-medium text-[#4d5560] transition-colors hover:bg-[#f7f7f7]"
                 >
-                  Add Category
+                  Add Service
                 </button>
                 <button
                   type="button"
@@ -222,11 +258,33 @@ export default function AdminServicesPage() {
             />
           </div>
 
+          {!activeShopId && (
+            <div className="mt-4 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              Shop tanlanmagan. Avval admin dashboarddan shop tanlang.
+            </div>
+          )}
+
+          {isError && (
+            <div className="mt-4 rounded-[18px] border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {(error?.data &&
+                typeof error.data === "object" &&
+                "message" in error.data &&
+                typeof (error.data as { message?: unknown }).message ===
+                  "string" &&
+                (error.data as { message: string }).message) ||
+                error?.message ||
+                "Failed to load services"}
+            </div>
+          )}
+
+          {toggleError && (
+            <div className="mt-4 rounded-[18px] border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {toggleError}
+            </div>
+          )}
+
           <section className="mt-5 flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#a5adb7]">
-                Live Updates
-              </p>
               <h2 className="mt-1 text-[17px] font-medium text-[#8b95a1]">
                 Active Services
               </h2>
@@ -237,9 +295,13 @@ export default function AdminServicesPage() {
           </section>
 
           <section className="mt-4 space-y-4">
-            {filteredServices.length > 0 ? (
-              filteredServices.map((service) => {
-                const enabled = serviceState[service.id];
+            {isLoading ? (
+              <div className="rounded-[24px] border border-[#edeff2] bg-white px-4 py-10 text-center text-sm text-[#8b95a1]">
+                Loading services...
+              </div>
+            ) : activeServices.length > 0 ? (
+              activeServices.map((service) => {
+                const enabled = service.isActive;
 
                 return (
                   <article
@@ -255,33 +317,28 @@ export default function AdminServicesPage() {
                             </h3>
                             <div className="mt-1 flex items-center gap-2 text-[12px] text-[#8b95a1]">
                               <Clock3 className="h-3.5 w-3.5" />
-                              <span>{service.duration}</span>
+                              <span>{service.durationMin} min</span>
                               <span className="text-[#d8dbe1]">•</span>
-                              <span>{service.price}</span>
+                              <span>{toPriceLabel(service.price)}</span>
                             </div>
                           </div>
                           <div className="relative flex h-12 w-12 items-start justify-end overflow-hidden rounded-full bg-[#fff2e4]">
                             <div className="absolute right-0 top-0 h-12 w-12 rounded-full bg-[#fff2e4]" />
                             <p className="relative z-10 px-2 pt-2 text-[20px] font-bold tracking-tight text-[#F49B33]">
-                              {service.price}
+                              {toPriceLabel(service.price)}
                             </p>
                           </div>
                         </div>
 
                         <div className="mt-4 flex items-center justify-between gap-3">
                           <div className="flex items-center gap-2">
-                            <div className="flex -space-x-2">
-                              {staffAvatars[service.id]?.map((label) => (
-                                <span
-                                  key={label}
-                                  className="flex h-6 w-6 items-center justify-center rounded-full border border-white bg-[#1f2937] text-[8px] font-semibold text-white"
-                                >
-                                  {label}
-                                </span>
-                              ))}
-                            </div>
+                            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#fff2e4] text-[#F49B33]">
+                              <Scissors className="h-4 w-4" />
+                            </span>
                             <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7f8894]">
-                              {service.staffCount} staff
+                              {service.bufferTime
+                                ? `Buffer ${service.bufferTime} min`
+                                : "No buffer"}
                             </span>
                           </div>
 
@@ -302,59 +359,57 @@ export default function AdminServicesPage() {
               })
             ) : (
               <div className="rounded-[24px] border border-dashed border-[#d5d9df] bg-white px-4 py-8 text-center text-sm text-[#8b95a1]">
-                No services matched your search.
+                No active services matched your search.
               </div>
             )}
           </section>
 
           <section className="mt-6">
-            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#9da4ad]">
-              Archived Catalog
-            </p>
             <h3 className="mt-1 text-[17px] font-medium text-[#8b95a1]">
               Inactive Services
             </h3>
 
             <div className="mt-4 space-y-3 rounded-[24px] bg-white p-4 shadow-[0_10px_25px_rgba(17,24,39,0.04)] ring-1 ring-black/5">
-              {services
-                .filter((service) => service.muted)
-                .map((service) => {
-                  const Icon = service.icon;
-                  const enabled = serviceState[service.id];
+              {inactiveServices.length === 0 && !isLoading && (
+                <div className="rounded-xl border border-dashed border-[#d5d9df] px-4 py-6 text-center text-sm text-[#8b95a1]">
+                  No inactive services found.
+                </div>
+              )}
 
-                  return (
-                    <div
-                      key={service.id}
-                      className="flex items-center gap-3 rounded-2xl py-1"
-                    >
-                      <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-2xl ${service.iconBg} ${service.iconColor}`}
-                      >
-                        <Icon className="h-5 w-5" />
-                      </div>
+              {inactiveServices.map((service) => {
+                const enabled = service.isActive;
 
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-[16px] font-semibold text-[#374151]">
-                          {service.name}
-                        </p>
-                        <div className="mt-0.5 flex items-center gap-2 text-[11px] text-[#98a0ab]">
-                          <span>{service.duration}</span>
-                          <span className="text-[#d8dbe1]">•</span>
-                          <span>{service.price}</span>
-                        </div>
-                        <button
-                          type="button"
-                          className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9aa1ab] transition-colors hover:text-[#F49B33]"
-                        >
-                          <PenLine className="h-3.5 w-3.5" />
-                          Edit
-                        </button>
-                      </div>
-
-                      {renderProfileStyleToggle(enabled, service.id)}
+                return (
+                  <div
+                    key={service.id}
+                    className="flex items-center gap-3 rounded-2xl py-1"
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#f3f4f6] text-[#a4abb6]">
+                      <Scissors className="h-5 w-5" />
                     </div>
-                  );
-                })}
+
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[16px] font-semibold text-[#374151]">
+                        {service.name}
+                      </p>
+                      <div className="mt-0.5 flex items-center gap-2 text-[11px] text-[#98a0ab]">
+                        <span>{service.durationMin} min</span>
+                        <span className="text-[#d8dbe1]">•</span>
+                        <span>{toPriceLabel(service.price)}</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9aa1ab] transition-colors hover:text-[#F49B33]"
+                      >
+                        <PenLine className="h-3.5 w-3.5" />
+                        Edit
+                      </button>
+                    </div>
+
+                    {renderProfileStyleToggle(enabled, service.id)}
+                  </div>
+                );
+              })}
             </div>
           </section>
         </main>
