@@ -170,6 +170,8 @@ export const API_ENDPOINTS = {
     analyticsDiagramInfo: `${API_BASE_URL}/admin/analytics/diagram_info`,
     analyticsFamousServices: `${API_BASE_URL}/admin/analytics/famousServices`,
     analyticsPeakHours: `${API_BASE_URL}/admin/analytics/peak-hours`,
+    services: `${API_BASE_URL}/admin/services`,
+    toggleServiceActive: `${API_BASE_URL}/admin/services/isActive/toggle`,
   },
 };
 

@@ -61,7 +61,10 @@ shopRouter.get("/", async (req, res) => {
         skip: serviceCursor ? 1 : 0,
         ...(serviceCursor && { cursor: { id: serviceCursor } }),
         where: {
-          isOpen: true,
+          isActive: true,
+          shop: {
+            isOpen: true,
+          },
           price: {
             ...(minPrice && { gte: Number(minPrice) }),
             ...(maxPrice && { lte: Number(maxPrice) }),
@@ -110,6 +113,7 @@ shopRouter.get("/", async (req, res) => {
       if (minPrice || maxPrice) {
         services = await prisma.service.findMany({
           where: {
+            isActive: true,
             shop: { categoryId },
             price: {
               ...(minPrice && { gte: Number(minPrice) }),
@@ -174,7 +178,10 @@ shopRouter.get("/:id", async (req: any, res: any) => {
         },
       }),
       prisma.service.findMany({
-        where: { shopId: id },
+        where: {
+          shopId: id,
+          isActive: true,
+        },
         include: {
           _count: {
             select: {
@@ -220,6 +227,7 @@ shopRouter.get("/:id/services", async (req: any, res: any) => {
     const services = await prisma.service.findMany({
       where: {
         shopId: id,
+        isActive: true,
       },
       include: {
         shop: true,
@@ -230,10 +238,6 @@ shopRouter.get("/:id/services", async (req: any, res: any) => {
         },
       },
     });
-
-    if (services.length === 0) {
-      return res.status(404).json({ message: "No services found" });
-    }
 
     res.status(200).json(services);
   } catch (error) {

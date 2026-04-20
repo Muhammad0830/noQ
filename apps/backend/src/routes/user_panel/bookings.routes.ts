@@ -86,8 +86,18 @@ bookingRouter.get("/available-slots", async (req, res) => {
     }
 
     const service = serviceId
-      ? await prisma.service.findUnique({ where: { id: serviceId } })
+      ? await prisma.service.findFirst({
+        where: {
+          id: serviceId,
+          shopId,
+          isActive: true,
+        },
+      })
       : null;
+
+    if (serviceId && !service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
 
     const durationMin = service?.durationMin ?? 45;
     const bufferTimeMin = service?.bufferTime ?? 0;
@@ -211,7 +221,6 @@ bookingRouter.get("/users/history", authMiddleware, async (req: any, res) => {
       completed: completedBookings,
       nowShow: nowShowBookings,
     });
-    res.status(200).json(bookings);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
@@ -298,15 +307,21 @@ bookingRouter.post("/", authMiddleware, async (req: any, res) => {
   try {
     const { shopId, serviceId, startTime, staffId } = req.body;
 
-    const service = await prisma.service.findUnique({
-      where: { id: serviceId },
+    const service = await prisma.service.findFirst({
+      where: {
+        id: serviceId,
+        shopId,
+        isActive: true,
+      },
     });
+
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
 
     const start = new Date(startTime);
     const end = new Date(start);
-    end.setMinutes(
-      end.getMinutes() + service!.durationMin + (service!.bufferTime ?? 0),
-    );
+    end.setMinutes(end.getMinutes() + service.durationMin + (service.bufferTime ?? 0));
 
     const validateResult: { hasError: boolean; status?: number; json?: any } =
       await bookingScheduleValidate(shopId, start, end);

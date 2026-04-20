@@ -13,6 +13,7 @@ serviceRouter.get("/", async (req: any, res: any) => {
     const services = await prisma.service.findMany({
       where: {
         shopId,
+        isActive: true,
       },
       include: {
         shop: true,
@@ -30,8 +31,11 @@ serviceRouter.get("/:id", async (req: any, res: any) => {
   try {
     const { id } = req.params;
 
-    const service = await prisma.service.findUnique({
-      where: { id },
+    const service = await prisma.service.findFirst({
+      where: {
+        id,
+        isActive: true,
+      },
       include: {
         shop: true,
         _count: {
@@ -106,17 +110,18 @@ serviceRouter.get("/trending/7days", async (req: any, res) => {
 
     const services = await prisma.service.findMany({
       where: {
+        isActive: true,
         ...(search
           ? {
-              OR: [
-                { name: { contains: search, mode: "insensitive" } },
-                {
-                  shop: {
-                    name: { contains: search, mode: "insensitive" },
-                  },
+            OR: [
+              { name: { contains: search, mode: "insensitive" } },
+              {
+                shop: {
+                  name: { contains: search, mode: "insensitive" },
                 },
-              ],
-            }
+              },
+            ],
+          }
           : {}),
       },
       include: {
@@ -151,7 +156,7 @@ serviceRouter.get("/trending/7days", async (req: any, res) => {
     });
 
     if (services.length === 0) {
-      return res.status(404).json({ error: "No services found for this shop" });
+      return res.status(200).json([]);
     }
 
     const result = services
