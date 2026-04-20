@@ -138,6 +138,7 @@ export const API_ENDPOINTS = {
 
   // Bookings
   bookings: `${API_BASE_URL}/bookings`,
+  bookingsAvailableSlots: `${API_BASE_URL}/bookings/available-slots`,
   activeBookings: `${API_BASE_URL}/bookings/active`,
   bookingHistory: `${API_BASE_URL}/bookings/history`,
   bookingsByUser: {
@@ -171,6 +172,8 @@ export const API_ENDPOINTS = {
     analyticsFamousServices: `${API_BASE_URL}/admin/analytics/famousServices`,
     analyticsPeakHours: `${API_BASE_URL}/admin/analytics/peak-hours`,
     schedule: `${API_BASE_URL}/admin/schedule`,
+    staffs: `${API_BASE_URL}/admin/staffs`,
+    users: `${API_BASE_URL}/users`,
   },
 };
 

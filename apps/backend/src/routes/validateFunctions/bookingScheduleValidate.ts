@@ -7,14 +7,17 @@ export const bookingScheduleValidate = async (
 ) => {
   const dayOfWeek = start.getDay(); // 0 (Sun) - 6 (Sat)
 
-  const schedule = await prisma.shopSchedule.findFirst({
+  const schedules = await prisma.shopSchedule.findMany({
     where: {
       shopId,
       dayOfWeek,
     },
+    orderBy: {
+      startTime: "asc",
+    },
   });
 
-  if (!schedule) {
+  if (!schedules.length) {
     return {
       hasError: true,
       status: 400,
@@ -22,14 +25,44 @@ export const bookingScheduleValidate = async (
     };
   }
 
-  const scheduleStart = setTimeToDate(start, schedule.startTime);
-  const scheduleEnd = setTimeToDate(start, schedule.endTime);
+  const openSchedules = schedules.filter((slot) => slot.type === "OPEN");
+  const recurringBlocks = schedules.filter((slot) => slot.type === "BLOCK");
 
-  if (start < scheduleStart || end > scheduleEnd) {
+  if (!openSchedules.length) {
+    return {
+      hasError: true,
+      status: 400,
+      json: { message: "No schedule for selected day" },
+    };
+  }
+
+  const isWithinWorkingHours = openSchedules.some((slot) => {
+    const scheduleStart = setTimeToDate(start, slot.startTime);
+    const scheduleEnd = setTimeToDate(start, slot.endTime);
+
+    return start >= scheduleStart && end <= scheduleEnd;
+  });
+
+  if (!isWithinWorkingHours) {
     return {
       hasError: true,
       status: 400,
       json: { message: "Booking is outside of working hours" },
+    };
+  }
+
+  const overlapsRecurringBreak = recurringBlocks.some((slot) => {
+    const blockStart = setTimeToDate(start, slot.startTime);
+    const blockEnd = setTimeToDate(start, slot.endTime);
+
+    return start < blockEnd && end > blockStart;
+  });
+
+  if (overlapsRecurringBreak) {
+    return {
+      hasError: true,
+      status: 400,
+      json: { message: "Booking overlaps break time" },
     };
   }
 

@@ -77,7 +77,12 @@ bookingRouter.get("/available-slots", async (req, res) => {
     const dayOfWeek = new Date(date).getDay();
 
     const schedules = await prisma.shopSchedule.findMany({
-      where: { shopId, dayOfWeek },
+      where: { shopId, dayOfWeek, type: "OPEN" },
+      orderBy: { startTime: "asc" },
+    });
+
+    const recurringBlocks = await prisma.shopSchedule.findMany({
+      where: { shopId, dayOfWeek, type: "BLOCK" },
       orderBy: { startTime: "asc" },
     });
 
@@ -119,6 +124,10 @@ bookingRouter.get("/available-slots", async (req, res) => {
       ...bookings.map((b) => ({
         startTime: b.startTime,
         endTime: new Date(b.endTime.getTime() + bufferTimeMin * 60 * 1000),
+      })),
+      ...recurringBlocks.map((b) => ({
+        startTime: new Date(`${date}T${b.startTime}:00`),
+        endTime: new Date(`${date}T${b.endTime}:00`),
       })),
       ...blocks,
     ];
@@ -296,16 +305,78 @@ bookingRouter.get(
 
 bookingRouter.post("/", authMiddleware, async (req: any, res) => {
   try {
-    const { shopId, serviceId, startTime, staffId } = req.body;
+    const { shopId, serviceId, startTime, staffId, userId } = req.body;
+
+    if (!shopId || !serviceId || !startTime) {
+      return res
+        .status(400)
+        .json({ message: "shopId, serviceId and startTime are required" });
+    }
 
     const service = await prisma.service.findUnique({
       where: { id: serviceId },
     });
 
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+
+    if (service.shopId !== shopId) {
+      return res
+        .status(400)
+        .json({ message: "Service does not belong to selected shop" });
+    }
+
+    const currentUser = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { role: true },
+    });
+
+    if (!currentUser) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const isAdmin = currentUser.role === "ADMIN";
+    const effectiveUserId =
+      isAdmin && typeof userId === "string" && userId.trim().length > 0
+        ? userId.trim()
+        : req.user.id;
+
+    if (!isAdmin && userId && userId !== req.user.id) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    const targetUser = await prisma.user.findUnique({
+      where: { id: effectiveUserId },
+      select: { id: true },
+    });
+
+    if (!targetUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (staffId) {
+      const staff = await prisma.staff.findFirst({
+        where: {
+          id: staffId,
+          shopId,
+        },
+      });
+
+      if (!staff) {
+        return res.status(404).json({ message: "Staff not found" });
+      }
+    }
+
     const start = new Date(startTime);
+
+    if (Number.isNaN(start.getTime())) {
+      return res.status(400).json({ message: "Invalid startTime" });
+    }
+
     const end = new Date(start);
     end.setMinutes(
-      end.getMinutes() + service!.durationMin + (service!.bufferTime ?? 0),
+      end.getMinutes() + service.durationMin + (service.bufferTime ?? 0),
     );
 
     const validateResult: { hasError: boolean; status?: number; json?: any } =
@@ -342,7 +413,7 @@ bookingRouter.post("/", authMiddleware, async (req: any, res) => {
 
     const booking = await prisma.booking.create({
       data: {
-        userId: req.user.id,
+        userId: effectiveUserId,
         shopId,
         serviceId,
         startTime: start,
