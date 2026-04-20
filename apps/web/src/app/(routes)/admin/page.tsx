@@ -730,7 +730,15 @@ export default function AdminDashboard() {
 
           <div className="flex flex-row items-center gap-2 sm:gap-3 md:ml-4 w-full">
             <button
-              onClick={() => router.push(getAdminHrefWithShopId("/admin/bookings/new"))}
+              onClick={() => {
+                const year = selectedDate.getFullYear();
+                const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+                const day = String(selectedDate.getDate()).padStart(2, "0");
+                const dateValue = `${year}-${month}-${day}`;
+                const base = getAdminHrefWithShopId("/admin/bookings/new");
+                const joiner = base.includes("?") ? "&" : "?";
+                router.push(`${base}${joiner}date=${encodeURIComponent(dateValue)}`);
+              }}
               className="flex-1 flex items-center justify-center gap-2 sm:gap-3 bg-orange-400 text-white px-3 sm:px-4 py-3 rounded-full shadow-lg"
             >
               <span className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-white flex items-center justify-center shrink-0">
