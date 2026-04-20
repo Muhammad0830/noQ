@@ -8,7 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS } from "@/lib/api";
 
-type AnalyticsType = "week" | "month" | "year" | "all";
+type AnalyticsType = "week" | "month" | "year";
 
 type AnalyticsSummaryResponse = {
   currentRevenue: number;
@@ -44,7 +44,7 @@ type FamousServicesResponse = {
 
 type PeakHoursResponse = Record<string, number>;
 
-const analyticsTabTypes: AnalyticsType[] = ["week", "month", "year", "all"];
+const analyticsTabTypes: AnalyticsType[] = ["week", "month", "year"];
 
 function MetricCard({
   icon,
@@ -52,7 +52,6 @@ function MetricCard({
   value,
   change,
   changeClassName,
-  showChange = true,
   isLoading = false,
 }: {
   icon: ReactNode;
@@ -60,7 +59,6 @@ function MetricCard({
   value: string;
   change: string;
   changeClassName: string;
-  showChange?: boolean;
   isLoading?: boolean;
 }) {
   return (
@@ -69,14 +67,13 @@ function MetricCard({
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#fff2df] text-[#f3a137]">
           {icon}
         </div>
-        {showChange &&
-          (isLoading ? (
-            <span className="h-4 w-12 animate-pulse rounded-full bg-gray-200" />
-          ) : (
-            <span className={`text-[11px] font-semibold ${changeClassName}`}>
-              {change}
-            </span>
-          ))}
+        {isLoading ? (
+          <span className="h-4 w-12 animate-pulse rounded-full bg-gray-200" />
+        ) : (
+          <span className={`text-[11px] font-semibold ${changeClassName}`}>
+            {change}
+          </span>
+        )}
       </div>
       <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.28em] text-[#c2c2c2]">
         {label}
@@ -297,7 +294,6 @@ export default function ShopAnalytics() {
   );
 
   const selectedType = tabs[activeTab]?.type || "week";
-  const showChanges = selectedType !== "all";
 
   const analyticsHeaders = activeShopId
     ? { "x-shopid": activeShopId, "x-shop-id": activeShopId }
@@ -555,21 +551,20 @@ export default function ShopAnalytics() {
             <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#bdbdbd]">
               {t("admin.analytics.totalRevenue")}
             </p>
-            {showChanges &&
-              (isSummaryLoading ? (
-                <span className="h-6 w-16 animate-pulse rounded-full bg-gray-200" />
-              ) : (
-                <span
-                  className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${
-                    revenueChange >= 0
-                      ? "bg-[#fff1df] text-[#f39c33]"
-                      : "bg-red-50 text-red-600"
-                  }`}
-                >
-                  {revenueChange >= 0 ? "+" : ""}
-                  {revenueChange.toFixed(1)}%
-                </span>
-              ))}
+            {isSummaryLoading ? (
+              <span className="h-6 w-16 animate-pulse rounded-full bg-gray-200" />
+            ) : (
+              <span
+                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${
+                  revenueChange >= 0
+                    ? "bg-[#fff1df] text-[#f39c33]"
+                    : "bg-red-50 text-red-600"
+                }`}
+              >
+                {revenueChange >= 0 ? "+" : ""}
+                {revenueChange.toFixed(1)}%
+              </span>
+            )}
           </div>
 
           <div className="flex items-end gap-2">
@@ -595,7 +590,6 @@ export default function ShopAnalytics() {
             changeClassName={
               bookingsChange >= 0 ? "text-[#5d8dff]" : "text-red-600"
             }
-            showChange={showChanges}
             isLoading={isSummaryLoading}
           />
 
@@ -607,7 +601,6 @@ export default function ShopAnalytics() {
             changeClassName={
               ratingChange >= 0 ? "text-[#f39c33]" : "text-red-600"
             }
-            showChange={showChanges}
             isLoading={isSummaryLoading}
           />
         </div>

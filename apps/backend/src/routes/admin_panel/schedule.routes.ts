@@ -20,85 +20,114 @@ scheduleRouter.get(
         return res.status(400).json({ message: "date is required" });
       }
 
+      const shopId = req.shop.id;
+
+      // =========================
+      // 🔵 WEEKLY SCHEDULE
+      // =========================
+      if (date === "all") {
+        const weeklySchedule = await prisma.shopSchedule.findMany({
+          where: { shopId },
+          orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
+        });
+
+        // ✅ group in ONE pass (O(n))
+        const schedule: Record<string, { opens: any[]; blocks: any[] }> = {};
+
+        const weekMap = [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ];
+
+        for (const item of weeklySchedule) {
+          const dayName = weekMap[item.dayOfWeek];
+
+          if (!dayName) {
+            return res.status(500).json({ message: "Internal server error" });
+          }
+
+          if (!schedule[dayName]) {
+            schedule[dayName] = { opens: [], blocks: [] };
+          }
+
+          if (item.type === "OPEN") {
+            schedule[dayName].opens.push(item);
+          } else {
+            schedule[dayName].blocks.push(item);
+          }
+        }
+
+        return res.status(200).json({ schedule });
+      }
+
+      // =========================
+      // 🔵 DAY VIEW
+      // =========================
+
       const startOfDay = new Date(`${date}T00:00:00`);
       const endOfDay = new Date(`${date}T23:59:59`);
+      const dayOfWeek = startOfDay.getDay();
 
-      // ✅ fetch bookings with full relations
-      const bookings = await prisma.booking.findMany({
-        where: {
-          shopId: req.shop.id,
-          startTime: {
-            gte: startOfDay,
-            lte: endOfDay,
+      // ✅ run queries in parallel (FASTER)
+      const [bookings, blocks, recurringBlocks] = await Promise.all([
+        prisma.booking.findMany({
+          where: {
+            shopId,
+            startTime: { gte: startOfDay, lte: endOfDay },
           },
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              avatarUrl: true,
-              phoneNumber: true,
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                avatarUrl: true,
+                phoneNumber: true,
+              },
             },
-          },
-          service: {
-            select: {
-              id: true,
-              name: true,
-              price: true,
-              durationMin: true,
+            service: {
+              select: {
+                id: true,
+                name: true,
+                price: true,
+                durationMin: true,
+                bufferTime: true,
+              },
             },
-          },
-          shop: {
-            select: {
-              id: true,
-              name: true,
-              address: true,
-            },
-          },
-          staff: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  name: true,
+            staff: {
+              include: {
+                user: {
+                  select: { id: true, name: true },
                 },
               },
             },
           },
-        },
-        orderBy: {
-          startTime: "asc",
-        },
-      });
+          orderBy: { startTime: "asc" },
+        }),
 
-      // ✅ also include one-time blocks (important for admin view)
-      const blocks = await prisma.shopBlock.findMany({
-        where: {
-          shopId: req.shop.id,
-          startTime: {
-            gte: startOfDay,
-            lte: endOfDay,
+        prisma.shopBlock.findMany({
+          where: {
+            shopId,
+            startTime: { gte: startOfDay, lte: endOfDay },
           },
-        },
-        orderBy: {
-          startTime: "asc",
-        },
-      });
+          orderBy: { startTime: "asc" },
+        }),
 
-      // ✅ recurring blocks (from schedule)
-      const dayOfWeek = new Date(date).getDay();
+        prisma.shopSchedule.findMany({
+          where: {
+            shopId,
+            dayOfWeek,
+            type: "BLOCK",
+          },
+        }),
+      ]);
 
-      const recurringBlocks = await prisma.shopSchedule.findMany({
-        where: {
-          shopId: req.shop.id,
-          dayOfWeek,
-          type: "BLOCK",
-        },
-      });
-
-      const recurringBlocksFormatted = recurringBlocks.map((b) => ({
+      // ✅ format recurring blocks
+      const formattedRecurringBlocks = recurringBlocks.map((b) => ({
         id: b.id,
         startTime: new Date(`${date}T${b.startTime}:00`),
         endTime: new Date(`${date}T${b.endTime}:00`),
@@ -109,7 +138,7 @@ scheduleRouter.get(
         date,
         bookings,
         blocks,
-        recurringBlocks: recurringBlocksFormatted,
+        recurringBlocks: formattedRecurringBlocks,
       });
     } catch (error) {
       console.error("Schedule fetch error:", error);

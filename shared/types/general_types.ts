@@ -135,3 +135,46 @@ export interface MulterFile {
   mimetype: string
   size: number
 }
+
+// Schedule types
+export type ScheduleItemType = "OPEN" | "BLOCK";
+
+export type BackendScheduleItem = {
+  id: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  type: ScheduleItemType;
+};
+
+export type BackendWeeklyScheduleResponse = {
+  schedule?: Record<
+    string,
+    { opens: BackendScheduleItem[]; blocks: BackendScheduleItem[] }
+  >;
+};
+
+export type BreakRange = {
+  startTime: string;
+  endTime: string;
+};
+
+export type TimePickerState = {
+  isOpen: boolean;
+  dayId: string | null;
+  mode: "add" | "edit";
+  breakIndex: number | null;
+  field: "startTime" | "endTime";
+  hour: number;
+  minute: number;
+};
+
+export type DaySchedule = {
+  id: string;
+  day: string;
+  dayOfWeek: number;
+  openStart: string;
+  openEnd: string;
+  breaks: BreakRange[];
+  enabled: boolean;
+};
