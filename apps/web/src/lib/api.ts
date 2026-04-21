@@ -145,6 +145,7 @@ export const API_ENDPOINTS = {
     active: `${API_BASE_URL}/bookings/users/active`,
     history: `${API_BASE_URL}/bookings/users/history`,
   },
+  bookingCancel: (bookingId: string) => `${API_BASE_URL}/bookings/${bookingId}/cancel`,
 
   // Favourites
   favourites: {
@@ -171,6 +172,8 @@ export const API_ENDPOINTS = {
     analyticsDiagramInfo: `${API_BASE_URL}/admin/analytics/diagram_info`,
     analyticsFamousServices: `${API_BASE_URL}/admin/analytics/famousServices`,
     analyticsPeakHours: `${API_BASE_URL}/admin/analytics/peak-hours`,
+    services: `${API_BASE_URL}/admin/services`,
+    toggleServiceActive: `${API_BASE_URL}/admin/services/isActive/toggle`,
     schedule: `${API_BASE_URL}/admin/schedule`,
     staffs: `${API_BASE_URL}/admin/staffs`,
     users: `${API_BASE_URL}/users`,

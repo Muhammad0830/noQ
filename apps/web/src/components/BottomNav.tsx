@@ -46,10 +46,10 @@ const adminNavItems = (t: any) => {
       activePatterns: ["^/admin/services"],
     },
     {
-      href: "/admin/staff",
+      href: "/admin/history",
       label: t("bottomNav.history"),
       icon: <HistoryIcon className="w-6 h-6" />,
-      activePatterns: ["^/admin/staff"],
+      activePatterns: ["^/admin/history"],
     },
     {
       href: "/admin/analytics",

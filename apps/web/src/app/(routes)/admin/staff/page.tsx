@@ -1,303 +1,448 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
-  Check,
+  CalendarDays,
   ChevronLeft,
   MoreVertical,
   Search,
-  Share2,
-  UserRound,
+  Sparkles,
+  Users,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import useApiQuery from "@/hooks/useApiQuery";
+import { API_ENDPOINTS } from "@/lib/api";
+
+type StaffRole = "OWNER" | "MANAGER" | "STAFF";
+
+type StaffApiItem = {
+  id: string;
+  role: StaffRole;
+  user?: {
+    name?: string | null;
+    email?: string | null;
+  } | null;
+  shop?: {
+    id?: string;
+    name?: string | null;
+  } | null;
+};
+
+type StaffResponse = {
+  owner?: StaffApiItem[];
+  staffMembers?: StaffApiItem[];
+};
+
+const avatarGradients = [
+  "linear-gradient(135deg, #f49b33, #ffd39a)",
+  "linear-gradient(135deg, #5e6c80, #d9dee7)",
+  "linear-gradient(135deg, #5e8b82, #d7ebe7)",
+  "linear-gradient(135deg, #8b5cf6, #ddd6fe)",
+  "linear-gradient(135deg, #db2777, #fbcfe8)",
+] as const;
+
+const roleLabels: Record<StaffRole, string> = {
+  OWNER: "Owner",
+  MANAGER: "Manager",
+  STAFF: "Staff",
+};
+
+const getInitials = (value: string) => {
+  const parts = value.trim().split(/\s+/).filter(Boolean);
+
+  if (parts.length === 0) {
+    return "S";
+  }
+
+  return (
+    parts
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? "")
+      .join("")
+      .slice(0, 2) || "S"
+  );
+};
+
+const getDisplayName = (member: StaffApiItem) => {
+  return (
+    member.user?.name?.trim() || member.user?.email?.trim() || "Unnamed staff"
+  );
+};
 
 export default function Page() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user } = useAuth();
+
   const [search, setSearch] = useState("");
-  const [activeDay, setActiveDay] = useState("thu");
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
-  const [exportDone, setExportDone] = useState(false);
+  const [expandedStaffId, setExpandedStaffId] = useState<string | null>(null);
+  const [persistedShopId, setPersistedShopId] = useState<string | null>(null);
+  const [hasLoadedPersistedShop, setHasLoadedPersistedShop] = useState(false);
 
-  const weekDays = [
-    { id: "mon", day: "MON", date: 21, muted: false },
-    { id: "tue", day: "TUE", date: 22, muted: false },
-    { id: "wed", day: "WED", date: 23, muted: false },
-    { id: "thu", day: "THU", date: 24, muted: false },
-    { id: "fri", day: "FRI", date: 25, muted: false },
-    { id: "sat", day: "SAT", date: 26, active: false, muted: true },
-  ];
+  const shopId = searchParams.get("shopId");
 
-  const transactions = [
-    {
-      id: 1,
-      customer: "Sarah Jenkins",
-      time: "10:30 AM",
-      service: "Men's Fade & Styling",
-      amount: "$45.00",
-      initials: "ALEX M.",
-      cancelled: false,
-      dayId: "thu",
-    },
-    {
-      id: 2,
-      customer: "Michael Ross",
-      time: "11:15 AM",
-      service: "Coloring & Treatment",
-      amount: "$120.00",
-      initials: "LINDA S.",
-      cancelled: false,
-      dayId: "thu",
-    },
-    {
-      id: 3,
-      customer: "David Goggins",
-      time: "12:30 PM",
-      service: "Beard Trim",
-      amount: "$35.00",
-      initials: "",
-      cancelled: true,
-      dayId: "thu",
-    },
-    {
-      id: 4,
-      customer: "Emily Blunt",
-      time: "02:45 PM",
-      service: "Full Head Highlights",
-      amount: "$85.00",
-      initials: "LINDA S.",
-      cancelled: false,
-      dayId: "thu",
-    },
-    {
-      id: 5,
-      customer: "Jessica Alba",
-      time: "03:30 PM",
-      service: "Manicure Express",
-      amount: "$25.00",
-      initials: "KIM J.",
-      cancelled: false,
-      dayId: "thu",
-    },
-    {
-      id: 6,
-      customer: "Marcus T.",
-      time: "04:15 PM",
-      service: "Buzz Cut",
-      amount: "$30.00",
-      initials: "ALEX M.",
-      cancelled: false,
-      dayId: "thu",
-    },
-  ];
+  useEffect(() => {
+    if (typeof window === "undefined") return;
 
-  const filteredTransactions = useMemo(() => {
-    const q = search.toLowerCase().trim();
+    const saved = window.localStorage.getItem("selected_shop_id");
+    if (saved) {
+      setPersistedShopId(saved);
+    }
 
-    return transactions.filter((item) => {
-      const dayMatch = item.dayId === activeDay;
-      const textMatch =
-        !q ||
-        item.customer.toLowerCase().includes(q) ||
-        item.service.toLowerCase().includes(q);
+    setHasLoadedPersistedShop(true);
+  }, []);
 
-      return dayMatch && textMatch;
+  const activeShopId = useMemo(() => {
+    if (!hasLoadedPersistedShop) return null;
+
+    const userShops = user?.shops || [];
+
+    if (shopId && userShops.some((shop) => shop.id === shopId)) {
+      return shopId;
+    }
+
+    if (
+      persistedShopId &&
+      userShops.some((shop) => shop.id === persistedShopId)
+    ) {
+      return persistedShopId;
+    }
+
+    return userShops[0]?.id || null;
+  }, [hasLoadedPersistedShop, persistedShopId, shopId, user?.shops]);
+
+  useEffect(() => {
+    if (!activeShopId || typeof window === "undefined") return;
+
+    window.localStorage.setItem("selected_shop_id", activeShopId);
+  }, [activeShopId]);
+
+  const staffUrl = useMemo(() => {
+    if (!activeShopId) return null;
+
+    const params = new URLSearchParams({ shopId: activeShopId });
+    if (search.trim()) {
+      params.set("search", search.trim());
+    }
+
+    return `${API_ENDPOINTS.admin.staffs}?${params.toString()}`;
+  }, [activeShopId, search]);
+
+  const {
+    data: staffResponse,
+    error: staffError,
+    isLoading: isStaffLoading,
+    isError: isStaffError,
+  } = useApiQuery<StaffResponse>(staffUrl, {
+    key: ["admin-staffs", activeShopId || "none", search.trim()],
+    enabled: Boolean(activeShopId && user),
+    staleTime: 30_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    headers: activeShopId
+      ? { "x-shopid": activeShopId, "x-shop-id": activeShopId }
+      : undefined,
+  });
+
+  const staffMembers = useMemo(() => {
+    const merged = [
+      ...(staffResponse?.owner || []),
+      ...(staffResponse?.staffMembers || []),
+    ];
+    const unique = new Map<string, StaffApiItem>();
+
+    for (const item of merged) {
+      if (!unique.has(item.id)) {
+        unique.set(item.id, item);
+      }
+    }
+
+    const rank = (role: StaffRole) => {
+      if (role === "OWNER") return 0;
+      if (role === "MANAGER") return 1;
+      return 2;
+    };
+
+    return Array.from(unique.values()).sort((left, right) => {
+      const roleDiff = rank(left.role) - rank(right.role);
+      if (roleDiff !== 0) return roleDiff;
+
+      return getDisplayName(left).localeCompare(getDisplayName(right));
     });
-  }, [activeDay, search, transactions]);
+  }, [staffResponse]);
 
-  const handleExport = () => {
-    if (isExporting) return;
+  const filteredStaff = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return staffMembers;
 
-    setExportDone(false);
-    setIsExporting(true);
+    return staffMembers.filter((member) => {
+      const name = getDisplayName(member).toLowerCase();
+      const email = member.user?.email?.toLowerCase() || "";
+      const role = roleLabels[member.role].toLowerCase();
+      const shopName = member.shop?.name?.toLowerCase() || "";
 
-    window.setTimeout(() => {
-      setIsExporting(false);
-      setExportDone(true);
+      return [name, email, role, shopName].some((field) =>
+        field.includes(query),
+      );
+    });
+  }, [search, staffMembers]);
 
-      window.setTimeout(() => {
-        setExportDone(false);
-      }, 1300);
-    }, 900);
+  useEffect(() => {
+    if (filteredStaff.length === 0) {
+      setExpandedStaffId(null);
+      return;
+    }
+
+    if (
+      expandedStaffId &&
+      !filteredStaff.some((member) => member.id === expandedStaffId)
+    ) {
+      setExpandedStaffId(filteredStaff[0]?.id || null);
+    }
+  }, [expandedStaffId, filteredStaff]);
+
+  const currentShopName = useMemo(() => {
+    if (!user) return "Manage Staff";
+
+    return (
+      user.shops?.find((shop) => shop.id === activeShopId)?.name ||
+      user.shops?.[0]?.name ||
+      "Manage Staff"
+    );
+  }, [activeShopId, user]);
+
+  const activeCount = staffMembers.length;
+
+  const staffErrorMessage =
+    (staffError?.data &&
+      typeof staffError.data === "object" &&
+      "message" in staffError.data &&
+      typeof (staffError.data as { message?: unknown }).message === "string" &&
+      (staffError.data as { message: string }).message) ||
+    staffError?.message ||
+    "Failed to load staff members.";
+
+  const openSchedule = (id: string) => {
+    const basePath = `/admin/staff/${id}/schedule`;
+    if (!activeShopId) {
+      router.push(basePath);
+      return;
+    }
+
+    router.push(`${basePath}?shopId=${encodeURIComponent(activeShopId)}`);
   };
 
   return (
-    <div className="min-h-dvh bg-white">
-      <div className="mx-auto w-full bg-white">
-        <header className="sticky top-0 z-10 border-b border-[#d6d6d6] bg-white px-4 py-3 backdrop-blur-sm">
-          <div className="relative flex items-center justify-center">
+    <div className="min-h-dvh bg-[radial-gradient(circle_at_top,rgba(244,155,51,0.12),transparent_35%),linear-gradient(180deg,#fffaf4_0%,#f9fafb_45%,#f3f4f6_100%)] pb-24">
+      <div className="sticky top-0 z-20 border-b border-[#e9ebee] bg-[#f4f5f7]/95 backdrop-blur-sm">
+        <div className="mx-auto w-full max-w-6xl px-4 py-4">
+          <div className="relative flex min-h-10 items-center justify-center">
             <button
               type="button"
               onClick={() => router.back()}
-              className="absolute left-0 inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#cfcfcf] text-[#8f8f8f] transition-transform duration-200 hover:scale-105 active:scale-95"
+              className="absolute left-0 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d2d6dc] bg-[#f0f2f5] text-[#c2c8d0] transition-colors duration-200 hover:bg-[#e8ebef]"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-5 w-5" />
             </button>
-            <h1 className="text-[30px] font-bold tracking-tight text-[#191919]">
-              Shop History
+
+            <h1 className="text-[18px] font-bold tracking-tight text-[#121417]">
+              Manage Staff
             </h1>
+
             <button
               type="button"
-              onClick={() => setMenuOpen((prev) => !prev)}
-              className="absolute right-0 inline-flex h-8 w-8 items-center justify-center rounded-full text-[#9e9e9e] transition-colors duration-200 hover:bg-[#e7e7e7]"
+              className="absolute right-0 inline-flex h-10 w-10 items-center justify-center rounded-full text-[#c2c8d0] transition-colors duration-200 hover:bg-[#e8ebef]"
+              aria-label="More options"
             >
               <MoreVertical className="h-5 w-5" />
             </button>
-
-            {menuOpen && (
-              <div className="absolute right-0 top-10 w-40 rounded-lg border border-[#d7d9dd] bg-white p-1 shadow-lg">
-                <button
-                  type="button"
-                  className="w-full rounded-md px-3 py-2 text-left text-xs font-medium text-[#4e5560] transition-colors hover:bg-[#f7f7f7]"
-                >
-                  Refresh Logs
-                </button>
-                <button
-                  type="button"
-                  className="w-full rounded-md px-3 py-2 text-left text-xs font-medium text-[#4e5560] transition-colors hover:bg-[#f7f7f7]"
-                >
-                  Print Summary
-                </button>
-              </div>
-            )}
           </div>
-        </header>
+        </div>
+      </div>
 
-        <main className="space-y-5 px-4 pb-6 pt-3">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8f949a]" />
-            <input
-              type="text"
-              placeholder="Search customer or staff..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-[11px] border border-[#b8bec6] bg-transparent py-2.5 pl-10 pr-3 text-[13px] text-[#2c2f34] placeholder:text-[#8f949a] transition-colors focus:border-[#f0a339] focus:outline-none"
-            />
+      <main className="mx-auto w-full max-w-6xl px-4 pt-4">
+        {!activeShopId && (
+          <div className="mb-4 rounded-[18px] border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+            No shop is selected for this admin view.
           </div>
+        )}
 
-          <section className="flex items-center gap-2 overflow-x-auto pb-1">
-            {weekDays.map((day) => (
-              <button
-                key={day.id}
-                type="button"
-                onClick={() => setActiveDay(day.id)}
-                className={`min-w-11 rounded-[11px] border px-2 py-1 text-center leading-tight transition-colors ${
-                  activeDay === day.id
-                    ? "border-[#efa83c] bg-[#efa83c] text-white"
-                    : day.muted
-                      ? "border-[#c5c7cc] bg-white text-[#b4b8bf]"
-                      : "border-[#40454f] bg-white text-[#1f242c]"
-                } active:scale-95`}
+        {isStaffError && (
+          <div className="mb-4 rounded-[18px] border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {staffErrorMessage}
+          </div>
+        )}
+
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9aa0aa]" />
+          <input
+            type="text"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search staff by name, email, or role"
+            className="w-full rounded-[18px] border border-[#d7d7d7] bg-white py-4 pl-11 pr-4 text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#f49b33] focus:outline-none"
+          />
+        </div>
+
+        <section className="mt-5 flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#a5adb7]">
+              Active Team Members
+            </p>
+          </div>
+          <span className="rounded-full bg-[#fff2e1] px-3 py-1 text-[11px] font-semibold text-[#f49b33] shadow-[0_6px_14px_rgba(244,155,51,0.12)]">
+            {activeCount} Total
+          </span>
+        </section>
+
+        <section className="mt-4 space-y-4">
+          {isStaffLoading &&
+            Array.from({ length: 3 }).map((_, index) => (
+              <article
+                key={index}
+                className="rounded-[24px] bg-white p-4 shadow-[0_10px_28px_rgba(17,24,39,0.05)] ring-1 ring-black/5"
               >
-                <p className="text-[9px] font-semibold">{day.day}</p>
-                <p className="text-[24px] font-semibold tracking-tight">
-                  {day.date}
-                </p>
-              </button>
-            ))}
-          </section>
-
-          <section>
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-[11px] font-bold uppercase tracking-[0.17em] text-[#8f949a]">
-                Recent Transactions
-              </h2>
-              <span className="rounded-md border border-[#c8ccd1] px-2 py-1 text-[10px] font-medium text-[#9ba0a6]">
-                12 Logs Today
-              </span>
-            </div>
-
-            <div className="divide-y divide-[#d7d9dd] border-y border-[#d7d9dd]">
-              {filteredTransactions.map((item) => (
-                <article
-                  key={item.id}
-                  className="flex items-start gap-3 py-3 transition-transform duration-200 hover:-translate-y-0.5"
-                >
-                  <div
-                    className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${
-                      item.cancelled
-                        ? "bg-[#f2dddd] text-[#d09898]"
-                        : "bg-[#f8ece0] text-[#e5a65f]"
-                    }`}
-                  >
-                    <UserRound className="h-3.5 w-3.5" />
-                  </div>
-
+                <div className="flex items-start gap-4">
+                  <div className="h-16 w-16 shrink-0 rounded-full bg-[#eef2f7]" />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[20px] font-bold tracking-tight text-[#1f232a]">
-                      {item.customer}
-                    </p>
-                    <p className="truncate text-[13px] font-medium">
-                      <span className="text-[#f0a339]">{item.time}</span>
-                      <span className="mx-2 text-[#b7bcc2]">•</span>
-                      <span className="text-[#8f949a]">{item.service}</span>
-                    </p>
+                    <div className="h-5 w-40 rounded-full bg-[#eef2f7]" />
+                    <div className="mt-3 h-4 w-56 rounded-full bg-[#eef2f7]" />
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                      <div className="h-12 rounded-3xl bg-[#eef2f7]" />
+                      <div className="h-12 rounded-3xl bg-[#eef2f7]" />
+                    </div>
                   </div>
+                </div>
+              </article>
+            ))}
 
-                  <div className="text-right">
-                    <p
-                      className={`text-[30px] font-semibold tracking-tight ${
-                        item.cancelled ? "text-[#c8c8c8]" : "text-[#f0932b]"
-                      }`}
-                    >
-                      {item.amount}
-                    </p>
-                    {item.cancelled ? (
-                      <p className="text-[10px] font-semibold uppercase text-[#ef8f8f]">
-                        Cancelled
-                      </p>
-                    ) : (
-                      <p className="text-[10px] uppercase text-[#c0c3c9]">
-                        {item.initials}
-                      </p>
-                    )}
+          {!isStaffLoading &&
+            filteredStaff.map((member, index) => {
+              const isActive = member.id === expandedStaffId;
+              const displayName = getDisplayName(member);
+              const initials = getInitials(displayName);
+              const roleLabel = roleLabels[member.role];
+              const gradient = avatarGradients[index % avatarGradients.length];
+              const hasEmail = Boolean(member.user?.email?.trim());
+
+              return (
+                <article
+                  key={member.id}
+                  className={`rounded-[24px] bg-white p-4 shadow-[0_10px_28px_rgba(17,24,39,0.05)] ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-0.5 ${
+                    isActive ? "ring-[#f49b33]/25" : ""
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="relative shrink-0">
+                      <div
+                        className="flex h-16 w-16 items-center justify-center rounded-full border border-white shadow-[0_8px_20px_rgba(17,24,39,0.12)]"
+                        style={{ background: gradient }}
+                      >
+                        <span className="text-[16px] font-bold text-[#1e293b]">
+                          {initials}
+                        </span>
+                      </div>
+                      <span
+                        className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${
+                          member.role === "OWNER"
+                            ? "bg-[#f49b33]"
+                            : "bg-[#c8c8c8]"
+                        }`}
+                      />
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <h2 className="truncate text-[19px] font-bold tracking-tight text-[#111111]">
+                            {displayName}
+                          </h2>
+                          <p className="mt-1 truncate text-[14px] text-[#8f98a4]">
+                            {roleLabel}
+                            {hasEmail ? ` • ${member.user?.email}` : ""}
+                          </p>
+                        </div>
+
+                        <span className="shrink-0 rounded-full bg-[#fff2e1] px-3 py-1 text-[11px] font-semibold text-[#f49b33]">
+                          {roleLabel}
+                        </span>
+                      </div>
+
+                      <div className="mt-4 grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => openSchedule(member.id)}
+                          className="inline-flex min-w-0 items-center justify-center gap-2 rounded-3xl bg-[#f49b33] px-3 py-3 text-[14px] font-semibold text-white shadow-[0_10px_22px_rgba(244,155,51,0.25)] transition-transform duration-200 hover:-translate-y-0.5 active:scale-95"
+                        >
+                          <CalendarDays className="h-4 w-4 shrink-0" />
+                          <span className="min-w-0 max-w-full truncate whitespace-nowrap">
+                            Edit Schedule
+                          </span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setExpandedStaffId((current) =>
+                              current === member.id ? null : member.id,
+                            );
+                          }}
+                          className="inline-flex items-center justify-center gap-2 rounded-3xl bg-[#f5f5f5] px-4 py-3 text-[14px] font-semibold text-[#656b75] shadow-[0_8px_18px_rgba(17,24,39,0.05)] transition-transform duration-200 hover:-translate-y-0.5 active:scale-95"
+                        >
+                          <Sparkles className="h-4 w-4" />
+                          Details
+                        </button>
+                      </div>
+
+                      {isActive && (
+                        <div className="mt-4 rounded-[18px] border border-dashed border-[#e5e7eb] bg-[#fafafa] px-4 py-3">
+                          <div className="flex items-center gap-2 text-[12px] font-semibold text-[#8b95a1]">
+                            <Users className="h-4 w-4 text-[#f49b33]" />
+                            Staff details
+                          </div>
+
+                          <div className="mt-3 space-y-2 text-[13px] text-[#4d5560]">
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="font-medium text-[#8f98a4]">
+                                Role
+                              </span>
+                              <span className="font-semibold text-[#111111]">
+                                {roleLabel}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="font-medium text-[#8f98a4]">
+                                Email
+                              </span>
+                              <span className="max-w-[60%] truncate font-semibold text-[#111111]">
+                                {member.user?.email || "No email"}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="font-medium text-[#8f98a4]">
+                                Shop
+                              </span>
+                              <span className="max-w-[60%] truncate font-semibold text-[#111111]">
+                                {member.shop?.name || currentShopName}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </article>
-              ))}
+              );
+            })}
 
-              {filteredTransactions.length === 0 && (
-                <div className="py-8 text-center text-sm text-[#8f949a]">
-                  Bu kunga mos transaction topilmadi.
-                </div>
-              )}
+          {!isStaffLoading && filteredStaff.length === 0 && (
+            <div className="rounded-[24px] border border-dashed border-[#d7dbe0] bg-white px-4 py-8 text-center text-sm text-[#8f98a4]">
+              No team members matched your search.
             </div>
-          </section>
-
-          <footer className="flex items-end justify-between pt-1">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#f0a339]">
-                Daily Total Revenue
-              </p>
-              <div className="flex items-baseline gap-2">
-                <p className="text-[42px] font-bold tracking-tight text-[#0f1115]">
-                  $1,428.50
-                </p>
-                <span className="text-[14px] font-semibold text-[#2aa85d]">
-                  +12%
-                </span>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={handleExport}
-              className="inline-flex items-center gap-1 rounded-xl bg-[#eea338] px-4 py-2 text-[16px] font-semibold text-white shadow-[0_8px_18px_rgba(238,163,56,0.35)] transition-transform duration-200 hover:-translate-y-0.5 active:scale-95"
-            >
-              {exportDone ? (
-                <Check className="h-4 w-4" />
-              ) : (
-                <Share2
-                  className={`h-4 w-4 ${isExporting ? "animate-pulse" : ""}`}
-                />
-              )}
-              {isExporting
-                ? "Exporting..."
-                : exportDone
-                  ? "Exported"
-                  : "Export"}
-            </button>
-          </footer>
-        </main>
-      </div>
+          )}
+        </section>
+      </main>
     </div>
   );
 }

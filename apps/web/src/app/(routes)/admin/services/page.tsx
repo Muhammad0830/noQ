@@ -39,6 +39,9 @@ const toPriceLabel = (price: string) => {
   if (Number.isNaN(parsed)) {
     return `$${price}`;
   }
+  if (Number.isInteger(parsed)) {
+    return `$${parsed.toFixed(0)}`;
+  }
   return `$${parsed.toFixed(2)}`;
 };
 
@@ -53,6 +56,7 @@ export default function AdminServicesPage() {
     useState<boolean>(false);
   const [pendingIds, setPendingIds] = useState<Record<string, boolean>>({});
   const [toggleError, setToggleError] = useState<string | null>(null);
+  const [servicesState, setServicesState] = useState<AdminService[]>([]);
 
   const shopIdFromQuery = searchParams.get("shopId");
 
@@ -97,7 +101,7 @@ export default function AdminServicesPage() {
   }, [activeShopId, hasLoadedPersistedShop]);
 
   const {
-    data: services = [],
+    data: services,
     isLoading,
     isError,
     error,
@@ -115,10 +119,17 @@ export default function AdminServicesPage() {
     },
   );
 
+  useEffect(() => {
+    if (!services) return;
+    setServicesState(services);
+  }, [services]);
+
+  const displayedServices = servicesState;
+
   const filteredServices = useMemo<AdminService[]>(() => {
     const q = search.toLowerCase().trim();
 
-    return services.filter((service) => {
+    return displayedServices.filter((service) => {
       const matchesSearch =
         !q ||
         service.name.toLowerCase().includes(q) ||
@@ -127,20 +138,37 @@ export default function AdminServicesPage() {
 
       return matchesSearch;
     });
-  }, [search, services]);
+  }, [displayedServices, search]);
 
   const activeServices = filteredServices.filter((service) => service.isActive);
   const inactiveServices = filteredServices.filter(
     (service) => !service.isActive,
   );
-  const totalActive = services.filter((service) => service.isActive).length;
+  const totalActive = displayedServices.filter(
+    (service) => service.isActive,
+  ).length;
 
   const toggleService = async (id: string) => {
     if (!activeShopId || pendingIds[id]) return;
 
+    const current = displayedServices.find((service) => service.id === id);
+    if (!current) return;
+
+    const previousIsActive = current.isActive;
+
     try {
       setToggleError(null);
       setPendingIds((current) => ({ ...current, [id]: true }));
+      setServicesState((currentState) =>
+        currentState.map((service) =>
+          service.id === id
+            ? {
+                ...service,
+                isActive: !service.isActive,
+              }
+            : service,
+        ),
+      );
 
       const token = getStoredAuth()?.token;
       const res = await fetch(API_ENDPOINTS.admin.toggleServiceActive, {
@@ -161,12 +189,21 @@ export default function AdminServicesPage() {
             : "Failed to toggle service";
         throw new Error(message);
       }
-
-      await refetch();
     } catch (err) {
+      setServicesState((currentState) =>
+        currentState.map((service) =>
+          service.id === id
+            ? {
+                ...service,
+                isActive: previousIsActive,
+              }
+            : service,
+        ),
+      );
       setToggleError(err instanceof Error ? err.message : "Toggle failed");
     } finally {
       setPendingIds((current) => ({ ...current, [id]: false }));
+      void refetch();
     }
   };
 
@@ -188,9 +225,6 @@ export default function AdminServicesPage() {
       aria-label={`Toggle ${id}`}
       aria-pressed={enabled}
     >
-      {pendingIds[id] && (
-        <Loader2 className="absolute left-0 right-0 top-1/2 mx-auto h-3 w-3 -translate-y-1/2 animate-spin text-[#7a7a7a]" />
-      )}
       <span
         className={`absolute top-0.75 h-5 w-5 rounded-full ring-1 transition-all duration-200 ${
           enabled
@@ -199,6 +233,31 @@ export default function AdminServicesPage() {
         }`}
       />
     </button>
+  );
+
+  const renderServiceCardSkeleton = (key: string) => (
+    <article
+      key={key}
+      className="overflow-hidden rounded-[24px] bg-white p-4 shadow-[0_10px_25px_rgba(17,24,39,0.04)] ring-1 ring-black/5"
+    >
+      <div className="animate-pulse">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="h-6 w-36 rounded-full bg-[#eceff3]" />
+            <div className="mt-2 h-4 w-28 rounded-full bg-[#eceff3]" />
+          </div>
+          <div className="h-14 w-14 rounded-full bg-[#fff2e4]" />
+        </div>
+
+        <div className="mt-5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-full bg-[#fff2e4]" />
+            <div className="h-3 w-24 rounded-full bg-[#eceff3]" />
+          </div>
+          <div className="h-7 w-12 rounded-full bg-[#eceff3]" />
+        </div>
+      </div>
+    </article>
   );
 
   return (
@@ -296,18 +355,32 @@ export default function AdminServicesPage() {
 
           <section className="mt-4 space-y-4">
             {isLoading ? (
-              <div className="rounded-[24px] border border-[#edeff2] bg-white px-4 py-10 text-center text-sm text-[#8b95a1]">
-                Loading services...
-              </div>
+              <>
+                {renderServiceCardSkeleton("active-skeleton-1")}
+                {renderServiceCardSkeleton("active-skeleton-2")}
+                {renderServiceCardSkeleton("active-skeleton-3")}
+              </>
             ) : activeServices.length > 0 ? (
               activeServices.map((service) => {
                 const enabled = service.isActive;
+                const isCardPending = Boolean(pendingIds[service.id]);
 
                 return (
                   <article
                     key={service.id}
-                    className="overflow-hidden rounded-[24px] bg-white p-4 shadow-[0_10px_25px_rgba(17,24,39,0.04)] ring-1 ring-black/5 transition-transform duration-200 hover:-translate-y-0.5"
+                    className={`relative overflow-hidden rounded-[24px] bg-white p-4 shadow-[0_10px_25px_rgba(17,24,39,0.04)] ring-1 ring-black/5 transition-transform duration-200 hover:-translate-y-0.5 ${
+                      isCardPending ? "opacity-80" : ""
+                    }`}
                   >
+                    {isCardPending && (
+                      <div className="absolute inset-0 z-20 flex items-center justify-center gap-2 bg-white/65 backdrop-blur-[1px]">
+                        <Loader2 className="h-4 w-4 animate-spin text-[#F49B33]" />
+                        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#7f8894]">
+                          Updating
+                        </span>
+                      </div>
+                    )}
+
                     <div className="flex items-start gap-3">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-3">
@@ -322,9 +395,8 @@ export default function AdminServicesPage() {
                               <span>{toPriceLabel(service.price)}</span>
                             </div>
                           </div>
-                          <div className="relative flex h-12 w-12 items-start justify-end overflow-hidden rounded-full bg-[#fff2e4]">
-                            <div className="absolute right-0 top-0 h-12 w-12 rounded-full bg-[#fff2e4]" />
-                            <p className="relative z-10 px-2 pt-2 text-[20px] font-bold tracking-tight text-[#F49B33]">
+                          <div className="inline-flex min-h-14 min-w-14 items-center justify-center rounded-[18px] bg-[#fff2e4] px-3 py-2">
+                            <p className="text-[32px] font-bold leading-none tracking-tight text-[#F49B33]">
                               {toPriceLabel(service.price)}
                             </p>
                           </div>
@@ -370,6 +442,13 @@ export default function AdminServicesPage() {
             </h3>
 
             <div className="mt-4 space-y-3 rounded-[24px] bg-white p-4 shadow-[0_10px_25px_rgba(17,24,39,0.04)] ring-1 ring-black/5">
+              {isLoading && (
+                <>
+                  <div className="h-14 animate-pulse rounded-2xl bg-[#f3f4f6]" />
+                  <div className="h-14 animate-pulse rounded-2xl bg-[#f3f4f6]" />
+                </>
+              )}
+
               {inactiveServices.length === 0 && !isLoading && (
                 <div className="rounded-xl border border-dashed border-[#d5d9df] px-4 py-6 text-center text-sm text-[#8b95a1]">
                   No inactive services found.
@@ -378,12 +457,24 @@ export default function AdminServicesPage() {
 
               {inactiveServices.map((service) => {
                 const enabled = service.isActive;
+                const isCardPending = Boolean(pendingIds[service.id]);
 
                 return (
                   <div
                     key={service.id}
-                    className="flex items-center gap-3 rounded-2xl py-1"
+                    className={`relative flex items-center gap-3 rounded-2xl py-1 ${
+                      isCardPending ? "opacity-80" : ""
+                    }`}
                   >
+                    {isCardPending && (
+                      <div className="absolute inset-0 z-20 flex items-center justify-center gap-2 rounded-2xl bg-white/65 backdrop-blur-[1px]">
+                        <Loader2 className="h-4 w-4 animate-spin text-[#F49B33]" />
+                        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#7f8894]">
+                          Updating
+                        </span>
+                      </div>
+                    )}
+
                     <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#f3f4f6] text-[#a4abb6]">
                       <Scissors className="h-5 w-5" />
                     </div>

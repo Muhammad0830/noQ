@@ -312,6 +312,58 @@ bookingRouter.get(
   },
 );
 
+bookingRouter.put("/:bookingId/cancel", authMiddleware, async (req: any, res) => {
+  try {
+    const { bookingId } = req.params;
+
+    if (!bookingId) {
+      return res.status(400).json({ message: "bookingId is required" });
+    }
+
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: {
+        id: true,
+        userId: true,
+        status: true,
+      },
+    });
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    if (booking.userId !== req.user.id) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    if (booking.status === "CANCELLED") {
+      return res.status(400).json({ message: "Booking already cancelled" });
+    }
+
+    if (booking.status === "COMPLETED" || booking.status === "NO_SHOW") {
+      return res.status(400).json({ message: "Booking can not be cancelled" });
+    }
+
+    const updatedBooking = await prisma.booking.update({
+      where: { id: bookingId },
+      data: {
+        status: "CANCELLED",
+      },
+      include: {
+        shop: true,
+        service: true,
+        user: true,
+      },
+    });
+
+    return res.status(200).json(updatedBooking);
+  } catch (error) {
+    console.error("Error cancelling booking:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 bookingRouter.post("/", authMiddleware, async (req: any, res) => {
   try {
     const { shopId, serviceId, startTime, staffId, userId } = req.body;

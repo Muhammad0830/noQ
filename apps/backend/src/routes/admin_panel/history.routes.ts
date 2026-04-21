@@ -25,8 +25,9 @@ const getDayRange = (rawDate?: string) => {
 
 historyRouter.get("/", async (req: any, res: any) => {
   try {
-    const { date } = req.query as { date?: string };
+    const { date, search } = req.query as { date?: string; search?: string };
     const { startOfDay, endOfDay } = getDayRange(date);
+    const searchQuery = typeof search === "string" ? search.trim() : "";
 
     const bookings = await prisma.booking.findMany({
       where: {
@@ -35,6 +36,38 @@ historyRouter.get("/", async (req: any, res: any) => {
           gte: startOfDay,
           lt: endOfDay,
         },
+        ...(searchQuery
+          ? {
+            OR: [
+              {
+                user: {
+                  name: {
+                    contains: searchQuery,
+                    mode: "insensitive",
+                  },
+                },
+              },
+              {
+                service: {
+                  name: {
+                    contains: searchQuery,
+                    mode: "insensitive",
+                  },
+                },
+              },
+              {
+                staff: {
+                  user: {
+                    name: {
+                      contains: searchQuery,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            ],
+          }
+          : {}),
       },
       orderBy: {
         startTime: "asc",
