@@ -317,7 +317,7 @@ export default function ProfilePage() {
               onClick={() =>
                 document.getElementById("profile-image-input")?.click()
               }
-              className="absolute bottom-0 right-0 inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#F49B33] text-white shadow-lg transition hover:bg-blue-600 dark:bg-[#F49B33] dark:text-slate-900 dark:hover:bg-[#00b8dd]"
+              className="absolute bottom-0 right-0  inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#F49B33] text-white shadow-lg transition hover:bg-blue-600 dark:bg-[#F49B33] dark:text-slate-900 dark:hover:bg-[#00b8dd]"
               aria-label="Update profile image"
               title="Click to change profile image"
             >
@@ -374,24 +374,28 @@ export default function ProfilePage() {
                 : "border-[#f1c894] bg-white shadow-sm"
             }`}
           >
-            <div>
-              <p className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
-                {t("profile.admin")}
-              </p>
-              <p className="mt-1 text-xs text-slate-600 dark:text-white/60">
-                {t("profile.switchToAdmin")}
-              </p>
-            </div>
-
-            <Accordion type="single" collapsible className="mt-3 w-full">
+            <Accordion type="single" collapsible className="w-full">
               <AccordionItem
                 value="admin-shops"
-                className="border-[#F49B33]/25 dark:border-white/10"
+                className="border-0!"
               >
-                <AccordionTrigger className="text-[#F49B33] dark:text-[#F49B33]">
-                  {t("profile.adminShops")}
+                <AccordionTrigger className="rounded-xl px-0 py-0 hover:no-underline [&>svg]:text-slate-500 dark:[&>svg]:text-white/50">
+                  <span className="flex items-center gap-3">
+                    <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#fff3e6] text-[#F49B33] dark:bg-[#F49B33]/15 dark:text-[#F49B33]">
+                      <User className="h-5 w-5" />
+                    </span>
+
+                    <span className="min-w-0 text-left">
+                      <span className="block truncate text-base font-semibold text-slate-900 dark:text-white/95">
+                        {t("profile.switchProfile")}
+                      </span>
+                      <span className="block truncate text-sm font-normal text-slate-500 dark:text-white/55">
+                        {t("profile.userMode")}
+                      </span>
+                    </span>
+                  </span>
                 </AccordionTrigger>
-                <AccordionContent>
+                <AccordionContent className="pt-3">
                   {providerMode && (
                     <button
                       type="button"
