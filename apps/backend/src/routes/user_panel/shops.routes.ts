@@ -2,9 +2,7 @@ import { Router } from "express";
 import prisma from "../../db/prisma.js";
 import { authMiddleware } from "../../middlewares/auth.middleware.js";
 import { getPaginationParams } from "../../utils/pagination.js";
-import { adminOnly } from "../../middlewares/admin.middleware.js";
 import { upload } from "../../middlewares/upload.js";
-import { v4 as uuidv4 } from "uuid";
 import { supabaseServer } from "../../services/supabaseServer.js";
 import { uploadImage } from "../../utils/handleImage.js";
 

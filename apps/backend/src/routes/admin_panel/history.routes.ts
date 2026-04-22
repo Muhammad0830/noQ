@@ -1,6 +1,5 @@
 import { Router } from "express";
 import prisma from "../../db/prisma.js";
-import type { Booking } from "@shared/types/bookings.js";
 
 const historyRouter = Router();
 

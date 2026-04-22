@@ -1,9 +1,5 @@
 import { Router } from "express";
 import prisma from "../../db/prisma.js";
-import { authMiddleware } from "@/middlewares/auth.middleware.js";
-import { adminOnly } from "@/middlewares/admin.middleware.js";
-import { shopValidateMiddleware } from "@/middlewares/shopValidate.middleware.js";
-
 const serviceRouter = Router();
 
 serviceRouter.get("/", async (req: any, res: any) => {

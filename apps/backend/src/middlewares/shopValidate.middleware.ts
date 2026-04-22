@@ -1,4 +1,4 @@
-import prisma from "@/db/prisma.js";
+import prisma from "../db/prisma.js";
 
 export async function shopValidateMiddleware(req: any, res: any, next: any) {
   try {
