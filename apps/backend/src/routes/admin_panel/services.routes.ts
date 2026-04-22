@@ -64,11 +64,38 @@ serviceRouter.post("/isActive/toggle", async (req: any, res: any) => {
       },
     });
 
+    const message = updated.isActive
+      ? `${service.name} Service activated`
+      : `${service.name} Service deactivated`;
+
     res.status(200).json({
-      message: "Service isActive toggled successfully",
+      message,
       service: updated,
     });
   } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+serviceRouter.delete("/:id", async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+
+    const service = await prisma.service.findUnique({
+      where: { id, shopId: req.shop.id },
+    });
+
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+
+    await prisma.service.delete({
+      where: { id, shopId: req.shop.id },
+    });
+
+    res.status(200).json({ message: "Service deleted successfully" });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 });

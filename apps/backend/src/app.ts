@@ -15,6 +15,7 @@ app.use(
       "http://localhost:3000",
       "http://10.20.20.15:3000",
       "https://no-q-bay.vercel.app",
+      "https://no-q-bay.vercel.app/",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -30,16 +31,12 @@ app.use("/users", generalRoutes.userRouter);
 app.use("/bookings", userRoutes.bookingRouter);
 app.use("/favourites", userRoutes.favouriteRouter);
 app.use("/services", userRoutes.serviceRouter);
-// app.use("/shops", userRoutes.shopRouter);
+app.use("/shops", userRoutes.shopRouter);
 app.use("/reviews", userRoutes.reviewsRouter);
 
 app.get("/test", (req, res) => {
   res.json({ ok: true, message: "is working" });
 });
-
-app.use("/shops", shopRouter);
-
-app.use("/shops", shopRouter);
 
 app.use(
   "/admin/dashboard",
