@@ -5,6 +5,7 @@ import { userRoutes, adminRoutes, generalRoutes } from "./routes/index.js";
 import { shopValidateMiddleware } from "./middlewares/shopValidate.middleware.js";
 import { adminOnly } from "./middlewares/admin.middleware.js";
 import { authMiddleware } from "./middlewares/auth.middleware.js";
+import shopRouter from "./routes/user_panel/shops.routes.js";
 
 const app = express();
 
@@ -29,12 +30,18 @@ app.use("/api/users", generalRoutes.userRouter);
 app.use("/api/bookings", userRoutes.bookingRouter);
 app.use("/api/favourites", userRoutes.favouriteRouter);
 app.use("/api/services", userRoutes.serviceRouter);
-app.use("/api/shops", userRoutes.shopRouter);
+// app.use("/api/shops", userRoutes.shopRouter);
 app.use("/api/reviews", userRoutes.reviewsRouter);
 
 app.get("/test", (req, res) => {
   res.json({ ok: true, message: "is working" });
 });
+
+app.use("/api/shops", shopRouter);
+
+app.get("/api/test", (req, res) => {
+  res.json({ ok: true, message: "is working" });
+})
 
 app.use(
   "/api/admin/dashboard",
