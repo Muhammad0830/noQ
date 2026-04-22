@@ -5,23 +5,37 @@ const staffRouter = Router();
 
 staffRouter.get("/", async (req: any, res) => {
   try {
-    const { search } = req.query;
+    const search =
+      typeof req.query.search === "string" ? req.query.search.trim() : "";
+
+    const ownerWhere: any = {
+      shopId: req.shop.id,
+      role: "OWNER",
+    };
+
+    const staffWhere: any = {
+      shopId: req.shop.id,
+      role: "STAFF",
+    };
+
+    if (search) {
+      ownerWhere.user = {
+        name: {
+          contains: search,
+          mode: "insensitive",
+        },
+      };
+
+      staffWhere.user = {
+        name: {
+          contains: search,
+          mode: "insensitive",
+        },
+      };
+    }
 
     const staffMembers = await prisma.staff.findMany({
-      where: {
-        shopId: req.shop.id,
-        role: "STAFF",
-        OR: [
-          {
-            user: {
-              name: {
-                contains: search,
-                mode: "insensitive",
-              },
-            },
-          },
-        ],
-      },
+      where: staffWhere,
       include: {
         shop: true,
         user: true,
@@ -29,10 +43,7 @@ staffRouter.get("/", async (req: any, res) => {
     });
 
     const owner = await prisma.staff.findMany({
-      where: {
-        shopId: req.shop.id,
-        role: "OWNER",
-      },
+      where: ownerWhere,
       include: {
         shop: true,
         user: true,

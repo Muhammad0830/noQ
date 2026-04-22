@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogIn, X } from "lucide-react";
 import useApiQuery from "@/hooks/useApiQuery";
+import { useApiMutation } from "@/hooks/useApiMutation";
 import { API_ENDPOINTS, getStoredAuth } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -97,6 +98,36 @@ export default function MyBookings() {
     refetchHistory();
   };
 
+  const { mutateAsync: cancelBooking, isPending: isCancellingBooking } =
+    useApiMutation<unknown, { bookingId: string }>(
+      ({ bookingId }) => API_ENDPOINTS.bookingCancel(bookingId),
+      "put",
+    );
+
+  const handleCancelBooking = async (bookingId?: string) => {
+    if (!bookingId) {
+      return;
+    }
+
+    const shouldCancel = window.confirm(
+      t("history.cancelConfirm") || "Bookingni bekor qilasizmi?",
+    );
+    if (!shouldCancel) {
+      return;
+    }
+
+    try {
+      await cancelBooking({ bookingId });
+      await Promise.all([refetchActive(), refetchHistory()]);
+    } catch (cancelError) {
+      console.error("Cancel booking failed", cancelError);
+      alert(
+        t("history.cancelError") ||
+          "Bookingni bekor qilishda xatolik yuz berdi",
+      );
+    }
+  };
+
   const activeBookings = [
     ...(activeBookingsData?.pending || []),
     ...(activeBookingsData?.confirmed || []),
@@ -153,6 +184,8 @@ export default function MyBookings() {
                   errorMessage={activeErrorMessage}
                   activeBooking={b}
                   onRetry={handleRetryActive}
+                  onCancelBooking={handleCancelBooking}
+                  isCancellingBooking={isCancellingBooking}
                   t={t}
                 />
               </div>
