@@ -32,6 +32,10 @@ app.use("/api/services", userRoutes.serviceRouter);
 app.use("/api/shops", userRoutes.shopRouter);
 app.use("/api/reviews", userRoutes.reviewsRouter);
 
+app.get("/test", (req, res) => {
+  res.json({ ok: true, message: "is working" });
+});
+
 app.use(
   "/api/admin/dashboard",
   authMiddleware,
@@ -74,7 +78,5 @@ app.use(
   adminOnly,
   adminRoutes.scheduleRouter,
 );
-
-
 
 export default app;
