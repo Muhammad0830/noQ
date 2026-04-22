@@ -13,7 +13,7 @@ app.use(
     origin: [
       "http://localhost:3000",
       "http://10.20.20.15:3000",
-      "https://no-q-bay.vercel.app/",
+      "https://no-q-bay.vercel.app",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
