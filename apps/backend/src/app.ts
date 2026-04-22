@@ -41,7 +41,9 @@ app.use("/api/shops", shopRouter);
 
 app.get("/api/test", (req, res) => {
   res.json({ ok: true, message: "is working" });
-})
+});
+
+app.use("shops", shopRouter);
 
 app.use(
   "/api/admin/dashboard",
