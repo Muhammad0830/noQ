@@ -206,7 +206,7 @@ export default function AdminSchedulePage() {
   const [activeTab, setActiveTab] = useState<"schedule" | "exceptions">(
     "schedule",
   );
-  const [expandedDay, setExpandedDay] = useState(getTodayDayId);
+  const [expandedDay, setExpandedDay] = useState<string>(getTodayDayId);
   const [days, setDays] = useState<DaySchedule[]>(getDefaultDays());
   const [persistedShopId, setPersistedShopId] = useState<string | null>(null);
   const [hasLoadedPersistedShop, setHasLoadedPersistedShop] =
@@ -360,6 +360,28 @@ export default function AdminSchedulePage() {
     });
   };
 
+  const openEditWorkingHoursModal = (
+    id: string,
+    field: "startTime" | "endTime",
+  ) => {
+    const targetDay = days.find((item) => item.id === id);
+    if (!targetDay) return;
+
+    const currentTime =
+      field === "startTime" ? targetDay.openStart : targetDay.openEnd;
+    const initial = parseTime(currentTime);
+
+    setTimePicker({
+      isOpen: true,
+      dayId: id,
+      mode: "edit",
+      breakIndex: null,
+      field,
+      hour: initial.hour,
+      minute: Math.round(initial.minute / 5) * 5,
+    });
+  };
+
   const closeTimePicker = () => {
     setTimePicker((prev) => ({
       ...prev,
@@ -444,21 +466,29 @@ export default function AdminSchedulePage() {
             : item,
         ),
       );
-    } else if (timePicker.breakIndex !== null) {
+    } else {
       setDays((prev) =>
         prev.map((item) => {
           if (item.id !== timePicker.dayId) return item;
 
+          if (timePicker.breakIndex !== null) {
+            return {
+              ...item,
+              breaks: item.breaks.map((breakItem, idx) =>
+                idx === timePicker.breakIndex
+                  ? {
+                      ...breakItem,
+                      [timePicker.field]: selectedTime,
+                    }
+                  : breakItem,
+              ),
+            };
+          }
+
           return {
             ...item,
-            breaks: item.breaks.map((breakItem, idx) =>
-              idx === timePicker.breakIndex
-                ? {
-                    ...breakItem,
-                    [timePicker.field]: selectedTime,
-                  }
-                : breakItem,
-            ),
+            [timePicker.field === "startTime" ? "openStart" : "openEnd"]:
+              selectedTime,
           };
         }),
       );
@@ -535,35 +565,35 @@ export default function AdminSchedulePage() {
   const todayDayId = useMemo(() => getTodayDayId(), []);
 
   return (
-    <div className="px-3 py-2 sm:px-4">
-      <div className="mx-auto relative w-full max-w-105 rounded-[28px]  pb-3 shadow-[0_20px_50px_rgba(17,24,39,0.15)]">
-        {toast && (
-          <div className="fixed left-1/2 top-4 z-60 w-[92%] max-w-sm -translate-x-1/2">
-            <div
-              className={`flex items-start gap-2 rounded-xl border px-4 py-3 text-sm font-semibold shadow-xl ${
-                toast.kind === "error"
-                  ? "border-red-700 bg-red-600 text-white"
-                  : "border-emerald-700 bg-emerald-600 text-white"
-              }`}
-            >
-              {toast.kind === "success" ? (
-                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-white" />
-              ) : (
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-white" />
-              )}
-              <p>{toast.message}</p>
-            </div>
+    <div className="pt-16 py-2">
+      {toast && (
+        <div className="fixed left-1/2 top-4 z-60 w-[92%] max-w-sm -translate-x-1/2">
+          <div
+            className={`flex items-start gap-2 rounded-xl border px-4 py-3 text-sm font-semibold shadow-xl ${
+              toast.kind === "error"
+                ? "border-red-700 bg-red-600 text-white"
+                : "border-emerald-700 bg-emerald-600 text-white"
+            }`}
+          >
+            {toast.kind === "success" ? (
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-white" />
+            ) : (
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-white" />
+            )}
+            <p>{toast.message}</p>
           </div>
-        )}
+        </div>
+      )}
 
-        <ScheduleHeader
-          title={t("admin.schedule.title")}
-          onBack={() => router.back()}
-          backAriaLabel={t("common.back")}
-          moreAriaLabel={t("common.close")}
-        />
+      <ScheduleHeader
+        title={t("admin.schedule.title")}
+        onBack={() => router.back()}
+        backAriaLabel={t("common.back")}
+        moreAriaLabel={t("common.close")}
+      />
 
-        <main className="space-y-3 px-3 pb-5">
+      <div className="mx-auto relative w-full max-w-105 rounded-[28px] pb-3 shadow-[0_20px_50px_rgba(17,24,39,0.15)]">
+        <main className="space-y-3 px-3 pb-16 sm:pb-16">
           <section className="grid grid-cols-2 gap-2">
             <button
               type="button"
@@ -705,20 +735,32 @@ export default function AdminSchedulePage() {
                       {isExpanded && item.enabled && (
                         <div className="mt-3 border-t border-[#eceef2] pt-3">
                           <div className="space-y-3">
-                            <div className="grid grid-cols-[48px_auto_1fr_auto_1fr] items-center gap-2">
-                              <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#f4eee9] text-[#ee952d]">
-                                <Clock3 className="h-4 w-4" />
+                            <div className="grid grid-cols-[40px_auto_1fr_auto_1fr] items-center gap-1.5">
+                              <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#f4eee9] text-[#e8a767]">
+                                <Clock3 className="h-3.5 w-3.5" />
                               </div>
-                              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#959daa]">
+                              <p className="text-[9px] font-semibold uppercase tracking-widest text-[#959daa]">
                                 {t("admin.schedule.hours")}
                               </p>
-                              <div className="inline-flex h-10 items-center justify-center rounded-xl border border-[#d9dde3] bg-[#f3f4f6] px-3 text-[15px] font-bold text-[#1e232b]">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  openEditWorkingHoursModal(item.id, "startTime")
+                                }
+                                className="inline-flex h-9 items-center justify-center rounded-xl border border-[#d9dde3] bg-[#f3f4f6] px-2.5 text-[13px] font-bold text-[#1e232b]"
+                              >
                                 {item.openStart}
-                              </div>
-                              <span className="text-[18px] text-[#c5cbd4]">-</span>
-                              <div className="inline-flex h-10 items-center justify-center rounded-xl border border-[#d9dde3] bg-[#f3f4f6] px-3 text-[15px] font-bold text-[#1e232b]">
+                              </button>
+                              <span className="text-[15px] text-[#c5cbd4]">-</span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  openEditWorkingHoursModal(item.id, "endTime")
+                                }
+                                className="inline-flex h-9 items-center justify-center rounded-xl border border-[#d9dde3] bg-[#f3f4f6] px-2.5 text-[13px] font-bold text-[#1e232b]"
+                              >
                                 {item.openEnd}
-                              </div>
+                              </button>
                             </div>
 
                             {item.breaks.length > 0 ? (
