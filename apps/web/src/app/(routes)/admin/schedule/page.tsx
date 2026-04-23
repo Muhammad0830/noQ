@@ -36,6 +36,28 @@ const dayMeta = [
   { dayOfWeek: 0, day: "Sunday", id: "sunday", defaultStart: "09:00", defaultEnd: "18:00" },
 ] as const;
 
+const getTodayDayId = () => {
+  const weekdayName = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    timeZone: "Asia/Tashkent",
+  }).format(new Date());
+
+  const dayByName: Record<string, number> = {
+    Sunday: 0,
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6,
+  };
+
+  const todayDayOfWeek = dayByName[weekdayName] ?? new Date().getDay();
+  return (
+    dayMeta.find((meta) => meta.dayOfWeek === todayDayOfWeek)?.id || "monday"
+  );
+};
+
 const normalizeTime = (value?: string | null) => {
   if (!value) return "00:00";
   return value.slice(0, 5);
@@ -184,7 +206,7 @@ export default function AdminSchedulePage() {
   const [activeTab, setActiveTab] = useState<"schedule" | "exceptions">(
     "schedule",
   );
-  const [expandedDay, setExpandedDay] = useState("thursday");
+  const [expandedDay, setExpandedDay] = useState(getTodayDayId);
   const [days, setDays] = useState<DaySchedule[]>(getDefaultDays());
   const [persistedShopId, setPersistedShopId] = useState<string | null>(null);
   const [hasLoadedPersistedShop, setHasLoadedPersistedShop] =
@@ -469,6 +491,7 @@ export default function AdminSchedulePage() {
   };
 
   const getDayLabel = (dayId: string) => t(`admin.schedule.day.${dayId}`);
+  const todayDayId = useMemo(() => getTodayDayId(), []);
 
   return (
     <div className="px-3 py-2 sm:px-4">
@@ -573,7 +596,7 @@ export default function AdminSchedulePage() {
                             <p className="text-[18px] font-semibold tracking-tight text-[#252a31]">
                               {dayLabel}
                             </p>
-                            {item.id === "thursday" && (
+                            {item.id === todayDayId && (
                               <span className="rounded-full bg-[#f9b15a] px-2 py-0.5 text-[9px] font-bold uppercase text-white">
                                 {t("admin.schedule.today")}
                               </span>
