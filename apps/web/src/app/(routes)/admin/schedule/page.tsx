@@ -36,6 +36,8 @@ const dayMeta = [
   { dayOfWeek: 0, day: "Sunday", id: "sunday", defaultStart: "09:00", defaultEnd: "18:00" },
 ] as const;
 
+type ExpandedDay = (typeof dayMeta)[number]["id"] | "";
+
 const getTodayDayId = () => {
   const weekdayName = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
@@ -206,7 +208,7 @@ export default function AdminSchedulePage() {
   const [activeTab, setActiveTab] = useState<"schedule" | "exceptions">(
     "schedule",
   );
-  const [expandedDay, setExpandedDay] = useState<string>(getTodayDayId);
+  const [expandedDay, setExpandedDay] = useState<ExpandedDay>(getTodayDayId);
   const [days, setDays] = useState<DaySchedule[]>(getDefaultDays());
   const [persistedShopId, setPersistedShopId] = useState<string | null>(null);
   const [hasLoadedPersistedShop, setHasLoadedPersistedShop] =
@@ -711,7 +713,7 @@ export default function AdminSchedulePage() {
                             disabled={!item.enabled}
                             onClick={() =>
                               setExpandedDay((prev) =>
-                                prev === item.id ? "" : item.id,
+                                prev === item.id ? "" : (item.id as ExpandedDay),
                               )
                             }
                             className={`inline-flex items-center justify-center transition-colors ${
