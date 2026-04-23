@@ -3,9 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft,
   Bell,
-  Calendar,
   Camera,
   ChevronRight,
   CreditCard,
@@ -20,7 +18,7 @@ import {
   Plus,
   User,
   X,
-  Zap,
+  Store,
 } from "lucide-react";
 import type { Language } from "@shared/types/general_types";
 import { useAuth } from "@/contexts/AuthContext";
@@ -38,6 +36,7 @@ import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS } from "@/lib/api";
 import LogoutConfirmModal from "@/components/LogoutConfirmModal";
 import { getImageUrl } from "@/lib/supabaseClient";
+import { resolveCategoryIcon } from "@/lib/getCategoryIcon";
 
 const LANGUAGES: { code: Language; label: string }[] = [
   { code: "uz-latn", label: "O'zbekcha" },
@@ -61,6 +60,7 @@ type AdminShop = {
   address?: string;
   ownerId?: string;
   isOpen?: boolean;
+  category?: { id: string; name: string; icon?: string };
 };
 
 type ShopsResponse =
@@ -130,7 +130,7 @@ export default function ProfilePage() {
     if (!user) return [];
 
     return [{ label: t("profile.field.role"), value: user.role }];
-  }, [language, t, user]);
+  }, [language, t, user]); // eslint-disable-line
 
   useEffect(() => {
     if (!isInfoModalOpen || !user) {
@@ -149,8 +149,9 @@ export default function ProfilePage() {
     ? `${t("profile.memberSince")} ${new Date(
         user.createdAt,
       ).toLocaleDateString(LOCALE_BY_LANGUAGE[language], {
-        month: "short",
+        month: "numeric",
         year: "numeric",
+        day: "numeric",
       })}`
     : t("profile.memberSinceUnknown");
 
@@ -189,6 +190,7 @@ export default function ProfilePage() {
         address: shop.address,
         ownerId: shop.ownerId,
         isOpen: shop.isOpen,
+        category: shop.category,
       }));
     }
 
@@ -203,7 +205,7 @@ export default function ProfilePage() {
           : [];
 
     return shops.filter((shop) => shop.ownerId === user.id);
-  }, [shopsResponse, user?.id]);
+  }, [shopsResponse, user?.id, user?.shops]);
 
   const visibleAdminShops = useMemo(() => {
     if (!providerMode || !selectedShopId) return adminShops;
@@ -265,16 +267,17 @@ export default function ProfilePage() {
     }
   };
 
+  console.log(
+    "adminShopCategory",
+    adminShops.map((s) => user?.shops?.map((shop) => shop.category)),
+  );
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#211201] dark:text-white">
       <div
-        className="mx-auto w-full px-3 pb-2.25 pt-4 sm:px-6"
+        className="mx-auto w-full px-3 pb-2.25 pt-8 sm:px-6"
         style={{ maxWidth: 650 }}
       >
-        <header className="mb-6 flex items-center justify-between">
-          {/* Theme toggle moved to settings section */}
-        </header>
-
         <input
           type="file"
           accept="image/*"
@@ -333,7 +336,7 @@ export default function ProfilePage() {
                 disabled={isSavingImage}
                 className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-teal-700 dark:bg-[#F49B33] dark:text-slate-900 dark:hover:bg-[#00c4b0]"
               >
-                {isSavingImage ? "Saving..." : "Save Image"}
+                {isSavingImage ? t("common.saving") : t("common.save")}
               </button>
               <button
                 type="button"
@@ -344,7 +347,7 @@ export default function ProfilePage() {
                 disabled={isSavingImage}
                 className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
             </div>
           )}
@@ -362,53 +365,40 @@ export default function ProfilePage() {
               <p className="mt-1 text-sm font-medium text-teal-600 dark:text-[#F49B33]">
                 {memberSince}
               </p>
+              <p className="mt-1 text-sm font-medium leading-tight text-slate-900 dark:text-white">
+                {providerMode ? t("profile.adminPanel") : t("profile.personal")}
+              </p>
             </>
           )}
         </section>
 
-        {isAdmin && (
+        {isAdmin ? (
           <section
-            className={`mb-5 rounded-2xl border p-4 ${
+            className={`mb-5 rounded-2xl border px-4 ${
               theme === "dark"
                 ? "border-[#F49B33]/25 bg-[#211201] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
                 : "border-[#f1c894] bg-white shadow-sm"
             }`}
           >
             <Accordion type="single" collapsible className="w-full">
-              <AccordionItem
-                value="admin-shops"
-                className="border-0!"
-              >
-                <AccordionTrigger className="rounded-xl px-0 py-0 hover:no-underline [&>svg]:text-slate-500 dark:[&>svg]:text-white/50">
+              <AccordionItem value="admin-shops" className="border-0!">
+                <AccordionTrigger className="rounded-xl px-0 py-3 hover:no-underline [&>svg]:text-slate-500 dark:[&>svg]:text-white/50">
                   <span className="flex items-center gap-3">
-                    <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#fff3e6] text-[#F49B33] dark:bg-[#F49B33]/15 dark:text-[#F49B33]">
-                      <User className="h-5 w-5" />
+                    <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33] dark:bg-[#F49B33]/15 dark:text-[#F49B33]">
+                      <User className="h-7 w-7" />
                     </span>
 
                     <span className="min-w-0 text-left">
                       <span className="block truncate text-base font-semibold text-slate-900 dark:text-white/95">
-                        {t("profile.switchProfile")}
+                        {t("profile.switchPanel")}
                       </span>
                       <span className="block truncate text-sm font-normal text-slate-500 dark:text-white/55">
-                        {t("profile.userMode")}
+                        {providerMode ? t("profile.adminPanel") : t("profile.personal")}
                       </span>
                     </span>
                   </span>
                 </AccordionTrigger>
-                <AccordionContent className="pt-3">
-                  {providerMode && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setProviderMode(false);
-                        router.push("/user");
-                      }}
-                      className="mb-3 w-full rounded-lg border border-[#F49B33] px-3 py-2 text-sm font-semibold text-[#F49B33] transition hover:bg-[#F49B33]/10"
-                    >
-                      {t("profile.goToUserPanel")}
-                    </button>
-                  )}
-
+                <AccordionContent className="pb-0">
                   {isLoadingShops ? (
                     <p className="text-sm text-slate-500 dark:text-white/60">
                       {t("common.loading")}
@@ -418,14 +408,39 @@ export default function ProfilePage() {
                       {t("profile.noAdminShops")}
                     </p>
                   ) : (
-                    <ul className="space-y-2">
+                    <ul className="p-0">
+                      {providerMode && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProviderMode(false);
+                            router.push("/user");
+                          }}
+                          aria-label={t("profile.addNewShop")}
+                          className="w-full relative flex items-center gap-2 py-3 rounded-lg text-left text-base"
+                        >
+                          <div className="absolute left-0 right-0 top-0 bg-black/10 dark:bg-white h-px" />
+                          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33] dark:bg-[#F49B33]/15 dark:text-[#F49B33]">
+                            <User className="h-5 w-5" />
+                          </span>
+
+                          <div>
+                            <p className="font-semibold text-sm text-slate-800 dark:text-white/90">
+                              {t("profile.personal")}
+                            </p>
+                            <p className="text-xs text-slate-800 dark:text-white/90">
+                              {t("profile.goToUserPanel")}
+                            </p>
+                          </div>
+                        </button>
+                      )}
                       {visibleAdminShops.map((shop) => (
                         <li key={shop.id}>
                           <button
                             type="button"
                             onClick={() => {
                               if (typeof window !== "undefined") {
-                                window.localStorage.setItem(
+                                localStorage.setItem(
                                   "selected_shop_id",
                                   shop.id,
                                 );
@@ -433,31 +448,65 @@ export default function ProfilePage() {
                               setProviderMode(true);
                               router.push(`/admin?shopId=${shop.id}`);
                             }}
-                            className="w-full rounded-lg border border-slate-200 px-3 py-3 text-left text-sm dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5"
+                            className="w-full relative flex items-center gap-2 py-3 rounded-lg text-left text-base"
                           >
-                            <p className="font-semibold text-slate-800 dark:text-white/90">
-                              {shop.name}
-                            </p>
+                            <div className="absolute left-0 right-0 top-0 bg-black/10 dark:bg-white h-px" />
+                            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33] dark:bg-[#F49B33]/15 dark:text-[#F49B33]">
+                              {resolveCategoryIcon(shop.category?.icon) && (
+                                <Store className="h-5 w-5" />
+                              )}
+                            </span>
+
+                            <div>
+                              <p className="font-semibold text-sm text-slate-800 dark:text-white/90">
+                                {shop.name}
+                              </p>
+                              <p className="text-xs text-slate-800 dark:text-white/90">
+                                {shop.category?.name}
+                              </p>
+                            </div>
                           </button>
                         </li>
                       ))}
+                      <button
+                        type="button"
+                        onClick={() => router.push("/admin/services/new")}
+                        aria-label={t("profile.addNewShop")}
+                        className="w-full relative flex items-center gap-2 py-3 rounded-lg text-left text-base"
+                      >
+                        <div className="absolute left-0 right-0 top-0 bg-black/10 dark:bg-white h-px" />
+                        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33] dark:bg-[#F49B33]/15 dark:text-[#F49B33]">
+                          <Plus className="h-5 w-5" />
+                        </span>
+
+                        <p className="font-semibold text-sm text-slate-800 dark:text-white/90">
+                          {t("profile.addNewShop")}
+                        </p>
+                      </button>
                     </ul>
                   )}
-
-                  <div className="mt-3 flex justify-end">
-                    <button
-                      type="button"
-                      onClick={() => router.push("/admin/services/new")}
-                      aria-label={t("profile.addNewShop")}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#F49B33] text-white transition hover:opacity-90"
-                    >
-                      <Plus className="h-5 w-5" />
-                    </button>
-                  </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
           </section>
+        ) : (
+          <button
+            className={`w-full mb-5 flex gap-2 items-center rounded-2xl border p-3 ${
+              theme === "dark"
+                ? "border-[#F49B33]/25 bg-[#211201] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
+                : "border-[#f1c894] bg-white shadow-sm"
+            }`}
+          >
+            <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33] dark:bg-[#F49B33]/15 dark:text-[#F49B33]">
+              <Plus className="h-5 w-5" />
+            </span>
+
+            <span className="min-w-0 text-left">
+              <span className="block truncate text-sm font-semibold text-slate-900 dark:text-white/95">
+                {t("profile.addNewShop")}
+              </span>
+            </span>
+          </button>
         )}
 
         <section
@@ -829,7 +878,7 @@ function ProfileRow({
         bordered ? "border-t border-[#f1c894] dark:border-[#F49B33]/20" : ""
       }`}
     >
-      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#fff3e6] text-[#F49B33] dark:bg-[#F49B33]/15 dark:text-[#F49B33]">
+      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33] dark:bg-[#F49B33]/15 dark:text-[#F49B33]">
         {icon}
       </span>
 

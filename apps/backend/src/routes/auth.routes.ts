@@ -29,7 +29,11 @@ router.get("/me", authMiddleware, async (req: any, res: any) => {
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
       include: {
-        shops: true,
+        shops: {
+          include: {
+            category: true,
+          },
+        },
       },
     });
 
@@ -166,6 +170,5 @@ router.post("/signin", async (req, res) => {
     user: userData,
   });
 });
-
 
 export default router;

@@ -164,6 +164,7 @@ export const translations: Translations = {
     'common.clearSearch': 'Qidiruvni tozalash',
     'common.rating': 'Reyting',
     'common.reviews': 'sharhlar',
+    'common.saving': 'Saqlanmoqda...',
 
     // Shop Detail
     'shop.gallery': 'Galeriya',
@@ -265,7 +266,7 @@ export const translations: Translations = {
     'profile.timeSaved': 'Tejalgan vaqt',
     'profile.admin': 'Admin',
     'profile.switchToAdmin': 'Biznes admin paneliga o\'tish',
-    'profile.switchProfile': 'Profilni almashtirish',
+    'profile.switchPanel': 'Panelni almashtirish',
     'profile.userMode': 'Foydalanuvchi rejimi',
     'profile.toggleProviderMode': 'Provider rejimini almashtirish',
     'profile.accountSettings': 'Hisob sozlamalari',
@@ -310,7 +311,9 @@ export const translations: Translations = {
     'profile.goToAdmin': "Admin panelga o'tish",
     'profile.goToUserPanel': "Foydalanuvchi paneliga o'tish",
     'profile.extraShops': "Qo'shimcha shoplar",
-    'profile.addNewShop': "Yangi shop qo'shish",
+    'profile.addNewShop': "Yangi dokon qo'shish",
+    'profile.personal': 'Foydalanuvchi paneli',
+    'profile.adminPanel': 'Administrator paneli',
 
     // Header & Auth
     'header.notifications': 'Bildirishnomalar',
@@ -567,6 +570,7 @@ export const translations: Translations = {
     'common.clearSearch': 'Қидирувни тозалаш',
     'common.rating': 'Рейтинг',
     'common.reviews': 'шарҳлар',
+    'common.saving': 'Сақланмокда...',
 
     // Shop Detail
     'shop.gallery': 'Галерея',
@@ -668,7 +672,7 @@ export const translations: Translations = {
     'profile.timeSaved': 'Тежалган вақт',
     'profile.admin': 'Админ',
     'profile.switchToAdmin': 'Бизнес админ панелига ўтиш',
-    'profile.switchProfile': 'Профилни алмаштириш',
+    'profile.switchPanel': 'Панелни алмаштириш',
     'profile.userMode': 'Фойдаланувчи режими',
     'profile.toggleProviderMode': 'Провайдер режимини алмаштириш',
     'profile.accountSettings': 'Ҳисоб созламалари',
@@ -713,7 +717,9 @@ export const translations: Translations = {
     'profile.goToAdmin': 'Админ панелга ўтиш',
     'profile.goToUserPanel': 'Фойдаланувчи панелига ўтиш',
     'profile.extraShops': 'Қўшимча шоплар',
-    'profile.addNewShop': 'Янги шоп қўшиш',
+    'profile.addNewShop': 'Янги докон қўшиш',
+    'profile.personal': 'Фойдаланувчи панели',
+    'profile.adminPanel': 'Администратор панели',
 
     // Header & Auth
     'header.notifications': 'Билдиришномалар',
@@ -970,6 +976,7 @@ export const translations: Translations = {
     'common.clearSearch': 'Очистить поиск',
     'common.rating': 'Рейтинг',
     'common.reviews': 'отзывов',
+    'common.saving': 'Сохранение...',
 
     // Shop Detail
     'shop.gallery': 'Галерея',
@@ -1071,7 +1078,7 @@ export const translations: Translations = {
     'profile.timeSaved': 'Сэкономлено времени',
     'profile.admin': 'Админ',
     'profile.switchToAdmin': 'Перейти в бизнес-панель',
-    'profile.switchProfile': 'Переключить профиль',
+    'profile.switchPanel': 'Переключить панел',
     'profile.userMode': 'Режим пользователя',
     'profile.toggleProviderMode': 'Переключить режим провайдера',
     'profile.accountSettings': 'Настройки аккаунта',
@@ -1117,6 +1124,8 @@ export const translations: Translations = {
     'profile.goToUserPanel': 'Перейти в пользовательскую панель',
     'profile.extraShops': 'Дополнительные салоны',
     'profile.addNewShop': 'Добавить новый салон',
+    'profile.personal': 'Панель пользователя',
+    'profile.adminPanel': 'Панел администратора',
 
     // Header & Auth
     'header.notifications': 'Уведомления',
