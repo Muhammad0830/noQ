@@ -302,7 +302,7 @@
   .dark [class*="dark:border-"] {
     border-color: var(--border) !important;
   }
-
+  
   [data-slot="skeleton"] {
     background-color: rgba(244, 155, 51, 0.12) !important;
     background-image: linear-gradient(

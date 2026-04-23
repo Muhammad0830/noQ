@@ -20,7 +20,7 @@ export const getStorageBySource = (
   if (!isBrowser()) {
     return null;
   }
-  return source === "local" ? window.localStorage : window.sessionStorage;
+  return source === "local" ? localStorage : sessionStorage;
 };
 
 export const getStoredAuth = () => {
@@ -29,24 +29,22 @@ export const getStoredAuth = () => {
   }
 
   const localToken = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
-  console.log("localToken", localToken);
   if (localToken) {
     return {
       source: "local" as const,
       token: localToken,
-      refreshToken: window.localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
-      savedUser: window.localStorage.getItem(USER_STORAGE_KEY),
+      refreshToken: localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
+      savedUser: localStorage.getItem(USER_STORAGE_KEY),
     };
   }
 
   const sessionToken = sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
-  console.log("sessionToken", sessionToken);
   if (sessionToken) {
     return {
       source: "session" as const,
       token: sessionToken,
-      refreshToken: window.sessionStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
-      savedUser: window.sessionStorage.getItem(USER_STORAGE_KEY),
+      refreshToken: sessionStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
+      savedUser: sessionStorage.getItem(USER_STORAGE_KEY),
     };
   }
 
@@ -90,12 +88,13 @@ export const clearPersistedAuth = () => {
     return;
   }
 
-  window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-  window.localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
-  window.localStorage.removeItem(USER_STORAGE_KEY);
-  window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-  window.sessionStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
-  window.sessionStorage.removeItem(USER_STORAGE_KEY);
+  localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+  localStorage.removeItem("token");
+  localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+  localStorage.removeItem(USER_STORAGE_KEY);
+  sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+  sessionStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+  sessionStorage.removeItem(USER_STORAGE_KEY);
 };
 
 const api = axios.create({

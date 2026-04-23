@@ -26,11 +26,6 @@ export default function Home() {
       key: ["home-categories", language],
     });
 
-  const refresh = REFRESH_TOKEN_STORAGE_KEY;
-  const getAuth = getStoredAuth();
-  console.log("refresh", REFRESH_TOKEN_STORAGE_KEY);
-  console.log("storage", getAuth);
-
   const categories = useMemo<ShopCategory[]>(
     () =>
       // eslint-disable-next-line

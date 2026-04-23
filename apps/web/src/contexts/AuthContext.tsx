@@ -55,8 +55,8 @@ const mapApiUserToUser = (apiUser: ApiUserPayload): User => ({
 
 function clearProviderSessionState() {
   if (typeof window === "undefined") return;
-  window.localStorage.removeItem("providerMode");
-  window.localStorage.removeItem("selected_shop_id");
+  localStorage.removeItem("providerMode");
+  localStorage.removeItem("selected_shop_id");
 }
 
 function readCachedUser(): User | null {
@@ -134,25 +134,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initializeAuth();
   }, []);
-
-  useEffect(() => {
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (session) {
-          persistAuth(
-            session.access_token,
-            session.refresh_token,
-            user!,
-            "local",
-          );
-        }
-      },
-    );
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, [user]);
 
   const login = async (email: string, password: string, remember = true) => {
     setIsLoading(true);
