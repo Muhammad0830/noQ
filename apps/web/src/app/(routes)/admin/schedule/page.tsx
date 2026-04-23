@@ -225,6 +225,8 @@ export default function AdminSchedulePage() {
     hour: 13,
     minute: 0,
   });
+  const [touchStartY, setTouchStartY] = useState<number | null>(null);
+  const [currentSwipeTarget, setCurrentSwipeTarget] = useState<"hour" | "minute" | null>(null);
 
   const shopId = searchParams.get("shopId");
 
@@ -274,6 +276,17 @@ export default function AdminSchedulePage() {
           : undefined,
       },
     );
+
+  useEffect(() => {
+    if (timePicker.isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [timePicker.isOpen]);
 
   useEffect(() => {
     if (!weeklyScheduleData) return;
@@ -384,6 +397,34 @@ export default function AdminSchedulePage() {
       }
       return { ...prev, minute: next };
     });
+  };
+
+  const handleSwipeStart = (e: React.TouchEvent, target: "hour" | "minute") => {
+    e.preventDefault();
+    setTouchStartY(e.touches[0].clientY);
+    setCurrentSwipeTarget(target);
+  };
+
+  const handleSwipeEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
+    if (touchStartY === null || currentSwipeTarget === null) return;
+
+    const touchEndY = e.changedTouches[0]?.clientY;
+    if (touchEndY === undefined) return;
+
+    const deltaY = touchStartY - touchEndY;
+    const threshold = 10;
+
+    if (Math.abs(deltaY) > threshold) {
+      if (currentSwipeTarget === "hour") {
+        shiftHour(deltaY > 0 ? 1 : -1);
+      } else {
+        shiftMinute(deltaY > 0 ? 5 : -5);
+      }
+    }
+
+    setTouchStartY(null);
+    setCurrentSwipeTarget(null);
   };
 
   const confirmTimePicker = () => {
@@ -684,12 +725,12 @@ export default function AdminSchedulePage() {
                               item.breaks.map((breakItem, breakIndex) => (
                                 <div
                                   key={`${item.id}-break-${breakIndex}`}
-                                  className="grid grid-cols-[48px_auto_1fr_auto_1fr_auto] items-center gap-2"
+                                  className="grid grid-cols-[40px_auto_1fr_auto_1fr_auto] items-center gap-1.5"
                                 >
-                                  <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#f4eee9] text-[#e8a767]">
-                                    <Coffee className="h-4 w-4" />
+                                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#f4eee9] text-[#e8a767]">
+                                    <Coffee className="h-3.5 w-3.5" />
                                   </div>
-                                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#959daa]">
+                                  <p className="text-[9px] font-semibold uppercase tracking-widest text-[#959daa]">
                                     {t("admin.schedule.break")}
                                   </p>
                                   <button
@@ -701,11 +742,11 @@ export default function AdminSchedulePage() {
                                         "startTime",
                                       )
                                     }
-                                    className="inline-flex h-10 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-3 text-[15px] font-bold text-[#262b33]"
+                                    className="inline-flex h-9 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-2.5 text-[13px] font-bold text-[#262b33]"
                                   >
                                     {breakItem.startTime}
                                   </button>
-                                  <span className="text-[18px] text-[#c5cbd4]">-</span>
+                                  <span className="text-[15px] text-[#c5cbd4]">-</span>
                                   <button
                                     type="button"
                                     onClick={() =>
@@ -715,50 +756,50 @@ export default function AdminSchedulePage() {
                                         "endTime",
                                       )
                                     }
-                                    className="inline-flex h-10 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-3 text-[15px] font-bold text-[#262b33]"
+                                    className="inline-flex h-9 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-2.5 text-[13px] font-bold text-[#262b33]"
                                   >
                                     {breakItem.endTime}
                                   </button>
                                   <button
                                     type="button"
                                     onClick={() => removeBreak(item.id, breakIndex)}
-                                    className="inline-flex h-7 w-7 items-center justify-center text-[#ff6662]"
+                                    className="inline-flex h-6 w-6 items-center justify-center text-[#ff6662]"
                                     aria-label={t("admin.schedule.aria.deleteBreak")}
                                   >
-                                    <Trash2 className="h-4 w-4" />
+                                    <Trash2 className="h-3.5 w-3.5" />
                                   </button>
                                 </div>
                               ))
                             ) : (
-                              <div className="grid grid-cols-[48px_auto_1fr_auto_1fr_auto] items-center gap-2">
-                                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#f4eee9] text-[#e8a767]">
-                                  <Coffee className="h-4 w-4" />
+                              <div className="grid grid-cols-[40px_auto_1fr_auto_1fr_auto] items-center gap-1.5">
+                                <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#f4eee9] text-[#e8a767]">
+                                  <Coffee className="h-3.5 w-3.5" />
                                 </div>
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#959daa]">
+                                <p className="text-[9px] font-semibold uppercase tracking-widest text-[#959daa]">
                                   {t("admin.schedule.break")}
                                 </p>
                                 <button
                                   type="button"
                                   onClick={() => openAddBreakModal(item.id)}
-                                  className="inline-flex h-10 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-3 text-[15px] font-bold text-[#262b33]"
+                                  className="inline-flex h-9 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-2.5 text-[13px] font-bold text-[#262b33]"
                                 >
-                                  --:--
+                                  -:-
                                 </button>
-                                <span className="text-[18px] text-[#c5cbd4]">-</span>
+                                <span className="text-[15px] text-[#c5cbd4]">-</span>
                                 <button
                                   type="button"
                                   onClick={() => openAddBreakModal(item.id)}
-                                  className="inline-flex h-10 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-3 text-[15px] font-bold text-[#262b33]"
+                                  className="inline-flex h-9 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-2.5 text-[13px] font-bold text-[#262b33]"
                                 >
-                                  --:--
+                                  -:-
                                 </button>
                                 <button
                                   type="button"
                                   disabled
-                                  className="inline-flex h-7 w-7 items-center justify-center text-[#ff6662]/40"
+                                  className="inline-flex h-6 w-6 items-center justify-center text-[#ff6662]/40"
                                   aria-label={t("admin.schedule.aria.deleteBreak")}
                                 >
-                                  <Trash2 className="h-4 w-4" />
+                                  <Trash2 className="h-3.5 w-3.5" />
                                 </button>
                               </div>
                             )}
@@ -817,24 +858,30 @@ export default function AdminSchedulePage() {
               </h4>
 
               <div className="mb-5 flex items-center justify-center gap-2">
-                <div className="flex flex-col items-center gap-1">
+                <div
+                  className="flex flex-col items-center gap-1 select-none"
+                  onTouchStart={(e) => handleSwipeStart(e, "hour")}
+                  onTouchEnd={handleSwipeEnd}
+                  role="slider"
+                  aria-label="Hour"
+                >
                   <button
                     type="button"
                     onClick={() => shiftHour(-1)}
-                    className="text-[15px] text-[#d0d5dd]"
+                    className="text-[15px] text-[#d0d5dd] pointer-events-none"
                   >
                     {String((timePicker.hour + 23) % 24).padStart(2, "0")}
                   </button>
                   <button
                     type="button"
-                    className="min-w-16 rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-4 py-1.5 text-[18px] font-bold text-[#222831]"
+                    className="min-w-16 rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-4 py-1.5 text-[18px] font-bold text-[#222831] pointer-events-none"
                   >
                     {String(timePicker.hour).padStart(2, "0")}
                   </button>
                   <button
                     type="button"
                     onClick={() => shiftHour(1)}
-                    className="text-[15px] text-[#d0d5dd]"
+                    className="text-[15px] text-[#d0d5dd] pointer-events-none"
                   >
                     {String((timePicker.hour + 1) % 24).padStart(2, "0")}
                   </button>
@@ -844,24 +891,30 @@ export default function AdminSchedulePage() {
                   :
                 </span>
 
-                <div className="flex flex-col items-center gap-1">
+                <div
+                  className="flex flex-col items-center gap-1 select-none"
+                  onTouchStart={(e) => handleSwipeStart(e, "minute")}
+                  onTouchEnd={handleSwipeEnd}
+                  role="slider"
+                  aria-label="Minute"
+                >
                   <button
                     type="button"
                     onClick={() => shiftMinute(-5)}
-                    className="text-[15px] text-[#d0d5dd]"
+                    className="text-[15px] text-[#d0d5dd] pointer-events-none"
                   >
                     {String((timePicker.minute + 55) % 60).padStart(2, "0")}
                   </button>
                   <button
                     type="button"
-                    className="min-w-16 rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-4 py-1.5 text-[18px] font-bold text-[#222831]"
+                    className="min-w-16 rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-4 py-1.5 text-[18px] font-bold text-[#222831] pointer-events-none"
                   >
                     {String(timePicker.minute).padStart(2, "0")}
                   </button>
                   <button
                     type="button"
                     onClick={() => shiftMinute(5)}
-                    className="text-[15px] text-[#d0d5dd]"
+                    className="text-[15px] text-[#d0d5dd] pointer-events-none"
                   >
                     {String((timePicker.minute + 5) % 60).padStart(2, "0")}
                   </button>
