@@ -11,12 +11,13 @@ const app = express();
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://10.20.20.15:3000",
-      "https://no-q-bay.vercel.app",
-      "https://no-q-bay.vercel.app/",
-    ],
+    // origin: [
+    //   "http://localhost:3000",
+    //   "http://10.20.20.15:3000",
+    //   "https://no-q-bay.vercel.app",
+    //   "https://no-q-bay.vercel.app/",
+    // ],
+    origin: true,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
   }),
@@ -79,6 +80,13 @@ app.use(
   shopValidateMiddleware,
   adminOnly,
   adminRoutes.scheduleRouter,
+);
+app.use(
+  "/admin/bookings",
+  authMiddleware,
+  shopValidateMiddleware,
+  adminOnly,
+  adminRoutes.bookingAdminRouter,
 );
 
 export default app;
