@@ -1,7 +1,7 @@
 @bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc2NDIzNzk1LCJpYXQiOjE3NzY0MjAxOTUsImVtYWlsIjoiYUBnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3NjQyMDE5NX1dLCJzZXNzaW9uX2lkIjoiNzZlMzA0NDEtZDExNC00YjZiLWFkM2QtYzkxNTZjNDVjNjc1IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.ARWEa0VKgxLpjZzF329mxWHOiiyw2oOOz4obVsgPOpcQLBe7ScxbYNoketD26zMwOIvEGFonkrNoWG_eJlZpGQ
 
 
-POST http://localhost:3001/api/auth/signup
+POST http://localhost:3001/auth/signup
 Content-Type: application/json
 
 {
@@ -12,7 +12,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:3001/api/auth/signin
+POST http://localhost:3001/auth/signin
 Content-Type: application/json
 
 {
@@ -21,7 +21,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:3001/api/auth/signin
+POST http://localhost:3001/auth/signin
 Content-Type: application/json
 
 {
@@ -30,7 +30,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:3001/api/categories
+POST http://localhost:3001/categories
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 
@@ -40,7 +40,7 @@ Authorization: Bearer {{bearer_token}}
 }
 
 ###
-POST http://localhost:3001/api/shops
+POST http://localhost:3001/shops
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 
@@ -54,7 +54,7 @@ Authorization: Bearer {{bearer_token}}
 }
 
 ###
-POST http://localhost:3001/api/reviews
+POST http://localhost:3001/reviews
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 
@@ -66,7 +66,7 @@ Authorization: Bearer {{bearer_token}}
 }
 
 ###
-POST http://localhost:3001/api/favourites/shop
+POST http://localhost:3001/favourites/shop
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 -dU5_PdbRtkrN3INUMn-lMN7ACpqpxbw
@@ -76,7 +76,7 @@ Authorization: Bearer {{bearer_token}}
 }
 
 ###
-POST http://localhost:3001/api/favourites/service
+POST http://localhost:3001/favourites/service
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 
@@ -85,7 +85,7 @@ Authorization: Bearer {{bearer_token}}
 }
 
 ###
-POST http://localhost:3001/api/bookings
+POST http://localhost:3001/bookings
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 
@@ -97,7 +97,7 @@ Authorization: Bearer {{bearer_token}}
 }
 
 ###
-POST http://localhost:3001/api/admin/services
+POST http://localhost:3001/admin/services
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
@@ -110,7 +110,7 @@ x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 }
 
 ###
-POST http://localhost:3001/api/admin/schedule
+POST http://localhost:3001/admin/schedule
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
@@ -165,7 +165,7 @@ x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 }
 
 ###
-POST http://localhost:3001/api/admin/schedule/block
+POST http://localhost:3001/admin/schedule/block
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
