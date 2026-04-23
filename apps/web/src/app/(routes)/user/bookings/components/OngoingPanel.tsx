@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calendar, MapPin, Navigation, Phone, Scissors } from "lucide-react";
+import { Calendar, Navigation, Scissors, XCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OngoingBookingCardData } from "../bookings.types";
 import { getStatusColor, getStatusLabel } from "./booking-status";
@@ -13,6 +13,8 @@ type Props = {
   errorMessage?: string;
   activeBooking: OngoingBookingCardData | null;
   onRetry: () => void;
+  onCancelBooking: (bookingId?: string) => void;
+  isCancellingBooking?: boolean;
   t: (key: string) => string;
 };
 
@@ -71,6 +73,8 @@ export default function OngoingPanel({
   errorMessage,
   activeBooking,
   onRetry,
+  onCancelBooking,
+  isCancellingBooking,
   t,
 }: Props) {
   if (filter !== "ongoing") {
@@ -219,8 +223,16 @@ export default function OngoingPanel({
               <Navigation className="h-4 w-4" />
               {t("history.getDirections")}
             </Link>
-            <button className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-100 dark:border-white/15 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10">
-              <Phone className="h-5 w-5" />
+            <button
+              type="button"
+              onClick={() => onCancelBooking(activeBooking.id)}
+              disabled={isCancellingBooking}
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-red-200 bg-white text-red-500 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-400/30 dark:bg-white/5 dark:text-red-300 dark:hover:bg-red-500/20"
+              aria-label="Cancel booking"
+            >
+              <XCircle
+                className={`h-5 w-5 ${isCancellingBooking ? "animate-pulse" : ""}`}
+              />
             </button>
           </div>
         </div>

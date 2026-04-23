@@ -5,23 +5,37 @@ const staffRouter = Router();
 
 staffRouter.get("/", async (req: any, res) => {
   try {
-    const { search } = req.query;
+    const search =
+      typeof req.query.search === "string" ? req.query.search.trim() : "";
+
+    const ownerWhere: any = {
+      shopId: req.shop.id,
+      role: "OWNER",
+    };
+
+    const staffWhere: any = {
+      shopId: req.shop.id,
+      role: "STAFF",
+    };
+
+    if (search) {
+      ownerWhere.user = {
+        name: {
+          contains: search,
+          mode: "insensitive",
+        },
+      };
+
+      staffWhere.user = {
+        name: {
+          contains: search,
+          mode: "insensitive",
+        },
+      };
+    }
 
     const staffMembers = await prisma.staff.findMany({
-      where: {
-        shopId: req.shop.id,
-        role: "STAFF",
-        OR: [
-          {
-            user: {
-              name: {
-                contains: search,
-                mode: "insensitive",
-              },
-            },
-          },
-        ],
-      },
+      where: staffWhere,
       include: {
         shop: true,
         user: true,
@@ -29,10 +43,7 @@ staffRouter.get("/", async (req: any, res) => {
     });
 
     const owner = await prisma.staff.findMany({
-      where: {
-        shopId: req.shop.id,
-        role: "OWNER",
-      },
+      where: ownerWhere,
       include: {
         shop: true,
         user: true,
@@ -40,6 +51,27 @@ staffRouter.get("/", async (req: any, res) => {
     });
 
     res.status(200).json({ owner, staffMembers });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+staffRouter.get("/staffSearch", async (req: any, res) => {
+  try {
+    const { email } = req.query;
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) {
+      return res.status(200).json({ message: "User not found", result: false });
+    } else {
+      return res
+        .status(200)
+        .json({ message: "Staff found", result: true, user });
+    }
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
@@ -74,21 +106,25 @@ staffRouter.post("/", async (req: any, res) => {
   }
 });
 
-staffRouter.get("/staffSearch", async (req: any, res) => {
+staffRouter.delete("/:id", async (req: any, res: any) => {
   try {
-    const { email } = req.query;
-    const user = await prisma.user.findUnique({
-      where: {
-        email,
-      },
+    const { id } = req.params;
+
+    const staff = await prisma.staff.findUnique({
+      where: { id, shopId: req.shop.id },
     });
 
-    if (!user) {
-      return res.status(200).json({ message: "User not found", result: false });
-    } else {
-      return res.status(200).json({ message: "Staff found", result: true });
+    if (!staff) {
+      return res.status(404).json({ message: "Staff not found" });
     }
+
+    await prisma.staff.delete({
+      where: { id, shopId: req.shop.id },
+    });
+
+    res.status(200).json({ message: "Staff deleted successfully" });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
