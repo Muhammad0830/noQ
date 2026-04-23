@@ -5,7 +5,12 @@ import { useRouter } from "next/navigation";
 import HeroSection from "@/components/HeroSection";
 import CategoriesSection from "@/components/CategoriesSection";
 import ServicesList from "@/components/ShopList";
-import { API_ENDPOINTS } from "@/lib/api";
+import {
+  API_ENDPOINTS,
+  getStorageBySource,
+  getStoredAuth,
+  REFRESH_TOKEN_STORAGE_KEY,
+} from "@/lib/api";
 import useApiQuery from "@/hooks/useApiQuery";
 import type { ShopCategory } from "@shared/types/general_types";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -21,8 +26,14 @@ export default function Home() {
       key: ["home-categories", language],
     });
 
+  const refresh = REFRESH_TOKEN_STORAGE_KEY;
+  const getAuth = getStoredAuth();
+  console.log("refresh", REFRESH_TOKEN_STORAGE_KEY);
+  console.log("storage", getAuth);
+
   const categories = useMemo<ShopCategory[]>(
     () =>
+      // eslint-disable-next-line
       categoriesData.map((item: any) => ({
         id: String(item.id),
         name: String(item.name),

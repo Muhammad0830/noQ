@@ -5,12 +5,11 @@ import type { AuthContextType, Shop, User } from "@shared/types/general_types";
 import api, {
   API_ENDPOINTS,
   clearPersistedAuth,
-  getStorageBySource,
   getStoredAuth,
   persistAuth,
-  USER_STORAGE_KEY,
 } from "@/lib/api";
 import { useApiMutation } from "@/hooks/useApiMutation";
+import { supabase } from "@/lib/supabaseClient";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -91,48 +90,69 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initializeAuth = async () => {
       const storedAuth = getStoredAuth();
-      const token = storedAuth?.token ?? null;
-      const savedUserRaw = storedAuth?.savedUser ?? null;
 
-      if (!token) {
-        if (savedUserRaw) {
-          localStorage.removeItem(USER_STORAGE_KEY);
-        }
+      if (!storedAuth?.token || !storedAuth?.refreshToken) {
         setIsLoading(false);
         return;
       }
 
-      // User already hydrated synchronously via useState(readCachedUser).
-      // Just clear any blocking loading state.
-      setIsLoading(false);
-
       try {
-        const profileResponse = await api.get<ApiUserPayload>(
-          API_ENDPOINTS.auth.me,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
+        const { data, error } = await supabase.auth.setSession({
+          access_token: storedAuth.token,
+          refresh_token: storedAuth.refreshToken,
+        });
+
+        if (error || !data.session) {
+          throw error;
+        }
+
+        const newAccessToken = data.session.access_token;
+        const newRefreshToken = data.session.refresh_token;
+
+        persistAuth(
+          newAccessToken,
+          newRefreshToken,
+          JSON.parse(storedAuth.savedUser || "{}"),
+          storedAuth.source,
         );
 
-        const profileData = profileResponse.data;
-        const mappedUser = mapApiUserToUser(profileData);
-        if (mappedUser.role !== "ADMIN") {
-          clearProviderSessionState();
-        }
+        const profileResponse = await api.get(API_ENDPOINTS.auth.me, {
+          headers: {
+            Authorization: `Bearer ${newAccessToken}`,
+          },
+        });
+
+        const mappedUser = mapApiUserToUser(profileResponse.data);
         setUser(mappedUser);
-        const activeStorage = getStorageBySource(storedAuth?.source ?? "local");
-        activeStorage?.setItem(USER_STORAGE_KEY, JSON.stringify(mappedUser));
       } catch {
         clearPersistedAuth();
-        clearProviderSessionState();
         setUser(null);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     initializeAuth();
   }, []);
+
+  useEffect(() => {
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session) {
+          persistAuth(
+            session.access_token,
+            session.refresh_token,
+            user!,
+            "local",
+          );
+        }
+      },
+    );
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, [user]);
 
   const login = async (email: string, password: string, remember = true) => {
     setIsLoading(true);
@@ -143,11 +163,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error("Invalid login response");
       }
 
-      const profileResponse = await api.get<ApiUserPayload>(API_ENDPOINTS.auth.me, {
-        headers: {
-          Authorization: `Bearer ${data.access_token}`,
+      const profileResponse = await api.get<ApiUserPayload>(
+        API_ENDPOINTS.auth.me,
+        {
+          headers: {
+            Authorization: `Bearer ${data.access_token}`,
+          },
         },
-      });
+      );
 
       const profileData = profileResponse.data;
       const mappedUser = mapApiUserToUser(profileData);
@@ -160,7 +183,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data.access_token,
         data.refresh_token ?? null,
         mappedUser,
-        remember ? "local" : "session",
+        "local",
       );
     } catch (error) {
       throw error;

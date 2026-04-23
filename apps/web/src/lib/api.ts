@@ -28,7 +28,8 @@ export const getStoredAuth = () => {
     return null;
   }
 
-  const localToken = window.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  const localToken = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  console.log("localToken", localToken);
   if (localToken) {
     return {
       source: "local" as const,
@@ -38,7 +39,8 @@ export const getStoredAuth = () => {
     };
   }
 
-  const sessionToken = window.sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  const sessionToken = sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  console.log("sessionToken", sessionToken);
   if (sessionToken) {
     return {
       source: "session" as const,
@@ -103,7 +105,7 @@ const api = axios.create({
 
 // attach token to every request
 api.interceptors.request.use((config) => {
-  const storedAuth = getStoredAuth()
+  const storedAuth = getStoredAuth();
   if (storedAuth?.token) {
     config.headers.Authorization = `Bearer ${storedAuth.token}`;
   }
@@ -145,7 +147,8 @@ export const API_ENDPOINTS = {
     active: `${API_BASE_URL}/bookings/users/active`,
     history: `${API_BASE_URL}/bookings/users/history`,
   },
-  bookingCancel: (bookingId: string) => `${API_BASE_URL}/bookings/${bookingId}/cancel`,
+  bookingCancel: (bookingId: string) =>
+    `${API_BASE_URL}/bookings/${bookingId}/cancel`,
 
   // Favourites
   favourites: {
