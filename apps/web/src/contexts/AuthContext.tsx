@@ -10,6 +10,7 @@ import api, {
 } from "@/lib/api";
 import { useApiMutation } from "@/hooks/useApiMutation";
 import { supabase } from "@/lib/supabaseClient";
+import { toast } from "sonner";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -234,6 +235,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error("User not authenticated");
     }
 
+    setIsLoading(true);
+
+    const toastId = toast.loading("Updating profile...");
+
     try {
       const formData = new FormData();
       if (data.name !== undefined) formData.append("name", data.name);
@@ -263,8 +268,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         storedAuth.source,
       );
       console.log("success ✅");
+      toast.success("Profile updated successfully", {
+        id: toastId,
+      });
     } catch (error) {
+      toast.error("Something went wrong", {
+        id: toastId,
+      });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
