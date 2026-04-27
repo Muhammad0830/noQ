@@ -654,7 +654,7 @@ export default function AdminDashboard() {
               <div className="h-12 w-12 sm:h-10 sm:w-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm">
                 {(currentShopName || "A")
                   .split(" ")
-                  .map((s) => s[0])
+                  .map((s: string) => s[0])
                   .slice(0, 2)
                   .join("")}
               </div>
