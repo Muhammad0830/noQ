@@ -8,6 +8,7 @@ import { API_ENDPOINTS } from "@/lib/api";
 import type { Shop, Service } from "@shared/types/general_types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { toast } from "sonner";
 
 interface Staff {
   id: string;
@@ -228,10 +229,9 @@ export default function BookingPage({
         startTime: `${effectiveDate}T${selectedTime}:00`,
       });
 
-      alert(t("booking.success"));
       window.location.href = "/user/bookings";
-    } catch {
-      alert(t("booking.error"));
+    } catch (err) {
+      console.error("booking error", err);
     }
   };
 

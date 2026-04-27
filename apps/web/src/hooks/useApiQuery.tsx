@@ -6,7 +6,7 @@ import { getStoredAuth } from "@/lib/api";
 
 interface ApiError extends Error {
   status?: number;
-  data?: any;
+  data?: any; // eslint-disable-line
 }
 
 type UseApiQueryOptions<T> = {

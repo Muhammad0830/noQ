@@ -393,7 +393,9 @@ export default function ProfilePage() {
                         {t("profile.switchPanel")}
                       </span>
                       <span className="block truncate text-sm font-normal text-slate-500 dark:text-white/55">
-                        {providerMode ? t("profile.adminPanel") : t("profile.personal")}
+                        {providerMode
+                          ? t("profile.adminPanel")
+                          : t("profile.personal")}
                       </span>
                     </span>
                   </span>

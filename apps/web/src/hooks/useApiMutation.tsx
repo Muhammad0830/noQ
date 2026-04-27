@@ -1,7 +1,7 @@
 "use client";
 import api from "@/lib/api";
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
-import axios, { AxiosRequestConfig } from "axios";
+import { toast } from "sonner";
 
 type UrlType<TVariables> = string | ((variables: TVariables) => string);
 
@@ -9,24 +9,22 @@ export function useApiMutation<TResponse = unknown, TVariables = unknown>(
   url: UrlType<TVariables>,
   method: "post" | "put" | "delete" = "post",
 ): UseMutationResult<TResponse, Error, TVariables> {
-  // const { showToast } = useCustomToast();
-
-  return useMutation<TResponse, Error, TVariables>({
+  const mutation = useMutation<TResponse, Error, TVariables>({
     mutationFn: async (data: TVariables) => {
       const finalUrl = typeof url === "function" ? url(data) : url;
 
-      const response = await api[method]<TResponse>(finalUrl, data);
+      const promise = api[method]<TResponse>(finalUrl, data);
 
+      toast.promise(promise, {
+        loading: "Loading...",
+        success: "Success",
+        error: "Error",
+      });
+
+      const response = await promise;
       return response.data;
     },
-    onError: (error) => {
-      // showToast(
-      //   "error",
-      //   toastT("Failed to perform the action"),
-      //   toastT("Internal server error")
-      // );
-      console.error("fetch error", error);
-      throw error;
-    },
   });
+
+  return mutation;
 }
