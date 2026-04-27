@@ -29,7 +29,7 @@ export interface User {
   role: 'USER' | 'ADMIN';
   createdAt: string;
   avatarUrl?: string;
-  shops?: Shop[]; 
+  shops?: Shop[];
 }
 
 // Shop Category
@@ -68,6 +68,19 @@ export interface Service {
   isActive?: boolean;
   shopId?: string;
   shop?: Shop;
+  bufferTime?: number | null;
+  assignedToAllStaff?: boolean;
+  assignedStaffId?: string | null;
+  assignedStaff?: {
+    id: string;
+    role?: "OWNER" | "MANAGER" | "STAFF";
+    user?: {
+      id?: string;
+      name?: string | null;
+      email?: string | null;
+      avatarUrl?: string | null;
+    } | null;
+  } | null;
 }
 
 // Booking

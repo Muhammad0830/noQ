@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, use } from "react";
+import { useEffect, useMemo, useState, use } from "react";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import useApiQuery from "@/hooks/useApiQuery";
 import { useApiMutation } from "@/hooks/useApiMutation";
@@ -14,6 +14,16 @@ interface Staff {
   id: string;
   name: string;
   avatarUrl?: string | null;
+}
+
+interface ShopStaffApiItem {
+  id: string;
+  role: "OWNER" | "MANAGER" | "STAFF";
+  user?: {
+    name?: string | null;
+    email?: string | null;
+    avatarUrl?: string | null;
+  } | null;
 }
 
 interface TimeSlot {
@@ -86,13 +96,23 @@ export default function BookingPage({
   >(API_ENDPOINTS.shopServices(shopId), {
     key: ["services", shopId],
   });
+  const { data: shopStaff = [] } = useApiQuery<ShopStaffApiItem[]>(
+    API_ENDPOINTS.shopStaff(shopId),
+    {
+      key: ["shop-staff", shopId],
+      enabled: Boolean(shopId),
+    },
+  );
+
   const staff = useMemo<Staff[]>(
-    () => [
-      { id: "mock-1", name: "Axmadov Ayyubbek" },
-      { id: "mock-2", name: "Abduqayumov Muhammad" },
-      { id: "mock-3", name: "Sobitjanov Sunnatilla" },
-    ],
-    [],
+    () =>
+      shopStaff.map((member) => ({
+        id: member.id,
+        name:
+          member.user?.name?.trim() || member.user?.email?.trim() || "Staff",
+        avatarUrl: member.user?.avatarUrl || null,
+      })),
+    [shopStaff],
   );
 
   const nextDays = useMemo(() => {
@@ -112,7 +132,11 @@ export default function BookingPage({
     const found = services.find((service) => service.id === selectedServiceId);
     return found ?? services[0] ?? null;
   }, [services, selectedServiceId]);
-  const activeStaffId = "";
+  const activeStaffId =
+    selectedStaff ||
+    (selectedService && !selectedService.assignedToAllStaff
+      ? selectedService.assignedStaffId || undefined
+      : undefined);
 
   const { data: timelineData, isLoading: timelineLoading } =
     useApiQuery<DayTimelineResponse>(
@@ -213,6 +237,22 @@ export default function BookingPage({
     API_ENDPOINTS.bookings,
     "post",
   );
+
+  useEffect(() => {
+    if (!selectedService) return;
+
+    if (
+      !selectedService.assignedToAllStaff &&
+      selectedService.assignedStaffId
+    ) {
+      setSelectedStaff(selectedService.assignedStaffId);
+      return;
+    }
+
+    if (!selectedStaff && staff.length > 0) {
+      setSelectedStaff(staff[0]!.id);
+    }
+  }, [selectedService, selectedStaff, staff]);
 
   const toggleServices = () => {
     setShowServices((prev) => !prev);
