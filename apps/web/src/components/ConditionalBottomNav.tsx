@@ -12,6 +12,7 @@ export default function ConditionalBottomNav() {
     "/signup",
     "/forgot-password",
     "/admin/services/new",
+    "/profile/add-business",
   ];
   const shouldHide = hideOnPaths.some((path) => pathname.startsWith(path));
 

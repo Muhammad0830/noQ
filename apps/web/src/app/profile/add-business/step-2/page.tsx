@@ -230,11 +230,37 @@ export default function AddBusinessStepTwoPage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    const CREATION_LOCK_KEY = "new_shop_creating";
+
     const existingShopId = window.sessionStorage.getItem("new_shop_id");
     if (existingShopId) {
       setShopId(existingShopId);
       setIsCreatingShop(false);
       return;
+    }
+
+    const isShopCreating = window.sessionStorage.getItem(CREATION_LOCK_KEY) === "1";
+    if (isShopCreating) {
+      setIsCreatingShop(true);
+
+      const startedAt = Date.now();
+      const interval = window.setInterval(() => {
+        const createdId = window.sessionStorage.getItem("new_shop_id");
+        if (createdId) {
+          setShopId(createdId);
+          setIsCreatingShop(false);
+          window.clearInterval(interval);
+          return;
+        }
+
+        if (Date.now() - startedAt > 20_000) {
+          window.sessionStorage.removeItem(CREATION_LOCK_KEY);
+          setIsCreatingShop(false);
+          window.clearInterval(interval);
+        }
+      }, 300);
+
+      return () => window.clearInterval(interval);
     }
 
     const rawDraft = window.sessionStorage.getItem("new_shop_step_1");
@@ -245,6 +271,8 @@ export default function AddBusinessStepTwoPage() {
 
     const createShop = async () => {
       setIsCreatingShop(true);
+      window.sessionStorage.setItem(CREATION_LOCK_KEY, "1");
+
       try {
         const draft = JSON.parse(rawDraft) as StepOneDraft;
         const token = getStoredAuth()?.token;
@@ -290,6 +318,7 @@ export default function AddBusinessStepTwoPage() {
           kind: "error",
         });
       } finally {
+        window.sessionStorage.removeItem(CREATION_LOCK_KEY);
         setIsCreatingShop(false);
       }
     };
@@ -536,7 +565,7 @@ export default function AddBusinessStepTwoPage() {
   const todayDayId = useMemo(() => getTodayDayId(), []);
 
   return (
-    <main className="min-h-screen bg-[#f4f5f8] px-4 pb-28 pt-5 text-slate-900 dark:bg-[#211201] dark:text-white">
+    <main className="min-h-screen bg-[#f4f5f8] px-4 py-5 text-slate-900 dark:bg-[#211201] dark:text-white">
       {toast && (
         <div className="fixed left-1/2 top-4 z-60 w-[92%] max-w-sm -translate-x-1/2">
           <div
@@ -840,14 +869,11 @@ export default function AddBusinessStepTwoPage() {
             <p className="mt-1 text-[13px] text-[#8f96a3]">{t("admin.schedule.exceptions.description")}</p>
           </section>
         )}
-      </div>
-
-      <div className="fixed bottom-16 left-0 right-0 z-30 px-4 pb-2 pt-2">
         <button
           type="button"
           onClick={handleNext}
           disabled={isSaving || isCreatingShop || !shopId}
-          className="w-full rounded-full bg-[#f09a35] py-3.5 text-[14px] font-bold uppercase tracking-[0.08em] text-white shadow-[0_10px_30px_rgba(240,154,53,0.35)] transition-transform hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-7 h-12 w-full rounded-full bg-[#F49B33] text-sm font-semibold text-white transition hover:bg-[#e8891f] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSaving ? t("admin.schedule.saving") : t("newShop.step2.next")}
         </button>
