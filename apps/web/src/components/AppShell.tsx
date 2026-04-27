@@ -18,10 +18,11 @@ export default function AppShell({ children }: AppShellProps) {
   const isStaffManagePage = pathname.startsWith("/admin/staff");
   const isAdminServiceNewPage = pathname.startsWith("/admin/services/new");
   const isAdminServicePage = pathname.startsWith("/admin/services");
+  const isAddBusinessFlowPage = pathname.startsWith("/profile/add-business");
 
   const mainClassName = isAuthPage
     ? "min-h-screen"
-    : isAdminServiceNewPage
+    : isAdminServiceNewPage || isAddBusinessFlowPage
       ? "min-h-dvh"
       : isShopHistoryPage || isStaffManagePage || isAdminServicePage
         ? "min-h-dvh pb-16 md:pb-0"
@@ -29,7 +30,10 @@ export default function AppShell({ children }: AppShellProps) {
 
   return (
     <div className={isAuthPage ? "overflow-hidden" : ""}>
-      {!isShopHistoryPage && !isStaffManagePage && !isAdminServicePage && (
+      {!isShopHistoryPage &&
+        !isStaffManagePage &&
+        !isAdminServicePage &&
+        !isAddBusinessFlowPage && (
         <Header />
       )}
       <main className={mainClassName}>{children}</main>
