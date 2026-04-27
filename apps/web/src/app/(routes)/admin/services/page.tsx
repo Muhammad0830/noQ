@@ -214,6 +214,17 @@ export default function AdminServicesPage() {
     return `${path}?shopId=${encodeURIComponent(activeShopId)}`;
   };
 
+  const getServiceEditHref = (serviceId: string) => {
+    const params = new URLSearchParams();
+    params.set("serviceId", serviceId);
+
+    if (activeShopId) {
+      params.set("shopId", activeShopId);
+    }
+
+    return `/admin/services/edit?${params.toString()}`;
+  };
+
   const renderProfileStyleToggle = (enabled: boolean, id: string) => (
     <button
       type="button"
@@ -452,6 +463,10 @@ export default function AdminServicesPage() {
                           <div className="flex items-center gap-2">
                             <button
                               type="button"
+                              onClick={() =>
+                                router.push(getServiceEditHref(service.id))
+                              }
+                              aria-label={`Edit ${service.name}`}
                               className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#8f98a4] transition-colors hover:bg-[#f3f4f6]"
                             >
                               <PenLine className="h-4 w-4" />
@@ -525,6 +540,9 @@ export default function AdminServicesPage() {
                       </div>
                       <button
                         type="button"
+                        onClick={() =>
+                          router.push(getServiceEditHref(service.id))
+                        }
                         className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9aa1ab] transition-colors hover:text-[#F49B33]"
                       >
                         <PenLine className="h-3.5 w-3.5" />
