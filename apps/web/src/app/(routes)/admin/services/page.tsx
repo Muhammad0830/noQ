@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ChevronLeft,
@@ -8,6 +9,7 @@ import {
   Loader2,
   MoreVertical,
   PenLine,
+  Plus,
   Search,
   Scissors,
 } from "lucide-react";
@@ -275,10 +277,12 @@ export default function AdminServicesPage() {
             <h1 className="text-[18px] font-bold tracking-tight text-[#111111]">
               Manage Services
             </h1>
+
             <button
               type="button"
               onClick={() => setMenuOpen((prev) => !prev)}
               className="absolute right-0 inline-flex h-9 w-9 items-center justify-center rounded-full text-[#b0b0b0] transition-colors duration-200 hover:bg-[#ececec]"
+              aria-label="Open services menu"
             >
               <MoreVertical className="h-5 w-5" />
             </button>
@@ -306,15 +310,46 @@ export default function AdminServicesPage() {
         </header>
 
         <main className="px-4 pt-4">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9aa0aa]" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search service by name or duration"
-              className="w-full rounded-[18px] border border-[#d7d7d7] bg-white py-4 pl-11 pr-4 text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#F49B33] focus:outline-none"
-            />
+          <div className="hidden sm:flex sm:flex-col sm:gap-3">
+            <Link
+              href={getAdminHrefWithShopId("/admin/services/new")}
+              className="inline-flex h-14 w-full shrink-0 items-center justify-center gap-2 rounded-[18px] bg-[#F49B33] px-5 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(244,155,51,0.24)] transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Add Service</span>
+            </Link>
+
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9aa0aa]" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search service by name or duration"
+                className="w-full rounded-[18px] border border-[#d7d7d7] bg-white py-4 pl-11 pr-4 text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#F49B33] focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 sm:hidden">
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9aa0aa]" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search service by name or duration"
+                className="w-full rounded-full border border-[#d7d7d7] bg-white py-4 pl-11 pr-4 text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#F49B33] focus:outline-none"
+              />
+            </div>
+
+            <Link
+              href={getAdminHrefWithShopId("/admin/services/new")}
+              aria-label="Add service"
+              className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F49B33] text-white shadow-[0_10px_24px_rgba(244,155,51,0.24)] transition-transform duration-200 active:scale-95"
+            >
+              <Plus className="h-5 w-5" />
+            </Link>
           </div>
 
           {!activeShopId && (

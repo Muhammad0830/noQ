@@ -68,6 +68,19 @@ export interface Service {
   isActive?: boolean;
   shopId?: string;
   shop?: Shop;
+  bufferTime?: number | null;
+  assignedToAllStaff?: boolean;
+  assignedStaffId?: string | null;
+  assignedStaff?: {
+    id: string;
+    role?: "OWNER" | "MANAGER" | "STAFF";
+    user?: {
+      id?: string;
+      name?: string | null;
+      email?: string | null;
+      avatarUrl?: string | null;
+    } | null;
+  } | null;
 }
 
 // Booking

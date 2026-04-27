@@ -239,10 +239,21 @@ export default function AdminNewBookingPage() {
 
   useEffect(() => {
     if (!selectedService || !selectedUserId) return;
+
+    if (!selectedService.assignedToAllStaff && selectedService.assignedStaffId) {
+      setSelectedStaffId(selectedService.assignedStaffId);
+      return;
+    }
+
     if (!selectedStaffId && staffOptions.length > 0) {
       setSelectedStaffId(staffOptions[0]!.id);
     }
-  }, [selectedService, selectedUserId, selectedStaffId, staffOptions]);
+  }, [
+    selectedService,
+    selectedUserId,
+    selectedStaffId,
+    staffOptions,
+  ]);
 
   const availableSlots = useMemo(
     () => slots.filter((slot) => slot.available),
@@ -445,7 +456,7 @@ export default function AdminNewBookingPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-white text-slate-900 pb-0">
+    <div className="min-h-dvh bg-white text-slate-900 pb-100">
       {toast && (
         <div className="fixed left-1/2 top-4 z-80 w-[92%] max-w-sm -translate-x-1/2">
           <div
