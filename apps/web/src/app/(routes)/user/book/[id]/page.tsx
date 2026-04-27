@@ -241,7 +241,10 @@ export default function BookingPage({
   useEffect(() => {
     if (!selectedService) return;
 
-    if (!selectedService.assignedToAllStaff && selectedService.assignedStaffId) {
+    if (
+      !selectedService.assignedToAllStaff &&
+      selectedService.assignedStaffId
+    ) {
       setSelectedStaff(selectedService.assignedStaffId);
       return;
     }

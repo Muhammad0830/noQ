@@ -29,7 +29,7 @@ export interface User {
   role: 'USER' | 'ADMIN';
   createdAt: string;
   avatarUrl?: string;
-  shops?: Shop[]; 
+  shops?: Shop[];
 }
 
 // Shop Category
