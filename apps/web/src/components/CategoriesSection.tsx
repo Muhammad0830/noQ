@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ShopCategory } from "@shared/types/general_types";
@@ -21,46 +21,6 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
 }) => {
   const { t } = useLanguage();
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const [activeDot, setActiveDot] = useState(0);
-
-  const indicatorCount = useMemo(
-    () => Math.max(1, categories.length),
-    [categories.length],
-  );
-
-  const updateActiveDot = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    const maxScroll = el.scrollWidth - el.clientWidth;
-    if (maxScroll <= 0) return;
-
-    const progress = el.scrollLeft / maxScroll;
-    setActiveDot(Math.round(progress * (indicatorCount - 1)));
-  };
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    el.addEventListener("scroll", updateActiveDot, { passive: true });
-    window.addEventListener("resize", updateActiveDot);
-
-    return () => {
-      el.removeEventListener("scroll", updateActiveDot);
-      window.removeEventListener("resize", updateActiveDot);
-    };
-  }, [indicatorCount]); // eslint-disable-line
-
-  const scrollToDot = (index: number) => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    const maxScroll = el.scrollWidth - el.clientWidth;
-    const target = (maxScroll * index) / Math.max(1, indicatorCount - 1);
-
-    el.scrollTo({ left: target, behavior: "smooth" });
-  };
 
   return (
     <section className="bg-white pt-8 pb-5 sm:pt-10 sm:pb-6 dark:bg-[#211201]">
@@ -133,22 +93,6 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
           </div>
         </div>
 
-        {/* Dots */}
-        {indicatorCount > 1 && (
-          <div className="mt-3 flex items-center justify-center gap-2 sm:hidden">
-            {Array.from({ length: indicatorCount }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => scrollToDot(i)}
-                className={`w-2 h-2 rounded-full ${
-                  i === activeDot
-                    ? "bg-[#F49B33] dark:bg-[#F49B33]"
-                    : "bg-gray-300 dark:bg-gray-600"
-                }`}
-              />
-            ))}
-          </div>
-        )}
       </div>
     </section>
   );

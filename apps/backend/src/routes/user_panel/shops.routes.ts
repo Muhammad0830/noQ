@@ -173,6 +173,11 @@ shopRouter.get("/:id", async (req: any, res: any) => {
         where: { id },
         include: {
           category: true,
+          staffs: {
+            select: {
+              user: true
+            }
+          }
         },
       }),
       prisma.service.findMany({
@@ -182,7 +187,7 @@ shopRouter.get("/:id", async (req: any, res: any) => {
         },
         include: {
           _count: {
-            select: {
+                        select: {
               reviews: true,
             },
           },

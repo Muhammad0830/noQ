@@ -252,19 +252,19 @@ export default function ShopProfile({
             <div
               className={`grid ${hasPhone ? "grid-cols-4" : "grid-cols-3"} gap-3 sm:gap-4`}
             >
-              <div className="flex flex-col items-center gap-2 sm:gap-3 rounded-2xl border border-[#f1c894] bg-[#fff8f1] p-3 text-center shadow-[0_10px_20px_rgba(244,155,51,0.12)] dark:border-[#F49B33]/25 dark:bg-[#2b170b]">
+              <div className="flex flex-col items-center gap-2 sm:gap-3 rounded-2xl border border-[#f1c894] bg-white p-3 text-center dark:border-[#F49B33]/25 dark:bg-[#2b170b]">
                 <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-[#F49B33] dark:text-[#F49B33]" />
                 <span className="text-xs font-semibold text-[#8a5620] dark:text-[#ffd4a6] sm:text-sm">
                   {distance}
                 </span>
               </div>
-              <div className="flex flex-col items-center gap-2 sm:gap-3 rounded-2xl border border-[#f1c894] bg-[#fff8f1] p-3 text-center shadow-[0_10px_20px_rgba(244,155,51,0.12)] dark:border-[#F49B33]/25 dark:bg-[#2b170b]">
+              <div className="flex flex-col items-center gap-2 sm:gap-3 rounded-2xl border border-[#f1c894] bg-white p-3 text-center dark:border-[#F49B33]/25 dark:bg-[#2b170b]">
                 <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-[#F49B33] dark:text-[#F49B33]" />
                 <span className="text-xs font-semibold text-[#8a5620] dark:text-[#ffd4a6] sm:text-sm">
                   {hours}
                 </span>
               </div>
-              <div className="flex flex-col items-center gap-2 sm:gap-3 rounded-2xl border border-[#f1c894] bg-[#fff8f1] p-3 text-center shadow-[0_10px_20px_rgba(244,155,51,0.12)] dark:border-[#F49B33]/25 dark:bg-[#2b170b]">
+              <div className="flex flex-col items-center gap-2 sm:gap-3 rounded-2xl border border-[#f1c894] bg-white p-3 text-center dark:border-[#F49B33]/25 dark:bg-[#2b170b]">
                 <Map className="h-5 w-5 sm:h-6 sm:w-6 text-[#F49B33] dark:text-[#F49B33]" />
                 <span className="text-xs font-semibold text-[#8a5620] dark:text-[#ffd4a6] sm:text-sm">
                   {t("shop.viewDetails")}
@@ -273,7 +273,7 @@ export default function ShopProfile({
               {hasPhone && (
                 <a
                   href={`tel:${shopData.phone}`}
-                  className="flex flex-col items-center gap-2 rounded-2xl border border-[#f1c894] bg-[#fff8f1] p-3 text-center shadow-[0_10px_20px_rgba(244,155,51,0.12)] transition hover:bg-[#fff3e6] dark:border-[#F49B33]/25 dark:bg-[#2b170b] dark:hover:bg-[#3a2415] sm:p-4 sm:gap-3"
+                  className="flex flex-col items-center gap-2 rounded-2xl border border-[#f1c894] bg-white p-3 text-center transition hover:bg-white dark:border-[#F49B33]/25 dark:bg-[#2b170b] dark:hover:bg-[#3a2415] sm:p-4 sm:gap-3"
                 >
                   <Phone className="h-5 w-5 sm:h-6 sm:w-6 text-[#F49B33] dark:text-[#F49B33]" />
                   <span className="text-xs font-semibold text-[#8a5620] dark:text-[#ffd4a6] sm:text-sm">

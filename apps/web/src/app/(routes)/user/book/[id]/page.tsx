@@ -60,12 +60,17 @@ const addMinutes = (time: string, minutes: number) => {
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 };
 
-const toRangeDate = (date: string, value: string) => {
+const toRangeMinutes = (value: string) => {
+  // If backend returns an ISO datetime (with 'T'), extract the time part
+  // without letting the Date constructor apply timezone conversions.
   if (value.includes("T")) {
-    return new Date(value);
+    const timePart = value.split("T")[1].split(/[Z+-]/)[0];
+    const [h, m] = timePart.split(":").map((s) => Number(s));
+    return h * 60 + (isNaN(m) ? 0 : m);
   }
 
-  return new Date(`${date}T${value}:00`);
+  // Plain HH:MM string
+  return timeToMinutes(value);
 };
 
 export default function BookingPage({
@@ -96,24 +101,15 @@ export default function BookingPage({
   >(API_ENDPOINTS.shopServices(shopId), {
     key: ["services", shopId],
   });
-  const { data: shopStaff = [] } = useApiQuery<ShopStaffApiItem[]>(
-    API_ENDPOINTS.shopStaff(shopId),
-    {
-      key: ["shop-staff", shopId],
-      enabled: Boolean(shopId),
-    },
-  );
-
-  const staff = useMemo<Staff[]>(
-    () =>
-      shopStaff.map((member) => ({
-        id: member.id,
-        name:
-          member.user?.name?.trim() || member.user?.email?.trim() || "Staff",
-        avatarUrl: member.user?.avatarUrl || null,
-      })),
-    [shopStaff],
-  );
+  const staff = useMemo<Staff[]>(() => {
+    const members = (shop as any)?.staffs ?? [];
+    return members.map((member: any) => ({
+      id: member.id,
+      name:
+        member.user?.name?.trim() || member.user?.email?.trim() || "Staff",
+      avatarUrl: member.user?.avatarUrl || null,
+    }));
+  }, [shop]);
 
   const nextDays = useMemo(() => {
     const days: Date[] = [];
@@ -213,13 +209,13 @@ export default function BookingPage({
     ) {
       const start = `${String(Math.floor(cursor / 60)).padStart(2, "0")}:${String(cursor % 60).padStart(2, "0")}`;
       const end = addMinutes(start, durationMin);
-      const slotStart = new Date(`${effectiveDate}T${start}:00`);
-      const slotEnd = new Date(`${effectiveDate}T${end}:00`);
+      const slotStartMin = cursor;
+      const slotEndMin = cursor + durationMin;
 
       const hasConflict = busyRanges.some((range) => {
-        const rangeStart = toRangeDate(effectiveDate, range.start);
-        const rangeEnd = toRangeDate(effectiveDate, range.end);
-        return rangeStart < slotEnd && rangeEnd > slotStart;
+        const rangeStartMin = toRangeMinutes(range.start);
+        const rangeEndMin = toRangeMinutes(range.end);
+        return rangeStartMin < slotEndMin && rangeEndMin > slotStartMin;
       });
 
       slots.push({
@@ -284,7 +280,7 @@ export default function BookingPage({
   }
 
   return (
-    <div className="min-h-dvh bg-[#f7f0e7] dark:bg-[#211201] text-slate-900 dark:text-white pb-0">
+    <div className="min-h-dvh bg-white dark:bg-[#211201] text-slate-900 dark:text-white pb-0">
       <div className="max-w-md mx-auto px-4 pt-3">
         <div className="flex items-center justify-between mb-4">
           <button
@@ -312,7 +308,7 @@ export default function BookingPage({
         {selectedService && (
           <div
             onClick={toggleServices}
-            className="rounded-2xl border border-[#f1c894] bg-linear-to-br from-[#fff7ef] to-[#f5e3cf] p-4 mb-6 cursor-pointer shadow-[0_10px_24px_rgba(244,155,51,0.14)] dark:border-[#F49B33]/25 dark:from-[#2b170b] dark:to-[#211201] dark:shadow-[0_10px_24px_rgba(0,0,0,0.24)]"
+            className="rounded-2xl border border-[#f1c894] bg-white p-4 mb-6 cursor-pointer dark:border-[#F49B33]/25"
           >
             <div className="flex items-center gap-3">
               <div className="flex-1">
@@ -334,7 +330,7 @@ export default function BookingPage({
                   event.stopPropagation();
                   toggleServices();
                 }}
-                className="text-xs font-semibold rounded-full px-4 py-2 border border-[#F49B33]/40 bg-[#fff3e6] text-[#F49B33] dark:border-[#F49B33]/40 dark:bg-[#F49B33]/10 dark:text-[#F49B33]"
+                className="text-xs font-semibold rounded-full px-4 py-2 border border-[white] bg-[#fff3e6] text-[#F49B33] dark:border-[#F49B33]/40 dark:bg-[#F49B33]/10 dark:text-[#F49B33]"
               >
                 {t("booking.edit")}
               </button>
@@ -344,16 +340,16 @@ export default function BookingPage({
 
         {showServices && (
           <div className="space-y-2 mb-6">
-            {services.map((service) => (
+            {services.map((service, index) => (
               <button
-                key={service.id}
+                key={`${service.id ?? "service"}-${index}`}
                 onClick={() => {
                   setSelectedServiceId(service.id);
                   setShowServices(false);
                 }}
                 className={`w-full text-left rounded-xl p-3 border ${
                   selectedService?.id === service.id
-                    ? "border-[#F49B33] bg-[#fff3e6] shadow-[0_8px_18px_rgba(244,155,51,0.14)] dark:border-[#F49B33]/55 dark:bg-[#F49B33]/10"
+                    ? "border-[#F49B33] bg-white dark:border-[#F49B33]/55 dark:bg-[#F49B33]/10"
                     : "border-slate-200 bg-white dark:border-white/10 dark:bg-white/5"
                 }`}
               >
@@ -369,11 +365,11 @@ export default function BookingPage({
           </div>
         )}
 
-        <section className="mb-6">
+        <section className="mb-2">
           <h3 className="text-sm font-semibold mb-3 text-slate-800 dark:text-gray-200">
             {t("booking.selectStaff")}
           </h3>
-          <div className="flex items-start gap-3 overflow-x-auto pb-2 px-1 snap-x snap-mandatory">
+          <div className="flex items-start gap-3 overflow-x-auto px-1 snap-x snap-mandatory">
             {staff.map((member, index) => {
               const isActive =
                 (selectedStaff ?? selectedStaffMember?.id) === member.id;
@@ -381,12 +377,12 @@ export default function BookingPage({
                 avatarGradients[index % avatarGradients.length];
               return (
                 <button
-                  key={member.id}
+                  key={`${member.id ?? "staff"}-${index}`}
                   onClick={() => setSelectedStaff(member.id)}
                   className="shrink-0 w-23 text-center snap-start flex flex-col items-center"
                 >
                   <div
-                    className={`h-16 w-16 rounded-full border-2 p-0.5 ${isActive ? "border-[#F49B33] shadow-[0_0_0_2px_rgba(244,155,51,0.28)]" : "border-slate-300 dark:border-white/20"}`}
+                    className={`h-16 w-16 rounded-full border-2 p-0.5 ${isActive ? "border-[#F49B33]" : "border-slate-300 dark:border-white/20"}`}
                   >
                     <div
                       className={`h-full w-full rounded-full bg-linear-to-br ${gradientClass} flex items-center justify-center`}
@@ -397,7 +393,7 @@ export default function BookingPage({
                     </div>
                   </div>
                   <p
-                    className={`mt-2 w-full px-1 text-[11px] leading-[1.2] min-h-[2.4rem] whitespace-normal wrap-break-word ${isActive ? "text-[#F49B33] dark:text-[#F49B33]" : "text-slate-500 dark:text-slate-300"}`}
+                    className={`mt-2 w-full px-1 text-[11px] leading-[1.2] min-h-[2.4rem] whitespace-normal wrap-break-word ${isActive ? "text-[black] dark:text-[white]" : "text-slate-500 dark:text-slate-300"}`}
                   >
                     {member.name}
                   </p>
@@ -433,19 +429,19 @@ export default function BookingPage({
           </div>
 
           <div className="grid grid-cols-5 gap-2">
-            {visibleDays.map((day) => {
+            {visibleDays.map((day, index) => {
               const dateStr = day.toISOString().split("T")[0];
               const isActive = effectiveDate === dateStr;
               return (
-                <button
-                  key={dateStr}
+                  <button
+                  key={`${dateStr}-${index}`}
                   onClick={() => {
                     setSelectedDate(dateStr);
                     setSelectedTime(null);
                   }}
                   className={`rounded-xl py-2 text-center border ${
                     isActive
-                      ? "bg-[#F49B33] text-white border-[#F49B33] shadow-[0_8px_18px_rgba(244,155,51,0.28)]"
+                      ? "bg-[#F49B33] text-white border-[#F49B33]"
                       : "bg-white border-[#ead8c3] text-slate-700 dark:bg-white/5 dark:border-white/10 dark:text-slate-300"
                   }`}
                 >
@@ -471,7 +467,7 @@ export default function BookingPage({
             </p>
           </div>
 
-          <div className="rounded-3xl border border-[#f1c894]/80 bg-linear-to-b from-[#fff8f0] via-white to-[#fff3e6]/65 p-3 sm:p-4 shadow-[0_8px_24px_rgba(244,155,51,0.14)] dark:border-[#F49B33]/20 dark:from-[#2b170b] dark:via-[#211201] dark:to-[#1a0e06] dark:shadow-[0_12px_32px_rgba(0,0,0,0.55)]">
+          <div className="rounded-3xl border border-[#f1c894]/80 bg-white p-3 sm:p-4 dark:border-[#F49B33]/20">
             <div className="max-h-72 overflow-y-auto pr-1">
               {timelineLoading ? (
                 <div className="grid grid-cols-2 gap-3">
@@ -491,7 +487,7 @@ export default function BookingPage({
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-3">
-                  {timelineSlots.map((slot) => {
+                  {timelineSlots.map((slot, index) => {
                     const isSelected = selectedTime === slot.time;
                     const isBreakTime =
                       slot.startMin >= breakStartMin &&
@@ -533,12 +529,12 @@ export default function BookingPage({
 
                     return (
                       <button
-                        key={slot.id}
+                        key={`${slot.id ?? "slot"}-${index}`}
                         onClick={() => canSelect && setSelectedTime(slot.time)}
                         disabled={!canSelect}
                         className={`rounded-3xl min-h-18 border px-3 py-2 text-center transition-all ${
                           status === "selected"
-                            ? "border-[#F49B33] bg-[#F49B33] text-white shadow-[0_0_0_1px_rgba(244,155,51,0.45),0_6px_14px_rgba(244,155,51,0.22)] dark:border-[#F49B33] dark:bg-[#F49B33] dark:text-white dark:shadow-[0_0_0_1px_rgba(244,155,51,0.75),0_0_16px_rgba(244,155,51,0.28)]"
+                            ? "border-[#F49B33] bg-[#F49B33] text-white dark:border-[#F49B33] dark:bg-[#F49B33] dark:text-white"
                             : status === "available"
                               ? "border-[#f1c894] bg-white/95 text-[#F49B33] hover:border-[#F49B33] hover:bg-[#fff3e6] dark:border-[#F49B33]/35 dark:bg-[#F49B33]/8 dark:text-[#F49B33] dark:hover:border-[#F49B33] dark:hover:bg-[#F49B33]/12"
                               : status === "break"
@@ -567,8 +563,8 @@ export default function BookingPage({
       </div>
 
       <div className="mt-6 mb-4 px-3 sm:px-0">
-        <div className="max-w-md mx-auto p-4 rounded-2xl bg-white/90 dark:bg-[#211201] backdrop-blur-md border border-[#f1c894] dark:border-[#F49B33]/20 shadow-[0_14px_30px_rgba(244,155,51,0.12)]">
-          <div className="rounded-2xl border border-[#f1c894]/70 dark:border-[#F49B33]/25 bg-linear-to-r from-[#fff7ef] to-[#f6e4cd] dark:from-[#2b170b] dark:to-[#211201] p-3 mb-3">
+        <div className="max-w-md mx-auto p-4 rounded-2xl bg-white/90 dark:bg-[#211201] backdrop-blur-md border border-[#f1c894] dark:border-[#F49B33]/20">
+          <div className="rounded-2xl border border-[#f1c894]/70 dark:border-[#F49B33]/25 bg-white p-3 mb-3 dark:from-[#2b170b] dark:to-[#211201]">
             <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300">
               <span className="uppercase tracking-wide">
                 {t("booking.selectedWindow")}
@@ -592,7 +588,7 @@ export default function BookingPage({
           <button
             onClick={handleConfirmBooking}
             disabled={!selectedService || !selectedTime || isPending}
-            className="w-full py-3 rounded-full bg-[#F49B33] text-white font-bold tracking-wide shadow-[0_10px_24px_rgba(244,155,51,0.28)] disabled:opacity-50"
+            className="w-full py-3 rounded-full bg-[#F49B33] text-white font-bold tracking-wide disabled:opacity-50"
           >
             {isPending ? t("booking.processing") : t("booking.confirmBooking")}
           </button>
