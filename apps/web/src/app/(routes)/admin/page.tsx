@@ -91,6 +91,7 @@ export default function AdminDashboard() {
     useState<boolean>(false);
 
   const shopId = searchParams.get("shopId");
+  const selectedShopHint = shopId || persistedShopId;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -102,12 +103,20 @@ export default function AdminDashboard() {
   }, []);
 
   const isAdmin = user?.role === "ADMIN";
-  const { data: shopsResponse } = useApiQuery<ShopsResponse>(
+  const { data: shopsResponse, isLoading: isLoadingShopsFallback } = useApiQuery<ShopsResponse>(
     isAdmin ? API_ENDPOINTS.shops : null,
     {
       key: ["admin-shops-fallback", user?.id || "guest"],
       enabled: Boolean(
-        isAdmin && user?.id && !(user?.shops && user.shops.length > 0),
+        isAdmin &&
+          user?.id &&
+          (
+            !(user?.shops && user.shops.length > 0) ||
+            Boolean(
+              selectedShopHint &&
+                !(user?.shops || []).some((shop) => shop.id === selectedShopHint),
+            )
+          ),
       ),
       staleTime: 30_000,
       refetchOnMount: false,
@@ -118,15 +127,13 @@ export default function AdminDashboard() {
   const adminShops = useMemo<AdminShop[]>(() => {
     if (!user?.id) return [];
 
-    if (user.shops && user.shops.length > 0) {
-      return user.shops.map((shop) => ({
-        id: shop.id,
-        name: shop.name,
-        ownerId: shop.ownerId,
-      }));
-    }
+    const userShops = (user.shops || []).map((shop) => ({
+      id: shop.id,
+      name: shop.name,
+      ownerId: shop.ownerId,
+    }));
 
-    if (!shopsResponse) return [];
+    if (!shopsResponse) return userShops;
 
     const shops = Array.isArray(shopsResponse)
       ? shopsResponse
@@ -136,19 +143,26 @@ export default function AdminDashboard() {
           ? shopsResponse.data
           : [];
 
-    return shops.filter((shop) => shop.ownerId === user.id);
+    const fallbackShops = shops.filter((shop) => shop.ownerId === user.id);
+
+    if (fallbackShops.length === 0) return userShops;
+    if (userShops.length === 0) return fallbackShops;
+
+    const merged = new Map<string, AdminShop>();
+    userShops.forEach((shop) => merged.set(shop.id, shop));
+    fallbackShops.forEach((shop) => merged.set(shop.id, shop));
+    return Array.from(merged.values());
   }, [shopsResponse, user?.id, user?.shops]);
 
   const activeShopId = useMemo(() => {
     if (!hasLoadedPersistedShop) return null;
 
-    if (shopId && adminShops.some((shop) => shop.id === shopId)) return shopId;
-    if (
-      persistedShopId &&
-      adminShops.some((shop) => shop.id === persistedShopId)
-    ) {
-      return persistedShopId;
-    }
+    // Trust explicit URL/localStorage selection first.
+    // This is important right after creating a new shop because `user.shops`
+    // can be stale for a moment and may not include the new shop yet.
+    if (shopId) return shopId;
+    if (persistedShopId) return persistedShopId;
+
     if (user?.shops?.[0]?.id) return user.shops[0].id;
     if (adminShops[0]?.id) return adminShops[0].id;
     return null;
@@ -164,19 +178,28 @@ export default function AdminDashboard() {
     return `${path}?shopId=${encodeURIComponent(activeShopId)}`;
   };
 
-  const currentShopName = useMemo(() => {
-    if (!user) return t("admin.dashboard.panel");
+  const resolvedCurrentShop = useMemo(() => {
+    if (!user) return null;
 
     if (activeShopId) {
       const foundInUser = (user.shops || []).find(
         (s: any) => s.id === activeShopId,
       );
       const foundInFallback = adminShops.find((s) => s.id === activeShopId);
-      return foundInUser?.name || foundInFallback?.name || t("admin.dashboard.panel");
+      return foundInUser || foundInFallback || null;
     }
 
-    return user.shops?.[0]?.name || adminShops[0]?.name || t("admin.dashboard.panel");
-  }, [activeShopId, adminShops, t, user]);
+    return (user.shops?.[0] as any) || adminShops[0] || null;
+  }, [activeShopId, adminShops, user]);
+
+  const currentShopName = resolvedCurrentShop?.name || t("admin.dashboard.panel");
+
+  const isShopNameLoading = useMemo(() => {
+    if (!hasLoadedPersistedShop) return true;
+    if (!activeShopId) return false;
+    if (resolvedCurrentShop?.name) return false;
+    return isLoadingShopsFallback;
+  }, [activeShopId, hasLoadedPersistedShop, isLoadingShopsFallback, resolvedCurrentShop?.name]);
 
   const {
     data: baseInfo,
@@ -625,15 +648,23 @@ export default function AdminDashboard() {
       <div className="sticky top-0 z-40 w-full">
         <div className="w-full p-3 flex items-center justify-between border-b md:bg-white md:shadow-sm bg-orange-50">
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 sm:h-10 sm:w-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm">
-              {(currentShopName || "A")
-                .split(" ")
-                .map((s) => s[0])
-                .slice(0, 2)
-                .join("")}
-            </div>
+            {isShopNameLoading ? (
+              <div className="h-12 w-12 sm:h-10 sm:w-10 rounded-full bg-gray-200 animate-pulse" />
+            ) : (
+              <div className="h-12 w-12 sm:h-10 sm:w-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm">
+                {(currentShopName || "A")
+                  .split(" ")
+                  .map((s: string) => s[0])
+                  .slice(0, 2)
+                  .join("")}
+              </div>
+            )}
             <div>
-              <div className="text-sm font-semibold">{currentShopName}</div>
+              {isShopNameLoading ? (
+                <div className="h-4 w-28 rounded-full bg-gray-200 animate-pulse" />
+              ) : (
+                <div className="text-sm font-semibold">{currentShopName}</div>
+              )}
               <div className="text-xs text-orange-400 uppercase font-semibold">
                 {t("admin.dashboard.panel")}
               </div>

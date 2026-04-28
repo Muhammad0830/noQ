@@ -467,7 +467,7 @@ export default function ProfilePage() {
                       ))}
                       <button
                         type="button"
-                        onClick={() => router.push("/admin/services/new")}
+                        onClick={() => router.push("/profile/add-business")}
                         aria-label={t("profile.addNewShop")}
                         className="w-full relative flex items-center gap-2 py-3 rounded-lg text-left text-base"
                       >
@@ -488,6 +488,8 @@ export default function ProfilePage() {
           </section>
         ) : (
           <button
+            type="button"
+            onClick={() => router.push("/profile/add-business")}
             className={`w-full mb-5 flex gap-2 items-center rounded-2xl border p-3 ${
               theme === "dark"
                 ? "border-[#F49B33]/25 bg-[#211201] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
