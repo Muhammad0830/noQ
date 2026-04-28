@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
   Check,
-  ChevronDown,
   ChevronLeft,
   Clock3,
   DollarSign,
@@ -76,38 +75,25 @@ export default function EditServicePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isBufferTimeEnabled, setIsBufferTimeEnabled] = useState(true);
+  const [durationWarnings, setDurationWarnings] = useState<{
+    hours: string | null;
+    minutes: string | null;
+  }>({
+    hours: null,
+    minutes: null,
+  });
   const [service, setService] = useState({
     name: "",
     hours: "0",
     minutes: "45",
     bufferTime: "15",
     price: "",
-    assignToAllStaff: false,
-    selectedStaff: "alex",
+    selectedStaff: ["alex"],
   });
 
-  const hourOptions = useMemo(() => {
-    const currentHour = Number(service.hours);
-    const maxHour = Number.isNaN(currentHour) ? 12 : Math.max(12, currentHour);
-
-    return Array.from({ length: maxHour + 1 }, (_, index) => index);
-  }, [service.hours]);
-
-  const minuteOptions = useMemo(() => {
-    const baseOptions = Array.from({ length: 12 }, (_, index) => index * 5);
-    const currentMinute = Number(service.minutes);
-
-    if (
-      !Number.isNaN(currentMinute) &&
-      currentMinute >= 0 &&
-      currentMinute < 60 &&
-      !baseOptions.includes(currentMinute)
-    ) {
-      baseOptions.push(currentMinute);
-    }
-
-    return baseOptions.sort((a, b) => a - b);
-  }, [service.minutes]);
+  const allMembersSelected =
+    service.selectedStaff.length === staffMembers.length;
 
   const shopIdFromQuery = searchParams.get("shopId");
   const serviceId = searchParams.get("serviceId");
@@ -142,6 +128,52 @@ export default function EditServicePage() {
 
     return userShops[0]?.id || null;
   }, [hasLoadedPersistedShop, persistedShopId, shopIdFromQuery, user?.shops]);
+
+  const handleHoursChange = (value: string) => {
+    const digitsOnly = value.replace(/\D/g, "");
+
+    if (digitsOnly === "") {
+      setService((current) => ({ ...current, hours: "" }));
+      setDurationWarnings((current) => ({ ...current, hours: null }));
+      return;
+    }
+
+    const parsed = Number(digitsOnly);
+    if (parsed > 23) {
+      setService((current) => ({ ...current, hours: "23" }));
+      setDurationWarnings((current) => ({
+        ...current,
+        hours: "23 dan katta yozib bo'lmaydi",
+      }));
+      return;
+    }
+
+    setService((current) => ({ ...current, hours: String(parsed) }));
+    setDurationWarnings((current) => ({ ...current, hours: null }));
+  };
+
+  const handleMinutesChange = (value: string) => {
+    const digitsOnly = value.replace(/\D/g, "");
+
+    if (digitsOnly === "") {
+      setService((current) => ({ ...current, minutes: "" }));
+      setDurationWarnings((current) => ({ ...current, minutes: null }));
+      return;
+    }
+
+    const parsed = Number(digitsOnly);
+    if (parsed > 60) {
+      setService((current) => ({ ...current, minutes: "60" }));
+      setDurationWarnings((current) => ({
+        ...current,
+        minutes: "60 dan katta yozib bo'lmaydi",
+      }));
+      return;
+    }
+
+    setService((current) => ({ ...current, minutes: String(parsed) }));
+    setDurationWarnings((current) => ({ ...current, minutes: null }));
+  };
 
   useEffect(() => {
     if (
@@ -211,6 +243,8 @@ export default function EditServicePage() {
             current.bufferTime === null ? "" : String(current.bufferTime),
           price: String(current.price ?? ""),
         }));
+        setIsBufferTimeEnabled(current.bufferTime !== null);
+        setDurationWarnings({ hours: null, minutes: null });
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") {
           return;
@@ -275,7 +309,10 @@ export default function EditServicePage() {
               name: service.name.trim(),
               price,
               durationMin,
-              bufferTime: bufferTime === "" ? null : Number(bufferTime),
+              bufferTime:
+                isBufferTimeEnabled && bufferTime !== ""
+                  ? Number(bufferTime)
+                  : null,
             }),
           },
         );
@@ -445,50 +482,46 @@ export default function EditServicePage() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <label className="block rounded-2xl border border-[#e5e9f0] bg-[#f8fafc] p-3 transition-colors focus-within:border-[#F49B33] focus-within:bg-white">
+                <label className="block">
                   <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#6b7280]">
                     Hours
                   </span>
-                  <div className="relative">
-                    <select
-                      value={service.hours}
-                      onChange={(e) =>
-                        setService({ ...service, hours: e.target.value })
-                      }
-                      disabled={isLoadingService}
-                      className="h-12 w-full appearance-none rounded-xl border border-[#cfd5dd] bg-white px-4 pr-10 text-[15px] font-medium text-[#111827] outline-none transition-colors focus:border-[#F49B33]"
-                    >
-                      {hourOptions.map((value) => (
-                        <option key={value} value={value}>
-                          {value} h
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8c94a1]" />
-                  </div>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={service.hours}
+                    onChange={(e) => handleHoursChange(e.target.value)}
+                    placeholder="0-23"
+                    disabled={isLoadingService}
+                    className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[15px] font-medium text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
+                  />
+                  {durationWarnings.hours && (
+                    <p className="mt-1 text-[11px] font-medium text-red-500">
+                      {durationWarnings.hours}
+                    </p>
+                  )}
                 </label>
 
-                <label className="block rounded-2xl border border-[#e5e9f0] bg-[#f8fafc] p-3 transition-colors focus-within:border-[#F49B33] focus-within:bg-white">
+                <label className="block">
                   <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#6b7280]">
                     Minutes
                   </span>
-                  <div className="relative">
-                    <select
-                      value={service.minutes}
-                      onChange={(e) =>
-                        setService({ ...service, minutes: e.target.value })
-                      }
-                      disabled={isLoadingService}
-                      className="h-12 w-full appearance-none rounded-xl border border-[#cfd5dd] bg-white px-4 pr-10 text-[15px] font-medium text-[#111827] outline-none transition-colors focus:border-[#F49B33]"
-                    >
-                      {minuteOptions.map((value) => (
-                        <option key={value} value={value}>
-                          {value} min
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8c94a1]" />
-                  </div>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={service.minutes}
+                    onChange={(e) => handleMinutesChange(e.target.value)}
+                    placeholder="0-60"
+                    disabled={isLoadingService}
+                    className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[15px] font-medium text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
+                  />
+                  {durationWarnings.minutes && (
+                    <p className="mt-1 text-[11px] font-medium text-red-500">
+                      {durationWarnings.minutes}
+                    </p>
+                  )}
                 </label>
               </div>
 
@@ -505,16 +538,13 @@ export default function EditServicePage() {
                   <button
                     type="button"
                     onClick={() =>
-                      setService((current) => ({
-                        ...current,
-                        bufferTime: current.bufferTime ? "" : "15",
-                      }))
+                      setIsBufferTimeEnabled((current) => !current)
                     }
-                    className={`relative h-6 w-11 rounded-full transition-colors ${service.bufferTime ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
+                    className={`relative h-6 w-11 rounded-full transition-colors ${isBufferTimeEnabled ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
                     aria-label="Toggle buffer time"
                   >
                     <span
-                      className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${service.bufferTime ? "left-5.75" : "left-0.75"}`}
+                      className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${isBufferTimeEnabled ? "left-5.75" : "left-0.75"}`}
                     />
                   </button>
                 </div>
@@ -523,12 +553,16 @@ export default function EditServicePage() {
                   type="number"
                   min="0"
                   value={service.bufferTime}
-                  onChange={(e) =>
-                    setService({ ...service, bufferTime: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setService({ ...service, bufferTime: e.target.value });
+                  }}
                   placeholder="15 minutes"
-                  disabled={isLoadingService}
-                  className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[15px] text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
+                  disabled={isLoadingService || !isBufferTimeEnabled}
+                  className={`h-12 w-full rounded-2xl border px-4 text-[15px] outline-none transition-colors placeholder:text-[#b0b7c3] ${
+                    isLoadingService || !isBufferTimeEnabled
+                      ? "cursor-not-allowed border-[#e4e7ec] bg-[#f3f5f8] text-[#9aa3b1]"
+                      : "border-[#cfd5dd] bg-white text-[#111827] focus:border-[#F49B33]"
+                  }`}
                 />
               </div>
             </section>
@@ -583,14 +617,16 @@ export default function EditServicePage() {
                   onClick={() =>
                     setService((current) => ({
                       ...current,
-                      assignToAllStaff: !current.assignToAllStaff,
+                      selectedStaff: allMembersSelected
+                        ? []
+                        : staffMembers.map((member) => member.id),
                     }))
                   }
-                  className={`relative h-6 w-11 rounded-full transition-colors ${service.assignToAllStaff ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
+                  className={`relative h-6 w-11 rounded-full transition-colors ${allMembersSelected ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
                   aria-label="Toggle staff assignment"
                 >
                   <span
-                    className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${service.assignToAllStaff ? "left-5.75" : "left-0.75"}`}
+                    className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${allMembersSelected ? "left-5.75" : "left-0.75"}`}
                   />
                 </button>
               </div>
@@ -600,13 +636,22 @@ export default function EditServicePage() {
                   Specific Members
                 </p>
                 {staffMembers.map((member) => {
-                  const active = service.selectedStaff === member.id;
+                  const active = service.selectedStaff.includes(member.id);
                   return (
                     <button
                       key={member.id}
                       type="button"
                       onClick={() =>
-                        setService({ ...service, selectedStaff: member.id })
+                        setService((current) => ({
+                          ...current,
+                          selectedStaff: current.selectedStaff.includes(
+                            member.id,
+                          )
+                            ? current.selectedStaff.filter(
+                                (staffId) => staffId !== member.id,
+                              )
+                            : [...current.selectedStaff, member.id],
+                        }))
                       }
                       className={`flex w-full items-center justify-between rounded-2xl border px-4 py-4 text-left transition-colors ${
                         active

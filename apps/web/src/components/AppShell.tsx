@@ -24,18 +24,18 @@ export default function AppShell({ children }: AppShellProps) {
     ? "min-h-screen"
     : isAdminServiceNewPage || isAddBusinessFlowPage
       ? "min-h-dvh"
-      : isShopHistoryPage || isStaffManagePage || isAdminServicePage
-        ? "min-h-dvh pb-16 md:pb-0"
-        : "min-h-[calc(100dvh-8rem)] md:min-h-[calc(100dvh-4rem)] pb-16 md:pb-0";
+      : isShopHistoryPage
+        ? "h-dvh overflow-hidden"
+        : isStaffManagePage || isAdminServicePage
+          ? "min-h-dvh pb-16 md:pb-0"
+          : "min-h-[calc(100dvh-8rem)] md:min-h-[calc(100dvh-4rem)] pb-16 md:pb-0";
 
   return (
     <div className={isAuthPage ? "overflow-hidden" : ""}>
       {!isShopHistoryPage &&
         !isStaffManagePage &&
         !isAdminServicePage &&
-        !isAddBusinessFlowPage && (
-        <Header />
-      )}
+        !isAddBusinessFlowPage && <Header />}
       <main className={mainClassName}>{children}</main>
       <ConditionalBottomNav />
     </div>

@@ -28,15 +28,25 @@ export default function AddNewService() {
   const [hasLoadedPersistedShop, setHasLoadedPersistedShop] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [durationWarnings, setDurationWarnings] = useState<{
+    hours: string | null;
+    minutes: string | null;
+  }>({
+    hours: null,
+    minutes: null,
+  });
+  const [isBufferTimeEnabled, setIsBufferTimeEnabled] = useState(true);
   const [service, setService] = useState({
     name: "",
     hours: "0",
     minutes: "45",
     bufferTime: "15",
     price: "",
-    assignToAllStaff: false,
-    selectedStaff: "alex",
+    selectedStaff: ["alex"],
   });
+
+  const allMembersSelected =
+    service.selectedStaff.length === staffMembers.length;
 
   const shopIdFromQuery = searchParams.get("shopId");
 
@@ -70,6 +80,52 @@ export default function AddNewService() {
 
     return userShops[0]?.id || null;
   }, [hasLoadedPersistedShop, persistedShopId, shopIdFromQuery, user?.shops]);
+
+  const handleHoursChange = (value: string) => {
+    const digitsOnly = value.replace(/\D/g, "");
+
+    if (digitsOnly === "") {
+      setService((current) => ({ ...current, hours: "" }));
+      setDurationWarnings((current) => ({ ...current, hours: null }));
+      return;
+    }
+
+    const parsed = Number(digitsOnly);
+    if (parsed > 23) {
+      setService((current) => ({ ...current, hours: "23" }));
+      setDurationWarnings((current) => ({
+        ...current,
+        hours: "23 dan katta yozib bo'lmaydi",
+      }));
+      return;
+    }
+
+    setService((current) => ({ ...current, hours: String(parsed) }));
+    setDurationWarnings((current) => ({ ...current, hours: null }));
+  };
+
+  const handleMinutesChange = (value: string) => {
+    const digitsOnly = value.replace(/\D/g, "");
+
+    if (digitsOnly === "") {
+      setService((current) => ({ ...current, minutes: "" }));
+      setDurationWarnings((current) => ({ ...current, minutes: null }));
+      return;
+    }
+
+    const parsed = Number(digitsOnly);
+    if (parsed > 60) {
+      setService((current) => ({ ...current, minutes: "60" }));
+      setDurationWarnings((current) => ({
+        ...current,
+        minutes: "60 dan katta yozib bo'lmaydi",
+      }));
+      return;
+    }
+
+    setService((current) => ({ ...current, minutes: String(parsed) }));
+    setDurationWarnings((current) => ({ ...current, minutes: null }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,7 +171,10 @@ export default function AddNewService() {
           name: service.name.trim(),
           price,
           durationMin,
-          bufferTime: bufferTime === "" ? null : Number(bufferTime),
+          bufferTime:
+            isBufferTimeEnabled && bufferTime !== ""
+              ? Number(bufferTime)
+              : null,
         }),
       });
 
@@ -203,38 +262,40 @@ export default function AddNewService() {
                 <span className="mb-2 block text-[11px] font-medium uppercase tracking-[0.14em] text-[#6b7280]">
                   Hours
                 </span>
-                <select
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   value={service.hours}
-                  onChange={(e) =>
-                    setService({ ...service, hours: e.target.value })
-                  }
-                  className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[15px] text-[#111827] outline-none transition-colors focus:border-[#F49B33]"
-                >
-                  {Array.from({ length: 12 }, (_, index) => (
-                    <option key={index} value={index}>
-                      {index}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(e) => handleHoursChange(e.target.value)}
+                  placeholder="0-23"
+                  className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[15px] text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
+                />
+                {durationWarnings.hours && (
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
+                    {durationWarnings.hours}
+                  </p>
+                )}
               </label>
 
               <label className="block">
                 <span className="mb-2 block text-[11px] font-medium uppercase tracking-[0.14em] text-[#6b7280]">
                   Minutes
                 </span>
-                <select
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   value={service.minutes}
-                  onChange={(e) =>
-                    setService({ ...service, minutes: e.target.value })
-                  }
-                  className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[15px] text-[#111827] outline-none transition-colors focus:border-[#F49B33]"
-                >
-                  {[0, 15, 30, 45].map((value) => (
-                    <option key={value} value={value}>
-                      {value}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(e) => handleMinutesChange(e.target.value)}
+                  placeholder="0-60"
+                  className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[15px] text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
+                />
+                {durationWarnings.minutes && (
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
+                    {durationWarnings.minutes}
+                  </p>
+                )}
               </label>
             </div>
 
@@ -250,17 +311,12 @@ export default function AddNewService() {
                 </div>
                 <button
                   type="button"
-                  onClick={() =>
-                    setService((current) => ({
-                      ...current,
-                      bufferTime: current.bufferTime ? "" : "15",
-                    }))
-                  }
-                  className={`relative h-6 w-11 rounded-full transition-colors ${service.bufferTime ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
+                  onClick={() => setIsBufferTimeEnabled((current) => !current)}
+                  className={`relative h-6 w-11 rounded-full transition-colors ${isBufferTimeEnabled ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
                   aria-label="Toggle buffer time"
                 >
                   <span
-                    className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${service.bufferTime ? "left-5.75" : "left-0.75"}`}
+                    className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${isBufferTimeEnabled ? "left-5.75" : "left-0.75"}`}
                   />
                 </button>
               </div>
@@ -269,11 +325,16 @@ export default function AddNewService() {
                 type="number"
                 min="0"
                 value={service.bufferTime}
-                onChange={(e) =>
-                  setService({ ...service, bufferTime: e.target.value })
-                }
+                onChange={(e) => {
+                  setService({ ...service, bufferTime: e.target.value });
+                }}
                 placeholder="15"
-                className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[15px] text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
+                disabled={!isBufferTimeEnabled}
+                className={`h-12 w-full rounded-2xl border px-4 text-[15px] outline-none transition-colors placeholder:text-[#b0b7c3] ${
+                  isBufferTimeEnabled
+                    ? "border-[#cfd5dd] bg-white text-[#111827] focus:border-[#F49B33]"
+                    : "cursor-not-allowed border-[#e4e7ec] bg-[#f3f5f8] text-[#9aa3b1]"
+                }`}
               />
             </div>
           </section>
@@ -290,21 +351,16 @@ export default function AddNewService() {
               <span className="mb-2 block text-[14px] font-semibold text-[#111827]">
                 Service Price
               </span>
-              <div className="relative">
-                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[15px] text-[#8c94a1]">
-                  $
-                </span>
-                <input
-                  type="number"
-                  required
-                  value={service.price}
-                  onChange={(e) =>
-                    setService({ ...service, price: e.target.value })
-                  }
-                  placeholder="50000"
-                  className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 pl-8 text-[15px] text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
-                />
-              </div>
+              <input
+                type="number"
+                required
+                value={service.price}
+                onChange={(e) =>
+                  setService({ ...service, price: e.target.value })
+                }
+                placeholder="50000"
+                className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 pl-8 text-[15px] text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
+              />
             </label>
           </section>
 
@@ -330,14 +386,16 @@ export default function AddNewService() {
                 onClick={() =>
                   setService((current) => ({
                     ...current,
-                    assignToAllStaff: !current.assignToAllStaff,
+                    selectedStaff: allMembersSelected
+                      ? []
+                      : staffMembers.map((member) => member.id),
                   }))
                 }
-                className={`relative h-6 w-11 rounded-full transition-colors ${service.assignToAllStaff ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
+                className={`relative h-6 w-11 rounded-full transition-colors ${allMembersSelected ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
                 aria-label="Toggle staff assignment"
               >
                 <span
-                  className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${service.assignToAllStaff ? "left-5.75" : "left-0.75"}`}
+                  className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${allMembersSelected ? "left-5.75" : "left-0.75"}`}
                 />
               </button>
             </div>
@@ -347,13 +405,20 @@ export default function AddNewService() {
                 Specific Members
               </p>
               {staffMembers.map((member) => {
-                const active = service.selectedStaff === member.id;
+                const active = service.selectedStaff.includes(member.id);
                 return (
                   <button
                     key={member.id}
                     type="button"
                     onClick={() =>
-                      setService({ ...service, selectedStaff: member.id })
+                      setService((current) => ({
+                        ...current,
+                        selectedStaff: current.selectedStaff.includes(member.id)
+                          ? current.selectedStaff.filter(
+                              (staffId) => staffId !== member.id,
+                            )
+                          : [...current.selectedStaff, member.id],
+                      }))
                     }
                     className={`flex w-full items-center justify-between rounded-2xl border px-4 py-4 text-left transition-colors ${
                       active
