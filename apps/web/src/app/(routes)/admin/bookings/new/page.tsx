@@ -90,12 +90,14 @@ export default function AdminNewBookingPage() {
     kind: "success" | "error";
   } | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
+  const [selectedServiceId, setSelectedServiceId] = useState<string | null>(
+    null,
+  );
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [showServices, setShowServices] = useState(true);
   const [visibleDayStart, setVisibleDayStart] = useState(0);
-  const [selectedDate, setSelectedDate] = useState<string>(() =>
-    searchParams.get("date") || toIsoDate(new Date()),
+  const [selectedDate, setSelectedDate] = useState<string>(
+    () => searchParams.get("date") || toIsoDate(new Date()),
   );
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
@@ -114,10 +116,7 @@ export default function AdminNewBookingPage() {
     const userShops = user?.shops || [];
 
     if (shopId && userShops.some((s) => s.id === shopId)) return shopId;
-    if (
-      persistedShopId &&
-      userShops.some((s) => s.id === persistedShopId)
-    ) {
+    if (persistedShopId && userShops.some((s) => s.id === persistedShopId)) {
       return persistedShopId;
     }
 
@@ -161,16 +160,19 @@ export default function AdminNewBookingPage() {
   );
 
   const { data: staffResponse, isLoading: staffLoading } =
-    useApiQuery<StaffResponse>(activeShopId ? API_ENDPOINTS.admin.staffs : null, {
-      key: ["admin-new-booking-staff", activeShopId || "none"],
-      enabled: Boolean(activeShopId && user),
-      staleTime: 30_000,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      headers: activeShopId
-        ? { "x-shopid": activeShopId, "x-shop-id": activeShopId }
-        : undefined,
-    });
+    useApiQuery<StaffResponse>(
+      activeShopId ? API_ENDPOINTS.admin.staffs : null,
+      {
+        key: ["admin-new-booking-staff", activeShopId || "none"],
+        enabled: Boolean(activeShopId && user),
+        staleTime: 30_000,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        headers: activeShopId
+          ? { "x-shopid": activeShopId, "x-shop-id": activeShopId }
+          : undefined,
+      },
+    );
 
   const staffOptions = useMemo(() => {
     const owner = staffResponse?.owner || [];
@@ -239,6 +241,15 @@ export default function AdminNewBookingPage() {
 
   useEffect(() => {
     if (!selectedService || !selectedUserId) return;
+
+    if (
+      !selectedService.assignedToAllStaff &&
+      selectedService.assignedStaffId
+    ) {
+      setSelectedStaffId(selectedService.assignedStaffId);
+      return;
+    }
+
     if (!selectedStaffId && staffOptions.length > 0) {
       setSelectedStaffId(staffOptions[0]!.id);
     }
@@ -366,7 +377,12 @@ export default function AdminNewBookingPage() {
   );
 
   const handleCreate = async () => {
-    if (!activeShopId || !selectedUserId || !selectedServiceId || !selectedTime) {
+    if (
+      !activeShopId ||
+      !selectedUserId ||
+      !selectedServiceId ||
+      !selectedTime
+    ) {
       return;
     }
 
@@ -383,21 +399,19 @@ export default function AdminNewBookingPage() {
       router.push(adminBackHref);
     } catch (error: any) {
       const backendMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        t("booking.error");
+        error?.response?.data?.message || error?.message || t("booking.error");
       setToast({ message: backendMessage, kind: "error" });
     }
   };
 
   const canSubmit = Boolean(
     activeShopId &&
-      selectedUserId &&
-      selectedServiceId &&
-      selectedStaffId &&
-      selectedDate &&
-      selectedTime &&
-      !isPending,
+    selectedUserId &&
+    selectedServiceId &&
+    selectedStaffId &&
+    selectedDate &&
+    selectedTime &&
+    !isPending,
   );
 
   const priceLabel = useMemo(() => {
@@ -431,7 +445,9 @@ export default function AdminNewBookingPage() {
     return (
       <div className="min-h-dvh bg-[#f7f0e7] p-4">
         <div className="mx-auto w-full max-w-3xl rounded-2xl bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-700">{t("admin.newBooking.selectShopFirst")}</p>
+          <p className="text-sm text-gray-700">
+            {t("admin.newBooking.selectShopFirst")}
+          </p>
           <button
             type="button"
             onClick={() => router.push("/admin")}
@@ -445,7 +461,7 @@ export default function AdminNewBookingPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-white text-slate-900 pb-0">
+    <div className="min-h-dvh bg-white text-slate-900 pb-100">
       {toast && (
         <div className="fixed left-1/2 top-4 z-80 w-[92%] max-w-sm -translate-x-1/2">
           <div
@@ -467,7 +483,9 @@ export default function AdminNewBookingPage() {
               )}
             </div>
 
-            <p className="flex-1 font-medium leading-5 text-white">{toast.message}</p>
+            <p className="flex-1 font-medium leading-5 text-white">
+              {toast.message}
+            </p>
 
             <button
               type="button"
@@ -492,7 +510,9 @@ export default function AdminNewBookingPage() {
           </button>
 
           <div className="text-center">
-            <p className="text-sm font-semibold tracking-wide">{t("admin.newBooking.title")}</p>
+            <p className="text-sm font-semibold tracking-wide">
+              {t("admin.newBooking.title")}
+            </p>
             <p className="text-[10px] text-[#F49B33] uppercase tracking-[0.2em]">
               {currentShopName}
             </p>
@@ -559,15 +579,18 @@ export default function AdminNewBookingPage() {
                     : "border-slate-200 bg-white"
                 }`}
               >
-                <p className="text-sm font-medium text-slate-900">{service.name}</p>
+                <p className="text-sm font-medium text-slate-900">
+                  {service.name}
+                </p>
                 <p className="text-xs text-slate-500 mt-1">
-                  {Number(service.price ?? 0)} · {service.durationMin ?? 45} {t("services.duration")}
+                  {Number(service.price ?? 0)} · {service.durationMin ?? 45}{" "}
+                  {t("services.duration")}
                 </p>
               </button>
             ))}
 
             {!servicesLoading && services.length === 0 && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+              <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
                 {t("admin.newBooking.noServices")}
               </div>
             )}
@@ -575,334 +598,364 @@ export default function AdminNewBookingPage() {
         )}
 
         {selectedService && (
-        <section className="mb-5">
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-bold text-slate-900">
-              2. {t("admin.newBooking.selectedCustomer")}
-            </h3>
-            {selectedCustomer && (
-              <button
-                type="button"
-                onClick={() => setIsCustomerPickerOpen(true)}
-                className="text-[11px] font-semibold text-[#F49B33]"
-              >
-                {t("booking.edit")}
-              </button>
-            )}
-          </div>
+          <section className="mb-5">
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <h3 className="text-sm font-bold text-slate-900">
+                2. {t("admin.newBooking.selectedCustomer")}
+              </h3>
+              {selectedCustomer && (
+                <button
+                  type="button"
+                  onClick={() => setIsCustomerPickerOpen(true)}
+                  className="text-[11px] font-semibold text-[#F49B33]"
+                >
+                  {t("booking.edit")}
+                </button>
+              )}
+            </div>
 
-          <button
-            type="button"
-            onClick={() => setIsCustomerPickerOpen(true)}
-            className="mb-3 flex w-full items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-3 text-left transition hover:border-orange-300 hover:bg-orange-50"
-          >
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white shrink-0">
-              <UserRound className="h-4 w-4 text-gray-500" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-semibold text-gray-800">
-                {selectedCustomer ? selectedCustomer.name || selectedCustomer.email || "—" : "Mijozni tanlang"}
-              </span>
-              <span className="block truncate text-xs text-gray-500">
-                {selectedCustomer?.email || "Bosish orqali mijozni tanlang"}
-              </span>
-            </span>
-          </button>
-
-          {isCustomerPickerOpen && (
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
-              onClick={() => setIsCustomerPickerOpen(false)}
+            <button
+              type="button"
+              onClick={() => setIsCustomerPickerOpen(true)}
+              className="mb-3 flex w-full items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-3 text-left transition hover:border-orange-300 hover:bg-orange-50"
             >
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white shrink-0">
+                <UserRound className="h-4 w-4 text-gray-500" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-semibold text-gray-800">
+                  {selectedCustomer
+                    ? selectedCustomer.name || selectedCustomer.email || "—"
+                    : "Mijozni tanlang"}
+                </span>
+                <span className="block truncate text-xs text-gray-500">
+                  {selectedCustomer?.email || "Bosish orqali mijozni tanlang"}
+                </span>
+              </span>
+            </button>
+
+            {isCustomerPickerOpen && (
               <div
-                className="flex h-[85vh] w-full max-w-2xl flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-xl"
-                onClick={(event) => event.stopPropagation()}
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+                onClick={() => setIsCustomerPickerOpen(false)}
               >
-                <div className="mb-3 flex items-center justify-between">
-                  <h4 className="text-sm font-semibold text-slate-800">
-                    {t("admin.newBooking.searchCustomer")}
-                  </h4>
-                  <button
-                    type="button"
-                    onClick={() => setIsCustomerPickerOpen(false)}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100"
-                    aria-label={t("common.close")}
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
+                <div
+                  className="flex h-[85vh] w-full max-w-2xl flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-xl"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-slate-800">
+                      {t("admin.newBooking.searchCustomer")}
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={() => setIsCustomerPickerOpen(false)}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100"
+                      aria-label={t("common.close")}
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
 
-                <div className="relative mb-2">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    value={customerSearch}
-                    onChange={(e) => setCustomerSearch(e.target.value)}
-                    placeholder={t("admin.newBooking.searchCustomer")}
-                    className="w-full rounded-xl border border-gray-300 py-2.5 pl-9 pr-3 text-sm"
-                  />
-                </div>
+                  <div className="relative mb-2">
+                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      value={customerSearch}
+                      onChange={(e) => setCustomerSearch(e.target.value)}
+                      placeholder={t("admin.newBooking.searchCustomer")}
+                      className="w-full rounded-xl border border-gray-300 py-2.5 pl-9 pr-3 text-sm"
+                    />
+                  </div>
 
-                <div className="flex-1 overflow-y-auto space-y-2 pr-1">
-                  {usersLoading ? (
-                    <p className="text-sm text-gray-500">{t("common.loading")}</p>
-                  ) : filteredUsers.length === 0 ? (
-                    <p className="text-sm text-gray-500">{t("admin.newBooking.noCustomers")}</p>
-                  ) : (
-                    filteredUsers.map((customer) => {
-                      const active = selectedUserId === customer.id;
-                      return (
-                        <button
-                          key={customer.id}
-                          type="button"
-                          onClick={() => {
-                            setSelectedUserId(customer.id);
-                            setIsCustomerPickerOpen(false);
-                          }}
-                          className={`flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left ${
-                            active
-                              ? "border-orange-300 bg-orange-50"
-                              : "border-gray-200 bg-white"
-                          }`}
-                        >
-                          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100">
-                            <UserRound className="h-4 w-4 text-gray-500" />
-                          </span>
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate text-sm font-semibold text-gray-800">
-                              {customer.name || customer.email || customer.id}
+                  <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+                    {usersLoading ? (
+                      <p className="text-sm text-gray-500">
+                        {t("common.loading")}
+                      </p>
+                    ) : filteredUsers.length === 0 ? (
+                      <p className="text-sm text-gray-500">
+                        {t("admin.newBooking.noCustomers")}
+                      </p>
+                    ) : (
+                      filteredUsers.map((customer) => {
+                        const active = selectedUserId === customer.id;
+                        return (
+                          <button
+                            key={customer.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedUserId(customer.id);
+                              setIsCustomerPickerOpen(false);
+                            }}
+                            className={`flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left ${
+                              active
+                                ? "border-orange-300 bg-orange-50"
+                                : "border-gray-200 bg-white"
+                            }`}
+                          >
+                            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100">
+                              <UserRound className="h-4 w-4 text-gray-500" />
                             </span>
-                            {customer.email && (
-                              <span className="block truncate text-xs text-gray-500">
-                                {customer.email}
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-sm font-semibold text-gray-800">
+                                {customer.name || customer.email || customer.id}
                               </span>
-                            )}
-                          </span>
-                        </button>
-                      );
-                    })
-                  )}
+                              {customer.email && (
+                                <span className="block truncate text-xs text-gray-500">
+                                  {customer.email}
+                                </span>
+                              )}
+                            </span>
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </section>
+            )}
+          </section>
         )}
 
         {selectedService && selectedUserId ? (
-        <>
-        <section className="mb-6">
-          <h3 className="mb-3 text-sm font-bold text-slate-900">
-            3. {t("booking.selectStaff")}
-          </h3>
-          <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
-            {staffOptions.slice(0, 3).map((member, index) => {
-              const isActive = selectedStaffId === member.id;
-              const gradientClass = avatarGradients[index % avatarGradients.length];
-              const label = member.user?.name || member.user?.email || member.id;
+          <>
+            <section className="mb-6">
+              <h3 className="mb-3 text-sm font-bold text-slate-900">
+                3. {t("booking.selectStaff")}
+              </h3>
+              <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
+                {staffOptions.slice(0, 3).map((member, index) => {
+                  const isActive = selectedStaffId === member.id;
+                  const gradientClass =
+                    avatarGradients[index % avatarGradients.length];
+                  const label =
+                    member.user?.name || member.user?.email || member.id;
 
-              return (
-                <button
-                  key={member.id}
-                  onClick={() => setSelectedStaffId(member.id)}
-                  className="w-full text-center flex flex-col items-center"
-                >
-                  <div className={`h-16 w-16 rounded-full border-2 p-0.5 ${isActive ? "border-[#F49B33] shadow-[0_0_0_2px_rgba(244,155,51,0.22)]" : "border-slate-300"}`}>
-                    <div className={`h-full w-full rounded-full bg-linear-to-br ${gradientClass} flex items-center justify-center`}>
-                      <span className="text-white text-sm font-bold tracking-wide">
-                        {getInitials(label)}
-                      </span>
-                    </div>
-                  </div>
-                  <p className={`mt-2 w-full px-1 text-[11px] leading-[1.2] min-h-[2.4rem] whitespace-normal wrap-break-word ${isActive ? "text-[#F49B33]" : "text-slate-500"}`}>
-                    {label}
-                  </p>
-                </button>
-              );
-            })}
-
-            {staffLoading && (
-              <p className="text-xs text-slate-500 mt-6">{t("common.loading")}</p>
-            )}
-          </div>
-        </section>
-
-        <section className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-slate-900">4. {monthYearLabel}</h3>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setVisibleDayStart((prev) => Math.max(0, prev - 5))}
-                className="h-7 w-7 rounded-full border border-slate-300 flex items-center justify-center text-slate-500"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() =>
-                  setVisibleDayStart((prev) =>
-                    Math.min(Math.max(nextDays.length - 5, 0), prev + 5),
-                  )
-                }
-                className="h-7 w-7 rounded-full border border-slate-300 flex items-center justify-center text-slate-500"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-5 gap-2">
-            {visibleDays.map((day) => {
-              const dateStr = day.toISOString().split("T")[0];
-              const isActive = selectedDate === dateStr;
-
-              return (
-                <button
-                  key={dateStr}
-                  onClick={() => {
-                    setSelectedDate(dateStr);
-                    setSelectedTime(null);
-                  }}
-                  className={`rounded-xl py-2 text-center border ${
-                    isActive
-                      ? "bg-[#F49B33] text-white border-[#F49B33] shadow-[0_8px_18px_rgba(244,155,51,0.24)]"
-                      : "bg-white border-slate-200 text-slate-700"
-                  }`}
-                >
-                  <p className="text-[10px] uppercase">
-                    {weekdayShortFormatter.format(day)}
-                  </p>
-                  <p className="text-lg font-semibold leading-5 mt-1">
-                    {day.getDate()}
-                  </p>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-slate-900">
-              5. {t("booking.timeline")}
-            </h3>
-            <p className="text-[10px] tracking-[0.16em] text-[#F49B33] uppercase">
-              {t("booking.liveSelection")}
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm">
-            <div className="max-h-72 overflow-y-auto pr-1">
-              {slotsLoading ? (
-                <div className="grid grid-cols-2 gap-3">
-                  {Array.from({ length: 6 }).map((_, index) => (
-                    <div
-                      key={`slot-skeleton-${index}`}
-                      className="rounded-3xl min-h-18 border border-slate-200 bg-slate-50 px-3 py-3"
+                  return (
+                    <button
+                      key={member.id}
+                      onClick={() => setSelectedStaffId(member.id)}
+                      className="w-full text-center flex flex-col items-center"
                     >
-                      <div className="mx-auto h-4 w-20 animate-pulse rounded-full bg-slate-200" />
-                      <div className="mx-auto mt-2 h-2.5 w-14 animate-pulse rounded-full bg-slate-200" />
-                    </div>
-                  ))}
-                </div>
-              ) : timelineSlots.length === 0 ? (
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-4 text-center text-sm text-slate-600">
-                  {t("admin.newBooking.noSlots")}
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-3">
-                  {timelineSlots.map((slot) => {
-                    const isSelected = selectedTime === slot.time;
-                    const isBooked = !slot.available;
-                    const canSelect = !isBooked;
-                    const endTime = addMinutes(slot.time, slot.duration || selectedDuration);
-                    const status = isSelected
-                      ? "selected"
-                      : isBooked
-                        ? "booked"
-                        : "available";
-                    const statusLabel =
-                      status === "selected"
-                        ? t("booking.selected")
-                        : status === "available"
-                          ? t("booking.availableSlot")
-                          : t("booking.alreadyReserved");
-
-                    return (
-                      <button
-                        key={slot.id}
-                        onClick={() => canSelect && setSelectedTime(slot.time)}
-                        disabled={!canSelect}
-                        className={`rounded-3xl min-h-18 border px-3 py-2 text-center transition-all ${
-                          status === "selected"
-                            ? "border-[#F49B33] bg-[#F49B33] text-white shadow-[0_0_0_1px_rgba(244,155,51,0.45),0_6px_14px_rgba(244,155,51,0.22)]"
-                            : status === "available"
-                              ? "border-slate-200 bg-white text-slate-700 hover:border-[#F49B33] hover:text-[#F49B33]"
-                              : "border-slate-200 bg-slate-100/90 text-slate-500 cursor-not-allowed"
-                        }`}
+                      <div
+                        className={`h-16 w-16 rounded-full border-2 p-0.5 ${isActive ? "border-[#F49B33] shadow-[0_0_0_2px_rgba(244,155,51,0.22)]" : "border-slate-300"}`}
                       >
-                        <p className="text-[14px] leading-none font-bold tracking-tight">
-                          {slot.time} - {endTime}
-                        </p>
-                        <p className="mt-1 text-[8px] uppercase tracking-[0.08em] font-semibold opacity-95">
-                          {statusLabel}
-                        </p>
-                      </button>
-                    );
-                  })}
+                        <div
+                          className={`h-full w-full rounded-full bg-linear-to-br ${gradientClass} flex items-center justify-center`}
+                        >
+                          <span className="text-white text-sm font-bold tracking-wide">
+                            {getInitials(label)}
+                          </span>
+                        </div>
+                      </div>
+                      <p
+                        className={`mt-2 w-full px-1 text-[11px] leading-[1.2] min-h-[2.4rem] whitespace-normal wrap-break-word ${isActive ? "text-[#F49B33]" : "text-slate-500"}`}
+                      >
+                        {label}
+                      </p>
+                    </button>
+                  );
+                })}
+
+                {staffLoading && (
+                  <p className="text-xs text-slate-500 mt-6">
+                    {t("common.loading")}
+                  </p>
+                )}
+              </div>
+            </section>
+
+            <section className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-slate-900">
+                  4. {monthYearLabel}
+                </h3>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() =>
+                      setVisibleDayStart((prev) => Math.max(0, prev - 5))
+                    }
+                    className="h-7 w-7 rounded-full border border-slate-300 flex items-center justify-center text-slate-500"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() =>
+                      setVisibleDayStart((prev) =>
+                        Math.min(Math.max(nextDays.length - 5, 0), prev + 5),
+                      )
+                    }
+                    className="h-7 w-7 rounded-full border border-slate-300 flex items-center justify-center text-slate-500"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
                 </div>
-              )}
-            </div>
-          </div>
-        </section>
-        </>
+              </div>
+
+              <div className="grid grid-cols-5 gap-2">
+                {visibleDays.map((day) => {
+                  const dateStr = day.toISOString().split("T")[0];
+                  const isActive = selectedDate === dateStr;
+
+                  return (
+                    <button
+                      key={dateStr}
+                      onClick={() => {
+                        setSelectedDate(dateStr);
+                        setSelectedTime(null);
+                      }}
+                      className={`rounded-xl py-2 text-center border ${
+                        isActive
+                          ? "bg-[#F49B33] text-white border-[#F49B33] shadow-[0_8px_18px_rgba(244,155,51,0.24)]"
+                          : "bg-white border-slate-200 text-slate-700"
+                      }`}
+                    >
+                      <p className="text-[10px] uppercase">
+                        {weekdayShortFormatter.format(day)}
+                      </p>
+                      <p className="text-lg font-semibold leading-5 mt-1">
+                        {day.getDate()}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section className="mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-slate-900">
+                  5. {t("booking.timeline")}
+                </h3>
+                <p className="text-[10px] tracking-[0.16em] text-[#F49B33] uppercase">
+                  {t("booking.liveSelection")}
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm">
+                <div className="max-h-72 overflow-y-auto pr-1">
+                  {slotsLoading ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      {Array.from({ length: 6 }).map((_, index) => (
+                        <div
+                          key={`slot-skeleton-${index}`}
+                          className="rounded-3xl min-h-18 border border-slate-200 bg-slate-50 px-3 py-3"
+                        >
+                          <div className="mx-auto h-4 w-20 animate-pulse rounded-full bg-slate-200" />
+                          <div className="mx-auto mt-2 h-2.5 w-14 animate-pulse rounded-full bg-slate-200" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : timelineSlots.length === 0 ? (
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-4 text-center text-sm text-slate-600">
+                      {t("admin.newBooking.noSlots")}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-3">
+                      {timelineSlots.map((slot) => {
+                        const isSelected = selectedTime === slot.time;
+                        const isBooked = !slot.available;
+                        const canSelect = !isBooked;
+                        const endTime = addMinutes(
+                          slot.time,
+                          slot.duration || selectedDuration,
+                        );
+                        const status = isSelected
+                          ? "selected"
+                          : isBooked
+                            ? "booked"
+                            : "available";
+                        const statusLabel =
+                          status === "selected"
+                            ? t("booking.selected")
+                            : status === "available"
+                              ? t("booking.availableSlot")
+                              : t("booking.alreadyReserved");
+
+                        return (
+                          <button
+                            key={slot.id}
+                            onClick={() =>
+                              canSelect && setSelectedTime(slot.time)
+                            }
+                            disabled={!canSelect}
+                            className={`rounded-3xl min-h-18 border px-3 py-2 text-center transition-all ${
+                              status === "selected"
+                                ? "border-[#F49B33] bg-[#F49B33] text-white shadow-[0_0_0_1px_rgba(244,155,51,0.45),0_6px_14px_rgba(244,155,51,0.22)]"
+                                : status === "available"
+                                  ? "border-slate-200 bg-white text-slate-700 hover:border-[#F49B33] hover:text-[#F49B33]"
+                                  : "border-slate-200 bg-slate-100/90 text-slate-500 cursor-not-allowed"
+                            }`}
+                          >
+                            <p className="text-[14px] leading-none font-bold tracking-tight">
+                              {slot.time} - {endTime}
+                            </p>
+                            <p className="mt-1 text-[8px] uppercase tracking-[0.08em] font-semibold opacity-95">
+                              {statusLabel}
+                            </p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+          </>
         ) : null}
       </div>
 
       {selectedService && selectedUserId && (
-      <div className="mt-6 mb-4 px-3 sm:px-0">
-        <div className="max-w-md mx-auto p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
-          <div className="rounded-2xl border border-orange-100 bg-orange-50 p-3 mb-3">
-            <div className="flex justify-between text-xs text-slate-600">
-              <span className="uppercase tracking-wide">
-                {t("booking.selectedWindow")}
-              </span>
-              <span className="uppercase tracking-wide">
-                {t("booking.total")}
-              </span>
+        <div className="mt-6 mb-4 px-3 sm:px-0">
+          <div className="max-w-md mx-auto p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
+            <div className="rounded-2xl border border-orange-100 bg-orange-50 p-3 mb-3">
+              <div className="flex justify-between text-xs text-slate-600">
+                <span className="uppercase tracking-wide">
+                  {t("booking.selectedWindow")}
+                </span>
+                <span className="uppercase tracking-wide">
+                  {t("booking.total")}
+                </span>
+              </div>
+              <div className="flex justify-between items-end mt-1">
+                <p className="font-semibold text-[#F49B33]">
+                  {selectedTime && bookingEndTime
+                    ? `${selectedTime} — ${bookingEndTime}`
+                    : "--:--"}
+                </p>
+                <p className="text-2xl font-bold text-[#F49B33]">
+                  {priceLabel}
+                </p>
+              </div>
+              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-slate-700">
+                <UserRound className="h-3.5 w-3.5 text-slate-500" />
+                <span className="truncate">
+                  {t("admin.newBooking.selectedCustomer")}:{" "}
+                  {selectedCustomer?.name || selectedCustomer?.email || "—"}
+                </span>
+              </div>
+              <div className="mt-1 flex items-center gap-1.5 text-[11px] text-slate-700">
+                <Clock className="h-3.5 w-3.5 text-slate-500" />
+                <span className="truncate">
+                  {t("booking.staff")}:{" "}
+                  {staffOptions.find((s) => s.id === selectedStaffId)?.user
+                    ?.name || "—"}
+                </span>
+              </div>
             </div>
-            <div className="flex justify-between items-end mt-1">
-              <p className="font-semibold text-[#F49B33]">
-                {selectedTime && bookingEndTime
-                  ? `${selectedTime} — ${bookingEndTime}`
-                  : "--:--"}
-              </p>
-              <p className="text-2xl font-bold text-[#F49B33]">
-                {priceLabel}
-              </p>
-            </div>
-            <div className="mt-2 flex items-center gap-1.5 text-[11px] text-slate-700">
-              <UserRound className="h-3.5 w-3.5 text-slate-500" />
-              <span className="truncate">
-                {t("admin.newBooking.selectedCustomer")}: {selectedCustomer?.name || selectedCustomer?.email || "—"}
-              </span>
-            </div>
-            <div className="mt-1 flex items-center gap-1.5 text-[11px] text-slate-700">
-              <Clock className="h-3.5 w-3.5 text-slate-500" />
-              <span className="truncate">
-                {t("booking.staff")}: {staffOptions.find((s) => s.id === selectedStaffId)?.user?.name || "—"}
-              </span>
-            </div>
-          </div>
 
-          <button
-            onClick={handleCreate}
-            disabled={!canSubmit}
-            className="w-full py-3 rounded-full bg-[#F49B33] text-white font-bold tracking-wide shadow-[0_10px_24px_rgba(244,155,51,0.28)] disabled:opacity-50"
-          >
-            {isPending ? t("booking.processing") : t("booking.confirmBooking")}
-          </button>
+            <button
+              onClick={handleCreate}
+              disabled={!canSubmit}
+              className="w-full py-3 rounded-full bg-[#F49B33] text-white font-bold tracking-wide shadow-[0_10px_24px_rgba(244,155,51,0.28)] disabled:opacity-50"
+            >
+              {isPending
+                ? t("booking.processing")
+                : t("booking.confirmBooking")}
+            </button>
+          </div>
         </div>
-      </div>
       )}
     </div>
   );
