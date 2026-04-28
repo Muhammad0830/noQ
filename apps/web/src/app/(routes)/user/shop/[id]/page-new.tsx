@@ -488,7 +488,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                   1. {t("shop.selectService")}
                 </label>
                 <div className="grid grid-cols-1 gap-3">
-                  {updatedServices.map((service) => (
+                  {services.map((service) => (
                     <button
                       key={service.id}
                       onClick={() => setSelectedService(service)}
