@@ -11,6 +11,7 @@ import api, {
 import { useApiMutation } from "@/hooks/useApiMutation";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
+import { useLanguage } from "./LanguageContext";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -78,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedAuth = getStoredAuth();
     return !!storedAuth?.token && !storedAuth?.savedUser;
   });
+  const { t } = useLanguage();
 
   const signInMutation = useApiMutation<SignInResponse, SignInPayload>(
     API_ENDPOINTS.auth.signin,
@@ -237,7 +239,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     setIsLoading(true);
 
-    const toastId = toast.loading("Updating profile...");
+    const toastId = toast.loading(t("common.loading"));
 
     try {
       const formData = new FormData();
@@ -268,11 +270,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         storedAuth.source,
       );
       console.log("success ✅");
-      toast.success("Profile updated successfully", {
+      toast.success(t("common.success"), {
         id: toastId,
       });
     } catch (error) {
-      toast.error("Something went wrong", {
+      toast.error(t("common.error"), {
         id: toastId,
       });
       throw error;

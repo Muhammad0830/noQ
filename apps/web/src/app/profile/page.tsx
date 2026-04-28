@@ -267,11 +267,6 @@ export default function ProfilePage() {
     }
   };
 
-  console.log(
-    "adminShopCategory",
-    adminShops.map((s) => user?.shops?.map((shop) => shop.category)),
-  );
-
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#211201] dark:text-white">
       <div

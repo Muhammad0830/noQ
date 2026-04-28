@@ -1,0 +1,54 @@
+/* @keyframes toast-progress {
+  from {
+    right: 0%;
+  }
+  to {
+    right: 100%;
+  }
+}
+
+.toast-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  right: 0%;
+  transform-origin: left;
+  animation: toast-progress 4s 10s linear forwards;
+}
+
+.toast-success .toast-progress-bar {
+  background: #22c55e;
+}
+
+.toast-error .toast-progress-bar {
+  background: #ef4444;
+}
+
+.toast-info .toast-progress-bar {
+  background: #3b82f6;
+}
+
+.data-sonner-toast,
+[data-sonner-toast] {
+  position: relative;
+}
+
+[data-sonner-toast]::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  right: 0%;
+  transform-origin: left;
+  animation: toast-progress 4s 2s linear forwards;
+}
+
+[data-sonner-toast][data-type="success"]::after {
+  background: #22c55e;
+}
+
+[data-sonner-toast][data-type="error"]::after {
+  background: #ef4444;
+} */

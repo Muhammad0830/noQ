@@ -6,6 +6,7 @@ import {
   Playfair_Display,
 } from "next/font/google";
 import "./globals.css";
+import "./toast.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -13,7 +14,7 @@ import { ProviderModeProvider } from "@/contexts/ProviderModeContext";
 import Providers from "@/contexts/ReactQueryProvider";
 import AppShell from "@/components/AppShell";
 import { cn } from "@/lib/utils";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 const playfairDisplayHeading = Playfair_Display({
   subsets: ["latin"],
@@ -56,18 +57,18 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>
-          <ThemeProvider>
-            <LanguageProvider>
+        <LanguageProvider>
+          <Providers>
+            <ThemeProvider>
               <AuthProvider>
                 <ProviderModeProvider>
                   <AppShell>{children}</AppShell>
                 </ProviderModeProvider>
               </AuthProvider>
               <Toaster />
-            </LanguageProvider>
-          </ThemeProvider>
-        </Providers>
+            </ThemeProvider>
+          </Providers>
+        </LanguageProvider>
       </body>
     </html>
   );
