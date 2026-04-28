@@ -4,14 +4,9 @@ import { Router } from "express";
 
 const bookingRouter = Router();
 
-bookingRouter.put("/:id", async (req: any, res: any) => {
+bookingRouter.put("/:id/cancel", async (req: any, res: any) => {
   try {
     const { id } = req.params;
-    const { status } = req.body as { status: StatusProps };
-
-    if (!status) {
-      return res.status(400).json({ message: "status is required" });
-    }
 
     const booking = await prisma.booking.findUnique({
       where: { id },
@@ -29,13 +24,44 @@ bookingRouter.put("/:id", async (req: any, res: any) => {
     await prisma.booking.update({
       where: { id },
       data: {
-        status: status,
+        status: "CANCELLED",
       },
     });
 
-    res.status(200).json({ message: "Status updated successfully" });
-  } catch (error) {
-    console.error(error);
+    res.status(200).json({ message: "Booking cancelled successfully" });
+  } catch (err) {
+    console.error("booking cancel error", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+bookingRouter.put("/:id/complete", async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+
+    const booking = await prisma.booking.findUnique({
+      where: { id },
+      include: {
+        shop: true,
+        service: true,
+        user: true,
+      },
+    });
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    await prisma.booking.update({
+      where: { id },
+      data: {
+        status: "COMPLETED",
+      },
+    });
+
+    res.status(200).json({ message: "Booking completed successfully" });
+  } catch (err) {
+    console.error("booking complete error", err);
     res.status(500).json({ message: "Internal server error" });
   }
 });
