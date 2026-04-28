@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
+  Bell,
   ChevronLeft,
   Clock3,
   Loader2,
@@ -12,8 +13,10 @@ import {
   Plus,
   Search,
   Scissors,
+  Settings,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS, getStoredAuth } from "@/lib/api";
 
@@ -49,6 +52,7 @@ const toPriceLabel = (price: string) => {
 
 export default function AdminServicesPage() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -150,6 +154,22 @@ export default function AdminServicesPage() {
     (service) => service.isActive,
   ).length;
 
+  const isShopNameLoading = !hasLoadedPersistedShop || !user;
+  const currentShopName = useMemo(() => {
+    if (!hasLoadedPersistedShop) {
+      return t("admin.dashboard.panel");
+    }
+
+    if (!user) {
+      return t("admin.dashboard.panel");
+    }
+
+    const activeShop = user.shops?.find((shop) => shop.id === activeShopId);
+    return (
+      activeShop?.name || user.shops?.[0]?.name || t("admin.dashboard.panel")
+    );
+  }, [activeShopId, hasLoadedPersistedShop, t, user]);
+
   const toggleService = async (id: string) => {
     if (!activeShopId || pendingIds[id]) return;
 
@@ -230,19 +250,15 @@ export default function AdminServicesPage() {
       type="button"
       onClick={() => void toggleService(id)}
       disabled={pendingIds[id]}
-      className={`relative h-7 w-12 rounded-full border transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F49B33]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
-        enabled
-          ? "border-[#F49B33]/60 bg-[#F49B33]/25 dark:border-[#F49B33]/70 dark:bg-[#F49B33]/35"
-          : "border-slate-300 bg-slate-200 dark:border-white/25 dark:bg-white/10"
+      className={`relative h-7 w-12 rounded-full transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#22c55e]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
+        enabled ? "bg-[#22c55e]" : "bg-[#d7dbe3]"
       }`}
       aria-label={`Toggle ${id}`}
       aria-pressed={enabled}
     >
       <span
-        className={`absolute top-0.75 h-5 w-5 rounded-full ring-1 transition-all duration-200 ${
-          enabled
-            ? "left-6 bg-[#F49B33] ring-[#F49B33]/60 dark:bg-[#F49B33] dark:ring-[#F49B33]/70"
-            : "left-1 bg-white ring-slate-300 dark:bg-slate-100 dark:ring-white/35"
+        className={`absolute top-0.75 h-5 w-5 rounded-full transition-all duration-200 ${
+          enabled ? "left-6 bg-white" : "left-1 bg-white"
         }`}
       />
     </button>
@@ -276,49 +292,42 @@ export default function AdminServicesPage() {
   return (
     <div className="min-h-dvh bg-[#f4f4f4]">
       <div className="mx-auto w-full bg-[#f4f4f4] pb-4">
-        <header className="sticky top-0 z-20 border-b border-[#dcdcdc] bg-[#f9f9f9]/95 px-4 py-3 backdrop-blur-sm">
-          <div className="relative flex items-center justify-center">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="absolute left-0 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#d7d7d7] text-[#9d9d9d] transition-transform duration-200 hover:scale-105 active:scale-95"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <h1 className="text-[18px] font-bold tracking-tight text-[#111111]">
-              Manage Services
-            </h1>
-
-            <button
-              type="button"
-              onClick={() => setMenuOpen((prev) => !prev)}
-              className="absolute right-0 inline-flex h-9 w-9 items-center justify-center rounded-full text-[#b0b0b0] transition-colors duration-200 hover:bg-[#ececec]"
-              aria-label="Open services menu"
-            >
-              <MoreVertical className="h-5 w-5" />
-            </button>
-
-            {menuOpen && (
-              <div className="absolute right-0 top-11 w-44 rounded-xl border border-[#e5e7eb] bg-white p-1 shadow-lg">
-                <button
-                  type="button"
-                  onClick={() =>
-                    router.push(getAdminHrefWithShopId("/admin/services/new"))
-                  }
-                  className="w-full rounded-lg px-3 py-2 text-left text-xs font-medium text-[#4d5560] transition-colors hover:bg-[#f7f7f7]"
-                >
-                  Add Service
-                </button>
-                <button
-                  type="button"
-                  className="w-full rounded-lg px-3 py-2 text-left text-xs font-medium text-[#4d5560] transition-colors hover:bg-[#f7f7f7]"
-                >
-                  Export Catalog
-                </button>
+        <div className="sticky top-0 z-40 w-full">
+          <div className="mx-auto flex w-full max-w-107.5 items-center justify-between border-b bg-orange-50 p-3 md:bg-white md:shadow-sm">
+            <div className="flex items-center gap-3">
+              {isShopNameLoading ? (
+                <div className="h-12 w-12 animate-pulse rounded-full bg-gray-200 sm:h-10 sm:w-10" />
+              ) : (
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 text-sm font-bold text-orange-600 sm:h-10 sm:w-10">
+                  {(currentShopName || "A")
+                    .split(" ")
+                    .map((s: string) => s[0])
+                    .slice(0, 2)
+                    .join("")}
+                </div>
+              )}
+              <div>
+                {isShopNameLoading ? (
+                  <div className="h-4 w-28 animate-pulse rounded-full bg-gray-200" />
+                ) : (
+                  <div className="text-sm font-semibold">{currentShopName}</div>
+                )}
+                <div className="text-xs font-semibold uppercase text-orange-400">
+                  {t("admin.dashboard.panel")}
+                </div>
               </div>
-            )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-gray-600 shadow">
+                <Bell className="h-4 w-4" />
+              </button>
+              <button className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-gray-600 shadow">
+                <Settings className="h-4 w-4" />
+              </button>
+            </div>
           </div>
-        </header>
+        </div>
 
         <main className="px-4 pt-4">
           <div className="hidden sm:flex sm:flex-col sm:gap-3">
@@ -431,7 +440,7 @@ export default function AdminServicesPage() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-3">
                           <div>
-                            <h3 className="text-[18px] font-bold tracking-tight text-[#111827]">
+                            <h3 className="text-[16px] font-bold tracking-tight text-[#111827]">
                               {service.name}
                             </h3>
                             <div className="mt-1 flex items-center gap-2 text-[12px] text-[#8b95a1]">
@@ -441,8 +450,8 @@ export default function AdminServicesPage() {
                               <span>{toPriceLabel(service.price)}</span>
                             </div>
                           </div>
-                          <div className="inline-flex min-h-14 min-w-14 items-center justify-center rounded-[18px] bg-[#fff2e4] px-3 py-2">
-                            <p className="text-[32px] font-bold leading-none tracking-tight text-[#F49B33]">
+                          <div className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-[15px] bg-[#fff2e4] px-2 py-1">
+                            <p className="text-[20px] font-bold leading-none tracking-tight text-[#F49B33]">
                               {toPriceLabel(service.price)}
                             </p>
                           </div>
