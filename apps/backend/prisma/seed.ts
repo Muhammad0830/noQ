@@ -96,16 +96,31 @@ async function main() {
   console.log(`Created ${shops.length} shops`);
 
   // Create services for each shop
+  const barberServices = [
+    { name: "Hair Cut", price: 80000, durationMin: 45 },
+    { name: "Beard Trim", price: 30000, durationMin: 20 },
+    { name: "Hair Wash", price: 25000, durationMin: 15 },
+    { name: "Shave", price: 40000, durationMin: 30 },
+    { name: "Hair Styling", price: 60000, durationMin: 40 },
+    { name: "Facial", price: 70000, durationMin: 50 },
+    { name: "Head Massage", price: 35000, durationMin: 25 },
+  ];
+
   const services = [];
   for (const shop of shops) {
-    for (let i = 0; i < faker.number.int({ min: 5, max: 6 }); i++) {
+    const numServices = faker.number.int({ min: 5, max: 6 });
+    const selectedServices = faker.helpers.arrayElements(
+      barberServices,
+      numServices,
+    );
+    for (const serviceData of selectedServices) {
       const service = await prisma.service.create({
         data: {
           id: faker.string.uuid(),
-          name: faker.commerce.productName(),
+          name: serviceData.name,
           description: faker.lorem.sentence(),
-          price: faker.number.float({ min: 10, max: 500, fractionDigits: 2 }),
-          durationMin: faker.number.int({ min: 30, max: 180 }),
+          price: serviceData.price,
+          durationMin: serviceData.durationMin,
           shopId: shop.id,
           bufferTime: faker.number.int({ min: 0, max: 30 }),
         },

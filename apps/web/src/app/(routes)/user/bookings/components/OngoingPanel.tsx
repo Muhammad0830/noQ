@@ -211,7 +211,8 @@ export default function OngoingPanel({
               {t("history.serviceDetails")}
             </p>
             <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-              {activeBooking.duration} • ${activeBooking.price.toFixed(2)}
+              {activeBooking.duration} • {activeBooking.price.toLocaleString()}{" "}
+              {t("services.price")}
             </p>
           </div>
 

@@ -348,7 +348,8 @@ export default function ShopProfile({
                   <div className="flex items-center gap-3 ml-4 shrink-0">
                     <div className="text-right">
                       <p className="text-lg sm:text-xl font-bold text-teal-600 dark:text-teal-400">
-                        ${(service.price || 0).toLocaleString()}
+                        {(service.price || 0).toLocaleString()}{" "}
+                        {t("services.price")}
                       </p>
                     </div>
                     <Link

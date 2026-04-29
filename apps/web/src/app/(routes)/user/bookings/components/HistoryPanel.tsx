@@ -175,7 +175,8 @@ export default function HistoryPanel({
               {/* Details Section */}
               <div className="border-t border-slate-200 px-3.5 py-3 dark:border-white/10">
                 <div className="text-sm font-semibold text-slate-900 dark:text-white">
-                  {booking.duration} • ${booking.price.toFixed(2)}
+                  {booking.duration} • {booking.price.toLocaleString()}{" "}
+                  {t("services.price")}
                 </div>
               </div>
 
