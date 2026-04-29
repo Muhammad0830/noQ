@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Bell,
   Camera,
@@ -19,6 +19,7 @@ import {
   User,
   X,
   Store,
+  Menu,
 } from "lucide-react";
 import type { Language } from "@shared/types/general_types";
 import { useAuth } from "@/contexts/AuthContext";
@@ -37,6 +38,8 @@ import { API_ENDPOINTS } from "@/lib/api";
 import LogoutConfirmModal from "@/components/LogoutConfirmModal";
 import { getImageUrl } from "@/lib/supabaseClient";
 import { resolveCategoryIcon } from "@/lib/getCategoryIcon";
+import AdminSidebar from "@/components/AdminSidebar";
+import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 
 const LANGUAGES: { code: Language; label: string }[] = [
   { code: "uz-latn", label: "O'zbekcha" },
@@ -78,6 +81,7 @@ const LOCALE_BY_LANGUAGE: Record<Language, string> = {
 
 export default function ProfilePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, isLoading, updateProfile, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
@@ -99,10 +103,36 @@ export default function ProfilePage() {
     phoneNumber: "",
   });
 
+  const shopId = searchParams.get("shopId");
+
+  const {
+    isSidebarVisible,
+    isSidebarClosing,
+    openSidebar,
+    closeSidebar,
+    adminNavItems,
+    getAdminHrefWithShopId,
+  } = useAdminSidebar(shopId);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     setSelectedShopId(window.localStorage.getItem("selected_shop_id"));
   }, []);
+
+    useEffect(() => {
+      const handleToggleSidebar = () => {
+        if (isSidebarVisible) {
+          closeSidebar();
+        } else {
+          openSidebar();
+        }
+      };
+
+      window.addEventListener("toggleAdminSidebar", handleToggleSidebar);
+      return () => {
+        window.removeEventListener("toggleAdminSidebar", handleToggleSidebar);
+      };
+    }, [isSidebarVisible, openSidebar, closeSidebar]);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -269,6 +299,17 @@ export default function ProfilePage() {
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#211201] dark:text-white">
+      {isAdmin && (
+        <AdminSidebar
+          isVisible={isSidebarVisible}
+          isClosing={isSidebarClosing}
+          currentShopName={user?.name || "Profile"}
+          adminNavItems={adminNavItems}
+          onClose={closeSidebar}
+          getAdminHrefWithShopId={getAdminHrefWithShopId}
+        />
+      )}
+
       <div
         className="mx-auto w-full px-3 pb-2.25 pt-8 sm:px-6"
         style={{ maxWidth: 650 }}
@@ -286,6 +327,7 @@ export default function ProfilePage() {
         />
 
         <section className="relative mb-6 border-b border-slate-200 pb-6 text-center dark:border-white/10">
+       
           <div className="relative mx-auto mb-4 inline-block">
             <div className="relative h-24 w-24 rounded-full p-0.5 ring-1 ring-[#F49B33]/60">
               {preview ? (
