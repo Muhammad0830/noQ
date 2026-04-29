@@ -564,7 +564,7 @@ export const translations: Translations = {
       "Машҳур хизматларни юклаб бўлмади",
     "admin.analytics.error.peakHoursFallback":
       "Энг банд соатларни юклаб бўлмади",
-    "admin.schedule.title": "Жадвал созламалари",
+    "admin.schedule.settings.title": "Жадвал созламалари",
     "admin.schedule.tab.schedule": "Жадвал",
     "admin.schedule.tab.exceptions": "Истиснолар",
     "admin.schedule.weekly": "Ҳафталик жадвал",
@@ -1041,7 +1041,7 @@ export const translations: Translations = {
       "Не удалось загрузить популярные услуги",
     "admin.analytics.error.peakHoursFallback":
       "Не удалось загрузить пиковые часы",
-    "admin.schedule.title": "Настройка расписания",
+    "admin.schedule.settings.title": "Настройка расписания",
     "admin.schedule.tab.schedule": "Расписание",
     "admin.schedule.tab.exceptions": "Исключения",
     "admin.schedule.weekly": "Недельное расписание",
