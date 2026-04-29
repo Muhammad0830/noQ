@@ -329,7 +329,7 @@ export default function AdminServicesPage() {
               <Menu className="h-5 w-5" />
             </button>
           </div>
-        </div>
+        </header>
 
         <main className="px-4 md:px-5 lg:px-6 pt-4 md:pt-5 lg:pt-6">
           <div className="hidden md:flex md:flex-col md:gap-3 lg:gap-4">

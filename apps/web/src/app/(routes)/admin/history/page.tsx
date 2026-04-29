@@ -7,7 +7,6 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  Settings,
   Search,
   Share2,
   UserRound,
@@ -158,6 +157,14 @@ export default function Page() {
   const [search, setSearch] = useState("");
   const [isExporting, setIsExporting] = useState(false);
   const [exportDone, setExportDone] = useState(false);
+  const {
+    isSidebarVisible,
+    isSidebarClosing,
+    adminNavItems,
+    openSidebar,
+    closeSidebar,
+    getAdminHrefWithShopId,
+  } = useAdminSidebar(shopId);
   const todayDate = useMemo(() => normalizeDate(new Date()), []);
   const todayQuery = useMemo(() => formatDateQuery(todayDate), [todayDate]);
   // `visibleWeekStart` is actually used as the reference (week end) for building
@@ -419,6 +426,15 @@ export default function Page() {
 
   return (
     <div className="h-dvh bg-white overflow-hidden">
+      <AdminSidebar
+        isVisible={isSidebarVisible}
+        isClosing={isSidebarClosing}
+        currentShopName={currentShopName}
+        adminNavItems={adminNavItems}
+        onClose={closeSidebar}
+        getAdminHrefWithShopId={getAdminHrefWithShopId}
+      />
+
       <div className="mx-auto flex h-full w-full max-w-107.5 flex-col bg-white">
         <div className="sticky top-0 z-40 w-full">
           <div className="mx-auto flex w-full max-w-107.5 items-center justify-between border-b bg-orange-50 p-3 md:bg-white md:shadow-sm">
@@ -450,8 +466,13 @@ export default function Page() {
               <button className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-gray-600 shadow">
                 <Bell className="h-4 w-4" />
               </button>
-              <button className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-gray-600 shadow">
-                <Settings className="h-4 w-4" />
+              <button
+                type="button"
+                onClick={openSidebar}
+                aria-label="Open admin sidebar"
+                className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-gray-600 shadow transition-colors hover:bg-[#f4f4f4]"
+              >
+                <Menu className="h-4 w-4" />
               </button>
             </div>
           </div>
