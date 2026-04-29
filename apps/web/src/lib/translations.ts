@@ -22,6 +22,11 @@ export const translations: Translations = {
     "bottomNav.adminStaff": "Xodimlar",
     // Admin Dashboard
     "admin.dashboard.panel": "Admin panel",
+    "admin.analytics.title": "Analytics",
+    "admin.schedule.title": "Jadval",
+    "admin.services.title": "Xizmatlar",
+    "admin.history.title": "Tarix",
+    "admin.staff.title": "Xodimlar",
     "admin.dashboard.shopNotFound":
       "Shop topilmadi. Profil bo'limidan admin shopni tanlang.",
     "admin.dashboard.revenue": "Daromad",
@@ -497,6 +502,11 @@ export const translations: Translations = {
     "bottomNav.adminStaff": "Ходимлар",
     // Admin Dashboard
     "admin.dashboard.panel": "Админ панели",
+    "admin.analytics.title": "Аналитика",
+    "admin.schedule.title": "Жадвал",
+    "admin.services.title": "Хизматлар",
+    "admin.history.title": "Тарих",
+    "admin.staff.title": "Ходимлар",
     "admin.dashboard.shopNotFound":
       "Шоп топилмади. Профил бўлимидан админ шопни танланг.",
     "admin.dashboard.revenue": "Даромад",
@@ -968,6 +978,11 @@ export const translations: Translations = {
     "bottomNav.adminStaff": "Персонал",
     // Admin Dashboard
     "admin.dashboard.panel": "Админ панель",
+    "admin.analytics.title": "Аналитика",
+    "admin.schedule.title": "Расписание",
+    "admin.services.title": "Услуги",
+    "admin.history.title": "История",
+    "admin.staff.title": "Персонал",
     "admin.dashboard.shopNotFound":
       "Салон не найден. Выберите админ-салон в профиле.",
     "admin.dashboard.revenue": "Доход",

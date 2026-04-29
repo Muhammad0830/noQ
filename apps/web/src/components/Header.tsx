@@ -5,7 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { User, LogIn, LogOut, Bell } from "lucide-react";
+import { useProviderMode } from "@/contexts/ProviderModeContext";
+import { User, LogIn, LogOut, Bell, Menu } from "lucide-react";
 import { getImageUrl } from "@/lib/supabaseClient";
 import LogoutConfirmModal from "@/components/LogoutConfirmModal";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,9 +16,23 @@ export default function Header() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const { t } = useLanguage();
+  const { providerMode } = useProviderMode();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
+
+  const isAdmin = user?.role === "ADMIN";
+  const isOnProfilePage = pathname === "/profile" || pathname.startsWith("/profile?");
+
+  const handleMenuClick = () => {
+    if (isAdmin && isOnProfilePage && providerMode) {
+      // On profile page in admin mode - trigger sidebar toggle
+      window.dispatchEvent(new CustomEvent("toggleAdminSidebar"));
+    } else {
+      // Regular dropdown
+      setProfileMenuOpen(!profileMenuOpen);
+    }
+  };
 
   useEffect(() => {
     if (!profileMenuOpen) return;
@@ -66,6 +81,13 @@ export default function Header() {
       : getImageUrl(user.avatarUrl, "user_avatars")
     : null;
 
+  const initials = (() => {
+    if (!user?.name) return "U";
+    const parts = user.name.split(" ").filter(Boolean);
+    if (parts.length === 1) return parts[0][0]?.toUpperCase() || "U";
+    return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
+  })();
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#f1c894] dark:border-[#4a2e1b] bg-white/88 dark:bg-[#211201]/92 backdrop-blur-md">
       <div
@@ -102,22 +124,27 @@ export default function Header() {
                 </button>
                 <div className="relative" ref={profileMenuRef}>
                   <button
-                    onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                    onClick={handleMenuClick}
                     className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-[#fff3e6] dark:bg-[#3a2415] sm:h-11 sm:w-11"
                     aria-label={t("header.profileMenu")}
                   >
-                    {avatarImageSrc ? (
+                    {isAdmin && isOnProfilePage && providerMode ? (
+                      <Menu className="w-6 h-6 text-[#F49B33] dark:text-[#F49B33]" />
+                    ) : avatarImageSrc ? (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={avatarImageSrc}
-                        alt={user?.name || t("header.userAvatar")}
-                        className="w-full h-full object-cover"
+                        alt={user?.name || "Profile"}
+                        className="h-10 w-10 rounded-full object-cover"
                       />
                     ) : (
-                      <User className="w-6 h-6 text-[#F49B33] dark:text-[#F49B33]" />
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-2xl font-bold text-slate-700 dark:bg-[#132235] dark:text-[#9ce9e2]">
+                        {initials}
+                      </div>
                     )}
                   </button>
 
-                  {profileMenuOpen && (
+                  {profileMenuOpen && !(isAdmin && isOnProfilePage && providerMode) && (
                     <div className="absolute right-0 z-20 mt-2 w-48 rounded-lg border border-[#f1c894] bg-white py-2 shadow-lg dark:border-[#4a2e1b] dark:bg-[#2b170b]">
                       <Link
                         href="/profile"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Bell,
@@ -11,11 +11,14 @@ import {
   Search,
   Share2,
   UserRound,
+  Menu,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS } from "@/lib/api";
+import AdminSidebar from "@/components/AdminSidebar";
+import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 
 type AdminHistoryBooking = {
   id: string;
@@ -542,7 +545,7 @@ export default function Page() {
               <h2 className="text-[11px] font-bold uppercase tracking-[0.17em] text-[#8f949a]">
                 Daily Bookings
               </h2>
-              <span className="rounded-md border border-[#c8ccd1] px-2 py-1 text-[10px] font-medium text-[#9ba0a6]">
+              <span className="rounded-md border border-[#c8ccd1] px-2 md:px-2.5 lg:px-2.5 py-0.5 md:py-1 lg:py-1 text-[9px] md:text-[10px] lg:text-[10px] font-medium text-[#9ba0a6]">
                 {filteredBookings.length} Logs
               </span>
             </div>
