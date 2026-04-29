@@ -22,7 +22,7 @@ export const translations: Translations = {
     "bottomNav.adminStaff": "Xodimlar",
     // Admin Dashboard
     "admin.dashboard.panel": "Admin panel",
-    "admin.analytics.title": "Analytics",
+    "admin.analytics.title": "Analitika",
     "admin.schedule.title": "Jadval",
     "admin.services.title": "Xizmatlar",
     "admin.history.title": "Tarix",
@@ -85,7 +85,7 @@ export const translations: Translations = {
       "Mashhur xizmatlarni yuklab bo'lmadi",
     "admin.analytics.error.peakHoursFallback":
       "Eng band soatlarni yuklab bo'lmadi",
-    "admin.schedule.title": "Jadval sozlamalari",
+    "admin.schedule.settings.title": "Jadval sozlamalari",
     "admin.schedule.tab.schedule": "Jadval",
     "admin.schedule.tab.exceptions": "Istisnolar",
     "admin.schedule.weekly": "Haftalik jadval",
@@ -136,7 +136,7 @@ export const translations: Translations = {
     "categories.all": "Barchasi",
 
     // Services
-    "services.title": "Mashhur xizmatlar",
+    "services.title": "Xizmatlar",
     "services.popular": "Mashhur",
     "services.nearby": "Yaqin atrofda",
     "services.all": "Barcha xizmatlar",
