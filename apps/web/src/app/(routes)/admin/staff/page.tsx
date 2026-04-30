@@ -261,7 +261,7 @@ export default function Page() {
         </div>
       </div>
 
-      <main className="mx-auto w-full max-w-6xl px-4 pt-4">
+      <main className="mx-auto w-full max-w-6xl px-4 md:px-5 lg:px-6 pt-4 md:pt-5 lg:pt-6">
         {!activeShopId && (
           <div className="mb-4 rounded-[18px] border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-700">
             No shop is selected for this admin view.
@@ -281,36 +281,36 @@ export default function Page() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search staff by name, email, or role"
-            className="w-full rounded-[18px] border border-[#d7d7d7] bg-white py-4 pl-11 pr-4 text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#f49b33] focus:outline-none"
+            className="w-full rounded-[18px] border border-[#d7d7d7] bg-white py-3 md:py-4 lg:py-4 pl-11 pr-4 text-[13px] md:text-[15px] lg:text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#f49b33] focus:outline-none"
           />
         </div>
 
-        <section className="mt-5 flex items-center justify-between">
+        <section className="mt-4 md:mt-5 lg:mt-6 flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#a5adb7]">
+            <p className="text-[10px] md:text-[11px] lg:text-[11px] font-bold uppercase tracking-[0.2em] text-[#a5adb7]">
               Active Team Members
             </p>
           </div>
-          <span className="rounded-full bg-[#fff2e1] px-3 py-1 text-[11px] font-semibold text-[#f49b33] shadow-[0_6px_14px_rgba(244,155,51,0.12)]">
+          <span className="rounded-full bg-[#fff2e1] px-3 py-1 text-[10px] md:text-[11px] lg:text-[11px] font-semibold text-[#f49b33] shadow-[0_6px_14px_rgba(244,155,51,0.12)]">
             {activeCount} Total
           </span>
         </section>
 
-        <section className="mt-4 space-y-4">
+        <section className="mt-4 md:mt-5 lg:mt-6 space-y-3 md:space-y-4 lg:space-y-4">
           {isStaffLoading &&
             Array.from({ length: 3 }).map((_, index) => (
               <article
                 key={index}
-                className="rounded-[24px] bg-white p-4 shadow-[0_10px_28px_rgba(17,24,39,0.05)] ring-1 ring-black/5"
+                className="rounded-[22px] md:rounded-[23px] lg:rounded-[24px] bg-white p-3 md:p-4 lg:p-5 shadow-[0_10px_28px_rgba(17,24,39,0.05)] ring-1 ring-black/5"
               >
-                <div className="flex items-start gap-4">
-                  <div className="h-16 w-16 shrink-0 rounded-full bg-[#eef2f7]" />
+                <div className="flex items-start gap-3 md:gap-3.5 lg:gap-4">
+                  <div className="h-14 md:h-15 lg:h-16 w-14 md:w-15 lg:w-16 shrink-0 rounded-full bg-[#eef2f7]" />
                   <div className="min-w-0 flex-1">
-                    <div className="h-5 w-40 rounded-full bg-[#eef2f7]" />
-                    <div className="mt-3 h-4 w-56 rounded-full bg-[#eef2f7]" />
-                    <div className="mt-4 grid grid-cols-2 gap-3">
-                      <div className="h-12 rounded-3xl bg-[#eef2f7]" />
-                      <div className="h-12 rounded-3xl bg-[#eef2f7]" />
+                    <div className="h-5 w-36 md:w-40 lg:w-40 rounded-full bg-[#eef2f7]" />
+                    <div className="mt-2 md:mt-3 h-4 w-48 md:w-56 lg:w-56 rounded-full bg-[#eef2f7]" />
+                    <div className="mt-3 md:mt-4 lg:mt-4 grid grid-cols-2 gap-2 md:gap-3 lg:gap-3">
+                      <div className="h-10 md:h-11 lg:h-12 rounded-3xl bg-[#eef2f7]" />
+                      <div className="h-10 md:h-11 lg:h-12 rounded-3xl bg-[#eef2f7]" />
                     </div>
                   </div>
                 </div>
@@ -329,22 +329,22 @@ export default function Page() {
               return (
                 <article
                   key={member.id}
-                  className={`rounded-[24px] bg-white p-4 shadow-[0_10px_28px_rgba(17,24,39,0.05)] ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-0.5 ${
+                  className={`rounded-[22px] md:rounded-[23px] lg:rounded-[24px] bg-white p-3 md:p-4 lg:p-5 shadow-[0_10px_28px_rgba(17,24,39,0.05)] ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-0.5 ${
                     isActive ? "ring-[#f49b33]/25" : ""
                   }`}
                 >
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-3 md:gap-3.5 lg:gap-4">
                     <div className="relative shrink-0">
                       <div
-                        className="flex h-16 w-16 items-center justify-center rounded-full border border-white shadow-[0_8px_20px_rgba(17,24,39,0.12)]"
+                        className="flex h-14 md:h-15 lg:h-16 w-14 md:w-15 lg:w-16 items-center justify-center rounded-full border border-white shadow-[0_8px_20px_rgba(17,24,39,0.12)]"
                         style={{ background: gradient }}
                       >
-                        <span className="text-[16px] font-bold text-[#1e293b]">
+                        <span className="text-[14px] md:text-[15px] lg:text-[16px] font-bold text-[#1e293b]">
                           {initials}
                         </span>
                       </div>
                       <span
-                        className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${
+                        className={`absolute bottom-0 right-0 h-2.5 w-2.5 md:h-3 md:w-3 lg:h-3 lg:w-3 rounded-full border-2 border-white ${
                           member.role === "OWNER"
                             ? "bg-[#f49b33]"
                             : "bg-[#c8c8c8]"
@@ -353,29 +353,29 @@ export default function Page() {
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start justify-between gap-2 md:gap-3 lg:gap-3">
                         <div className="min-w-0">
-                          <h2 className="truncate text-[19px] font-bold tracking-tight text-[#111111]">
+                          <h2 className="truncate text-[17px] md:text-[18px] lg:text-[19px] font-bold tracking-tight text-[#111111]">
                             {displayName}
                           </h2>
-                          <p className="mt-1 truncate text-[14px] text-[#8f98a4]">
+                          <p className="mt-0.5 md:mt-1 lg:mt-1 truncate text-[12px] md:text-[13px] lg:text-[14px] text-[#8f98a4]">
                             {roleLabel}
                             {hasEmail ? ` • ${member.user?.email}` : ""}
                           </p>
                         </div>
 
-                        <span className="shrink-0 rounded-full bg-[#fff2e1] px-3 py-1 text-[11px] font-semibold text-[#f49b33]">
+                        <span className="shrink-0 rounded-full bg-[#fff2e1] px-2.5 md:px-3 lg:px-3 py-0.5 md:py-1 lg:py-1 text-[10px] md:text-[11px] lg:text-[11px] font-semibold text-[#f49b33]">
                           {roleLabel}
                         </span>
                       </div>
 
-                      <div className="mt-4 grid grid-cols-2 gap-3">
+                      <div className="mt-3 md:mt-4 lg:mt-4 grid grid-cols-2 gap-2 md:gap-3 lg:gap-3">
                         <button
                           type="button"
                           onClick={() => openSchedule(member.id)}
-                          className="inline-flex min-w-0 items-center justify-center gap-2 rounded-3xl bg-[#f49b33] px-3 py-3 text-[14px] font-semibold text-white shadow-[0_10px_22px_rgba(244,155,51,0.25)] transition-transform duration-200 hover:-translate-y-0.5 active:scale-95"
+                          className="inline-flex min-w-0 items-center justify-center gap-1.5 md:gap-2 lg:gap-2 rounded-3xl bg-[#f49b33] px-2.5 md:px-3 lg:px-3 py-2 md:py-3 lg:py-3 text-[12px] md:text-[13px] lg:text-[14px] font-semibold text-white shadow-[0_10px_22px_rgba(244,155,51,0.25)] transition-transform duration-200 hover:-translate-y-0.5 active:scale-95"
                         >
-                          <CalendarDays className="h-4 w-4 shrink-0" />
+                          <CalendarDays className="h-3.5 w-3.5 md:h-4 md:w-4 lg:h-4 lg:w-4 shrink-0" />
                           <span className="min-w-0 max-w-full truncate whitespace-nowrap">
                             Edit Schedule
                           </span>
@@ -388,22 +388,22 @@ export default function Page() {
                               current === member.id ? null : member.id,
                             );
                           }}
-                          className="inline-flex items-center justify-center gap-2 rounded-3xl bg-[#f5f5f5] px-4 py-3 text-[14px] font-semibold text-[#656b75] shadow-[0_8px_18px_rgba(17,24,39,0.05)] transition-transform duration-200 hover:-translate-y-0.5 active:scale-95"
+                          className="inline-flex items-center justify-center gap-1.5 md:gap-2 lg:gap-2 rounded-3xl bg-[#f5f5f5] px-2.5 md:px-3 lg:px-4 py-2 md:py-3 lg:py-3 text-[12px] md:text-[13px] lg:text-[14px] font-semibold text-[#656b75] shadow-[0_8px_18px_rgba(17,24,39,0.05)] transition-transform duration-200 hover:-translate-y-0.5 active:scale-95"
                         >
-                          <Sparkles className="h-4 w-4" />
+                          <Sparkles className="h-3.5 w-3.5 md:h-4 md:w-4 lg:h-4 lg:w-4" />
                           Details
                         </button>
                       </div>
 
                       {isActive && (
-                        <div className="mt-4 rounded-[18px] border border-dashed border-[#e5e7eb] bg-[#fafafa] px-4 py-3">
-                          <div className="flex items-center gap-2 text-[12px] font-semibold text-[#8b95a1]">
-                            <Users className="h-4 w-4 text-[#f49b33]" />
+                        <div className="mt-3 md:mt-4 lg:mt-4 rounded-3xl border border-dashed border-[#e5e7eb] bg-[#fafafa] px-3 md:px-4 lg:px-4 py-2.5 md:py-3 lg:py-3">
+                          <div className="flex items-center gap-2 text-[11px] md:text-[12px] lg:text-[12px] font-semibold text-[#8b95a1]">
+                            <Users className="h-3.5 w-3.5 md:h-4 md:w-4 lg:h-4 lg:w-4 text-[#f49b33]" />
                             Staff details
                           </div>
 
-                          <div className="mt-3 space-y-2 text-[13px] text-[#4d5560]">
-                            <div className="flex items-center justify-between gap-4">
+                          <div className="mt-2 md:mt-3 lg:mt-3 space-y-1.5 md:space-y-2 lg:space-y-2 text-[12px] md:text-[13px] lg:text-[13px] text-[#4d5560]">
+                            <div className="flex items-center justify-between gap-3 md:gap-4 lg:gap-4">
                               <span className="font-medium text-[#8f98a4]">
                                 Role
                               </span>
@@ -411,7 +411,7 @@ export default function Page() {
                                 {roleLabel}
                               </span>
                             </div>
-                            <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center justify-between gap-3 md:gap-4 lg:gap-4">
                               <span className="font-medium text-[#8f98a4]">
                                 Email
                               </span>
@@ -419,7 +419,7 @@ export default function Page() {
                                 {member.user?.email || "No email"}
                               </span>
                             </div>
-                            <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center justify-between gap-3 md:gap-4 lg:gap-4">
                               <span className="font-medium text-[#8f98a4]">
                                 Shop
                               </span>

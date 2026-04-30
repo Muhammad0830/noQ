@@ -13,13 +13,15 @@ import {
   Plus,
   Search,
   Scissors,
-  Settings,
+  Menu,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS, getStoredAuth } from "@/lib/api";
+import AdminSidebar from "@/components/AdminSidebar";
+import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 
 type AdminService = {
   id: string;
@@ -96,6 +98,15 @@ export default function AdminServicesPage() {
 
     return userShops[0]?.id || null;
   }, [hasLoadedPersistedShop, persistedShopId, shopIdFromQuery, user?.shops]);
+
+  const {
+    isSidebarVisible,
+    isSidebarClosing,
+    openSidebar,
+    closeSidebar,
+    adminNavItems,
+    getAdminHrefWithShopId,
+  } = useAdminSidebar(activeShopId);
 
   useEffect(() => {
     if (
@@ -266,11 +277,6 @@ export default function AdminServicesPage() {
     }
   };
 
-  const getAdminHrefWithShopId = (path: string) => {
-    if (!activeShopId) return path;
-    return `${path}?shopId=${encodeURIComponent(activeShopId)}`;
-  };
-
   const getServiceEditHref = (serviceId: string) => {
     const params = new URLSearchParams();
     params.set("serviceId", serviceId);
@@ -328,49 +334,45 @@ export default function AdminServicesPage() {
 
   return (
     <div className="min-h-dvh bg-[#f4f4f4]">
+      <AdminSidebar
+        isVisible={isSidebarVisible}
+        isClosing={isSidebarClosing}
+        currentShopName={activeShopId ? (user?.shops || []).find(s => s.id === activeShopId)?.name || "Services" : "Services"}
+        adminNavItems={adminNavItems}
+        onClose={closeSidebar}
+        getAdminHrefWithShopId={getAdminHrefWithShopId}
+      />
+
       <div className="mx-auto w-full bg-[#f4f4f4] pb-4">
-        <div className="sticky top-0 z-40 w-full">
-          <div className="mx-auto flex w-full max-w-107.5 items-center justify-between border-b bg-orange-50 p-3 md:bg-white md:shadow-sm">
-            <div className="flex items-center gap-3">
-              {isShopNameLoading ? (
-                <div className="h-12 w-12 animate-pulse rounded-full bg-gray-200 sm:h-10 sm:w-10" />
-              ) : (
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 text-sm font-bold text-orange-600 sm:h-10 sm:w-10">
-                  {(currentShopName || "A")
-                    .split(" ")
-                    .map((s: string) => s[0])
-                    .slice(0, 2)
-                    .join("")}
-                </div>
-              )}
-              <div>
-                {isShopNameLoading ? (
-                  <div className="h-4 w-28 animate-pulse rounded-full bg-gray-200" />
-                ) : (
-                  <div className="text-sm font-semibold">{currentShopName}</div>
-                )}
-                <div className="text-xs font-semibold uppercase text-orange-400">
-                  {t("admin.dashboard.panel")}
-                </div>
-              </div>
-            </div>
+        <header className="sticky top-0 z-20 border-b border-[#dcdcdc] bg-[#f9f9f9]/95 px-4 py-3 backdrop-blur-sm">
+          <div className="relative flex items-center justify-center">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="absolute left-0 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#d7d7d7] text-[#9d9d9d] transition-transform duration-200 hover:scale-105 active:scale-95"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <h1 className="text-[18px] font-bold tracking-tight text-[#111111]">
+              Manage Services
+            </h1>
 
-            <div className="flex items-center gap-2">
-              <button className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-gray-600 shadow">
-                <Bell className="h-4 w-4" />
-              </button>
-              <button className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-gray-600 shadow">
-                <Settings className="h-4 w-4" />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={openSidebar}
+              className="absolute right-0 inline-flex h-9 w-9 items-center justify-center rounded-full text-[#b0b0b0] transition-colors duration-200 hover:bg-[#ececec]"
+              aria-label="Open admin sidebar"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
           </div>
-        </div>
+        </header>
 
-        <main className="px-4 pt-4">
-          <div className="hidden sm:flex sm:flex-col sm:gap-3">
+        <main className="px-4 md:px-5 lg:px-6 pt-4 md:pt-5 lg:pt-6">
+          <div className="hidden md:flex md:flex-col md:gap-3 lg:gap-4">
             <Link
               href={getAdminHrefWithShopId("/admin/services/new")}
-              className="inline-flex h-14 w-full shrink-0 items-center justify-center gap-2 rounded-[18px] bg-[#F49B33] px-5 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(244,155,51,0.24)] transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0"
+              className="inline-flex h-12 md:h-12 lg:h-14 w-full shrink-0 items-center justify-center gap-2 rounded-[18px] bg-[#F49B33] px-5 text-xs md:text-sm lg:text-sm font-semibold text-white shadow-[0_10px_24px_rgba(244,155,51,0.24)] transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0"
             >
               <Plus className="h-4 w-4" />
               <span>{t("admin.services.addService")}</span>
@@ -388,7 +390,7 @@ export default function AdminServicesPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 sm:hidden">
+          <div className="flex md:hidden items-center gap-3">
             <div className="relative min-w-0 flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9aa0aa]" />
               <input
@@ -434,7 +436,7 @@ export default function AdminServicesPage() {
             </div>
           )}
 
-          <section className="mt-5 flex items-center justify-between">
+          <section className="mt-4 md:mt-5 lg:mt-6 flex items-center justify-between">
             <div>
               <h2 className="mt-1 text-[17px] font-medium text-[#8b95a1]">
                 {t("admin.services.activeServices")}
@@ -445,7 +447,7 @@ export default function AdminServicesPage() {
             </span>
           </section>
 
-          <section className="mt-4 space-y-4">
+          <section className="mt-4 md:mt-4 lg:mt-5 space-y-3 md:space-y-4 lg:space-y-4">
             {isLoading ? (
               <>
                 {renderServiceCardSkeleton("active-skeleton-1")}
@@ -460,7 +462,7 @@ export default function AdminServicesPage() {
                 return (
                   <article
                     key={service.id}
-                    className={`relative overflow-hidden rounded-[24px] bg-white p-4 shadow-[0_10px_25px_rgba(17,24,39,0.04)] ring-1 ring-black/5 transition-transform duration-200 hover:-translate-y-0.5 ${
+                    className={`relative overflow-hidden rounded-4xl bg-white p-3 md:p-4 lg:p-5 shadow-[0_10px_25px_rgba(17,24,39,0.04)] ring-1 ring-black/5 transition-transform duration-200 hover:-translate-y-0.5 ${
                       isCardPending ? "opacity-80" : ""
                     }`}
                   >
@@ -473,11 +475,11 @@ export default function AdminServicesPage() {
                       </div>
                     )}
 
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-2 md:gap-3 lg:gap-3">
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start justify-between gap-2 md:gap-3 lg:gap-3">
                           <div>
-                            <h3 className="text-[16px] font-bold tracking-tight text-[#111827]">
+                            <h3 className="text-[16px] md:text-[17px] lg:text-[18px] font-bold tracking-tight text-[#111827]">
                               {service.name}
                             </h3>
                             <div className="mt-1 flex items-center gap-2 text-[12px] text-[#8b95a1]">
@@ -490,19 +492,19 @@ export default function AdminServicesPage() {
                               <span>{toPriceLabel(service.price)}</span>
                             </div>
                           </div>
-                          <div className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-[15px] bg-[#fff2e4] px-2 py-1">
-                            <p className="text-[20px] font-bold leading-none tracking-tight text-[#F49B33]">
+                          <div className="inline-flex min-h-12 md:min-h-13 lg:min-h-14 min-w-12 md:min-w-13 lg:min-w-14 items-center justify-center rounded-3xl md:rounded-3xl lg:rounded-3xl bg-[#fff2e4] px-2 md:px-3 lg:px-3 py-1.5 md:py-2 lg:py-2">
+                            <p className="text-2xl md:text-3xl lg:text-4xl font-bold leading-none tracking-tight text-[#F49B33]">
                               {toPriceLabel(service.price)}
                             </p>
                           </div>
                         </div>
 
-                        <div className="mt-4 flex items-center justify-between gap-3">
+                        <div className="mt-3 md:mt-4 lg:mt-4 flex items-center justify-between gap-2 md:gap-3 lg:gap-3">
                           <div className="flex items-center gap-2">
-                            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#fff2e4] text-[#F49B33]">
-                              <Scissors className="h-4 w-4" />
+                            <span className="flex h-7 md:h-8 lg:h-8 w-7 md:w-8 lg:w-8 items-center justify-center rounded-full bg-[#fff2e4] text-[#F49B33]">
+                              <Scissors className="h-3.5 w-3.5 md:h-4 md:w-4 lg:h-4 lg:w-4" />
                             </span>
-                            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7f8894]">
+                            <span className="text-[9px] md:text-[10px] lg:text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7f8894]">
                               {service.bufferTime
                                 ? t("admin.services.bufferTimeFormat", {
                                     time: service.bufferTime,
@@ -511,7 +513,7 @@ export default function AdminServicesPage() {
                             </span>
                           </div>
 
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5 md:gap-2 lg:gap-2">
                             <button
                               type="button"
                               onClick={() =>
@@ -542,7 +544,7 @@ export default function AdminServicesPage() {
               {t("admin.services.inactiveServices")}
             </h3>
 
-            <div className="mt-4 space-y-3 rounded-[24px] bg-white p-4 shadow-[0_10px_25px_rgba(17,24,39,0.04)] ring-1 ring-black/5">
+            <div className="mt-4 md:mt-4 lg:mt-5 space-y-2 md:space-y-3 lg:space-y-3 rounded-4xl bg-white p-3 md:p-4 lg:p-5 shadow-[0_10px_25px_rgba(17,24,39,0.04)] ring-1 ring-black/5">
               {isLoading && (
                 <>
                   <div className="h-14 animate-pulse rounded-2xl bg-[#f3f4f6]" />
@@ -563,7 +565,7 @@ export default function AdminServicesPage() {
                 return (
                   <div
                     key={service.id}
-                    className={`relative flex items-center gap-3 rounded-2xl py-1 ${
+                    className={`relative flex items-center gap-2 md:gap-3 lg:gap-3 rounded-2xl md:rounded-2xl lg:rounded-2xl py-0.5 md:py-1 lg:py-1 ${
                       isCardPending ? "opacity-80" : ""
                     }`}
                   >
@@ -576,12 +578,12 @@ export default function AdminServicesPage() {
                       </div>
                     )}
 
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#f3f4f6] text-[#a4abb6]">
-                      <Scissors className="h-5 w-5" />
+                    <div className="flex h-9 md:h-10 lg:h-10 w-9 md:w-10 lg:w-10 items-center justify-center rounded-2xl md:rounded-2xl lg:rounded-2xl bg-[#f3f4f6] text-[#a4abb6]">
+                      <Scissors className="h-4 w-4 md:h-5 md:w-5 lg:h-5 lg:w-5" />
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[16px] font-semibold text-[#374151]">
+                      <p className="truncate text-[15px] md:text-[16px] lg:text-[16px] font-semibold text-[#374151]">
                         {service.name}
                       </p>
                       <div className="mt-0.5 flex items-center gap-2 text-[11px] text-[#98a0ab]">
@@ -596,7 +598,7 @@ export default function AdminServicesPage() {
                         onClick={() =>
                           router.push(getServiceEditHref(service.id))
                         }
-                        className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9aa1ab] transition-colors hover:text-[#F49B33]"
+                        className="mt-1 inline-flex items-center gap-1 text-[9px] md:text-[10px] lg:text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9aa1ab] transition-colors hover:text-[#F49B33]"
                       >
                         <PenLine className="h-3.5 w-3.5" />
                         {t("admin.services.edit")}

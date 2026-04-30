@@ -105,8 +105,7 @@ export default function BookingPage({
     const members = (shop as any)?.staffs ?? [];
     return members.map((member: any) => ({
       id: member.id,
-      name:
-        member.user?.name?.trim() || member.user?.email?.trim() || "Staff",
+      name: member.user?.name?.trim() || member.user?.email?.trim() || "Staff",
       avatarUrl: member.user?.avatarUrl || null,
     }));
   }, [shop]);
@@ -433,7 +432,7 @@ export default function BookingPage({
               const dateStr = day.toISOString().split("T")[0];
               const isActive = effectiveDate === dateStr;
               return (
-                  <button
+                <button
                   key={`${dateStr}-${index}`}
                   onClick={() => {
                     setSelectedDate(dateStr);
