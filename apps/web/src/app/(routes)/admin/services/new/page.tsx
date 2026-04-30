@@ -2,9 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ChevronLeft,
   Clock3,
+  Loader2,
   DollarSign,
   EllipsisVertical,
   Info,
@@ -13,7 +15,30 @@ import {
   Check,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { API_ENDPOINTS, getStoredAuth } from "@/lib/api";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useApiMutation } from "@/hooks/useApiMutation";
+import { API_ENDPOINTS } from "@/lib/api";
+
+type AdminService = {
+  id: string;
+  name: string;
+  description: string | null;
+  price: string;
+  durationMin: number;
+  isActive: boolean;
+  shopId: string;
+  bufferTime: number | null;
+  shop?: {
+    name?: string;
+  };
+};
+
+type CreateServicePayload = {
+  name: string;
+  price: number;
+  durationMin: number;
+  bufferTime: number | null;
+};
 
 const staffMembers = [
   { id: "alex", name: "Alex Johnson", selected: true },
@@ -22,11 +47,12 @@ const staffMembers = [
 
 export default function AddNewService() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const [persistedShopId, setPersistedShopId] = useState<string | null>(null);
   const [hasLoadedPersistedShop, setHasLoadedPersistedShop] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [durationWarnings, setDurationWarnings] = useState<{
     hours: string | null;
@@ -81,6 +107,20 @@ export default function AddNewService() {
     return userShops[0]?.id || null;
   }, [hasLoadedPersistedShop, persistedShopId, shopIdFromQuery, user?.shops]);
 
+  const { mutateAsync: createService, isPending: isSubmitting } =
+    useApiMutation<AdminService, CreateServicePayload>(
+      API_ENDPOINTS.admin.services,
+      "post",
+      activeShopId
+        ? {
+            headers: {
+              "x-shopid": activeShopId,
+              "x-shop-id": activeShopId,
+            },
+          }
+        : undefined,
+    );
+
   const handleHoursChange = (value: string) => {
     const digitsOnly = value.replace(/\D/g, "");
 
@@ -95,7 +135,7 @@ export default function AddNewService() {
       setService((current) => ({ ...current, hours: "23" }));
       setDurationWarnings((current) => ({
         ...current,
-        hours: "23 dan katta yozib bo'lmaydi",
+        hours: t("admin.services.new.hoursWarning"),
       }));
       return;
     }
@@ -118,7 +158,7 @@ export default function AddNewService() {
       setService((current) => ({ ...current, minutes: "60" }));
       setDurationWarnings((current) => ({
         ...current,
-        minutes: "60 dan katta yozib bo'lmaydi",
+        minutes: t("admin.services.new.minutesWarning"),
       }));
       return;
     }
@@ -131,7 +171,7 @@ export default function AddNewService() {
     e.preventDefault();
 
     if (!activeShopId || isSubmitting) {
-      setSubmitError("Shop topilmadi. Avval admin dashboarddan shop tanlang.");
+      setSubmitError(t("admin.services.new.error.shopNotFound"));
       return;
     }
 
@@ -140,60 +180,46 @@ export default function AddNewService() {
     const bufferTime = service.bufferTime.trim();
 
     if (!service.name.trim()) {
-      setSubmitError("Service name required");
+      setSubmitError(t("admin.services.new.error.nameRequired"));
       return;
     }
 
     if (Number.isNaN(durationMin) || durationMin <= 0) {
-      setSubmitError("Duration noto'g'ri");
+      setSubmitError(t("admin.services.new.error.invalidDuration"));
       return;
     }
 
     if (Number.isNaN(price) || price <= 0) {
-      setSubmitError("Price noto'g'ri");
+      setSubmitError(t("admin.services.new.error.invalidPrice"));
       return;
     }
 
     try {
-      setIsSubmitting(true);
       setSubmitError(null);
 
-      const token = getStoredAuth()?.token;
-      const response = await fetch(API_ENDPOINTS.admin.services, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          "x-shopid": activeShopId,
-          "x-shop-id": activeShopId,
-        },
-        body: JSON.stringify({
-          name: service.name.trim(),
-          price,
-          durationMin,
-          bufferTime:
-            isBufferTimeEnabled && bufferTime !== ""
-              ? Number(bufferTime)
-              : null,
-        }),
+      const createdService = await createService({
+        name: service.name.trim(),
+        price,
+        durationMin,
+        bufferTime:
+          isBufferTimeEnabled && bufferTime !== "" ? Number(bufferTime) : null,
       });
 
-      if (!response.ok) {
-        const body = await response.json().catch(() => null);
-        const message =
-          body && typeof body.message === "string"
-            ? body.message
-            : "Failed to create service";
-        throw new Error(message);
-      }
+      queryClient.setQueryData<AdminService[]>(
+        ["admin-services", activeShopId || "none"],
+        (currentServices) =>
+          currentServices
+            ? [...currentServices, createdService]
+            : [createdService],
+      );
 
       router.push(`/admin/services?shopId=${encodeURIComponent(activeShopId)}`);
     } catch (error) {
       setSubmitError(
-        error instanceof Error ? error.message : "Failed to create service",
+        error instanceof Error
+          ? error.message
+          : t("admin.services.new.error.createFailed"),
       );
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -205,19 +231,19 @@ export default function AddNewService() {
             type="button"
             onClick={() => router.back()}
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d7dbe3] bg-white text-[#8d95a3] shadow-sm transition-transform active:scale-95"
-            aria-label="Go back"
+            aria-label={t("admin.services.new.back")}
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
 
           <h1 className="text-[18px] font-semibold tracking-tight text-[#111827]">
-            Add New Service
+            {t("admin.services.new.title")}
           </h1>
 
           <button
             type="button"
             className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#b2b8c3] transition-colors hover:bg-black/5"
-            aria-label="More options"
+            aria-label={t("admin.services.new.moreOptions")}
           >
             <EllipsisVertical className="h-5 w-5" />
           </button>
@@ -236,7 +262,7 @@ export default function AddNewService() {
             <div className="mb-3 flex items-center gap-2 text-[#9aa3b1]">
               <Info className="h-4 w-4 text-[#F49B33]" />
               <span className="text-[12px] font-semibold uppercase tracking-[0.18em]">
-                Service Name
+                {t("admin.services.new.serviceName")}
               </span>
             </div>
             <input
@@ -244,7 +270,7 @@ export default function AddNewService() {
               required
               value={service.name}
               onChange={(e) => setService({ ...service, name: e.target.value })}
-              placeholder="e.g. Deep Tissue Massage"
+              placeholder={t("admin.services.new.serviceNamePlaceholder")}
               className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[15px] text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
             />
           </section>
@@ -253,14 +279,14 @@ export default function AddNewService() {
             <div className="mb-3 flex items-center gap-2 text-[#9aa3b1]">
               <Clock3 className="h-4 w-4 text-[#F49B33]" />
               <span className="text-[12px] font-semibold uppercase tracking-[0.18em]">
-                Service Duration
+                {t("admin.services.new.serviceDuration")}
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <label className="block">
                 <span className="mb-2 block text-[11px] font-medium uppercase tracking-[0.14em] text-[#6b7280]">
-                  Hours
+                  {t("admin.services.new.hours")}
                 </span>
                 <input
                   type="text"
@@ -268,7 +294,7 @@ export default function AddNewService() {
                   pattern="[0-9]*"
                   value={service.hours}
                   onChange={(e) => handleHoursChange(e.target.value)}
-                  placeholder="0-23"
+                  placeholder={t("admin.services.new.hoursPlaceholder")}
                   className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[15px] text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
                 />
                 {durationWarnings.hours && (
@@ -280,7 +306,7 @@ export default function AddNewService() {
 
               <label className="block">
                 <span className="mb-2 block text-[11px] font-medium uppercase tracking-[0.14em] text-[#6b7280]">
-                  Minutes
+                  {t("admin.services.new.minutes")}
                 </span>
                 <input
                   type="text"
@@ -288,7 +314,7 @@ export default function AddNewService() {
                   pattern="[0-9]*"
                   value={service.minutes}
                   onChange={(e) => handleMinutesChange(e.target.value)}
-                  placeholder="0-60"
+                  placeholder={t("admin.services.new.minutesPlaceholder")}
                   className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[15px] text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
                 />
                 {durationWarnings.minutes && (
@@ -303,17 +329,17 @@ export default function AddNewService() {
               <div className="mb-2 flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[14px] font-semibold text-[#111827]">
-                    Buffer Time
+                    {t("admin.services.new.bufferTime")}
                   </p>
                   <p className="text-[12px] text-[#7a8493]">
-                    Add gap between appointments
+                    {t("admin.services.new.bufferDescription")}
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsBufferTimeEnabled((current) => !current)}
                   className={`relative h-6 w-11 rounded-full transition-colors ${isBufferTimeEnabled ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
-                  aria-label="Toggle buffer time"
+                  aria-label={t("admin.services.new.toggleBufferTime")}
                 >
                   <span
                     className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${isBufferTimeEnabled ? "left-5.75" : "left-0.75"}`}
@@ -328,7 +354,7 @@ export default function AddNewService() {
                 onChange={(e) => {
                   setService({ ...service, bufferTime: e.target.value });
                 }}
-                placeholder="15"
+                placeholder={t("admin.services.new.bufferPlaceholder")}
                 disabled={!isBufferTimeEnabled}
                 className={`h-12 w-full rounded-2xl border px-4 text-[15px] outline-none transition-colors placeholder:text-[#b0b7c3] ${
                   isBufferTimeEnabled
@@ -343,13 +369,13 @@ export default function AddNewService() {
             <div className="mb-3 flex items-center gap-2 text-[#9aa3b1]">
               <DollarSign className="h-4 w-4 text-[#F49B33]" />
               <span className="text-[12px] font-semibold uppercase tracking-[0.18em]">
-                Pricing & Operations
+                {t("admin.services.new.pricingSection")}
               </span>
             </div>
 
             <label className="block">
               <span className="mb-2 block text-[14px] font-semibold text-[#111827]">
-                Service Price
+                {t("admin.services.new.servicePrice")}
               </span>
               <input
                 type="number"
@@ -358,7 +384,7 @@ export default function AddNewService() {
                 onChange={(e) =>
                   setService({ ...service, price: e.target.value })
                 }
-                placeholder="50000"
+                placeholder={t("admin.services.new.pricePlaceholder")}
                 className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 pl-8 text-[15px] text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
               />
             </label>
@@ -368,17 +394,17 @@ export default function AddNewService() {
             <div className="mb-3 flex items-center gap-2 text-[#9aa3b1]">
               <Users className="h-4 w-4 text-[#F49B33]" />
               <span className="text-[12px] font-semibold uppercase tracking-[0.18em]">
-                Staff Assignment
+                {t("admin.services.new.staffSection")}
               </span>
             </div>
 
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-[14px] font-semibold text-[#111827]">
-                  Assign to All Staff
+                  {t("admin.services.new.assignToAllStaff")}
                 </p>
                 <p className="text-[12px] text-[#7a8493]">
-                  Make this service available to everyone
+                  {t("admin.services.new.assignToAllDescription")}
                 </p>
               </div>
               <button
@@ -392,7 +418,7 @@ export default function AddNewService() {
                   }))
                 }
                 className={`relative h-6 w-11 rounded-full transition-colors ${allMembersSelected ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
-                aria-label="Toggle staff assignment"
+                aria-label={t("admin.services.new.toggleStaffAssignment")}
               >
                 <span
                   className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${allMembersSelected ? "left-5.75" : "left-0.75"}`}
@@ -402,7 +428,7 @@ export default function AddNewService() {
 
             <div className="mt-4 space-y-3">
               <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[#9aa3b1]">
-                Specific Members
+                {t("admin.services.new.specificMembers")}
               </p>
               {staffMembers.map((member) => {
                 const active = service.selectedStaff.includes(member.id);
@@ -451,9 +477,14 @@ export default function AddNewService() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex h-14 w-full items-center justify-center rounded-full bg-[#F49B33] text-[16px] font-semibold uppercase tracking-[0.08em] text-white shadow-[0_16px_32px_rgba(244,155,51,0.28)] transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+              className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[#F49B33] text-[16px] font-semibold uppercase tracking-[0.08em] text-white shadow-[0_16px_32px_rgba(244,155,51,0.28)] transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {isSubmitting ? "Saving..." : "Next"}
+              {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              <span>
+                {isSubmitting
+                  ? t("admin.services.new.saving")
+                  : t("admin.services.new.save")}
+              </span>
             </button>
           </div>
         </form>

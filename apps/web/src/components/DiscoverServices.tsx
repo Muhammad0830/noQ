@@ -337,66 +337,66 @@ export default function DiscoverServices() {
   };
 
   const PopularShopCardSkeleton = () => (
-    <div className="overflow-hidden rounded-3xl border border-blue-100 bg-linear-to-br from-blue-50 via-white to-purple-50 shadow-sm dark:border-blue-800/40 dark:from-blue-900/20 dark:via-gray-900 dark:to-purple-900/20 dark:shadow-none">
+    <div className="overflow-hidden rounded-3xl border border-blue-100 bg-linear-to-br from-blue-50 via-white to-purple-50 shadow-sm">
       <div className="relative h-52 overflow-hidden">
-        <div className="h-full w-full bg-linear-to-br from-slate-200 via-slate-100 to-slate-200 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800" />
+        <div className="h-full w-full bg-linear-to-br from-slate-200 via-slate-100 to-slate-200" />
 
-        <Skeleton className="absolute top-3 right-3 h-7 w-14 rounded-full bg-white/95 dark:bg-white/10" />
-        <Skeleton className="absolute top-3 left-3 h-8 w-8 rounded-full bg-white/95 dark:bg-white/10" />
-        <Skeleton className="absolute bottom-3 left-3 h-6 w-20 rounded-full bg-white/95 dark:bg-white/10" />
+        <Skeleton className="absolute top-3 right-3 h-7 w-14 rounded-full bg-white/95" />
+        <Skeleton className="absolute top-3 left-3 h-8 w-8 rounded-full bg-white/95" />
+        <Skeleton className="absolute bottom-3 left-3 h-6 w-20 rounded-full bg-white/95" />
       </div>
 
       <div className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <Skeleton className="h-5 w-3/5 rounded-full bg-slate-200 dark:bg-slate-700" />
-            <Skeleton className="mt-2 h-4 w-4/5 rounded-full bg-slate-200 dark:bg-slate-700" />
+            <Skeleton className="h-5 w-3/5 rounded-full bg-slate-200" />
+            <Skeleton className="mt-2 h-4 w-4/5 rounded-full bg-slate-200" />
           </div>
 
           <div className="shrink-0 text-right">
-            <Skeleton className="h-4 w-12 rounded-full bg-slate-200 dark:bg-slate-700" />
-            <Skeleton className="mt-2 h-3 w-10 rounded-full bg-slate-200 dark:bg-slate-700" />
+            <Skeleton className="h-4 w-12 rounded-full bg-slate-200" />
+            <Skeleton className="mt-2 h-3 w-10 rounded-full bg-slate-200" />
           </div>
         </div>
 
-        <div className="my-4 h-px bg-linear-to-r from-blue-100 via-purple-100 to-pink-100 dark:from-blue-800/40 dark:via-purple-800/40 dark:to-pink-800/40" />
+        <div className="my-4 h-px bg-linear-to-r from-blue-100 via-purple-100 to-pink-100" />
 
         <div className="flex items-center justify-between gap-3">
           <div>
-            <Skeleton className="h-3 w-20 rounded-full bg-slate-200 dark:bg-slate-700" />
-            <Skeleton className="mt-2 h-4 w-24 rounded-full bg-slate-200 dark:bg-slate-700" />
+            <Skeleton className="h-3 w-20 rounded-full bg-slate-200" />
+            <Skeleton className="mt-2 h-4 w-24 rounded-full bg-slate-200" />
           </div>
 
-          <Skeleton className="h-9 w-20 rounded-full bg-slate-200 dark:bg-slate-700" />
+          <Skeleton className="h-9 w-20 rounded-full bg-slate-200" />
         </div>
       </div>
     </div>
   );
 
   const ServiceCardSkeleton = () => (
-    <div className="flex items-center justify-between gap-4 border-b border-slate-200/70 py-4 last:border-b-0 dark:border-slate-800/80">
+    <div className="flex items-center justify-between gap-4 border-b border-slate-200/70 py-4 last:border-b-0">
       <div className="min-w-0 flex-1">
-        <Skeleton className="h-5 w-36 rounded-full bg-slate-200 dark:bg-slate-700" />
-        <Skeleton className="mt-2 h-3.5 w-44 rounded-full bg-slate-200 dark:bg-slate-700" />
+        <Skeleton className="h-5 w-36 rounded-full bg-slate-200" />
+        <Skeleton className="mt-2 h-3.5 w-44 rounded-full bg-slate-200" />
       </div>
 
       <div className="shrink-0 text-right">
-        <Skeleton className="ml-auto h-6 w-18 rounded-full bg-slate-200 dark:bg-slate-700" />
-        <Skeleton className="mt-2 ml-auto h-4 w-12 rounded-full bg-slate-200 dark:bg-slate-700" />
+        <Skeleton className="ml-auto h-6 w-18 rounded-full bg-slate-200" />
+        <Skeleton className="mt-2 ml-auto h-4 w-12 rounded-full bg-slate-200" />
       </div>
     </div>
   );
 
   const CompactShopRowSkeleton = ({ isLast = false }: { isLast?: boolean }) => (
     <div
-      className={`flex items-center gap-3 px-2 py-3 ${isLast ? "" : "border-b border-slate-200/70 dark:border-slate-800/80"}`}
+      className={`flex items-center gap-3 px-2 py-3 ${isLast ? "" : "border-b border-slate-200/70"}`}
     >
-      <Skeleton className="h-14 w-14 shrink-0 rounded-2xl bg-slate-200 dark:bg-slate-700" />
+      <Skeleton className="h-14 w-14 shrink-0 rounded-2xl bg-slate-200" />
       <div className="min-w-0 flex-1">
-        <Skeleton className="h-5 w-36 rounded-full bg-slate-200 dark:bg-slate-700" />
-        <Skeleton className="mt-2 h-4 w-24 rounded-full bg-slate-200 dark:bg-slate-700" />
+        <Skeleton className="h-5 w-36 rounded-full bg-slate-200" />
+        <Skeleton className="mt-2 h-4 w-24 rounded-full bg-slate-200" />
       </div>
-      <Skeleton className="h-5 w-5 rounded-full bg-slate-200 dark:bg-slate-700" />
+      <Skeleton className="h-5 w-5 rounded-full bg-slate-200" />
     </div>
   );
 
@@ -414,9 +414,9 @@ export default function DiscoverServices() {
     return (
       <Link
         href={`/shop/${shop.id}`}
-        className={`group flex items-center gap-3 px-2 py-3 ${isLast ? "" : "border-b border-slate-200/70 dark:border-slate-800/80"}`}
+        className={`group flex items-center gap-3 px-2 py-3 ${isLast ? "" : "border-b border-slate-200/70"}`}
       >
-        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-slate-200 dark:bg-slate-800">
+        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-slate-200">
           {imageUrl ? (
             <img
               src={imageUrl}
@@ -431,10 +431,10 @@ export default function DiscoverServices() {
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="truncate text-lg font-semibold leading-tight text-slate-900 dark:text-slate-100 sm:text-xl">
+          <p className="truncate text-lg font-semibold leading-tight text-slate-900 sm:text-xl">
             {shop.name}
           </p>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-slate-500">
             {t("discover.distanceAway", { distance: "1.5" })}
           </p>
         </div>
@@ -445,10 +445,10 @@ export default function DiscoverServices() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#070d18] dark:text-white">
+    <div className="min-h-screen bg-slate-50 text-slate-900">
       <div className="mx-auto w-full max-w-md px-4 pb-8 pt-3">
-        <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm dark:border-slate-700 dark:bg-white">
-          <Search className="h-5 w-5 text-slate-400 dark:text-slate-400" />
+        <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
+          <Search className="h-5 w-5 text-slate-400" />
           <input
             ref={searchInputRef}
             type="text"
@@ -491,7 +491,7 @@ export default function DiscoverServices() {
             onClick={() => setIsFilterOpen(false)}
           >
             <div
-              className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-4 text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-[#1b2230] dark:text-slate-100"
+              className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-4 text-slate-900 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mb-4 flex items-center justify-between">
@@ -499,7 +499,7 @@ export default function DiscoverServices() {
                 <button
                   type="button"
                   onClick={() => setIsFilterOpen(false)}
-                  className="rounded-full bg-slate-100 p-2 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-200 dark:hover:bg-white/20"
+                  className="rounded-full bg-slate-100 p-2 text-slate-700 hover:bg-slate-200"
                   aria-label={t("common.close")}
                 >
                   <X className="h-4 w-4" />
@@ -508,10 +508,10 @@ export default function DiscoverServices() {
 
               <div className="mb-5">
                 <div className="mb-2 flex items-center justify-between">
-                  <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                  <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500">
                     {t("filter.category").toUpperCase()}
                   </p>
-                  <span className="text-[10px] font-bold tracking-[0.14em] text-[#00c9a7] dark:text-[#00f5c4]">
+                  <span className="text-[10px] font-bold tracking-[0.14em] text-[#00c9a7]">
                     {t("filter.multiSelect").toUpperCase()}
                   </span>
                 </div>
@@ -527,8 +527,8 @@ export default function DiscoverServices() {
                         onClick={() => toggleCategory(category.id)}
                         className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                           active
-                            ? "bg-[#00f5c4] text-slate-950 dark:text-slate-900"
-                            : "bg-slate-100 text-slate-700 dark:bg-[#111827] dark:text-slate-300"
+                            ? "bg-[#00f5c4] text-slate-950"
+                            : "bg-slate-100 text-slate-700"
                         }`}
                       >
                         {category.name}
@@ -540,11 +540,11 @@ export default function DiscoverServices() {
 
               <div>
                 <div className="mb-2 flex items-center justify-between gap-2">
-                  <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                  <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500">
                     {t("filter.priceRange").toUpperCase()}
                   </p>
                   <div className="flex min-w-0 items-center justify-end gap-2">
-                    <span className="whitespace-nowrap text-base font-bold text-[#00c9a7] dark:text-[#00f5c4] sm:text-lg">
+                    <span className="whitespace-nowrap text-base font-bold text-[#00c9a7] sm:text-lg">
                       ${draftMinPrice} - ${draftMaxPrice}
                     </span>
                     <button
@@ -562,7 +562,7 @@ export default function DiscoverServices() {
                       className={`relative inline-flex h-6 w-11 shrink-0 items-center overflow-hidden rounded-full p-0.5 transition ${
                         draftPriceEnabled
                           ? "bg-[#00c9a7]"
-                          : "bg-slate-300 dark:bg-slate-600"
+                          : "bg-slate-300"
                       }`}
                       aria-label={t("filter.togglePrice")}
                       aria-pressed={draftPriceEnabled}
@@ -623,7 +623,7 @@ export default function DiscoverServices() {
                   <button
                     type="button"
                     onClick={resetDraftFilters}
-                    className="flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-[#111827] dark:text-slate-200 dark:hover:bg-slate-800"
+                    className="flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
                   >
                     {t("filter.reset")}
                   </button>
@@ -642,13 +642,13 @@ export default function DiscoverServices() {
 
         {shouldShowShops && (
           <div className="mt-5">
-            <p className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
+            <p className="mb-3 text-sm font-semibold text-slate-700">
               {t("discover.popularShops")}
             </p>
 
             {isPopularShopsLoading ? (
               useListLayoutForShops ? (
-                <div className="rounded-2xl border border-slate-200 bg-white px-2 dark:border-slate-800 dark:bg-[#0e1726]">
+                <div className="rounded-2xl border border-slate-200 bg-white px-2">
                   {Array.from({ length: 3 }).map((_, i) => (
                     <CompactShopRowSkeleton
                       key={`discover-popular-list-skeleton-${i}`}
@@ -670,7 +670,7 @@ export default function DiscoverServices() {
               )
             ) : filteredPopularShops.length > 0 ? (
               useListLayoutForShops ? (
-                <div className="rounded-2xl border border-slate-200 bg-white px-2 dark:border-slate-800 dark:bg-[#0e1726]">
+                <div className="rounded-2xl border border-slate-200 bg-white px-2">
                   {filteredPopularShops.map((shop, index) => (
                     <CompactShopRow
                       key={shop.id}
@@ -707,8 +707,8 @@ export default function DiscoverServices() {
                               onClick={() => scrollToPopularDot(i)}
                               className={`h-2 w-2 rounded-full transition-colors ${
                                 i === activePopularDot
-                                  ? "bg-cyan-500 dark:bg-cyan-400"
-                                  : "bg-slate-300 dark:bg-slate-600"
+                                  ? "bg-cyan-500"
+                                  : "bg-slate-300"
                               }`}
                               aria-label={t("discover.goToCard", {
                                 index: i + 1,
@@ -728,7 +728,7 @@ export default function DiscoverServices() {
                 </>
               )
             ) : (
-              <div className="rounded-xl border border-slate-200 bg-white px-3 py-5 text-center text-sm text-slate-500 shadow-sm dark:border-slate-800 dark:bg-[#0e1726] dark:text-slate-400 dark:shadow-none">
+              <div className="rounded-xl border border-slate-200 bg-white px-3 py-5 text-center text-sm text-slate-500 shadow-sm">
                 {t("discover.noShopsFound")}
               </div>
             )}
@@ -737,10 +737,10 @@ export default function DiscoverServices() {
 
         {shouldShowServices && !shouldHideServicesSectionForEmptyCategory && (
           <div className="mt-6">
-            <p className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
+            <p className="mb-3 text-sm font-semibold text-slate-700">
               {t("services.title")}
             </p>
-            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-1 shadow-sm dark:border-slate-800 dark:bg-[#0e1726] dark:shadow-none">
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-1 shadow-sm">
               {isPopularServicesLoading
                 ? Array.from({ length: 3 }).map((_, i) => (
                     <ServiceCardSkeleton
@@ -767,14 +767,14 @@ export default function DiscoverServices() {
                             ? `/book/${targetShopId}?service=${item.id}`
                             : "/discover"
                         }
-                        className="block border-b border-slate-200/70 py-4 last:border-b-0 dark:border-slate-800/80"
+                        className="block border-b border-slate-200/70 py-4 last:border-b-0"
                       >
                         <div className="flex items-center justify-between gap-4">
                           <div className="min-w-0 flex-1">
-                            <p className="truncate text-lg font-semibold text-slate-900 dark:text-slate-100 sm:text-base">
+                            <p className="truncate text-lg font-semibold text-slate-900 sm:text-base">
                               {item.name}
                             </p>
-                            <p className="mt-1 flex items-center gap-1.5 text-xs tracking-wide text-slate-500 dark:text-slate-400">
+                            <p className="mt-1 flex items-center gap-1.5 text-xs tracking-wide text-slate-500">
                               <Clock3 className="h-4 w-4" />
                               <span className="truncate">
                                 {Number.isFinite(durationValue)
@@ -787,7 +787,7 @@ export default function DiscoverServices() {
                           </div>
 
                           <div className="shrink-0 text-right">
-                            <p className="text-2xl font-bold text-slate-800 dark:text-slate-100 sm:text-xl">
+                            <p className="text-2xl font-bold text-slate-800 sm:text-xl">
                               {Number.isFinite(priceValue)
                                 ? `$${priceValue.toFixed(2)}`
                                 : "--"}
@@ -802,7 +802,7 @@ export default function DiscoverServices() {
                   })}
 
               {!isPopularServicesLoading && filteredServices.length === 0 && (
-                <div className="py-5 text-center text-sm text-slate-500 dark:text-slate-400">
+                <div className="py-5 text-center text-sm text-slate-500">
                   {t("services.noResults")}
                 </div>
               )}

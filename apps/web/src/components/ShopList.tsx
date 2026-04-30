@@ -96,12 +96,12 @@ const ServicesList: React.FC<ServicesListProps> = ({
   const skeletonCountDesktop = 8;
 
   return (
-    <section className="bg-white pt-6 pb-12 sm:pt-8 sm:pb-16 dark:bg-[#211201]">
+    <section className="bg-white pt-6 pb-12 sm:pt-8 sm:pb-16">
       {error?.message ?? ""}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* HEADER */}
         <div className="text-left mb-8 sm:mb-10">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
             {t("services.homePopularPurchases")}
           </h2>
           <div className="w-20 h-1 rounded-full bg-[#F49B33]"></div>
@@ -117,7 +117,7 @@ const ServicesList: React.FC<ServicesListProps> = ({
                     key={`mobile-skeleton-${i}`}
                     className="max-w-85 min-w-65 w-[70vw] shrink-0"
                   >
-                    <div className="rounded-3xl border border-border bg-card p-4">
+                    <div className="rounded-3xl border border-[#f1c894] bg-white p-4 shadow-sm">
                       <Skeleton className="h-52 w-full rounded-2xl" />
                       <Skeleton className="mt-4 h-5 w-3/4" />
                       <Skeleton className="mt-2 h-4 w-1/2" />
@@ -132,7 +132,7 @@ const ServicesList: React.FC<ServicesListProps> = ({
               {Array.from({ length: skeletonCountDesktop }).map((_, i) => (
                 <div
                   key={`desktop-skeleton-${i}`}
-                  className="rounded-3xl border border-border bg-card p-4"
+                  className="rounded-3xl border border-[#f1c894] bg-white p-4 shadow-sm"
                 >
                   <Skeleton className="h-52 w-full rounded-2xl" />
                   <Skeleton className="mt-4 h-5 w-3/4" />

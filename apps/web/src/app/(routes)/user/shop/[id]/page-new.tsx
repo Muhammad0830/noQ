@@ -174,13 +174,13 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       {/* Header with Back Button */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 py-4">
           <Link
             href="/"
-            className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            className="inline-flex items-center text-gray-600 hover:text-gray-900"
           >
             <ChevronLeft className="w-5 h-5 mr-1" />
             <span>{t("nav.home")}</span>
@@ -194,14 +194,14 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
         <div className="absolute top-4 right-4 flex gap-2 z-10">
           <button
             onClick={() => setIsFavorite(!isFavorite)}
-            className="p-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full hover:bg-white dark:hover:bg-gray-700 transition-colors"
+            className="p-3 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
           >
             <Heart
-              className={`w-5 h-5 ${isFavorite ? "fill-red-500 text-red-500" : "text-gray-700 dark:text-gray-300"}`}
+              className={`w-5 h-5 ${isFavorite ? "fill-red-500 text-red-500" : "text-gray-700"}`}
             />
           </button>
-          <button className="p-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full hover:bg-white dark:hover:bg-gray-700 transition-colors">
-            <Share2 className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+          <button className="p-3 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors">
+            <Share2 className="w-5 h-5 text-gray-700" />
           </button>
         </div>
 
@@ -215,13 +215,13 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Shop Info Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
+            <div className="bg-white rounded-2xl shadow-sm p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
                     {shop.name}
                   </h1>
-                  <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium">
+                  <span className="inline-block px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm font-medium">
                     {shop.category}
                   </span>
                 </div>
@@ -230,25 +230,25 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
               <div className="flex items-center gap-4 mb-6">
                 <div className="flex items-center gap-1">
                   <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                  <span className="font-bold text-lg text-gray-900 dark:text-white">
+                  <span className="font-bold text-lg text-gray-900">
                     {shop.rating}
                   </span>
                 </div>
-                <span className="text-gray-600 dark:text-gray-400">
+                <span className="text-gray-600">
                   ({shop.reviewCount} {t("common.reviews")})
                 </span>
                 <span
                   className={`ml-auto px-3 py-1 rounded-full text-sm font-medium ${
                     shop.isOpen
-                      ? "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400"
-                      : "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
+                      ? "bg-green-100 text-green-600"
+                      : "bg-red-100 text-red-600"
                   }`}
                 >
                   {shop.isOpen ? t("shop.openNow") : t("shop.closed")}
                 </span>
               </div>
 
-              <div className="space-y-3 text-gray-700 dark:text-gray-300">
+              <div className="space-y-3 text-gray-700">
                 <div className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 text-gray-400 mt-0.5 shrink-0" />
                   <span>{shop.address}</span>
@@ -263,26 +263,26 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                   <Phone className="w-5 h-5 text-gray-400 shrink-0" />
                   <a
                     href={`tel:${shop.phone}`}
-                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                    className="text-blue-600 hover:underline"
                   >
                     {shop.phone}
                   </a>
                 </div>
               </div>
 
-              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <h3 className="font-bold text-gray-900 dark:text-white mb-2">
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <h3 className="font-bold text-gray-900 mb-2">
                   {t("shop.about")}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600">
                   {shop.description}
                 </p>
               </div>
             </div>
 
             {/* Tabs */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
-              <div className="border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              <div className="border-b border-gray-200">
                 <div className="flex overflow-x-auto">
                   {[
                     { id: "services", label: t("shop.services") },
@@ -294,8 +294,8 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                       onClick={() => setActiveTab(tab.id)}
                       className={`px-6 py-4 font-medium whitespace-nowrap transition-colors ${
                         activeTab === tab.id
-                          ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
-                          : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                          ? "text-blue-600 border-b-2 border-blue-600"
+                          : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
                       {tab.label}
@@ -311,24 +311,24 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                     {services.map((service) => (
                       <div
                         key={service.id}
-                        className="p-4 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition-colors"
+                        className="p-4 border border-gray-200 rounded-xl hover:border-blue-400 transition-colors"
                       >
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1">
-                            <h4 className="font-bold text-gray-900 dark:text-white mb-1">
+                            <h4 className="font-bold text-gray-900 mb-1">
                               {service.name}
                             </h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            <p className="text-sm text-gray-600 mb-2">
                               {service.description}
                             </p>
-                            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                            <div className="flex items-center gap-4 text-sm text-gray-600">
                               <div className="flex items-center gap-1">
                                 <Clock className="w-4 h-4" />
                                 <span>
                                   {service.duration} {t("services.duration")}
                                 </span>
                               </div>
-                              <span className="font-bold text-lg text-blue-600 dark:text-blue-400">
+                              <span className="font-bold text-lg text-blue-600">
                                 {formatPrice(service.price)}
                               </span>
                             </div>
@@ -351,27 +351,27 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                     {staff.map((member) => (
                       <div
                         key={member.id}
-                        className="p-4 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition-colors"
+                        className="p-4 border border-gray-200 rounded-xl hover:border-blue-400 transition-colors"
                       >
                         <div className="flex items-start gap-4">
                           <div className="w-16 h-16 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shrink-0">
                             <User className="w-8 h-8 text-white" />
                           </div>
                           <div className="flex-1">
-                            <h4 className="font-bold text-gray-900 dark:text-white mb-1">
+                            <h4 className="font-bold text-gray-900 mb-1">
                               {member.name}
                             </h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            <p className="text-sm text-gray-600 mb-2">
                               {member.role}
                             </p>
                             <div className="flex items-center gap-3 text-sm">
                               <div className="flex items-center gap-1">
                                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                <span className="font-semibold text-gray-900 dark:text-white">
+                                <span className="font-semibold text-gray-900">
                                   {member.rating}
                                 </span>
                               </div>
-                              <span className="text-gray-600 dark:text-gray-400">
+                              <span className="text-gray-600">
                                 {member.experience} {t("shop.years")}{" "}
                                 {t("shop.experience")}
                               </span>
@@ -389,11 +389,11 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                     {reviews.map((review) => (
                       <div
                         key={review.id}
-                        className="p-4 border border-gray-200 dark:border-gray-700 rounded-xl"
+                        className="p-4 border border-gray-200 rounded-xl"
                       >
                         <div className="flex items-start justify-between mb-2">
                           <div>
-                            <h4 className="font-bold text-gray-900 dark:text-white">
+                            <h4 className="font-bold text-gray-900">
                               {review.author}
                             </h4>
                             <div className="flex items-center gap-1 mt-1">
@@ -403,17 +403,17 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                                   className={`w-4 h-4 ${
                                     i < review.rating
                                       ? "fill-yellow-400 text-yellow-400"
-                                      : "text-gray-300 dark:text-gray-600"
+                                      : "text-gray-300"
                                   }`}
                                 />
                               ))}
                             </div>
                           </div>
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                          <span className="text-sm text-gray-500">
                             {review.date}
                           </span>
                         </div>
-                        <p className="text-gray-700 dark:text-gray-300">
+                        <p className="text-gray-700">
                           {review.text}
                         </p>
                       </div>
@@ -426,8 +426,8 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
 
           {/* Sidebar - Booking Widget */}
           <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 sticky top-4">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+            <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-4">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">
                 {t("booking.title")}
               </h3>
 
@@ -440,12 +440,12 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                   <span>{t("shop.bookNow")}</span>
                 </button>
 
-                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+                <div className="pt-4 border-t border-gray-200">
+                  <h4 className="font-semibold text-gray-900 mb-3">
                     {t("shop.schedule")}
                   </h4>
                   <div className="space-y-2 text-sm">
-                    <div className="flex justify-between text-gray-600 dark:text-gray-400">
+                    <div className="flex justify-between text-gray-600">
                       <span>Dushanba-Yakshanba</span>
                       <span className="font-medium">
                         {shop.openTime} - {shop.closeTime}
@@ -462,9 +462,9 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
       {/* Booking Modal */}
       {showBookingModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-6 flex items-center justify-between z-10">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between z-10">
+              <h2 className="text-2xl font-bold text-gray-900">
                 {t("booking.title")}
               </h2>
               <button
@@ -475,7 +475,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                   setSelectedDate(null);
                   setSelectedTime(null);
                 }}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
@@ -484,7 +484,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
             <div className="p-6 space-y-6">
               {/* Service Selection */}
               <div>
-                <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
                   1. {t("shop.selectService")}
                 </label>
                 <div className="grid grid-cols-1 gap-3">
@@ -494,20 +494,20 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                       onClick={() => setSelectedService(service)}
                       className={`p-4 border-2 rounded-xl text-left transition-all ${
                         selectedService?.id === service.id
-                          ? "border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20"
-                          : "border-gray-200 dark:border-gray-700 hover:border-blue-400"
+                          ? "border-blue-600 bg-blue-50"
+                          : "border-gray-200 hover:border-blue-400"
                       }`}
                     >
                       <div className="flex justify-between items-start">
                         <div>
-                          <h4 className="font-semibold text-gray-900 dark:text-white">
+                          <h4 className="font-semibold text-gray-900">
                             {service.name}
                           </h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          <p className="text-sm text-gray-600 mt-1">
                             {service.duration} {t("services.duration")}
                           </p>
                         </div>
-                        <span className="font-bold text-blue-600 dark:text-blue-400">
+                        <span className="font-bold text-blue-600">
                           {formatPrice(service.price)}
                         </span>
                       </div>
@@ -519,7 +519,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
               {/* Staff Selection */}
               {selectedService && (
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                  <label className="block text-sm font-semibold text-gray-900 mb-3">
                     2. {t("shop.selectStaff")}
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -529,8 +529,8 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                         onClick={() => setSelectedStaff(member)}
                         className={`p-4 border-2 rounded-xl transition-all ${
                           selectedStaff?.id === member.id
-                            ? "border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20"
-                            : "border-gray-200 dark:border-gray-700 hover:border-blue-400"
+                            ? "border-blue-600 bg-blue-50"
+                            : "border-gray-200 hover:border-blue-400"
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -538,12 +538,12 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                             <User className="w-6 h-6 text-white" />
                           </div>
                           <div className="text-left">
-                            <h4 className="font-semibold text-gray-900 dark:text-white">
+                            <h4 className="font-semibold text-gray-900">
                               {member.name}
                             </h4>
                             <div className="flex items-center gap-1 mt-1">
                               <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                              <span className="text-xs text-gray-600 dark:text-gray-400">
+                              <span className="text-xs text-gray-600">
                                 {member.rating}
                               </span>
                             </div>
@@ -558,7 +558,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
               {/* Date Selection - CALENDAR */}
               {selectedStaff && (
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                  <label className="block text-sm font-semibold text-gray-900 mb-3">
                     3. {t("shop.selectDate")}
                   </label>
                   <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
@@ -568,15 +568,15 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                         onClick={() => setSelectedDate(date)}
                         className={`p-3 border-2 rounded-xl transition-all ${
                           selectedDate?.toDateString() === date.toDateString()
-                            ? "border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20"
-                            : "border-gray-200 dark:border-gray-700 hover:border-blue-400"
+                            ? "border-blue-600 bg-blue-50"
+                            : "border-gray-200 hover:border-blue-400"
                         }`}
                       >
                         <div className="text-center">
-                          <div className="text-xs text-gray-600 dark:text-gray-400">
+                          <div className="text-xs text-gray-600">
                             {formatDate(date)}
                           </div>
-                          <div className="text-sm font-semibold text-gray-900 dark:text-white mt-1">
+                          <div className="text-sm font-semibold text-gray-900 mt-1">
                             {date.getDate()}
                           </div>
                         </div>
@@ -589,7 +589,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
               {/* Time Selection */}
               {selectedDate && (
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                  <label className="block text-sm font-semibold text-gray-900 mb-3">
                     4. {t("shop.selectTime")}
                   </label>
                   <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
@@ -599,8 +599,8 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                         onClick={() => setSelectedTime(time)}
                         className={`p-3 border-2 rounded-xl font-medium transition-all ${
                           selectedTime === time
-                            ? "border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
-                            : "border-gray-200 dark:border-gray-700 hover:border-blue-400 text-gray-900 dark:text-white"
+                            ? "border-blue-600 bg-blue-50 text-blue-600"
+                            : "border-gray-200 hover:border-blue-400 text-gray-900"
                         }`}
                       >
                         {time}
@@ -612,33 +612,33 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
 
               {/* Summary & Confirm */}
               {selectedTime && (
-                <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+                <div className="pt-6 border-t border-gray-200">
                   <div className="space-y-3 mb-6">
-                    <div className="flex justify-between text-gray-700 dark:text-gray-300">
+                    <div className="flex justify-between text-gray-700">
                       <span>{t("booking.service")}:</span>
                       <span className="font-semibold">
                         {selectedService.name}
                       </span>
                     </div>
-                    <div className="flex justify-between text-gray-700 dark:text-gray-300">
+                    <div className="flex justify-between text-gray-700">
                       <span>{t("booking.staff")}:</span>
                       <span className="font-semibold">
                         {selectedStaff.name}
                       </span>
                     </div>
-                    <div className="flex justify-between text-gray-700 dark:text-gray-300">
+                    <div className="flex justify-between text-gray-700">
                       <span>{t("booking.date")}:</span>
                       <span className="font-semibold">
                         {selectedDate?.toLocaleDateString("uz-UZ")}
                       </span>
                     </div>
-                    <div className="flex justify-between text-gray-700 dark:text-gray-300">
+                    <div className="flex justify-between text-gray-700">
                       <span>{t("booking.time")}:</span>
                       <span className="font-semibold">{selectedTime}</span>
                     </div>
-                    <div className="flex justify-between text-lg font-bold text-gray-900 dark:text-white pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between text-lg font-bold text-gray-900 pt-3 border-t border-gray-200">
                       <span>{t("booking.total")}:</span>
-                      <span className="text-blue-600 dark:text-blue-400">
+                      <span className="text-blue-600">
                         {formatPrice(selectedService.price)}
                       </span>
                     </div>
