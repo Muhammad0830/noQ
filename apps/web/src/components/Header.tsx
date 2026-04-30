@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAuthPrompt } from "@/contexts/AuthPromptContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { User, LogIn, LogOut, Bell } from "lucide-react";
 import { getImageUrl } from "@/lib/supabaseClient";
@@ -14,6 +15,7 @@ export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const { openAuthPrompt } = useAuthPrompt();
   const { t } = useLanguage();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
@@ -67,7 +69,7 @@ export default function Header() {
     : null;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[#f1c894] dark:border-[#4a2e1b] bg-white/88 dark:bg-[#211201]/92 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-[#f1c894] bg-white/88 backdrop-blur-md">
       <div
         className={`mx-auto w-full px-4 sm:px-6 lg:px-8 ${
           pathname.startsWith("/profile") ? "max-w-4xl" : "max-w-6xl"
@@ -79,7 +81,7 @@ export default function Header() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F49B33]">
               <span className="text-white font-bold text-lg">N</span>
             </div>
-            <span className="text-lg font-bold text-gray-900 dark:text-white sm:text-xl">
+            <span className="text-lg font-bold text-gray-900 sm:text-xl">
               NoQ
             </span>
           </Link>
@@ -95,7 +97,7 @@ export default function Header() {
             ) : isAuthenticated ? (
               <div className="flex items-center gap-3">
                 <button
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fff3e6] text-[#F49B33] transition-colors hover:bg-[#fce2c4] dark:bg-[#3a2415] dark:text-[#F49B33] dark:hover:bg-[#4a2e1b] sm:h-11 sm:w-11"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fff3e6] text-[#F49B33] transition-colors hover:bg-[#fce2c4] sm:h-11 sm:w-11"
                   aria-label={t("header.notifications")}
                 >
                   <Bell className="h-5 w-5" />
@@ -103,7 +105,7 @@ export default function Header() {
                 <div className="relative" ref={profileMenuRef}>
                   <button
                     onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                    className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-[#fff3e6] dark:bg-[#3a2415] sm:h-11 sm:w-11"
+                    className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-[#fff3e6] sm:h-11 sm:w-11"
                     aria-label={t("header.profileMenu")}
                   >
                     {avatarImageSrc ? (
@@ -113,28 +115,28 @@ export default function Header() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <User className="w-6 h-6 text-[#F49B33] dark:text-[#F49B33]" />
+                      <User className="w-6 h-6 text-[#F49B33]" />
                     )}
                   </button>
 
                   {profileMenuOpen && (
-                    <div className="absolute right-0 z-20 mt-2 w-48 rounded-lg border border-[#f1c894] bg-white py-2 shadow-lg dark:border-[#4a2e1b] dark:bg-[#2b170b]">
+                    <div className="absolute right-0 z-20 mt-2 w-48 rounded-lg border border-[#f1c894] bg-white py-2 shadow-lg">
                       <Link
                         href="/profile"
                         onClick={() => setProfileMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2 text-sm text-[#8a5620] dark:text-[#ffd4a6] hover:bg-[#fff3e6] dark:hover:bg-[#3a2415] transition-colors"
+                        className="flex items-center gap-3 px-4 py-2 text-sm text-[#8a5620] hover:bg-[#fff3e6] transition-colors"
                       >
                         <User className="w-4 h-4" />
                         <span>{t("nav.profile")}</span>
                       </Link>
 
-                      <div className="border-t border-[#f1c894] dark:border-[#4a2e1b] mt-2 pt-2">
+                      <div className="border-t border-[#f1c894] mt-2 pt-2">
                         <button
                           onClick={() => {
                             setProfileMenuOpen(false);
                             setIsLogoutConfirmOpen(true);
                           }}
-                          className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-[#fff3e6] dark:hover:bg-[#3a2415] transition-colors w-full"
+                          className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-[#fff3e6] transition-colors w-full"
                         >
                           <LogOut className="w-4 h-4" />
                           <span>{t("profile.logout")}</span>
@@ -145,13 +147,14 @@ export default function Header() {
                 </div>
               </div>
             ) : (
-              <Link
-                href="/login"
+              <button
+                type="button"
+                onClick={openAuthPrompt}
                 className="flex items-center space-x-2 rounded-lg bg-[#F49B33] px-3 py-2 text-sm font-medium text-white transition-shadow hover:shadow-lg sm:px-4 sm:text-base"
               >
                 <LogIn className="w-4 h-4" />
                 <span>{t("nav.signin")}</span>
-              </Link>
+              </button>
             )}
           </div>
         </div>

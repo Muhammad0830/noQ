@@ -16,6 +16,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS, getStoredAuth } from "@/lib/api";
@@ -55,6 +56,7 @@ export default function AdminServicesPage() {
   const { t } = useLanguage();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [persistedShopId, setPersistedShopId] = useState<string | null>(null);
@@ -125,10 +127,45 @@ export default function AdminServicesPage() {
     },
   );
 
+  const { data: pendingFromCache = [] } = useQuery<string[]>({
+    queryKey: ["admin-services-pending", activeShopId || "none"],
+    queryFn: () =>
+      (queryClient.getQueryData<string[]>([
+        "admin-services-pending",
+        activeShopId || "none",
+      ]) ?? []) as string[],
+    enabled: Boolean(activeShopId),
+  });
+
   useEffect(() => {
     if (!services) return;
-    setServicesState(services);
-  }, [services]);
+
+    // update pendingIds state from reactive query
+    if (pendingFromCache && pendingFromCache.length > 0) {
+      const pendingMap: Record<string, boolean> = {};
+      for (const id of pendingFromCache) pendingMap[id] = true;
+      setPendingIds((current) => ({ ...current, ...pendingMap }));
+
+      // Merge server services into previous state to preserve order for pending items
+      setServicesState((prev) => {
+        if (!prev) return services;
+
+        const serverMap = new Map(services.map((s) => [s.id, s]));
+
+        const merged = prev.map((item) => serverMap.get(item.id) ?? item);
+
+        // append any new items from server that weren't in prev
+        const missing = services.filter(
+          (s) => !prev.some((p) => p.id === s.id),
+        );
+
+        return [...merged, ...missing];
+      });
+    } else {
+      setPendingIds({});
+      setServicesState(services);
+    }
+  }, [services, activeShopId, pendingFromCache]);
 
   const displayedServices = servicesState;
 
@@ -336,7 +373,7 @@ export default function AdminServicesPage() {
               className="inline-flex h-14 w-full shrink-0 items-center justify-center gap-2 rounded-[18px] bg-[#F49B33] px-5 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(244,155,51,0.24)] transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0"
             >
               <Plus className="h-4 w-4" />
-              <span>Add Service</span>
+              <span>{t("admin.services.addService")}</span>
             </Link>
 
             <div className="relative flex-1">
@@ -345,7 +382,7 @@ export default function AdminServicesPage() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search service by name or duration"
+                placeholder={t("admin.services.search")}
                 className="w-full rounded-[18px] border border-[#d7d7d7] bg-white py-4 pl-11 pr-4 text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#F49B33] focus:outline-none"
               />
             </div>
@@ -358,7 +395,7 @@ export default function AdminServicesPage() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search service by name or duration"
+                placeholder={t("admin.services.search")}
                 className="w-full rounded-full border border-[#d7d7d7] bg-white py-4 pl-11 pr-4 text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#F49B33] focus:outline-none"
               />
             </div>
@@ -374,7 +411,7 @@ export default function AdminServicesPage() {
 
           {!activeShopId && (
             <div className="mt-4 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-              Shop tanlanmagan. Avval admin dashboarddan shop tanlang.
+              {t("admin.dashboard.shopNotFound")}
             </div>
           )}
 
@@ -387,7 +424,7 @@ export default function AdminServicesPage() {
                   "string" &&
                 (error.data as { message: string }).message) ||
                 error?.message ||
-                "Failed to load services"}
+                t("admin.services.failedToLoadServices")}
             </div>
           )}
 
@@ -400,11 +437,11 @@ export default function AdminServicesPage() {
           <section className="mt-5 flex items-center justify-between">
             <div>
               <h2 className="mt-1 text-[17px] font-medium text-[#8b95a1]">
-                Active Services
+                {t("admin.services.activeServices")}
               </h2>
             </div>
             <span className="rounded-full bg-[#fff2e1] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F49B33] shadow-[0_6px_14px_rgba(244,155,51,0.12)]">
-              {totalActive} Total
+              {totalActive} {t("admin.services.total")}
             </span>
           </section>
 
@@ -431,7 +468,7 @@ export default function AdminServicesPage() {
                       <div className="absolute inset-0 z-20 flex items-center justify-center gap-2 bg-white/65 backdrop-blur-[1px]">
                         <Loader2 className="h-4 w-4 animate-spin text-[#F49B33]" />
                         <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#7f8894]">
-                          Updating
+                          {t("admin.services.updating")}
                         </span>
                       </div>
                     )}
@@ -445,7 +482,10 @@ export default function AdminServicesPage() {
                             </h3>
                             <div className="mt-1 flex items-center gap-2 text-[12px] text-[#8b95a1]">
                               <Clock3 className="h-3.5 w-3.5" />
-                              <span>{service.durationMin} min</span>
+                              <span>
+                                {service.durationMin}{" "}
+                                {t("admin.services.duration")}
+                              </span>
                               <span className="text-[#d8dbe1]">•</span>
                               <span>{toPriceLabel(service.price)}</span>
                             </div>
@@ -464,8 +504,10 @@ export default function AdminServicesPage() {
                             </span>
                             <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7f8894]">
                               {service.bufferTime
-                                ? `Buffer ${service.bufferTime} min`
-                                : "No buffer"}
+                                ? t("admin.services.bufferTimeFormat", {
+                                    time: service.bufferTime,
+                                  })
+                                : t("admin.services.noBuffer")}
                             </span>
                           </div>
 
@@ -475,7 +517,7 @@ export default function AdminServicesPage() {
                               onClick={() =>
                                 router.push(getServiceEditHref(service.id))
                               }
-                              aria-label={`Edit ${service.name}`}
+                              aria-label={`${t("admin.services.edit")} ${service.name}`}
                               className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#8f98a4] transition-colors hover:bg-[#f3f4f6]"
                             >
                               <PenLine className="h-4 w-4" />
@@ -490,14 +532,14 @@ export default function AdminServicesPage() {
               })
             ) : (
               <div className="rounded-[24px] border border-dashed border-[#d5d9df] bg-white px-4 py-8 text-center text-sm text-[#8b95a1]">
-                No active services matched your search.
+                {t("admin.services.noResults")}
               </div>
             )}
           </section>
 
           <section className="mt-6">
             <h3 className="mt-1 text-[17px] font-medium text-[#8b95a1]">
-              Inactive Services
+              {t("admin.services.inactiveServices")}
             </h3>
 
             <div className="mt-4 space-y-3 rounded-[24px] bg-white p-4 shadow-[0_10px_25px_rgba(17,24,39,0.04)] ring-1 ring-black/5">
@@ -510,7 +552,7 @@ export default function AdminServicesPage() {
 
               {inactiveServices.length === 0 && !isLoading && (
                 <div className="rounded-xl border border-dashed border-[#d5d9df] px-4 py-6 text-center text-sm text-[#8b95a1]">
-                  No inactive services found.
+                  {t("admin.services.noInactive")}
                 </div>
               )}
 
@@ -529,7 +571,7 @@ export default function AdminServicesPage() {
                       <div className="absolute inset-0 z-20 flex items-center justify-center gap-2 rounded-2xl bg-white/65 backdrop-blur-[1px]">
                         <Loader2 className="h-4 w-4 animate-spin text-[#F49B33]" />
                         <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#7f8894]">
-                          Updating
+                          {t("admin.services.updating")}
                         </span>
                       </div>
                     )}
@@ -543,7 +585,9 @@ export default function AdminServicesPage() {
                         {service.name}
                       </p>
                       <div className="mt-0.5 flex items-center gap-2 text-[11px] text-[#98a0ab]">
-                        <span>{service.durationMin} min</span>
+                        <span>
+                          {service.durationMin} {t("admin.services.duration")}
+                        </span>
                         <span className="text-[#d8dbe1]">•</span>
                         <span>{toPriceLabel(service.price)}</span>
                       </div>
@@ -555,7 +599,7 @@ export default function AdminServicesPage() {
                         className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9aa1ab] transition-colors hover:text-[#F49B33]"
                       >
                         <PenLine className="h-3.5 w-3.5" />
-                        Edit
+                        {t("admin.services.edit")}
                       </button>
                     </div>
 

@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Header from "@/components/Header";
 import ConditionalBottomNav from "@/components/ConditionalBottomNav";
+import { AuthPromptProvider } from "@/contexts/AuthPromptContext";
 
 type AppShellProps = {
   children: React.ReactNode;
@@ -31,13 +32,15 @@ export default function AppShell({ children }: AppShellProps) {
           : "min-h-[calc(100dvh-8rem)] md:min-h-[calc(100dvh-4rem)] pb-16 md:pb-0";
 
   return (
-    <div className={isAuthPage ? "overflow-hidden" : ""}>
-      {!isShopHistoryPage &&
-        !isStaffManagePage &&
-        !isAdminServicePage &&
-        !isAddBusinessFlowPage && <Header />}
-      <main className={mainClassName}>{children}</main>
-      <ConditionalBottomNav />
-    </div>
+    <AuthPromptProvider>
+      <div className={isAuthPage ? "overflow-hidden" : ""}>
+        {!isShopHistoryPage &&
+          !isStaffManagePage &&
+          !isAdminServicePage &&
+          !isAddBusinessFlowPage && <Header />}
+        <main className={mainClassName}>{children}</main>
+        <ConditionalBottomNav />
+      </div>
+    </AuthPromptProvider>
   );
 }

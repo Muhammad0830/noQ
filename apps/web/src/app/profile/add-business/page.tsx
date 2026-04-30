@@ -74,18 +74,20 @@ export default function AddBusinessStepOnePage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f4f5f8] px-4 py-5 text-slate-900 dark:bg-[#211201] dark:text-white">
+    <main className="min-h-screen bg-[#f4f5f8] px-4 py-5 text-slate-900">
       <div className="mx-auto w-full" style={{ maxWidth: 540 }}>
         <header className="relative mb-6 flex items-center justify-center">
           <button
             type="button"
             onClick={() => router.back()}
             aria-label={t("common.back")}
-            className="absolute left-0 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-white/80"
+            className="absolute left-0 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-lg font-semibold">{t("newShop.step1.pageTitle")}</h1>
+          <h1 className="text-lg font-semibold">
+            {t("newShop.step1.pageTitle")}
+          </h1>
         </header>
 
         <div className="mb-5 flex items-center justify-center gap-2">
@@ -98,36 +100,36 @@ export default function AddBusinessStepOnePage() {
                   className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
                     isActive
                       ? "bg-[#F49B33] text-white"
-                      : "bg-slate-200 text-slate-500 dark:bg-white/10 dark:text-white/60"
+                      : "bg-slate-200 text-slate-500"
                   }`}
                 >
                   {step}
                 </span>
-                {step < 3 && (
-                  <span className="h-px w-12 bg-slate-300 dark:bg-white/15" />
-                )}
+                {step < 3 && <span className="h-px w-12 bg-slate-300" />}
               </div>
             );
           })}
         </div>
 
-        <h2 className="mb-5 text-2xl font-semibold">{t("newShop.step1.title")}</h2>
+        <h2 className="mb-5 text-2xl font-semibold">
+          {t("newShop.step1.title")}
+        </h2>
 
         <form onSubmit={handleNext} className="space-y-4">
           <div>
-            <label className="mb-2 block text-sm text-slate-600 dark:text-white/75">
+            <label className="mb-2 block text-sm text-slate-600">
               {t("newShop.step1.businessName")}
             </label>
             <input
               value={businessName}
               onChange={(event) => setBusinessName(event.target.value)}
               placeholder={t("newShop.step1.businessNamePlaceholder")}
-              className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-[#F49B33] focus:ring-2 focus:ring-[#F49B33]/20 dark:border-white/10 dark:bg-white/5 dark:placeholder:text-white/40"
+              className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-[#F49B33] focus:ring-2 focus:ring-[#F49B33]/20"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm text-slate-600 dark:text-white/75">
+            <label className="mb-2 block text-sm text-slate-600">
               {t("newShop.step1.category")}
             </label>
 
@@ -135,7 +137,7 @@ export default function AddBusinessStepOnePage() {
               <select
                 value={categoryId}
                 onChange={(event) => setCategoryId(event.target.value)}
-                className="h-12 w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 pr-10 text-sm outline-none transition focus:border-[#F49B33] focus:ring-2 focus:ring-[#F49B33]/20 dark:border-white/10 dark:bg-white/5"
+                className="h-12 w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 pr-10 text-sm outline-none transition focus:border-[#F49B33] focus:ring-2 focus:ring-[#F49B33]/20"
               >
                 <option value="">
                   {isLoadingCategories
@@ -153,7 +155,7 @@ export default function AddBusinessStepOnePage() {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm text-slate-600 dark:text-white/75">
+            <label className="mb-2 block text-sm text-slate-600">
               {t("newShop.step1.description")}
             </label>
             <textarea
@@ -161,31 +163,31 @@ export default function AddBusinessStepOnePage() {
               onChange={(event) => setDescription(event.target.value)}
               placeholder={t("newShop.step1.descriptionPlaceholder")}
               rows={5}
-              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-[#F49B33] focus:ring-2 focus:ring-[#F49B33]/20 dark:border-white/10 dark:bg-white/5 dark:placeholder:text-white/40"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-[#F49B33] focus:ring-2 focus:ring-[#F49B33]/20"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm text-slate-600 dark:text-white/75">
+            <label className="mb-2 block text-sm text-slate-600">
               {t("newShop.step1.address")}
             </label>
             <input
               value={address}
               onChange={(event) => setAddress(event.target.value)}
               placeholder={t("newShop.step1.addressPlaceholder")}
-              className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-[#F49B33] focus:ring-2 focus:ring-[#F49B33]/20 dark:border-white/10 dark:bg-white/5 dark:placeholder:text-white/40"
+              className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-[#F49B33] focus:ring-2 focus:ring-[#F49B33]/20"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm text-slate-600 dark:text-white/75">
+            <label className="mb-2 block text-sm text-slate-600">
               {t("newShop.step1.phone")}
             </label>
             <input
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
               placeholder={t("newShop.step1.phonePlaceholder")}
-              className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-[#F49B33] focus:ring-2 focus:ring-[#F49B33]/20 dark:border-white/10 dark:bg-white/5 dark:placeholder:text-white/40"
+              className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-[#F49B33] focus:ring-2 focus:ring-[#F49B33]/20"
             />
           </div>
 

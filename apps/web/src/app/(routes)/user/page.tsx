@@ -62,7 +62,7 @@ export default function Home() {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900">
+    <div className="bg-white">
       {/* Hero Section */}
       <HeroSection onSearch={handleSearch} />
 

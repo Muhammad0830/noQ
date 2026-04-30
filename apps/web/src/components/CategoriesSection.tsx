@@ -23,11 +23,11 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   return (
-    <section className="bg-white pt-8 pb-5 sm:pt-10 sm:pb-6 dark:bg-[#211201]">
+    <section className="bg-white pt-8 pb-5 sm:pt-10 sm:pb-6">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-left mb-8 sm:mb-10">
-          <h2 className="mb-3 text-2xl font-bold text-slate-900 sm:text-3xl dark:text-white">
+          <h2 className="mb-3 text-2xl font-bold text-slate-900 sm:text-3xl">
             {t("categories.title")}
           </h2>
           <div className="h-1 w-20 rounded-full bg-[#F49B33]" />
@@ -44,7 +44,7 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                 ? Array.from({ length: 8 }).map((_, index) => (
                     <div
                       key={`category-skeleton-${index}`}
-                      className="min-w-28 sm:min-w-30 p-3 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 shrink-0"
+                      className="min-w-28 sm:min-w-30 p-3 sm:p-4 rounded-xl border border-gray-200 bg-gray-50 shrink-0"
                     >
                       <div className="flex flex-col items-center space-y-2">
                         <Skeleton className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg" />
@@ -62,8 +62,8 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                         onClick={() => onCategorySelect?.(category.id)}
                         className={`group min-w-28 sm:min-w-30 p-3 sm:p-4 rounded-xl border-2 transition-all duration-300 shrink-0 ${
                           isSelected
-                            ? "border-[#F49B33] bg-[#fff3e6] dark:bg-[#3a2415]"
-                            : "border-[#f1c894] dark:border-[#4a2e1b] bg-white dark:bg-[#2b170b] hover:border-[#F49B33] hover:shadow-[0_10px_18px_rgba(244,155,51,0.18)]"
+                            ? "border-[#F49B33] bg-[#fff3e6]"
+                            : "border-[#f1c894] bg-white hover:border-[#F49B33] hover:shadow-[0_10px_18px_rgba(244,155,51,0.18)]"
                         }`}
                       >
                         <div className="flex flex-col items-center space-y-2">
@@ -71,7 +71,7 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                             className={`w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center transition-all ${
                               isSelected
                                 ? "bg-[#F49B33] text-white"
-                                : "bg-[#fff8f1] dark:bg-[#3a2415] text-[#F49B33] group-hover:bg-[#F49B33] group-hover:text-white"
+                                : "bg-[#fff8f1] text-[#F49B33] group-hover:bg-[#F49B33] group-hover:text-white"
                             }`}
                           >
                             {icon}
@@ -79,8 +79,8 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                           <span
                             className={`text-xs sm:text-sm font-semibold text-center leading-tight ${
                               isSelected
-                                ? "text-[#F49B33] dark:text-[#ffd4a6]"
-                                : "text-slate-700 dark:text-slate-200"
+                                ? "text-[#F49B33]"
+                                : "text-slate-700"
                             }`}
                           >
                             {category.name}
