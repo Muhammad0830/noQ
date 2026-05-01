@@ -175,7 +175,6 @@ export const translations: Translations = {
     "admin.services.edit.error.updateFailed": "Xizmatni yangilash muvaffaqiyatsiz",
     "admin.services.edit.error.deleteFailed": "Xizmatni o'chirish muvaffaqiyatsiz",
 
-    "admin.schedule.title": "Jadval sozlamalari",
     "admin.schedule.exceptions.title": "Istisnolar",
     "admin.schedule.exceptions.description":
       "Maxsus kunlar va bayram ish vaqtlarini shu yerda qo'shishingiz mumkin.",
@@ -741,7 +740,6 @@ export const translations: Translations = {
     "admin.services.edit.error.updateFailed": "Хизматни янгилаш муваффақиятсиз",
     "admin.services.edit.error.deleteFailed": "Хизматни ўчириш муваффақиятсиз",
 
-    "admin.schedule.title": "Жадвал созламалари",
     "admin.schedule.tab.schedule": "Жадвал",
     "admin.schedule.tab.exceptions": "Истиснолар",
     "admin.schedule.weekly": "Ҳафталик жадвал",
@@ -1311,7 +1309,6 @@ export const translations: Translations = {
     "admin.services.edit.error.updateFailed": "Не удалось обновить услугу",
     "admin.services.edit.error.deleteFailed": "Не удалось удалить услугу",
 
-    "admin.schedule.title": "Настройка расписания",
     "admin.schedule.tab.schedule": "Расписание",
     "admin.schedule.tab.exceptions": "Исключения",
     "admin.schedule.weekly": "Недельное расписание",

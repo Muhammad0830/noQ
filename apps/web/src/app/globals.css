@@ -296,7 +296,7 @@
     border-color: var(--border);
   }
 
-  /* .dark [class*="dark:bg-"] {
+  .dark [class*="dark:bg-"] {
     background-color: var(--surface) !important;
   }
 
@@ -306,7 +306,7 @@
 
   .dark [class*="dark:border-"] {
     border-color: var(--border) !important;
-  } */
+  }
 
   [data-slot="skeleton"] {
     background-color: rgba(244, 155, 51, 0.12) !important;
