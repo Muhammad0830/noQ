@@ -1,129 +1,129 @@
-@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc2NTExMjc0LCJpYXQiOjE3NzY1MDc2NzQsImVtYWlsIjoiYUBnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3NjUwNzY3NH1dLCJzZXNzaW9uX2lkIjoiZGIyYjA2OWQtZWVhMS00ZGZiLWJhNDQtYTM5NzgwMGNiMThhIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.9VP0hatCR87k9iHVtkOkP--6gMgqgHZZJhtc9N5an6kiaN5iuy2bZNDm8FF7XE812dG_eJVCCiukTMgsZR5UJw
+@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc3NDY2MjIxLCJpYXQiOjE3Nzc0NjI2MjEsImVtYWlsIjoiYUBnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3NzQ2MjYyMX1dLCJzZXNzaW9uX2lkIjoiMjUyYzNlOTgtYzU4Yy00NzkxLTk5OWMtMDIwOWI3NzNkMzYxIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.zRO10VMxQ7EQAtXNPg358R4MTUSnBJvLcrXJUl9Q6TGA0xqn_fwyWFLVvvda4HTuHo2IHEZS8WxhwipdTCkcmw
 
-GET http://localhost:3001/api/auth/me
+GET http://localhost:3001/auth/me
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/bookings/users/active
+GET http://localhost:3001/bookings/users/active
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/bookings/users/history
+GET http://localhost:3001/bookings/users/history
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/bookings/available-slots?shopId=4c953f8f-f7c8-4860-962d-21a2f06bcb89&serviceId=89629de1-2a63-43b2-821a-e84ddf1ce1b8&date=2026-04-06
+GET http://localhost:3001/bookings/available-slots?shopId=4c953f8f-f7c8-4860-962d-21a2f06bcb89&serviceId=89629de1-2a63-43b2-821a-e84ddf1ce1b8&date=2026-04-06
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/bookings/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89/active
+GET http://localhost:3001/bookings/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89/active
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/bookings/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89/history
+GET http://localhost:3001/bookings/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89/history
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/categories
+GET http://localhost:3001/categories
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/favourites/shops
+GET http://localhost:3001/favourites/shops
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/favourites/services
+GET http://localhost:3001/favourites/services
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/reviews
+GET http://localhost:3001/reviews
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/reviews/d99964ba-11fe-4467-8107-e52ab670aa6b
+GET http://localhost:3001/reviews/d99964ba-11fe-4467-8107-e52ab670aa6b
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/services?minPrice=20000&maxPrice=100000&categoryId=a85dbfa6-7c8f-4ffc-a7ad-b3a85a5503e8
+GET http://localhost:3001/services?minPrice=20000&maxPrice=100000&categoryId=a85dbfa6-7c8f-4ffc-a7ad-b3a85a5503e8
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/services/89629de1-2a63-43b2-821a-e84ddf1ce1b8
+GET http://localhost:3001/services/89629de1-2a63-43b2-821a-e84ddf1ce1b8
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/shops?open=true&limit=10&minPrice=20000&maxPrice=100000&categoryId=a85dbfa6-7c8f-4ffc-a7ad-b3a85a5503e8
+GET http://localhost:3001/shops?open=true&limit=10&minPrice=20000&maxPrice=100000&categoryId=a85dbfa6-7c8f-4ffc-a7ad-b3a85a5503e8
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89
+GET http://localhost:3001/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/shops/925e1f3b-b646-42a7-8235-1b2c612dee94/services
+GET http://localhost:3001/shops/925e1f3b-b646-42a7-8235-1b2c612dee94/services
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/shops/925e1f3b-b646-42a7-8235-1b2c612dee94/reviews?limit=10&cursor=""
+GET http://localhost:3001/shops/925e1f3b-b646-42a7-8235-1b2c612dee94/reviews?limit=10&cursor=""
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89/day-timeline?date=2026-04-14
+GET http://localhost:3001/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89/day-timeline?date=2026-04-14
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/users
+GET http://localhost:3001/users
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/shops/trending/7days
+GET http://localhost:3001/shops/trending/7days
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/services/trending/7days
+GET http://localhost:3001/services/trending/7days
 Authorization: Bearer {{bearer_token}}
 
 ###
-GET http://localhost:3001/api/admin/dashboard/base_info
-Authorization: Bearer {{bearer_token}}
-x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
-
-###
-GET http://localhost:3001/api/admin/analytics?type=week
+GET http://localhost:3001/admin/dashboard/base_info
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/api/admin/analytics/diagram_info?type=all
+GET http://localhost:3001/admin/analytics?type=week
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/api/admin/analytics/famousServices?type=all
+GET http://localhost:3001/admin/analytics/diagram_info?type=all
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/api/admin/analytics/peak-hours?type=all
+GET http://localhost:3001/admin/analytics/famousServices?type=all
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/api/admin/history?date=2026-04-13&search=abdu
+GET http://localhost:3001/admin/analytics/peak-hours?type=all
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/api/admin/services
+GET http://localhost:3001/admin/history?date=2026-04-13&search=abdu
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/api/admin/staffs?search=sunna
+GET http://localhost:3001/admin/services
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/api/admin/schedule?date=all
+GET http://localhost:3001/admin/staffs?search=sunna
+Authorization: Bearer {{bearer_token}}
+x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
+
+###
+GET http://localhost:3001/admin/schedule?date=all
 Authorization: Bearer {{bearer_token}}
 x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
