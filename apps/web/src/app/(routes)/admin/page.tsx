@@ -318,9 +318,9 @@ export default function AdminDashboard() {
     const value = baseInfo?.currentRevenue ?? 0;
     return new Intl.NumberFormat(locale || undefined, {
       style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      currency: "UZS",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(value);
   }, [baseInfo?.currentRevenue, locale]);
 
@@ -840,7 +840,7 @@ export default function AdminDashboard() {
                       </div>
                     ) : (
                       <>
-                        <p className="text-xl sm:text-2xl font-bold mt-2">
+                        <p className="text-lg sm:text-xl font-bold mt-2 break-words line-clamp-2">
                           {revenue}
                         </p>
                         <div

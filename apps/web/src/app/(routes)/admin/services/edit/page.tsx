@@ -184,7 +184,7 @@ export default function EditServicePage() {
       setService((current) => ({ ...current, hours: "23" }));
       setDurationWarnings((current) => ({
         ...current,
-        hours: t("admin.services.edit.hoursWarning"),
+        hours: t("admin.services.error.maxHours"),
       }));
       return;
     }
@@ -207,7 +207,7 @@ export default function EditServicePage() {
       setService((current) => ({ ...current, minutes: "60" }));
       setDurationWarnings((current) => ({
         ...current,
-        minutes: t("admin.services.edit.minutesWarning"),
+        minutes: t("admin.services.error.maxMinutes"),
       }));
       return;
     }
@@ -254,7 +254,7 @@ export default function EditServicePage() {
           const message =
             body && typeof body.message === "string"
               ? body.message
-              : "Failed to load service";
+              : t("admin.services.error.loadOneFailed");
           throw new Error(message);
         }
 
@@ -269,7 +269,7 @@ export default function EditServicePage() {
         const current = services.find((item) => item.id === serviceId);
 
         if (!current) {
-          throw new Error("Service not found");
+          throw new Error(t("admin.services.error.serviceNotFound"));
         }
 
         const durationHours = Math.floor(current.durationMin / 60);
@@ -293,7 +293,7 @@ export default function EditServicePage() {
         setLoadError(
           error instanceof Error
             ? error.message
-            : t("admin.services.edit.error.loadFailed"),
+            : t("admin.services.error.loadOneFailed"),
         );
       } finally {
         setIsLoadingService(false);
@@ -303,14 +303,14 @@ export default function EditServicePage() {
     void loadService();
 
     return () => controller.abort();
-  }, [activeShopId, hasLoadedPersistedShop, serviceId]);
+  }, [activeShopId, hasLoadedPersistedShop, serviceId, t]);
 
   const handleSave = (e: React.FormEvent) => {
     const saveService = async () => {
       e.preventDefault();
 
       if (!activeShopId || !serviceId || isSubmitting) {
-        setSubmitError(t("admin.services.edit.error.notFound"));
+        setSubmitError(t("admin.services.error.missingServiceOrShop"));
         return;
       }
 
@@ -319,17 +319,17 @@ export default function EditServicePage() {
       const bufferTime = service.bufferTime.trim();
 
       if (!service.name.trim()) {
-        setSubmitError(t("admin.services.edit.error.nameRequired"));
+        setSubmitError(t("admin.services.error.nameRequired"));
         return;
       }
 
       if (Number.isNaN(durationMin) || durationMin <= 0) {
-        setSubmitError(t("admin.services.edit.error.invalidDuration"));
+        setSubmitError(t("admin.services.error.invalidDuration"));
         return;
       }
 
       if (Number.isNaN(price) || price <= 0) {
-        setSubmitError(t("admin.services.edit.error.invalidPrice"));
+        setSubmitError(t("admin.services.error.invalidPrice"));
         return;
       }
 
@@ -370,7 +370,7 @@ export default function EditServicePage() {
           const message =
             body && typeof body.message === "string"
               ? body.message
-              : t("admin.services.edit.error.updateFailed");
+              : t("admin.services.error.updateFailed");
           throw new Error(message);
         }
 
@@ -427,7 +427,7 @@ export default function EditServicePage() {
         setSubmitError(
           error instanceof Error
             ? error.message
-            : t("admin.services.edit.error.updateFailed"),
+            : t("admin.services.error.updateFailed"),
         );
       } finally {
         setIsSubmitting(false);
@@ -439,7 +439,7 @@ export default function EditServicePage() {
 
   const handleDelete = async () => {
     if (!activeShopId || !serviceId || isDeleting) {
-      setSubmitError(t("admin.services.edit.error.notFound"));
+      setSubmitError(t("admin.services.error.missingServiceOrShop"));
       return;
     }
 
@@ -448,19 +448,21 @@ export default function EditServicePage() {
 
       await deleteService(undefined);
 
-      queryClient.setQueryData<AdminService[]>(
-        ["admin-services", activeShopId || "none"],
-        (currentServices) =>
-          currentServices?.filter((item) => item.id !== serviceId) ??
-          currentServices,
-      );
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        const message =
+          body && typeof body.message === "string"
+            ? body.message
+            : t("admin.services.error.deleteFailed");
+        throw new Error(message);
+      }
 
       router.push(`/admin/services?shopId=${encodeURIComponent(activeShopId)}`);
     } catch (error) {
       setSubmitError(
         error instanceof Error
           ? error.message
-          : t("admin.services.edit.error.deleteFailed"),
+          : t("admin.services.error.deleteFailed"),
       );
     }
   };
@@ -473,19 +475,19 @@ export default function EditServicePage() {
             type="button"
             onClick={() => router.back()}
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d7dbe3] bg-white text-[#8d95a3] shadow-sm transition-transform active:scale-95"
-            aria-label={t("admin.services.edit.back")}
+            aria-label={t("admin.services.aria.goBack")}
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
 
           <h1 className="text-[18px] font-semibold tracking-tight text-[#111827]">
-            {t("admin.services.edit.title")}
+            {t("admin.services.editTitle")}
           </h1>
 
           <button
             type="button"
             className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#b2b8c3] transition-colors hover:bg-black/5"
-            aria-label={t("admin.services.edit.moreOptions")}
+            aria-label={t("admin.services.aria.moreOptions")}
           >
             <EllipsisVertical className="h-5 w-5" />
           </button>
@@ -513,21 +515,21 @@ export default function EditServicePage() {
               <div className="mb-3 flex items-center gap-2 text-[#9aa3b1]">
                 <Info className="h-4 w-4 text-[#F49B33]" />
                 <span className="text-[12px] font-semibold uppercase tracking-[0.18em]">
-                  {t("admin.services.edit.heroAsset")}
+                  {t("admin.services.heroAsset")}
                 </span>
               </div>
 
               <div className="relative overflow-hidden rounded-[22px]">
                 <Image
                   src={BarbershopImage}
-                  alt={t("admin.services.edit.heroImageLabel")}
+                  alt={t("admin.services.serviceHeroAlt")}
                   className="h-40 w-full object-cover"
                   priority
                 />
                 <button
                   type="button"
                   className="absolute bottom-3 right-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-[#2f3640] shadow-[0_8px_16px_rgba(0,0,0,0.16)] transition-transform active:scale-95"
-                  aria-label={t("admin.services.edit.editHeroImage")}
+                  aria-label={t("admin.services.aria.editHeroImage")}
                 >
                   <Pencil className="h-4 w-4" />
                 </button>
@@ -538,7 +540,7 @@ export default function EditServicePage() {
               <div className="mb-3 flex items-center gap-2 text-[#9aa3b1]">
                 <Info className="h-4 w-4 text-[#F49B33]" />
                 <span className="text-[12px] font-semibold uppercase tracking-[0.18em]">
-                  {t("admin.services.edit.heroImageLabel")}
+                  {t("admin.services.serviceName")}
                 </span>
               </div>
 
@@ -549,7 +551,7 @@ export default function EditServicePage() {
                 onChange={(e) =>
                   setService({ ...service, name: e.target.value })
                 }
-                placeholder={t("admin.services.edit.serviceNamePlaceholder")}
+                placeholder={t("admin.services.serviceNamePlaceholder")}
                 disabled={isLoadingService}
                 className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[15px] text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
               />
@@ -559,14 +561,14 @@ export default function EditServicePage() {
               <div className="mb-3 flex items-center gap-2 text-[#9aa3b1]">
                 <Clock3 className="h-4 w-4 text-[#F49B33]" />
                 <span className="text-[12px] font-semibold uppercase tracking-[0.18em]">
-                  {t("admin.services.edit.serviceDuration")}
+                  {t("admin.services.serviceDuration")}
                 </span>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <label className="block">
                   <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#6b7280]">
-                    {t("admin.services.edit.hours")}
+                    {t("admin.services.hours")}
                   </span>
                   <input
                     type="text"
@@ -587,7 +589,7 @@ export default function EditServicePage() {
 
                 <label className="block">
                   <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#6b7280]">
-                    {t("admin.services.edit.minutes")}
+                    {t("admin.services.minutes")}
                   </span>
                   <input
                     type="text"
@@ -611,10 +613,10 @@ export default function EditServicePage() {
                 <div className="mb-2 flex items-center justify-between gap-3">
                   <div>
                     <p className="text-[14px] font-semibold text-[#111827]">
-                      {t("admin.services.edit.bufferTime")}
+                      {t("admin.services.bufferTime")}
                     </p>
                     <p className="text-[12px] text-[#7a8493]">
-                      {t("admin.services.edit.bufferDescription")}
+                      {t("admin.services.bufferTimeHint")}
                     </p>
                   </div>
                   <button
@@ -623,7 +625,7 @@ export default function EditServicePage() {
                       setIsBufferTimeEnabled((current) => !current)
                     }
                     className={`relative h-6 w-11 rounded-full transition-colors ${isBufferTimeEnabled ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
-                    aria-label={t("admin.services.edit.toggleBufferTime")}
+                    aria-label={t("admin.services.aria.toggleBufferTime")}
                   >
                     <span
                       className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${isBufferTimeEnabled ? "left-5.75" : "left-0.75"}`}
@@ -638,7 +640,7 @@ export default function EditServicePage() {
                   onChange={(e) => {
                     setService({ ...service, bufferTime: e.target.value });
                   }}
-                  placeholder={t("admin.services.edit.bufferPlaceholder")}
+                  placeholder="15"
                   disabled={isLoadingService || !isBufferTimeEnabled}
                   className={`h-12 w-full rounded-2xl border px-4 text-[15px] outline-none transition-colors placeholder:text-[#b0b7c3] ${
                     isLoadingService || !isBufferTimeEnabled
@@ -653,13 +655,13 @@ export default function EditServicePage() {
               <div className="mb-3 flex items-center gap-2 text-[#9aa3b1]">
                 <DollarSign className="h-4 w-4 text-[#F49B33]" />
                 <span className="text-[12px] font-semibold uppercase tracking-[0.18em]">
-                  {t("admin.services.edit.pricingSection")}
+                  {t("admin.services.pricingOperations")}
                 </span>
               </div>
 
               <label className="block">
                 <span className="mb-2 block text-[14px] font-semibold text-[#111827]">
-                  {t("admin.services.edit.servicePrice")}
+                  {t("admin.services.servicePrice")}
                 </span>
                 <div className="relative">
                   <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[15px] text-[#8c94a1]">
@@ -684,14 +686,14 @@ export default function EditServicePage() {
               <div className="mb-3 flex items-center gap-2 text-[#9aa3b1]">
                 <Users className="h-4 w-4 text-[#F49B33]" />
                 <span className="text-[12px] font-semibold uppercase tracking-[0.18em]">
-                  {t("admin.services.edit.staffSection")}
+                  {t("admin.services.staffAssignment")}
                 </span>
               </div>
 
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[14px] font-semibold text-[#6b7280]">
-                    {t("admin.services.edit.assignToAllStaff")}
+                    {t("admin.services.assignAllStaff")}
                   </p>
                 </div>
                 <button
@@ -705,7 +707,7 @@ export default function EditServicePage() {
                     }))
                   }
                   className={`relative h-6 w-11 rounded-full transition-colors ${allMembersSelected ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
-                  aria-label={t("admin.services.edit.toggleStaffAssignment")}
+                  aria-label={t("admin.services.aria.toggleStaffAssignment")}
                 >
                   <span
                     className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${allMembersSelected ? "left-5.75" : "left-0.75"}`}
@@ -715,7 +717,7 @@ export default function EditServicePage() {
 
               <div className="mt-4 space-y-3">
                 <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[#9aa3b1]">
-                  {t("admin.services.edit.specificMembers")}
+                  {t("admin.services.specificMembers")}
                 </p>
                 {staffMembers.map((member) => {
                   const active = service.selectedStaff.includes(member.id);
@@ -768,12 +770,9 @@ export default function EditServicePage() {
                 disabled={isSubmitting || isDeleting || isLoadingService}
                 className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[#F49B33] text-[16px] font-semibold uppercase tracking-[0.08em] text-white shadow-[0_16px_32px_rgba(244,155,51,0.28)] transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-90"
               >
-                {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                <span>
-                  {isSubmitting
-                    ? t("admin.services.edit.saving")
-                    : t("admin.services.edit.save")}
-                </span>
+                {isSubmitting
+                  ? t("admin.services.saving")
+                  : t("admin.services.save")}
               </button>
 
               <button
@@ -782,12 +781,9 @@ export default function EditServicePage() {
                 disabled={isDeleting || isSubmitting || isLoadingService}
                 className="flex h-14 w-full items-center justify-center gap-2 rounded-full border border-[#f3b6b3] bg-white text-[14px] font-semibold uppercase tracking-[0.08em] text-[#ef4444]"
               >
-                {isDeleting && <Loader2 className="h-4 w-4 animate-spin" />}
-                <span>
-                  {isDeleting
-                    ? t("admin.services.edit.deleting")
-                    : t("admin.services.edit.delete")}
-                </span>
+                {isDeleting
+                  ? t("admin.services.deleting")
+                  : t("admin.services.deleteService")}
               </button>
             </div>
           </form>

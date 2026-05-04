@@ -150,7 +150,15 @@ export default function BookingPage({
   const bookingEndTime = selectedTime
     ? addMinutes(selectedTime, duration)
     : null;
-  const totalPrice = selectedService?.price ?? 0;
+  const totalPrice = useMemo(() => {
+    const price = selectedService?.price ?? 0;
+    return new Intl.NumberFormat(locale || "uz", {
+      style: "currency",
+      currency: "UZS",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+  }, [selectedService?.price, locale]);
   const monthYearFormatter = useMemo(
     () => new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }),
     [locale],
@@ -315,8 +323,13 @@ export default function BookingPage({
                   {selectedService.name}
                 </p>
                 <div className="flex items-center gap-2 mt-1 text-sm">
-                  <span className="text-[#F49B33] font-bold">
-                    ${selectedService.price ?? 0}
+                  <span className="text-[#F49B33] dark:text-[#F49B33] font-bold">
+                    {new Intl.NumberFormat(locale || "uz", {
+                      style: "currency",
+                      currency: "UZS",
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    }).format(selectedService.price ?? 0)}
                   </span>
                   <span className="text-[#d3b089]">·</span>
                   <span className="text-slate-500">
@@ -355,9 +368,14 @@ export default function BookingPage({
                 <p className="text-sm font-medium text-slate-900">
                   {service.name}
                 </p>
-                <p className="text-xs text-slate-500 mt-1">
-                  ${service.price ?? 0} · {service.durationMin ?? 45}{" "}
-                  {t("services.duration")}
+                <p className="text-xs text-slate-500 dark:text-slate-300 mt-1">
+                  {new Intl.NumberFormat(locale || "uz", {
+                    style: "currency",
+                    currency: "UZS",
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  }).format(service.price ?? 0)} ·{" "}
+                  {service.durationMin ?? 45} {t("services.duration")}
                 </p>
               </button>
             ))}
@@ -578,8 +596,8 @@ export default function BookingPage({
                   ? `${selectedTime} — ${bookingEndTime}`
                   : "--:--"}
               </p>
-              <p className="text-2xl font-bold text-[#F49B33]">
-                ${totalPrice}
+              <p className="text-2xl font-bold text-[#F49B33] dark:text-[#F49B33]">
+                {totalPrice}
               </p>
             </div>
           </div>

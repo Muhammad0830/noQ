@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Star,
   Scissors,
@@ -93,6 +93,7 @@ const shopCard: React.FC<ShopCardProps> = ({
   isFavorite: _isFavorite = false,
 }) => {
   const { t } = useLanguage();
+  const [imageLoadError, setImageLoadError] = useState(false);
   const rootShop = shop as Partial<Shop> & {
     id?: string;
     logoUrl?: string;
@@ -140,10 +141,11 @@ const shopCard: React.FC<ShopCardProps> = ({
       <div className="group overflow-hidden rounded-3xl border border-[#f1c894] bg-linear-to-br from-[#fff8f0] via-white to-[#f6e4cd] shadow-sm transition-all duration-300 hover:shadow-[0_18px_36px_rgba(244,155,51,0.18)]">
         {/* Image Section */}
         <div className="relative h-52 overflow-hidden">
-          {imageUrl && !imageHasError ? (
+          {imageUrl && !imageLoadError ? (
             <img
               src={imageUrl}
               alt={title}
+              onError={() => setImageLoadError(true)}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
               onError={() => setImageHasError(true)}
             />

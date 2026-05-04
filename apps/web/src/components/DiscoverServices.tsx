@@ -696,28 +696,6 @@ export default function DiscoverServices() {
                         </div>
                       ))}
                     </div>
-
-                    {popularIndicatorCount > 1 && (
-                      <div className="mt-3 flex justify-center gap-2">
-                        {Array.from({ length: popularIndicatorCount }).map(
-                          (_, i) => (
-                            <button
-                              key={`popular-dot-${i}`}
-                              type="button"
-                              onClick={() => scrollToPopularDot(i)}
-                              className={`h-2 w-2 rounded-full transition-colors ${
-                                i === activePopularDot
-                                  ? "bg-cyan-500"
-                                  : "bg-slate-300"
-                              }`}
-                              aria-label={t("discover.goToCard", {
-                                index: i + 1,
-                              })}
-                            />
-                          ),
-                        )}
-                      </div>
-                    )}
                   </div>
 
                   <div className="hidden gap-4 sm:grid sm:grid-cols-2">

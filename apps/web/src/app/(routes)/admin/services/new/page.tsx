@@ -16,29 +16,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useApiMutation } from "@/hooks/useApiMutation";
-import { API_ENDPOINTS } from "@/lib/api";
-
-type AdminService = {
-  id: string;
-  name: string;
-  description: string | null;
-  price: string;
-  durationMin: number;
-  isActive: boolean;
-  shopId: string;
-  bufferTime: number | null;
-  shop?: {
-    name?: string;
-  };
-};
-
-type CreateServicePayload = {
-  name: string;
-  price: number;
-  durationMin: number;
-  bufferTime: number | null;
-};
+import { API_ENDPOINTS, getStoredAuth } from "@/lib/api";
 
 const staffMembers = [
   { id: "alex", name: "Alex Johnson", selected: true },
@@ -135,7 +113,7 @@ export default function AddNewService() {
       setService((current) => ({ ...current, hours: "23" }));
       setDurationWarnings((current) => ({
         ...current,
-        hours: t("admin.services.new.hoursWarning"),
+        hours: t("admin.services.error.maxHours"),
       }));
       return;
     }
@@ -158,7 +136,7 @@ export default function AddNewService() {
       setService((current) => ({ ...current, minutes: "60" }));
       setDurationWarnings((current) => ({
         ...current,
-        minutes: t("admin.services.new.minutesWarning"),
+        minutes: t("admin.services.error.maxMinutes"),
       }));
       return;
     }
@@ -171,7 +149,7 @@ export default function AddNewService() {
     e.preventDefault();
 
     if (!activeShopId || isSubmitting) {
-      setSubmitError(t("admin.services.new.error.shopNotFound"));
+      setSubmitError(t("admin.services.error.missingShop"));
       return;
     }
 
@@ -180,17 +158,17 @@ export default function AddNewService() {
     const bufferTime = service.bufferTime.trim();
 
     if (!service.name.trim()) {
-      setSubmitError(t("admin.services.new.error.nameRequired"));
+      setSubmitError(t("admin.services.error.nameRequired"));
       return;
     }
 
     if (Number.isNaN(durationMin) || durationMin <= 0) {
-      setSubmitError(t("admin.services.new.error.invalidDuration"));
+      setSubmitError(t("admin.services.error.invalidDuration"));
       return;
     }
 
     if (Number.isNaN(price) || price <= 0) {
-      setSubmitError(t("admin.services.new.error.invalidPrice"));
+      setSubmitError(t("admin.services.error.invalidPrice"));
       return;
     }
 
@@ -205,20 +183,21 @@ export default function AddNewService() {
           isBufferTimeEnabled && bufferTime !== "" ? Number(bufferTime) : null,
       });
 
-      queryClient.setQueryData<AdminService[]>(
-        ["admin-services", activeShopId || "none"],
-        (currentServices) =>
-          currentServices
-            ? [...currentServices, createdService]
-            : [createdService],
-      );
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        const message =
+          body && typeof body.message === "string"
+            ? body.message
+            : t("admin.services.error.createFailed");
+        throw new Error(message);
+      }
 
       router.push(`/admin/services?shopId=${encodeURIComponent(activeShopId)}`);
     } catch (error) {
       setSubmitError(
         error instanceof Error
           ? error.message
-          : t("admin.services.new.error.createFailed"),
+          : t("admin.services.error.createFailed"),
       );
     }
   };
@@ -231,19 +210,19 @@ export default function AddNewService() {
             type="button"
             onClick={() => router.back()}
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d7dbe3] bg-white text-[#8d95a3] shadow-sm transition-transform active:scale-95"
-            aria-label={t("admin.services.new.back")}
+            aria-label={t("admin.services.aria.goBack")}
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
 
           <h1 className="text-[18px] font-semibold tracking-tight text-[#111827]">
-            {t("admin.services.new.title")}
+            {t("admin.services.addTitle")}
           </h1>
 
           <button
             type="button"
             className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#b2b8c3] transition-colors hover:bg-black/5"
-            aria-label={t("admin.services.new.moreOptions")}
+            aria-label={t("admin.services.aria.moreOptions")}
           >
             <EllipsisVertical className="h-5 w-5" />
           </button>
@@ -262,7 +241,7 @@ export default function AddNewService() {
             <div className="mb-3 flex items-center gap-2 text-[#9aa3b1]">
               <Info className="h-4 w-4 text-[#F49B33]" />
               <span className="text-[12px] font-semibold uppercase tracking-[0.18em]">
-                {t("admin.services.new.serviceName")}
+                {t("admin.services.serviceName")}
               </span>
             </div>
             <input
@@ -270,7 +249,7 @@ export default function AddNewService() {
               required
               value={service.name}
               onChange={(e) => setService({ ...service, name: e.target.value })}
-              placeholder={t("admin.services.new.serviceNamePlaceholder")}
+              placeholder={t("admin.services.serviceNamePlaceholder")}
               className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[15px] text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
             />
           </section>
@@ -279,14 +258,14 @@ export default function AddNewService() {
             <div className="mb-3 flex items-center gap-2 text-[#9aa3b1]">
               <Clock3 className="h-4 w-4 text-[#F49B33]" />
               <span className="text-[12px] font-semibold uppercase tracking-[0.18em]">
-                {t("admin.services.new.serviceDuration")}
+                {t("admin.services.serviceDuration")}
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <label className="block">
                 <span className="mb-2 block text-[11px] font-medium uppercase tracking-[0.14em] text-[#6b7280]">
-                  {t("admin.services.new.hours")}
+                  {t("admin.services.hours")}
                 </span>
                 <input
                   type="text"
@@ -306,7 +285,7 @@ export default function AddNewService() {
 
               <label className="block">
                 <span className="mb-2 block text-[11px] font-medium uppercase tracking-[0.14em] text-[#6b7280]">
-                  {t("admin.services.new.minutes")}
+                  {t("admin.services.minutes")}
                 </span>
                 <input
                   type="text"
@@ -329,17 +308,17 @@ export default function AddNewService() {
               <div className="mb-2 flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[14px] font-semibold text-[#111827]">
-                    {t("admin.services.new.bufferTime")}
+                    {t("admin.services.bufferTime")}
                   </p>
                   <p className="text-[12px] text-[#7a8493]">
-                    {t("admin.services.new.bufferDescription")}
+                    {t("admin.services.bufferTimeHint")}
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsBufferTimeEnabled((current) => !current)}
                   className={`relative h-6 w-11 rounded-full transition-colors ${isBufferTimeEnabled ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
-                  aria-label={t("admin.services.new.toggleBufferTime")}
+                  aria-label={t("admin.services.aria.toggleBufferTime")}
                 >
                   <span
                     className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${isBufferTimeEnabled ? "left-5.75" : "left-0.75"}`}
@@ -369,13 +348,13 @@ export default function AddNewService() {
             <div className="mb-3 flex items-center gap-2 text-[#9aa3b1]">
               <DollarSign className="h-4 w-4 text-[#F49B33]" />
               <span className="text-[12px] font-semibold uppercase tracking-[0.18em]">
-                {t("admin.services.new.pricingSection")}
+                {t("admin.services.pricingOperations")}
               </span>
             </div>
 
             <label className="block">
               <span className="mb-2 block text-[14px] font-semibold text-[#111827]">
-                {t("admin.services.new.servicePrice")}
+                {t("admin.services.servicePrice")}
               </span>
               <input
                 type="number"
@@ -394,17 +373,17 @@ export default function AddNewService() {
             <div className="mb-3 flex items-center gap-2 text-[#9aa3b1]">
               <Users className="h-4 w-4 text-[#F49B33]" />
               <span className="text-[12px] font-semibold uppercase tracking-[0.18em]">
-                {t("admin.services.new.staffSection")}
+                {t("admin.services.staffAssignment")}
               </span>
             </div>
 
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-[14px] font-semibold text-[#111827]">
-                  {t("admin.services.new.assignToAllStaff")}
+                  {t("admin.services.assignAllStaff")}
                 </p>
                 <p className="text-[12px] text-[#7a8493]">
-                  {t("admin.services.new.assignToAllDescription")}
+                  {t("admin.services.assignAllStaffHint")}
                 </p>
               </div>
               <button
@@ -418,7 +397,7 @@ export default function AddNewService() {
                   }))
                 }
                 className={`relative h-6 w-11 rounded-full transition-colors ${allMembersSelected ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
-                aria-label={t("admin.services.new.toggleStaffAssignment")}
+                aria-label={t("admin.services.aria.toggleStaffAssignment")}
               >
                 <span
                   className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${allMembersSelected ? "left-5.75" : "left-0.75"}`}
@@ -428,7 +407,7 @@ export default function AddNewService() {
 
             <div className="mt-4 space-y-3">
               <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[#9aa3b1]">
-                {t("admin.services.new.specificMembers")}
+                {t("admin.services.specificMembers")}
               </p>
               {staffMembers.map((member) => {
                 const active = service.selectedStaff.includes(member.id);
@@ -479,12 +458,9 @@ export default function AddNewService() {
               disabled={isSubmitting}
               className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[#F49B33] text-[16px] font-semibold uppercase tracking-[0.08em] text-white shadow-[0_16px_32px_rgba(244,155,51,0.28)] transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-              <span>
-                {isSubmitting
-                  ? t("admin.services.new.saving")
-                  : t("admin.services.new.save")}
-              </span>
+              {isSubmitting
+                ? t("admin.services.saving")
+                : t("admin.services.next")}
             </button>
           </div>
         </form>

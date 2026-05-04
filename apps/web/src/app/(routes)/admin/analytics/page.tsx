@@ -449,9 +449,9 @@ export default function ShopAnalytics() {
   const revenue = analyticsSummary?.currentRevenue ?? 0;
   const revenueText = new Intl.NumberFormat(locale || undefined, {
     style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    currency: "UZS",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(revenue);
 
   const revenueChange = analyticsSummary?.revenueChange ?? 0;
@@ -595,7 +595,7 @@ export default function ShopAnalytics() {
             {isSummaryLoading ? (
               <div className="h-10 md:h-11 lg:h-11 w-40 md:w-44 lg:w-44 animate-pulse rounded-2xl bg-gray-200" />
             ) : (
-              <h2 className="text-3xl md:text-4xl lg:text-[42px] font-bold leading-none tracking-tight text-[#111111]">
+              <h2 className="text-2xl md:text-3xl lg:text-[32px] font-bold leading-none tracking-tight text-[#111111] break-words line-clamp-2">
                 {revenueText}
               </h2>
             )}

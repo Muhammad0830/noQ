@@ -73,11 +73,12 @@ const parseDateQuery = (value: string | null) => {
   return Number.isNaN(parsed.getTime()) ? normalizeDate(new Date()) : parsed;
 };
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("en-US", {
+const formatCurrency = (value: number, locale?: string) =>
+  new Intl.NumberFormat(locale || "uz", {
     style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
+    currency: "UZS",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(Number.isFinite(value) ? value : 0);
 
 const formatTime = (value: string) => {
@@ -152,7 +153,7 @@ export default function Page() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const shopId = searchParams.get("shopId");
   const [search, setSearch] = useState("");
   const [isExporting, setIsExporting] = useState(false);
@@ -274,9 +275,9 @@ export default function Page() {
           new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
       )
       .map((booking) => {
-        const customerName = booking.user?.name?.trim() || "Unknown customer";
-        const serviceName = booking.service?.name?.trim() || "Unknown service";
-        const staffName = booking.staff?.user?.name?.trim() || "Unassigned";
+        const customerName = booking.user?.name?.trim() || t("admin.history.unknownCustomer");
+        const serviceName = booking.service?.name?.trim() || t("admin.history.unknownService");
+        const staffName = booking.staff?.user?.name?.trim() || t("admin.history.unassigned");
         const amountValue = Number(booking.service?.price ?? 0);
 
         return {
@@ -286,16 +287,22 @@ export default function Page() {
           staffName,
           time: formatTime(booking.startTime),
           duration: formatDuration(booking.startTime, booking.endTime),
-          amount: formatCurrency(amountValue),
+          amount: formatCurrency(amountValue, locale),
           status: booking.status,
           statusLabel:
             booking.status === "COMPLETED"
-              ? "Completed"
+              ? t("history.status.completed")
               : booking.status === "CANCELLED"
-                ? "Cancelled"
+                ? t("history.status.cancelled")
                 : booking.status === "NO_SHOW"
-                  ? "No show"
-                  : booking.status.replaceAll("_", " "),
+                  ? t("history.status.noShow")
+                  : booking.status === "PENDING"
+                    ? t("history.status.pending")
+                    : booking.status === "CONFIRMED"
+                      ? t("history.status.confirmed")
+                      : booking.status === "IN_PROGRESS"
+                        ? t("history.status.inProgress")
+                        : booking.status.replaceAll("_", " "),
           badgeClass:
             booking.status === "COMPLETED"
               ? "bg-[#d4f8d4] text-[#2aa85d]"
@@ -310,7 +317,7 @@ export default function Page() {
                 : "bg-[#f8ece0] text-[#e5a65f]",
         };
       });
-  }, [bookings]);
+  }, [bookings, t]);
 
   const filteredBookings = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -481,11 +488,7 @@ export default function Page() {
         <main className="flex min-h-0 flex-1 flex-col gap-4 px-3 pt-3 pb-32 sm:px-4 md:pb-6">
           {!shopId ? (
             <div className="rounded-2xl border border-[#d7d9dd] bg-[#fafafa] p-4 text-sm text-[#8f949a]">
-              shopId topilmadi. Sahifani{" "}
-              <span className="font-semibold text-[#191919]">
-                /admin/history?shopId=...
-              </span>{" "}
-              ko'rinishida oching.
+              {t("admin.history.noShopSelected")}
             </div>
           ) : null}
 
@@ -496,7 +499,7 @@ export default function Page() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search customer or staff..."
+                placeholder={t("admin.history.searchPlaceholder")}
                 className="w-full rounded-[18px] border border-[#d7d7d7] bg-white py-4 pl-11 pr-4 text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#F49B33] focus:outline-none"
               />
             </div>
@@ -509,7 +512,7 @@ export default function Page() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search customer or staff..."
+                placeholder={t("admin.history.searchPlaceholder")}
                 className="w-full rounded-full border border-[#d7d7d7] bg-white py-4 pl-11 pr-4 text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#F49B33] focus:outline-none"
               />
             </div>
@@ -564,10 +567,10 @@ export default function Page() {
           <section className="flex min-h-0 flex-1 flex-col">
             <div className="mb-3 flex items-center justify-between gap-3">
               <h2 className="text-[11px] font-bold uppercase tracking-[0.17em] text-[#8f949a]">
-                Daily Bookings
+                {t("admin.history.dailyBookings")}
               </h2>
               <span className="rounded-md border border-[#c8ccd1] px-2 md:px-2.5 lg:px-2.5 py-0.5 md:py-1 lg:py-1 text-[9px] md:text-[10px] lg:text-[10px] font-medium text-[#9ba0a6]">
-                {filteredBookings.length} Logs
+                {filteredBookings.length} {t("admin.history.recordsCount")}
               </span>
             </div>
 
@@ -584,7 +587,7 @@ export default function Page() {
                 <div className="rounded-2xl border border-[#f2dddd] bg-[#fff7f7] px-4 py-6 text-center text-sm text-[#c56b6b]">
                   {error?.data?.message ||
                     error?.message ||
-                    "History data could not be loaded."}
+                    t("admin.history.loadingError")}
                 </div>
               )}
 
@@ -613,7 +616,7 @@ export default function Page() {
                           </span>
                         </p>
                         <p className="truncate text-[9px] uppercase tracking-[0.18em] text-[#b7bcc2]">
-                          Staff: {item.staffName}
+                          {t("admin.history.staffColumn")}: {item.staffName}
                         </p>
                       </div>
 
@@ -634,7 +637,7 @@ export default function Page() {
 
                   {!isLoading && filteredBookings.length === 0 && (
                     <div className="py-8 text-center text-sm text-[#8f949a]">
-                      Bu kunga mos transaction topilmadi.
+                      {t("admin.history.noBookings")}
                     </div>
                   )}
                 </div>
@@ -646,11 +649,11 @@ export default function Page() {
             <div className="mx-auto flex w-full max-w-107.5 items-end justify-between gap-4 px-4 pt-3 pb-4 md:px-0 md:pt-1 md:pb-0">
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#f0a339]">
-                  Daily Total Revenue
+                  {t("admin.history.totalRevenue")}
                 </p>
                 <div className="flex items-baseline gap-2">
                   <p className="text-[30px] font-bold tracking-tight text-[#0f1115]">
-                    {formatCurrency(revenueTotal)}
+                    {formatCurrency(revenueTotal, locale)}
                   </p>
                   <span className="text-[14px] font-semibold text-[#2aa85d]">
                     +{completedCount}
@@ -672,10 +675,10 @@ export default function Page() {
                   />
                 )}
                 {isExporting
-                  ? "Exporting..."
+                  ? t("admin.history.exporting")
                   : exportDone
-                    ? "Exported"
-                    : "Export"}
+                    ? t("admin.history.exportSuccess")
+                    : t("admin.history.exportCSV")}
               </button>
             </div>
           </footer>

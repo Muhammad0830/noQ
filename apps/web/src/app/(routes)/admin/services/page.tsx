@@ -4,11 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  Bell,
   ChevronLeft,
   Clock3,
   Loader2,
-  MoreVertical,
   PenLine,
   Plus,
   Search,
@@ -42,15 +40,15 @@ const headersByShop = (shopId: string) => ({
   "x-shop-id": shopId,
 });
 
-const toPriceLabel = (price: string) => {
+const toPriceLabel = (price: string, priceUnit: string) => {
   const parsed = Number(price);
   if (Number.isNaN(parsed)) {
-    return `$${price}`;
+    return `${price} ${priceUnit}`;
   }
   if (Number.isInteger(parsed)) {
-    return `$${parsed.toFixed(0)}`;
+    return `${parsed.toFixed(0)} ${priceUnit}`;
   }
-  return `$${parsed.toFixed(2)}`;
+  return `${parsed.toFixed(2)} ${priceUnit}`;
 };
 
 export default function AdminServicesPage() {
@@ -58,8 +56,6 @@ export default function AdminServicesPage() {
   const { t } = useLanguage();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [persistedShopId, setPersistedShopId] = useState<string | null>(null);
   const [hasLoadedPersistedShop, setHasLoadedPersistedShop] =
@@ -202,22 +198,6 @@ export default function AdminServicesPage() {
     (service) => service.isActive,
   ).length;
 
-  const isShopNameLoading = !hasLoadedPersistedShop || !user;
-  const currentShopName = useMemo(() => {
-    if (!hasLoadedPersistedShop) {
-      return t("admin.dashboard.panel");
-    }
-
-    if (!user) {
-      return t("admin.dashboard.panel");
-    }
-
-    const activeShop = user.shops?.find((shop) => shop.id === activeShopId);
-    return (
-      activeShop?.name || user.shops?.[0]?.name || t("admin.dashboard.panel")
-    );
-  }, [activeShopId, hasLoadedPersistedShop, t, user]);
-
   const toggleService = async (id: string) => {
     if (!activeShopId || pendingIds[id]) return;
 
@@ -256,7 +236,7 @@ export default function AdminServicesPage() {
         const message =
           body && typeof body.message === "string"
             ? body.message
-            : "Failed to toggle service";
+            : t("admin.services.error.toggleFailed");
         throw new Error(message);
       }
     } catch (err) {
@@ -270,7 +250,11 @@ export default function AdminServicesPage() {
             : service,
         ),
       );
-      setToggleError(err instanceof Error ? err.message : "Toggle failed");
+      setToggleError(
+        err instanceof Error
+          ? err.message
+          : t("admin.services.error.toggleFailed"),
+      );
     } finally {
       setPendingIds((current) => ({ ...current, [id]: false }));
       void refetch();
@@ -296,7 +280,7 @@ export default function AdminServicesPage() {
       className={`relative h-7 w-12 rounded-full transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#22c55e]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
         enabled ? "bg-[#22c55e]" : "bg-[#d7dbe3]"
       }`}
-      aria-label={`Toggle ${id}`}
+      aria-label={t("admin.services.aria.toggleService")}
       aria-pressed={enabled}
     >
       <span
@@ -337,7 +321,12 @@ export default function AdminServicesPage() {
       <AdminSidebar
         isVisible={isSidebarVisible}
         isClosing={isSidebarClosing}
-        currentShopName={activeShopId ? (user?.shops || []).find(s => s.id === activeShopId)?.name || "Services" : "Services"}
+        currentShopName={
+          activeShopId
+            ? (user?.shops || []).find((s) => s.id === activeShopId)?.name ||
+              t("admin.services.title")
+            : t("admin.services.title")
+        }
         adminNavItems={adminNavItems}
         onClose={closeSidebar}
         getAdminHrefWithShopId={getAdminHrefWithShopId}
@@ -354,14 +343,14 @@ export default function AdminServicesPage() {
               <ChevronLeft className="h-4 w-4" />
             </button>
             <h1 className="text-[18px] font-bold tracking-tight text-[#111111]">
-              Manage Services
+              {t("admin.services.manageTitle")}
             </h1>
 
             <button
               type="button"
               onClick={openSidebar}
               className="absolute right-0 inline-flex h-9 w-9 items-center justify-center rounded-full text-[#b0b0b0] transition-colors duration-200 hover:bg-[#ececec]"
-              aria-label="Open admin sidebar"
+              aria-label={t("admin.services.aria.openSidebar")}
             >
               <Menu className="h-5 w-5" />
             </button>
@@ -374,7 +363,7 @@ export default function AdminServicesPage() {
               href={getAdminHrefWithShopId("/admin/services/new")}
               className="inline-flex h-12 md:h-12 lg:h-14 w-full shrink-0 items-center justify-center gap-2 rounded-[18px] bg-[#F49B33] px-5 text-xs md:text-sm lg:text-sm font-semibold text-white shadow-[0_10px_24px_rgba(244,155,51,0.24)] transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-3.5 w-3.5 md:h-4 md:w-4 lg:h-4 lg:w-4" />
               <span>{t("admin.services.addService")}</span>
             </Link>
 
@@ -384,8 +373,8 @@ export default function AdminServicesPage() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder={t("admin.services.search")}
-                className="w-full rounded-[18px] border border-[#d7d7d7] bg-white py-4 pl-11 pr-4 text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#F49B33] focus:outline-none"
+                placeholder={t("admin.services.searchPlaceholder")}
+                className="w-full rounded-[18px] border border-[#d7d7d7] bg-white py-3 md:py-4 lg:py-4 pl-11 pr-4 text-[13px] md:text-[15px] lg:text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#F49B33] focus:outline-none"
               />
             </div>
           </div>
@@ -397,14 +386,14 @@ export default function AdminServicesPage() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder={t("admin.services.search")}
+                placeholder={t("admin.services.searchPlaceholder")}
                 className="w-full rounded-full border border-[#d7d7d7] bg-white py-4 pl-11 pr-4 text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#F49B33] focus:outline-none"
               />
             </div>
 
             <Link
               href={getAdminHrefWithShopId("/admin/services/new")}
-              aria-label="Add service"
+              aria-label={t("admin.services.aria.addService")}
               className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F49B33] text-white shadow-[0_10px_24px_rgba(244,155,51,0.24)] transition-transform duration-200 active:scale-95"
             >
               <Plus className="h-5 w-5" />
@@ -413,7 +402,7 @@ export default function AdminServicesPage() {
 
           {!activeShopId && (
             <div className="mt-4 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-              {t("admin.dashboard.shopNotFound")}
+              {t("admin.services.noShopSelected")}
             </div>
           )}
 
@@ -426,7 +415,7 @@ export default function AdminServicesPage() {
                   "string" &&
                 (error.data as { message: string }).message) ||
                 error?.message ||
-                t("admin.services.failedToLoadServices")}
+                t("admin.services.error.loadFailed")}
             </div>
           )}
 
@@ -438,12 +427,12 @@ export default function AdminServicesPage() {
 
           <section className="mt-4 md:mt-5 lg:mt-6 flex items-center justify-between">
             <div>
-              <h2 className="mt-1 text-[17px] font-medium text-[#8b95a1]">
-                {t("admin.services.activeServices")}
+              <h2 className="mt-1 text-[15px] md:text-[16px] lg:text-[17px] font-medium text-[#8b95a1]">
+                {t("admin.services.active")}
               </h2>
             </div>
-            <span className="rounded-full bg-[#fff2e1] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F49B33] shadow-[0_6px_14px_rgba(244,155,51,0.12)]">
-              {totalActive} {t("admin.services.total")}
+            <span className="rounded-full bg-[#fff2e1] px-3 py-1 text-[10px] md:text-[10px] lg:text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F49B33] shadow-[0_6px_14px_rgba(244,155,51,0.12)]">
+              {t("admin.services.total", { count: totalActive })}
             </span>
           </section>
 
@@ -482,19 +471,23 @@ export default function AdminServicesPage() {
                             <h3 className="text-[16px] md:text-[17px] lg:text-[18px] font-bold tracking-tight text-[#111827]">
                               {service.name}
                             </h3>
-                            <div className="mt-1 flex items-center gap-2 text-[12px] text-[#8b95a1]">
-                              <Clock3 className="h-3.5 w-3.5" />
+                            <div className="mt-1 flex items-center gap-2 text-[11px] md:text-[12px] lg:text-[12px] text-[#8b95a1]">
+                              <Clock3 className="h-3 w-3 md:h-3.5 md:w-3.5 lg:h-3.5 lg:w-3.5" />
                               <span>
-                                {service.durationMin}{" "}
-                                {t("admin.services.duration")}
+                                {service.durationMin} {t("services.duration")}
                               </span>
                               <span className="text-[#d8dbe1]">•</span>
-                              <span>{toPriceLabel(service.price)}</span>
+                              <span>
+                                {toPriceLabel(
+                                  service.price,
+                                  t("services.price"),
+                                )}
+                              </span>
                             </div>
                           </div>
                           <div className="inline-flex min-h-12 md:min-h-13 lg:min-h-14 min-w-12 md:min-w-13 lg:min-w-14 items-center justify-center rounded-3xl md:rounded-3xl lg:rounded-3xl bg-[#fff2e4] px-2 md:px-3 lg:px-3 py-1.5 md:py-2 lg:py-2">
                             <p className="text-2xl md:text-3xl lg:text-4xl font-bold leading-none tracking-tight text-[#F49B33]">
-                              {toPriceLabel(service.price)}
+                              {toPriceLabel(service.price, t("services.price"))}
                             </p>
                           </div>
                         </div>
@@ -506,8 +499,8 @@ export default function AdminServicesPage() {
                             </span>
                             <span className="text-[9px] md:text-[10px] lg:text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7f8894]">
                               {service.bufferTime
-                                ? t("admin.services.bufferTimeFormat", {
-                                    time: service.bufferTime,
+                                ? t("admin.services.buffer", {
+                                    minutes: service.bufferTime,
                                   })
                                 : t("admin.services.noBuffer")}
                             </span>
@@ -519,7 +512,7 @@ export default function AdminServicesPage() {
                               onClick={() =>
                                 router.push(getServiceEditHref(service.id))
                               }
-                              aria-label={`${t("admin.services.edit")} ${service.name}`}
+                              aria-label={t("admin.services.aria.editService")}
                               className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#8f98a4] transition-colors hover:bg-[#f3f4f6]"
                             >
                               <PenLine className="h-4 w-4" />
@@ -534,14 +527,14 @@ export default function AdminServicesPage() {
               })
             ) : (
               <div className="rounded-[24px] border border-dashed border-[#d5d9df] bg-white px-4 py-8 text-center text-sm text-[#8b95a1]">
-                {t("admin.services.noResults")}
+                {t("admin.services.noActiveMatches")}
               </div>
             )}
           </section>
 
-          <section className="mt-6">
-            <h3 className="mt-1 text-[17px] font-medium text-[#8b95a1]">
-              {t("admin.services.inactiveServices")}
+          <section className="mt-6 md:mt-7 lg:mt-8">
+            <h3 className="mt-1 text-[15px] md:text-[16px] lg:text-[17px] font-medium text-[#8b95a1]">
+              {t("admin.services.inactive")}
             </h3>
 
             <div className="mt-4 md:mt-4 lg:mt-5 space-y-2 md:space-y-3 lg:space-y-3 rounded-4xl bg-white p-3 md:p-4 lg:p-5 shadow-[0_10px_25px_rgba(17,24,39,0.04)] ring-1 ring-black/5">
@@ -586,12 +579,14 @@ export default function AdminServicesPage() {
                       <p className="truncate text-[15px] md:text-[16px] lg:text-[16px] font-semibold text-[#374151]">
                         {service.name}
                       </p>
-                      <div className="mt-0.5 flex items-center gap-2 text-[11px] text-[#98a0ab]">
+                      <div className="mt-0.5 flex items-center gap-2 text-[10px] md:text-[11px] lg:text-[11px] text-[#98a0ab]">
                         <span>
-                          {service.durationMin} {t("admin.services.duration")}
+                          {service.durationMin} {t("services.duration")}
                         </span>
                         <span className="text-[#d8dbe1]">•</span>
-                        <span>{toPriceLabel(service.price)}</span>
+                        <span>
+                          {toPriceLabel(service.price, t("services.price"))}
+                        </span>
                       </div>
                       <button
                         type="button"
@@ -600,7 +595,7 @@ export default function AdminServicesPage() {
                         }
                         className="mt-1 inline-flex items-center gap-1 text-[9px] md:text-[10px] lg:text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9aa1ab] transition-colors hover:text-[#F49B33]"
                       >
-                        <PenLine className="h-3.5 w-3.5" />
+                        <PenLine className="h-3 w-3 md:h-3.5 md:w-3.5 lg:h-3.5 lg:w-3.5" />
                         {t("admin.services.edit")}
                       </button>
                     </div>
