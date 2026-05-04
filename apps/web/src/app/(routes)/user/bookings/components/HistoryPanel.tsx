@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Calendar } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { formatPrice } from "@/lib/utils";
 import { HistoryCardData } from "../bookings.types";
 import {
   getStatusColor,
@@ -74,6 +76,7 @@ export default function HistoryPanel({
   onRetry,
   t,
 }: Props) {
+  const { locale } = useLanguage();
   const shopInitial = (bookingName?: string) =>
     bookingName?.trim() ? bookingName.trim().charAt(0).toUpperCase() : "";
 
@@ -165,7 +168,7 @@ export default function HistoryPanel({
                   </span>
                 </div>
                 <div className="text-sm font-semibold text-slate-900">
-                  {booking.duration} • ${booking.price.toFixed(2)}
+                  {booking.duration} • {formatPrice(booking.price, locale)} {t("currency.som")}
                 </div>
                 <span
                   className={`absolute right-3 top-9 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] ${getStatusColor(booking.status)}`}

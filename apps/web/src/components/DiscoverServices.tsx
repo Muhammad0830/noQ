@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { formatPrice } from "@/lib/utils";
 import ShopCard from "@/components/ShopCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { API_ENDPOINTS } from "@/lib/api";
@@ -767,7 +768,7 @@ export default function DiscoverServices() {
                           <div className="shrink-0 text-right">
                             <p className="text-2xl font-bold text-slate-800 sm:text-xl">
                               {Number.isFinite(priceValue)
-                                ? `$${priceValue.toFixed(2)}`
+                                ? `${formatPrice(priceValue, language || "uz-UZ")} ${t("currency.som")}`
                                 : "--"}
                             </p>
                             <span className="mt-1 inline-block text-xs font-semibold text-emerald-500">

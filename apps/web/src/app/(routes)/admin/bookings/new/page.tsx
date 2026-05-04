@@ -18,6 +18,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { useApiMutation } from "@/hooks/useApiMutation";
 import { API_ENDPOINTS } from "@/lib/api";
+import { formatPrice } from "@/lib/utils";
 import type { Service } from "@shared/types/general_types";
 
 type StaffApiItem = {
@@ -416,9 +417,7 @@ export default function AdminNewBookingPage() {
 
   const priceLabel = useMemo(() => {
     if (selectedService?.price == null) return "—";
-    return new Intl.NumberFormat(locale || undefined).format(
-      Number(selectedService.price),
-    );
+    return `${formatPrice(selectedService.price, locale || "uz-UZ")} ${t("currency.som")}`;
   }, [locale, selectedService?.price]);
 
   const selectedDuration = selectedService?.durationMin ?? 45;
@@ -583,7 +582,7 @@ export default function AdminNewBookingPage() {
                   {service.name}
                 </p>
                 <p className="text-xs text-slate-500 mt-1">
-                  {Number(service.price ?? 0)} · {service.durationMin ?? 45}{" "}
+                  {formatPrice(service.price ?? 0, locale || "uz-UZ")} {t("currency.som")} · {service.durationMin ?? 45}{" "}
                   {t("services.duration")}
                 </p>
               </button>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ChevronRight, Clock3, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { formatPrice } from "@/lib/utils";
 import ShopCard from "@/components/ShopCard";
 import AppSearchInput from "@/components/AppSearchInput";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -762,9 +763,9 @@ export default function DiscoverServices() {
                           </div>
 
                           <div className="shrink-0 text-right">
-                            <p className="text-[18px] font-bold text-slate-800 sm:text-xl">
+                              <p className="text-[18px] font-bold text-slate-800 sm:text-xl">
                               {Number.isFinite(priceValue)
-                                ? `$${priceValue.toFixed(2)}`
+                                ? `${formatPrice(priceValue, language || "uz-UZ")} ${t("currency.som")}`
                                 : "--"}
                             </p>
                             <span className="mt-1 inline-block text-[10px] font-semibold text-emerald-500">
