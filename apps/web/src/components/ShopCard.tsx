@@ -108,6 +108,7 @@ const shopCard: React.FC<ShopCardProps> = ({
   const driveTime = `12 ${t("shopCard.minDrive")}`;
   const nextSlot = `2:00 PM ${t("shopCard.today")}`;
   const title = shop.name;
+  const shopInitial = (title?.trim()?.charAt(0) || "S").toUpperCase();
   const shopId = shop.id || rootShop.id || "";
   const categoryIcon = getCategoryIcon(
     shop.category?.icon || shop.category?.name,
@@ -124,11 +125,20 @@ const shopCard: React.FC<ShopCardProps> = ({
     : "";
   const isCurrentlyOpen = shop?.isOpen ?? rootShop.isOpen ?? true;
   const rawImage = rootShop.backgroundImageUrl;
-  const imageUrl = rawImage ? getImageUrl(rawImage, "shop_images") : null;
+  const imageUrl = rawImage
+    ? rawImage.startsWith("http")
+      ? rawImage
+      : getImageUrl(rawImage, "shop_images")
+    : null;
+  const [imageHasError, setImageHasError] = useState(false);
+
+  useEffect(() => {
+    setImageHasError(false);
+  }, [imageUrl]);
 
   return (
     <Link href={`/user/shop/${shopId}`} className="block">
-      <div className="group overflow-hidden rounded-3xl border border-[#f1c894] bg-linear-to-br from-[#fff8f0] via-white to-[#f6e4cd] shadow-sm transition-all duration-300 hover:shadow-[0_18px_36px_rgba(244,155,51,0.18)] dark:border-[#F49B33]/20 dark:from-[#2b170b] dark:via-[#211201] dark:to-[#1a0e06] dark:shadow-none">
+      <div className="group overflow-hidden rounded-3xl border border-[#f1c894] bg-linear-to-br from-[#fff8f0] via-white to-[#f6e4cd] shadow-sm transition-all duration-300 hover:shadow-[0_18px_36px_rgba(244,155,51,0.18)]">
         {/* Image Section */}
         <div className="relative h-52 overflow-hidden">
           {imageUrl && !imageLoadError ? (
@@ -137,21 +147,22 @@ const shopCard: React.FC<ShopCardProps> = ({
               alt={title}
               onError={() => setImageLoadError(true)}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              onError={() => setImageHasError(true)}
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-[#ffd8a6] via-[#f49b33] to-[#f08a17] dark:from-[#4a2e1b] dark:via-[#2b170b] dark:to-[#1a0e06]">
+            <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-[#ffd8a6] via-[#f49b33] to-[#f08a17]">
               <span className="text-6xl font-bold text-white/90">
-                {shop.name.charAt(0)}
+                {shopInitial}
               </span>
             </div>
           )}
 
-          <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-[#8a5620] shadow-sm dark:bg-[#fff3e6] dark:text-[#8a5620]">
+          <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-[#8a5620] shadow-sm">
             <Star className="h-4 w-4 fill-[#F49B33] text-[#F49B33]" />
             {rating}
           </div>
 
-          <div className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-[#F49B33] shadow-sm dark:bg-[#fff3e6] dark:text-[#F49B33]">
+          <div className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-[#F49B33] shadow-sm">
             {categoryIcon}
           </div>
 
@@ -170,10 +181,10 @@ const shopCard: React.FC<ShopCardProps> = ({
         <div className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h3 className="line-clamp-1 text-base font-bold text-slate-900 dark:text-white sm:text-lg">
+              <h3 className="line-clamp-1 text-base font-bold text-slate-900 sm:text-lg">
                 {title}
               </h3>
-              <p className="line-clamp-1 text-xs text-slate-500 dark:text-slate-300 sm:text-sm">
+              <p className="line-clamp-1 text-xs text-slate-500 sm:text-sm">
                 {serviceNames}
               </p>
             </div>
@@ -181,20 +192,20 @@ const shopCard: React.FC<ShopCardProps> = ({
               <p className="text-sm font-bold text-[#F49B33] sm:text-base">
                 {distance}
               </p>
-              <p className="text-[11px] text-slate-400 sm:text-xs dark:text-slate-400">
+              <p className="text-[11px] text-slate-400 sm:text-xs">
                 {driveTime}
               </p>
             </div>
           </div>
 
-          <div className="my-4 h-px bg-linear-to-r from-[#f1c894] via-[#f49b33] to-[#f1c894] dark:from-[#4a2e1b] dark:via-[#f49b33] dark:to-[#4a2e1b]" />
+          <div className="my-4 h-px bg-linear-to-r from-[#f1c894] via-[#f49b33] to-[#f1c894]" />
 
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-400">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
                 {t("shopCard.nextSlot")}
               </p>
-              <p className="mt-1 text-sm font-bold text-slate-800 dark:text-slate-100 sm:text-base">
+              <p className="mt-1 text-sm font-bold text-slate-800 sm:text-base">
                 {nextSlot}
               </p>
             </div>

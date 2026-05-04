@@ -83,7 +83,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
   };
 
   return (
-    <section className="bg-white dark:bg-[#211201]">
+    <section className="bg-white">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-2">
         <form className="w-full">
           <AppSearchInput
@@ -150,8 +150,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
               onClick={() => goToBanner(index)}
               className={`h-1.5 rounded-full transition-all ${
                 activeBanner === index
-                  ? "w-5 bg-[#F49B33] dark:bg-[#F49B33]"
-                  : "w-1.5 bg-gray-300 dark:bg-gray-600"
+                  ? "w-5 bg-[#F49B33]"
+                  : "w-1.5 bg-gray-300"
               }`}
               aria-label={t("hero.goToBanner", { index: index + 1 })}
             />

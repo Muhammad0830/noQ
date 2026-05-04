@@ -161,12 +161,12 @@ export default function MyBookings() {
     historyError?.data?.message || historyError?.message;
 
   return (
-    <div className="min-h-screen bg-[#eef3f8] px-4 py-5 text-slate-900 dark:bg-[#211201] dark:text-white sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#eef3f8] px-4 py-5 text-slate-900 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-7xl">
         <BookingFilterTabs filter={filter} onChange={setFilter} t={t} />
 
         <div
-          className={`grid grid-cols-1 gap-6 ${
+          className={`grid grid-cols-1 ${
             filter === "ongoing"
               ? "xl:grid-cols-1"
               : "xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]"
@@ -206,21 +206,21 @@ export default function MyBookings() {
       </div>
 
       {isHydrated && !hasToken && isAuthPromptOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 dark:bg-black/65">
-          <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-[#211201] sm:p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4">
+          <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl sm:p-6">
             <button
               type="button"
               onClick={() => router.back()}
-              className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100 dark:border-white/15 dark:bg-white/5 dark:text-white/80 dark:hover:bg-white/10"
+              className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100"
               aria-label="Close"
             >
               <X className="h-4 w-4" />
             </button>
 
-            <h3 className="pr-8 text-lg font-semibold text-slate-900 dark:text-white sm:text-xl">
+            <h3 className="pr-8 text-lg font-semibold text-slate-900 sm:text-xl">
               {t("history.authRequiredTitle")}
             </h3>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+            <p className="mt-2 text-sm leading-relaxed text-slate-600">
               {t("history.authRequiredMessage")}
             </p>
 

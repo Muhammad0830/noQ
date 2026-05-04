@@ -35,28 +35,28 @@ export default function LogoutConfirmModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-100 flex items-center justify-center bg-black/45 p-4 dark:bg-black/70"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-black/45 p-4"
       onClick={onCancel}
       role="presentation"
     >
       <div
-        className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-[#211201]"
+        className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-label={title}
       >
         <div className="mb-4 flex items-center justify-center">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-500/20">
-            <LogOut className="h-6 w-6 text-red-600 dark:text-red-400" />
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+            <LogOut className="h-6 w-6 text-red-600" />
           </div>
         </div>
 
-        <h3 className="mb-2 text-center text-lg font-semibold text-slate-900 dark:text-white">
+        <h3 className="mb-2 text-center text-lg font-semibold text-slate-900">
           {title}
         </h3>
 
-        <p className="mb-6 text-center text-sm text-slate-600 dark:text-white/70">
+        <p className="mb-6 text-center text-sm text-slate-600">
           {message}
         </p>
 
@@ -64,14 +64,14 @@ export default function LogoutConfirmModal({
           <button
             type="button"
             onClick={onCancel}
-            className="flex h-12 w-full items-center justify-center rounded-xl border border-slate-300 px-4 font-semibold text-slate-600 transition hover:bg-slate-100 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
+            className="flex h-12 w-full items-center justify-center rounded-xl border border-slate-300 px-4 font-semibold text-slate-600 transition hover:bg-slate-100"
           >
             {cancelText}
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="flex h-12 w-full items-center justify-center rounded-xl bg-red-600 px-4 font-semibold text-white transition hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
+            className="flex h-12 w-full items-center justify-center rounded-xl bg-red-600 px-4 font-semibold text-white transition hover:bg-red-700"
           >
             {confirmText}
           </button>

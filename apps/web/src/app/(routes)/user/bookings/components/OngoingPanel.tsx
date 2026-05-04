@@ -19,7 +19,7 @@ type Props = {
 };
 
 const ongoingSkeleton = (
-  <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white/85 dark:border-white/10 dark:bg-white/5">
+  <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white/85">
     {/* Image Skeleton */}
     <Skeleton className="h-36 w-full rounded-none sm:h-44" />
 
@@ -35,7 +35,7 @@ const ongoingSkeleton = (
       </div>
 
       {/* Divider */}
-      <div className="my-4 h-px w-full bg-slate-200 dark:bg-white/10" />
+      <div className="my-4 h-px w-full bg-slate-200" />
 
       {/* Countdown & Start Time Section */}
       <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
@@ -50,7 +50,7 @@ const ongoingSkeleton = (
       </div>
 
       {/* Service Details Box */}
-      <div className="mb-4 flex items-center justify-between rounded-2xl border border-slate-300/70 bg-white/75 px-3 py-2 dark:border-white/10 dark:bg-white/5">
+      <div className="mb-4 flex items-center justify-between rounded-2xl border border-slate-300/70 bg-white/75 px-3 py-2">
         <Skeleton className="h-4 w-24 rounded-md" />
         <Skeleton className="h-4 w-28 rounded-md" />
       </div>
@@ -87,17 +87,15 @@ export default function OngoingPanel({
 
   if (isError) {
     return (
-      <div className="rounded-3xl border border-red-200 bg-red-50/90 p-6 dark:border-red-400/30 dark:bg-red-500/10">
-        <p className="text-sm font-semibold text-red-700 dark:text-red-300">
+      <div className="rounded-3xl border border-red-200 bg-red-50/90 p-6">
+        <p className="text-sm font-semibold text-red-700">
           {t("history.errorOngoing")}
         </p>
-        <p className="mt-1 text-xs text-red-700/80 dark:text-red-300/80">
-          {errorMessage}
-        </p>
+        <p className="mt-1 text-xs text-red-700/80">{errorMessage}</p>
         <button
           type="button"
           onClick={onRetry}
-          className="mt-3 rounded-full border border-red-300 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 dark:border-red-300/40 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20"
+          className="mt-3 rounded-full border border-red-300 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100"
         >
           {t("common.retry")}
         </button>
@@ -107,11 +105,9 @@ export default function OngoingPanel({
 
   if (!activeBooking) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white/75 p-6 text-center dark:border-white/10 dark:bg-white/3">
-        <Calendar className="mx-auto mb-3 h-8 w-8 text-slate-500 dark:text-slate-500" />
-        <p className="text-sm text-slate-600 dark:text-slate-300">
-          {t("history.emptyOngoing")}
-        </p>
+      <div className="rounded-2xl border border-slate-200 bg-white/75 p-6 text-center">
+        <Calendar className="mx-auto mb-3 h-8 w-8 text-slate-500" />
+        <p className="text-sm text-slate-600">{t("history.emptyOngoing")}</p>
       </div>
     );
   }
@@ -132,8 +128,8 @@ export default function OngoingPanel({
         </div>
       )}
 
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-[linear-gradient(180deg,#f8fcff_0%,#eef4fa_100%)] shadow-[0_18px_40px_rgba(56,88,120,0.2)] dark:border-white/10 dark:bg-[linear-gradient(180deg,#111c2f_0%,#0a101b_100%)] dark:shadow-[0_18px_42px_rgba(0,0,0,0.45)]">
-        <div className="relative h-36 overflow-hidden border-b border-slate-200 bg-[linear-gradient(130deg,#cad7e2_0%,#9eb0bf_35%,#738b9d_100%)] dark:border-white/10 dark:bg-[linear-gradient(130deg,#9bb2c4_0%,#5f7282_35%,#2f3f4b_100%)] sm:h-44">
+      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-[linear-gradient(180deg,#f8fcff_0%,#eef4fa_100%)] shadow-[0_18px_40px_rgba(56,88,120,0.2)]">
+        <div className="relative h-36 overflow-hidden border-b border-slate-200 bg-[linear-gradient(130deg,#cad7e2_0%,#9eb0bf_35%,#738b9d_100%)] sm:h-44">
           {activeBooking.image && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -147,27 +143,27 @@ export default function OngoingPanel({
         <div className="p-4 sm:p-5">
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.15em] text-[#F49B33] dark:text-[#F49B33]">
+              <p className="text-[11px] uppercase tracking-[0.15em] text-[#F49B33]">
                 {activeBooking.service}
               </p>
-              <h3 className="mt-1 text-[32px] font-semibold leading-none tracking-tight text-slate-900 dark:text-white sm:text-[40px]">
+              <h3 className="mt-1 text-[32px] font-semibold leading-none tracking-tight text-slate-900 sm:text-[40px]">
                 {activeBooking.shopName}
               </h3>
-              <p className="mt-2 text-sm text-slate-700 dark:text-slate-300/90 sm:text-base">
+              <p className="mt-2 text-sm text-slate-700 sm:text-base">
                 {activeBooking.address}
               </p>
             </div>
-            <button className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#F49B33]/55 bg-[#F49B33] text-white shadow-[0_8px_18px_rgba(244,155,51,0.32)] transition hover:bg-[#e28a20] dark:border-[#F49B33]/55 dark:bg-[#F49B33] dark:text-white dark:hover:bg-[#e28a20]">
+            <button className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#F49B33]/55 bg-[#F49B33] text-white shadow-[0_8px_18px_rgba(244,155,51,0.32)] transition hover:bg-[#e28a20]">
               <Scissors className="h-5 w-5" />
             </button>
           </div>
 
-          <div className="my-4 h-px w-full bg-linear-to-r from-slate-200/0 via-slate-400/40 to-slate-200/0 dark:from-white/0 dark:via-white/20 dark:to-white/0" />
+          <div className="my-4 h-px w-full bg-linear-to-r from-slate-200/0 via-slate-400/40 to-slate-200/0" />
 
           <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
             <div className="flex items-center gap-2.5">
               {activeBooking.remainingDays !== null ? (
-                <div className="flex h-14 w-20 flex-col items-center justify-center rounded-2xl bg-[#F49B33] text-white shadow-[0_8px_22px_rgba(244,155,51,0.34)] dark:bg-[#F49B33] dark:text-white dark:shadow-[0_8px_22px_rgba(244,155,51,0.32)]">
+                <div className="flex h-14 w-20 flex-col items-center justify-center rounded-2xl bg-[#F49B33] text-white shadow-[0_8px_22px_rgba(244,155,51,0.34)]">
                   <span className="text-[22px] font-semibold leading-none">
                     {activeBooking.remainingDays}
                   </span>
@@ -177,7 +173,7 @@ export default function OngoingPanel({
                 </div>
               ) : (
                 <>
-                  <div className="flex h-14 w-14 flex-col items-center justify-center rounded-2xl bg-[#F49B33] text-white shadow-[0_8px_22px_rgba(244,155,51,0.34)] dark:bg-[#F49B33] dark:text-white dark:shadow-[0_8px_22px_rgba(244,155,51,0.32)]">
+                  <div className="flex h-14 w-14 flex-col items-center justify-center rounded-2xl bg-[#F49B33] text-white shadow-[0_8px_22px_rgba(244,155,51,0.34)]">
                     <span className="text-[22px] font-semibold leading-none">
                       {activeBooking.remainingHours}
                     </span>
@@ -185,11 +181,11 @@ export default function OngoingPanel({
                       {t("history.time.hour")}
                     </span>
                   </div>
-                  <div className="flex h-14 w-14 flex-col items-center justify-center rounded-2xl border border-slate-300 bg-white text-slate-900 dark:border-white/12 dark:bg-white/5 dark:text-white">
+                  <div className="flex h-14 w-14 flex-col items-center justify-center rounded-2xl border border-slate-300 bg-white text-slate-900">
                     <span className="text-[22px] font-semibold leading-none">
                       {activeBooking.remainingMinutes}
                     </span>
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.09em] text-slate-500 dark:text-slate-300">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.09em] text-slate-500">
                       {t("history.time.min")}
                     </span>
                   </div>
@@ -197,29 +193,28 @@ export default function OngoingPanel({
               )}
             </div>
             <div className="text-right">
-              <p className="text-[11px] uppercase tracking-[0.11em] text-slate-500 dark:text-slate-400">
+              <p className="text-[11px] uppercase tracking-[0.11em] text-slate-500">
                 {t("history.startsAt")}
               </p>
-              <p className="text-[20px] font-semibold tracking-tight text-slate-900 dark:text-white sm:text-[30px]">
+              <p className="text-[20px] font-semibold tracking-tight text-slate-900 sm:text-[30px]">
                 {activeBooking.startLabel}
               </p>
             </div>
           </div>
 
-          <div className="mb-4 flex items-center justify-between rounded-2xl border border-slate-300/70 bg-white/75 px-3 py-2 dark:border-white/10 dark:bg-white/5">
-            <p className="text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400">
+          <div className="mb-4 flex items-center justify-between rounded-2xl border border-slate-300/70 bg-white/75 px-3 py-2">
+            <p className="text-xs uppercase tracking-widest text-slate-500">
               {t("history.serviceDetails")}
             </p>
-            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-              {activeBooking.duration} • {activeBooking.price.toLocaleString()}{" "}
-              {t("services.price")}
+            <p className="text-sm font-semibold text-slate-800">
+              {activeBooking.duration} • ${activeBooking.price.toFixed(2)}
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <Link
               href={`/user/bookings/directions`}
-              className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[#F49B33] text-sm font-semibold text-white shadow-[0_10px_24px_rgba(244,155,51,0.35)] transition hover:bg-[#e28a20] dark:bg-[#F49B33] dark:text-white dark:shadow-[0_10px_26px_rgba(244,155,51,0.35)] dark:hover:bg-[#e28a20]"
+              className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[#F49B33] text-sm font-semibold text-white shadow-[0_10px_24px_rgba(244,155,51,0.35)] transition hover:bg-[#e28a20]"
             >
               <Navigation className="h-4 w-4" />
               {t("history.getDirections")}
@@ -228,7 +223,7 @@ export default function OngoingPanel({
               type="button"
               onClick={() => onCancelBooking(activeBooking.id)}
               disabled={isCancellingBooking}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-red-200 bg-white text-red-500 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-400/30 dark:bg-white/5 dark:text-red-300 dark:hover:bg-red-500/20"
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-red-200 bg-white text-red-500 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
               aria-label="Cancel booking"
             >
               <XCircle

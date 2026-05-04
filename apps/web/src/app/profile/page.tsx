@@ -244,8 +244,8 @@ export default function ProfilePage() {
 
   if (!user && !isLoading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-700 dark:bg-[#211201] dark:text-slate-200">
-        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium shadow-sm dark:border-white/10 dark:bg-white/5">
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-700">
+        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium shadow-sm">
           <Loader2 className="h-4 w-4 animate-spin" />
           <span>{t("common.loading")}</span>
         </div>
@@ -298,7 +298,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#211201] dark:text-white">
+    <main className="min-h-screen bg-slate-50 text-slate-900">
       {isAdmin && (
         <AdminSidebar
           isVisible={isSidebarVisible}
@@ -347,7 +347,7 @@ export default function ProfilePage() {
                   className="h-full w-full rounded-full object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center rounded-full bg-slate-200 text-2xl font-bold text-slate-700 dark:bg-[#132235] dark:text-[#9ce9e2]">
+                <div className="flex h-full w-full items-center justify-center rounded-full bg-slate-200 text-2xl font-bold text-slate-700">
                   {initials}
                 </div>
               )}
@@ -357,7 +357,7 @@ export default function ProfilePage() {
               onClick={() =>
                 document.getElementById("profile-image-input")?.click()
               }
-              className="absolute bottom-0 right-0  inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#F49B33] text-white shadow-lg transition hover:bg-blue-600 dark:bg-[#F49B33] dark:text-slate-900 dark:hover:bg-[#00b8dd]"
+              className="absolute bottom-0 right-0  inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#F49B33] text-white shadow-lg transition hover:bg-blue-600"
               aria-label="Update profile image"
               title="Click to change profile image"
             >
@@ -371,7 +371,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={handleSaveImage}
                 disabled={isSavingImage}
-                className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-teal-700 dark:bg-[#F49B33] dark:text-slate-900 dark:hover:bg-[#00c4b0]"
+                className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-teal-700"
               >
                 {isSavingImage ? t("common.saving") : t("common.save")}
               </button>
@@ -382,7 +382,7 @@ export default function ProfilePage() {
                   setPreview(null);
                 }}
                 disabled={isSavingImage}
-                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
+                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
               >
                 {t("common.cancel")}
               </button>
@@ -396,13 +396,13 @@ export default function ProfilePage() {
             </div>
           ) : (
             <>
-              <h2 className="text-3xl font-semibold leading-tight text-slate-900 dark:text-white">
+              <h2 className="text-3xl font-semibold leading-tight text-slate-900">
                 {user?.name}
               </h2>
-              <p className="mt-1 text-sm font-medium text-teal-600 dark:text-[#F49B33]">
+              <p className="mt-1 text-sm font-medium text-teal-600">
                 {memberSince}
               </p>
-              <p className="mt-1 text-sm font-medium leading-tight text-slate-900 dark:text-white">
+              <p className="mt-1 text-sm font-medium leading-tight text-slate-900">
                 {providerMode ? t("profile.adminPanel") : t("profile.personal")}
               </p>
             </>
@@ -410,26 +410,20 @@ export default function ProfilePage() {
         </section>
 
         {isAdmin ? (
-          <section
-            className={`mb-5 rounded-2xl border px-4 ${
-              theme === "dark"
-                ? "border-[#F49B33]/25 bg-[#211201] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
-                : "border-[#f1c894] bg-white shadow-sm"
-            }`}
-          >
+          <section className="mb-5 rounded-2xl border border-[#f1c894] bg-white px-4 shadow-sm">
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="admin-shops" className="border-0!">
-                <AccordionTrigger className="rounded-xl px-0 py-3 hover:no-underline [&>svg]:text-slate-500 dark:[&>svg]:text-white/50">
+                <AccordionTrigger className="rounded-xl px-0 py-3 hover:no-underline [&>svg]:text-slate-500">
                   <span className="flex items-center gap-3">
-                    <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33] dark:bg-[#F49B33]/15 dark:text-[#F49B33]">
+                    <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33]">
                       <User className="h-7 w-7" />
                     </span>
 
                     <span className="min-w-0 text-left">
-                      <span className="block truncate text-base font-semibold text-slate-900 dark:text-white/95">
+                      <span className="block truncate text-base font-semibold text-slate-900">
                         {t("profile.switchPanel")}
                       </span>
-                      <span className="block truncate text-sm font-normal text-slate-500 dark:text-white/55">
+                      <span className="block truncate text-sm font-normal text-slate-500">
                         {providerMode
                           ? t("profile.adminPanel")
                           : t("profile.personal")}
@@ -439,11 +433,11 @@ export default function ProfilePage() {
                 </AccordionTrigger>
                 <AccordionContent className="pb-0">
                   {isLoadingShops ? (
-                    <p className="text-sm text-slate-500 dark:text-white/60">
+                    <p className="text-sm text-slate-500">
                       {t("common.loading")}
                     </p>
                   ) : visibleAdminShops.length === 0 ? (
-                    <p className="text-sm text-slate-500 dark:text-white/60">
+                    <p className="text-sm text-slate-500">
                       {t("profile.noAdminShops")}
                     </p>
                   ) : (
@@ -458,16 +452,16 @@ export default function ProfilePage() {
                           aria-label={t("profile.addNewShop")}
                           className="w-full relative flex items-center gap-2 py-3 rounded-lg text-left text-base"
                         >
-                          <div className="absolute left-0 right-0 top-0 bg-black/10 dark:bg-white h-px" />
-                          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33] dark:bg-[#F49B33]/15 dark:text-[#F49B33]">
+                          <div className="absolute left-0 right-0 top-0 bg-black/10 h-px" />
+                          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33]">
                             <User className="h-5 w-5" />
                           </span>
 
                           <div>
-                            <p className="font-semibold text-sm text-slate-800 dark:text-white/90">
+                            <p className="font-semibold text-sm text-slate-800">
                               {t("profile.personal")}
                             </p>
-                            <p className="text-xs text-slate-800 dark:text-white/90">
+                            <p className="text-xs text-slate-800">
                               {t("profile.goToUserPanel")}
                             </p>
                           </div>
@@ -489,18 +483,18 @@ export default function ProfilePage() {
                             }}
                             className="w-full relative flex items-center gap-2 py-3 rounded-lg text-left text-base"
                           >
-                            <div className="absolute left-0 right-0 top-0 bg-black/10 dark:bg-white h-px" />
-                            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33] dark:bg-[#F49B33]/15 dark:text-[#F49B33]">
+                            <div className="absolute left-0 right-0 top-0 bg-black/10 h-px" />
+                            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33]">
                               {resolveCategoryIcon(shop.category?.icon) && (
                                 <Store className="h-5 w-5" />
                               )}
                             </span>
 
                             <div>
-                              <p className="font-semibold text-sm text-slate-800 dark:text-white/90">
+                              <p className="font-semibold text-sm text-slate-800">
                                 {shop.name}
                               </p>
-                              <p className="text-xs text-slate-800 dark:text-white/90">
+                              <p className="text-xs text-slate-800">
                                 {shop.category?.name}
                               </p>
                             </div>
@@ -513,12 +507,12 @@ export default function ProfilePage() {
                         aria-label={t("profile.addNewShop")}
                         className="w-full relative flex items-center gap-2 py-3 rounded-lg text-left text-base"
                       >
-                        <div className="absolute left-0 right-0 top-0 bg-black/10 dark:bg-white h-px" />
-                        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33] dark:bg-[#F49B33]/15 dark:text-[#F49B33]">
+                        <div className="absolute left-0 right-0 top-0 bg-black/10 h-px" />
+                        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33]">
                           <Plus className="h-5 w-5" />
                         </span>
 
-                        <p className="font-semibold text-sm text-slate-800 dark:text-white/90">
+                        <p className="font-semibold text-sm text-slate-800">
                           {t("profile.addNewShop")}
                         </p>
                       </button>
@@ -532,42 +526,28 @@ export default function ProfilePage() {
           <button
             type="button"
             onClick={() => router.push("/profile/add-business")}
-            className={`w-full mb-5 flex gap-2 items-center rounded-2xl border p-3 ${
-              theme === "dark"
-                ? "border-[#F49B33]/25 bg-[#211201] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
-                : "border-[#f1c894] bg-white shadow-sm"
-            }`}
+            className="mb-5 flex w-full items-center gap-2 rounded-2xl border border-[#f1c894] bg-white p-3 shadow-sm"
           >
-            <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33] dark:bg-[#F49B33]/15 dark:text-[#F49B33]">
+            <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33]">
               <Plus className="h-5 w-5" />
             </span>
 
             <span className="min-w-0 text-left">
-              <span className="block truncate text-sm font-semibold text-slate-900 dark:text-white/95">
+              <span className="block truncate text-sm font-semibold text-slate-900">
                 {t("profile.addNewShop")}
               </span>
             </span>
           </button>
         )}
 
-        <section
-          className={`mb-5 rounded-2xl border p-4 ${
-            theme === "dark"
-              ? "border-[#F49B33]/25 bg-[#211201] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
-              : "border-[#f1c894] bg-white shadow-sm"
-          }`}
-        >
+        <section className="mb-5 rounded-2xl border border-[#f1c894] bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
-                {theme === "dark"
-                  ? t("profile.darkMode")
-                  : t("profile.lightMode")}
+              <p className="text-base font-semibold text-[#F49B33]">
+                {t("profile.lightMode")}
               </p>
-              <p className="mt-1 text-xs text-slate-600 dark:text-white/60">
-                {theme === "dark"
-                  ? t("profile.lightMode")
-                  : t("profile.darkMode")}
+              <p className="mt-1 text-xs text-slate-600">
+                {t("profile.themeLockedToLight") || t("profile.lightMode")}
               </p>
             </div>
 
@@ -576,8 +556,8 @@ export default function ProfilePage() {
               onClick={toggleTheme}
               className={`relative h-7 w-12 rounded-full border transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F49B33]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
                 theme === "dark"
-                  ? "border-[#F49B33]/60 bg-[#F49B33]/25 dark:border-[#F49B33]/70 dark:bg-[#F49B33]/35"
-                  : "border-slate-300 bg-slate-200 dark:border-white/25 dark:bg-white/10"
+                  ? "border-[#F49B33]/60 bg-[#F49B33]/25 "
+                  : "border-slate-300 bg-slate-200"
               }`}
               aria-label={t("profile.toggleTheme")}
               aria-pressed={theme === "dark"}
@@ -585,8 +565,8 @@ export default function ProfilePage() {
               <span
                 className={`absolute top-0.75 h-5 w-5 rounded-full ring-1 transition-all duration-200 flex items-center justify-center ${
                   theme === "dark"
-                    ? "left-6 bg-[#F49B33] ring-[#F49B33]/60 dark:bg-[#F49B33] dark:ring-[#F49B33]/70"
-                    : "left-1 bg-white ring-slate-300 dark:bg-slate-100 dark:ring-white/35"
+                    ? "left-6 bg-[#F49B33] ring-[#F49B33]/60"
+                    : "left-1 bg-white ring-slate-300"
                 }`}
               >
                 {theme === "dark" ? (
@@ -600,21 +580,15 @@ export default function ProfilePage() {
         </section>
 
         <section className="mb-6">
-          <p className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
+          <p className="text-base font-semibold text-[#F49B33]">
             {t("profile.accountSettings")}
           </p>
 
-          <div
-            className={`overflow-hidden rounded-2xl border ${
-              theme === "dark"
-                ? "border-[#F49B33]/25 bg-[#211201] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
-                : "border-[#f1c894] bg-white shadow-sm"
-            }`}
-          >
+          <div className="overflow-hidden rounded-2xl border border-[#f1c894] bg-white shadow-sm">
             <ProfileRow
               icon={<User className="h-4 w-4" />}
               title={
-                <span className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
+                <span className="text-base font-semibold text-[#F49B33]">
                   {t("profile.personalInfo")}
                 </span>
               }
@@ -625,7 +599,7 @@ export default function ProfilePage() {
             <ProfileRow
               icon={<Shield className="h-4 w-4" />}
               title={
-                <span className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
+                <span className="text-base font-semibold text-[#F49B33]">
                   {t("profile.security")}
                 </span>
               }
@@ -637,7 +611,7 @@ export default function ProfilePage() {
             <ProfileRow
               icon={<CreditCard className="h-4 w-4" />}
               title={
-                <span className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
+                <span className="text-base font-semibold text-[#F49B33]">
                   {t("profile.paymentMethods")}
                 </span>
               }
@@ -649,21 +623,15 @@ export default function ProfilePage() {
         </section>
 
         <section className="mb-8">
-          <p className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
+          <p className="text-base font-semibold text-[#F49B33]">
             {t("profile.appPreferences")}
           </p>
 
-          <div
-            className={`overflow-hidden rounded-2xl border${
-              theme === "dark"
-                ? "border-[#F49B33]/25 bg-[#211201] shadow-[0_0_0_1px_rgba(0,230,208,0.08)]"
-                : "border-[#f1c894] bg-white shadow-sm"
-            }`}
-          >
+          <div className="overflow-hidden rounded-2xl border border-[#f1c894] bg-white shadow-sm">
             <ProfileRow
               icon={<Bell className="h-4 w-4" />}
               title={
-                <span className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
+                <span className="text-base font-semibold text-[#F49B33]">
                   {t("profile.notifications")}
                 </span>
               }
@@ -675,13 +643,13 @@ export default function ProfilePage() {
             <ProfileRow
               icon={<Languages className="h-4 w-4" />}
               title={
-                <span className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
+                <span className="text-base font-semibold text-[#F49B33]">
                   {t("profile.language")}
                 </span>
               }
               subtitle={activeLanguage}
               trailing={
-                <span className="rounded-md px-2 py-1 text-xs font-medium text-slate-500 dark:text-white/70">
+                <span className="rounded-md px-2 py-1 text-xs font-medium text-slate-500">
                   {t("profile.change")}
                 </span>
               }
@@ -692,7 +660,7 @@ export default function ProfilePage() {
             <ProfileRow
               icon={<HelpCircle className="h-4 w-4" />}
               title={
-                <span className="text-base font-semibold text-[#F49B33] dark:text-[#F49B33]">
+                <span className="text-base font-semibold text-[#F49B33]">
                   {t("profile.helpSupport")}
                 </span>
               }
@@ -725,7 +693,7 @@ export default function ProfilePage() {
                 setIsEditingInfo((prev) => !prev);
                 setInfoSaveError("");
               }}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100 dark:border-white/15 dark:bg-white/5 dark:text-white/80 dark:hover:bg-white/10"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100"
               aria-label="Shaxsiy ma'lumotlarni tahrirlash"
               title="Tahrirlash"
             >
@@ -735,8 +703,8 @@ export default function ProfilePage() {
         >
           {isEditingInfo ? (
             <div className="space-y-3">
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5">
-                <p className="text-xs uppercase tracking-[0.15em] text-slate-500 dark:text-white/45">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
                   {t("profile.field.name")}
                 </p>
                 <input
@@ -748,12 +716,12 @@ export default function ProfilePage() {
                       name: event.target.value,
                     }))
                   }
-                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-teal-500 dark:border-white/15 dark:bg-white/10 dark:text-white/90"
+                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
 
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5">
-                <p className="text-xs uppercase tracking-[0.15em] text-slate-500 dark:text-white/45">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
                   {t("profile.field.phone")}
                 </p>
                 <input
@@ -765,7 +733,7 @@ export default function ProfilePage() {
                       phoneNumber: event.target.value,
                     }))
                   }
-                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-teal-500 dark:border-white/15 dark:bg-white/10 dark:text-white/90"
+                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
 
@@ -786,7 +754,7 @@ export default function ProfilePage() {
                     setInfoSaveError("");
                   }}
                   disabled={isSavingInfo}
-                  className="flex h-12 w-full items-center justify-center rounded-xl border border-slate-300 px-4 text-base font-semibold text-slate-600 transition hover:bg-slate-100 disabled:opacity-60 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
+                  className="flex h-12 w-full items-center justify-center rounded-xl border border-slate-300 px-4 text-base font-semibold text-slate-600 transition hover:bg-slate-100 disabled:opacity-60"
                 >
                   Bekor qilish
                 </button>
@@ -794,7 +762,7 @@ export default function ProfilePage() {
                   type="button"
                   onClick={handleSavePersonalInfo}
                   disabled={isSavingInfo}
-                  className="flex h-12 w-full items-center justify-center rounded-xl bg-teal-600 px-4 text-base font-semibold text-white transition hover:bg-teal-700 disabled:opacity-60 dark:bg-[#F49B33] dark:text-slate-900 dark:hover:bg-[#00c4b0]"
+                  className="flex h-12 w-full items-center justify-center rounded-xl bg-teal-600 px-4 text-base font-semibold text-white transition hover:bg-teal-700 disabled:opacity-60"
                 >
                   {isSavingInfo ? "Saqlanmoqda..." : "Saqlash"}
                 </button>
@@ -802,29 +770,29 @@ export default function ProfilePage() {
             </div>
           ) : (
             <div className="space-y-3">
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5">
-                <p className="text-xs uppercase tracking-[0.15em] text-slate-500 dark:text-white/45">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
                   {t("profile.field.name")}
                 </p>
-                <p className="mt-1 break-all text-sm text-slate-800 dark:text-white/90">
+                <p className="mt-1 break-all text-sm text-slate-800">
                   {user?.name || "-"}
                 </p>
               </div>
 
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5">
-                <p className="text-xs uppercase tracking-[0.15em] text-slate-500 dark:text-white/45">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
                   {t("profile.field.email")}
                 </p>
-                <p className="mt-1 break-all text-sm text-slate-800 dark:text-white/90">
+                <p className="mt-1 break-all text-sm text-slate-800">
                   {user?.email || "-"}
                 </p>
               </div>
 
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5">
-                <p className="text-xs uppercase tracking-[0.15em] text-slate-500 dark:text-white/45">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
                   {t("profile.field.phone")}
                 </p>
-                <p className="mt-1 break-all text-sm text-slate-800 dark:text-white/90">
+                <p className="mt-1 break-all text-sm text-slate-800">
                   {user?.phoneNumber || "-"}
                 </p>
               </div>
@@ -832,12 +800,12 @@ export default function ProfilePage() {
               {profileFields.map((item) => (
                 <div
                   key={item.label}
-                  className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5"
+                  className="rounded-xl border border-slate-200 bg-slate-50 p-3"
                 >
-                  <p className="text-xs uppercase tracking-[0.15em] text-slate-500 dark:text-white/45">
+                  <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
                     {item.label}
                   </p>
-                  <p className="mt-1 break-all text-sm text-slate-800 dark:text-white/90">
+                  <p className="mt-1 break-all text-sm text-slate-800">
                     {item.value}
                   </p>
                 </div>
@@ -867,8 +835,8 @@ export default function ProfilePage() {
                   }}
                   className={`w-full rounded-xl border px-4 py-3 text-left text-sm font-medium transition ${
                     isActive
-                      ? "border-[#F49B33]/30 bg-[#fff3e6] text-[#F49B33] dark:border-[#F49B33]/60 dark:bg-[#F49B33]/10 dark:text-[#F49B33]"
-                      : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:text-white/80 dark:hover:bg-white/10"
+                      ? "border-[#F49B33]/30 bg-[#fff3e6] text-[#F49B33]"
+                      : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
                   }`}
                 >
                   {lang.label}
@@ -915,26 +883,24 @@ function ProfileRow({
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-[#fff3e6] dark:hover:bg-[#F49B33]/10 ${
-        bordered ? "border-t border-[#f1c894] dark:border-[#F49B33]/20" : ""
+      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-[#fff3e6] ${
+        bordered ? "border-t border-[#f1c894]" : ""
       }`}
     >
-      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33] dark:bg-[#F49B33]/15 dark:text-[#F49B33]">
+      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33]">
         {icon}
       </span>
 
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium text-slate-900 dark:text-white/95">
+        <span className="block truncate text-sm font-medium text-slate-900">
           {title}
         </span>
-        <span className="block truncate text-xs text-slate-500 dark:text-white/45">
+        <span className="block truncate text-xs text-slate-500">
           {subtitle}
         </span>
       </span>
 
-      {trailing || (
-        <ChevronRight className="h-4 w-4 shrink-0 text-[#F49B33] dark:text-[#F49B33]/70" />
-      )}
+      {trailing || <ChevronRight className="h-4 w-4 shrink-0 text-[#F49B33]" />}
     </button>
   );
 }
@@ -954,27 +920,25 @@ function ModalShell({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 dark:bg-black/70"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4"
       onClick={onClose}
       role="presentation"
     >
       <div
-        className="max-h-[calc(100dvh-2rem)] w-full max-w-155 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl dark:border-white/10 dark:bg-[#211201]"
+        className="max-h-[calc(100dvh-2rem)] w-full max-w-155 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-label={title}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-            {title}
-          </h3>
+          <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
           <div className="flex items-center gap-2">
             {headerAction}
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100 dark:border-white/15 dark:bg-white/5 dark:text-white/80 dark:hover:bg-white/10"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100"
               aria-label={closeLabel}
             >
               <X className="h-4 w-4" />

@@ -14,6 +14,7 @@ import {
   Menu,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS, getStoredAuth } from "@/lib/api";
@@ -133,10 +134,45 @@ export default function AdminServicesPage() {
     },
   );
 
+  const { data: pendingFromCache = [] } = useQuery<string[]>({
+    queryKey: ["admin-services-pending", activeShopId || "none"],
+    queryFn: () =>
+      (queryClient.getQueryData<string[]>([
+        "admin-services-pending",
+        activeShopId || "none",
+      ]) ?? []) as string[],
+    enabled: Boolean(activeShopId),
+  });
+
   useEffect(() => {
     if (!services) return;
-    setServicesState(services);
-  }, [services]);
+
+    // update pendingIds state from reactive query
+    if (pendingFromCache && pendingFromCache.length > 0) {
+      const pendingMap: Record<string, boolean> = {};
+      for (const id of pendingFromCache) pendingMap[id] = true;
+      setPendingIds((current) => ({ ...current, ...pendingMap }));
+
+      // Merge server services into previous state to preserve order for pending items
+      setServicesState((prev) => {
+        if (!prev) return services;
+
+        const serverMap = new Map(services.map((s) => [s.id, s]));
+
+        const merged = prev.map((item) => serverMap.get(item.id) ?? item);
+
+        // append any new items from server that weren't in prev
+        const missing = services.filter(
+          (s) => !prev.some((p) => p.id === s.id),
+        );
+
+        return [...merged, ...missing];
+      });
+    } else {
+      setPendingIds({});
+      setServicesState(services);
+    }
+  }, [services, activeShopId, pendingFromCache]);
 
   const displayedServices = servicesState;
 

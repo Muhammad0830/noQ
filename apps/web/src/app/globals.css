@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+/* @custom-variant dark (&:is(.dark *)); */
 
 @theme inline {
   --color-background: var(--background);
@@ -139,7 +139,7 @@
   --foreground: oklch(0.147 0.004 49.3);
 }
 
-.dark {
+/* .dark {
   --background: oklch(0.147 0.004 49.3);
   --foreground: oklch(0.986 0.002 67.8);
   --card: oklch(0.214 0.009 43.1);
@@ -227,7 +227,7 @@
   --color-purple-700: #f49b33;
   --color-purple-800: #f49b33;
   --color-purple-900: #f49b33;
-}
+} */
 
 @layer base {
   * {
@@ -315,16 +315,6 @@
       rgba(255, 255, 255, 0.08) 0%,
       rgba(255, 248, 241, 0.32) 50%,
       rgba(255, 255, 255, 0.08) 100%
-    ) !important;
-  }
-
-  .dark [data-slot="skeleton"] {
-    background-color: rgba(244, 155, 51, 0.16) !important;
-    background-image: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.05) 0%,
-      rgba(244, 155, 51, 0.22) 50%,
-      rgba(255, 255, 255, 0.05) 100%
     ) !important;
   }
 

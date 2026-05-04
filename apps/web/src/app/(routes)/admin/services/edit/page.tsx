@@ -3,10 +3,12 @@
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Check,
   ChevronLeft,
   Clock3,
+  Loader2,
   DollarSign,
   EllipsisVertical,
   Info,
@@ -16,8 +18,23 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useApiMutation } from "@/hooks/useApiMutation";
 import { API_ENDPOINTS, getStoredAuth } from "@/lib/api";
 import BarbershopImage from "../../../../../../assets/Barbershop.png";
+
+type AdminService = {
+  id: string;
+  name: string;
+  description: string | null;
+  price: string;
+  durationMin: number;
+  isActive: boolean;
+  shopId: string;
+  bufferTime: number | null;
+  shop?: {
+    name?: string;
+  };
+};
 
 const staffMembers = [
   { id: "alex", name: "Alex Johnson", selected: true },
@@ -69,13 +86,13 @@ export default function EditServicePage() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const [persistedShopId, setPersistedShopId] = useState<string | null>(null);
   const [hasLoadedPersistedShop, setHasLoadedPersistedShop] = useState(false);
   const [isLoadingService, setIsLoadingService] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isBufferTimeEnabled, setIsBufferTimeEnabled] = useState(true);
   const [durationWarnings, setDurationWarnings] = useState<{
@@ -130,6 +147,28 @@ export default function EditServicePage() {
 
     return userShops[0]?.id || null;
   }, [hasLoadedPersistedShop, persistedShopId, shopIdFromQuery, user?.shops]);
+
+  const { mutateAsync: deleteService, isPending: isDeleting } = useApiMutation<
+    void,
+    void
+  >(
+    () => {
+      if (!serviceId) {
+        return API_ENDPOINTS.admin.services;
+      }
+
+      return `${API_ENDPOINTS.admin.services}/${encodeURIComponent(serviceId)}`;
+    },
+    "delete",
+    activeShopId
+      ? {
+          headers: {
+            "x-shopid": activeShopId,
+            "x-shop-id": activeShopId,
+          },
+        }
+      : undefined,
+  );
 
   const handleHoursChange = (value: string) => {
     const digitsOnly = value.replace(/\D/g, "");
@@ -299,6 +338,11 @@ export default function EditServicePage() {
         setSubmitError(null);
 
         const token = getStoredAuth()?.token;
+        console.log("[debug] submitting service", {
+          id: serviceId,
+          price: service.price,
+          priceNumber: price,
+        });
         const response = await fetch(
           `${API_ENDPOINTS.admin.services}/${encodeURIComponent(serviceId)}`,
           {
@@ -330,6 +374,52 @@ export default function EditServicePage() {
           throw new Error(message);
         }
 
+        const updatedBody = (await response.json().catch(() => null)) as any;
+        console.log("[debug] update response body", updatedBody);
+
+        queryClient.setQueryData<AdminService[]>(
+          ["admin-services", activeShopId || "none"],
+          (currentServices) => {
+            if (!currentServices) return currentServices;
+
+            return currentServices.map((item) =>
+              item.id === serviceId
+                ? {
+                    ...item,
+                    name: service.name.trim(),
+                    price:
+                      updatedBody && typeof updatedBody.price !== "undefined"
+                        ? String(updatedBody.price)
+                        : String(price),
+                    durationMin,
+                    bufferTime:
+                      isBufferTimeEnabled && bufferTime !== ""
+                        ? Number(bufferTime)
+                        : null,
+                  }
+                : item,
+            );
+          },
+        );
+
+        // mark this service as pending-updated so the list preserves position
+        const pendingKey = [
+          "admin-services-pending",
+          activeShopId || "none",
+        ] as const;
+        queryClient.setQueryData<string[]>(pendingKey, (prev) => {
+          const arr = prev ?? [];
+          if (!arr.includes(serviceId)) return [...arr, serviceId];
+          return arr;
+        });
+
+        // clear pending flag after a short delay (keeps card stable while server settles)
+        setTimeout(() => {
+          queryClient.setQueryData<string[]>(pendingKey, (prev) =>
+            prev ? prev.filter((id) => id !== serviceId) : prev,
+          );
+        }, 5000);
+
         router.push(
           `/admin/services?shopId=${encodeURIComponent(activeShopId)}`,
         );
@@ -354,21 +444,9 @@ export default function EditServicePage() {
     }
 
     try {
-      setIsDeleting(true);
       setSubmitError(null);
 
-      const token = getStoredAuth()?.token;
-      const response = await fetch(
-        `${API_ENDPOINTS.admin.services}/${encodeURIComponent(serviceId)}`,
-        {
-          method: "DELETE",
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            "x-shopid": activeShopId,
-            "x-shop-id": activeShopId,
-          },
-        },
-      );
+      await deleteService(undefined);
 
       if (!response.ok) {
         const body = await response.json().catch(() => null);
@@ -386,8 +464,6 @@ export default function EditServicePage() {
           ? error.message
           : t("admin.services.error.deleteFailed"),
       );
-    } finally {
-      setIsDeleting(false);
     }
   };
 
@@ -500,7 +576,7 @@ export default function EditServicePage() {
                     pattern="[0-9]*"
                     value={service.hours}
                     onChange={(e) => handleHoursChange(e.target.value)}
-                    placeholder="0-23"
+                    placeholder={t("admin.services.edit.hoursPlaceholder")}
                     disabled={isLoadingService}
                     className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[15px] font-medium text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
                   />
@@ -521,7 +597,7 @@ export default function EditServicePage() {
                     pattern="[0-9]*"
                     value={service.minutes}
                     onChange={(e) => handleMinutesChange(e.target.value)}
-                    placeholder="0-60"
+                    placeholder={t("admin.services.edit.minutesPlaceholder")}
                     disabled={isLoadingService}
                     className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[15px] font-medium text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
                   />
@@ -598,7 +674,7 @@ export default function EditServicePage() {
                     onChange={(e) =>
                       setService({ ...service, price: e.target.value })
                     }
-                    placeholder="50000"
+                    placeholder={t("admin.services.edit.pricePlaceholder")}
                     disabled={isLoadingService}
                     className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 pl-8 text-[15px] text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
                   />
@@ -692,7 +768,7 @@ export default function EditServicePage() {
               <button
                 type="submit"
                 disabled={isSubmitting || isDeleting || isLoadingService}
-                className="flex h-14 w-full items-center justify-center rounded-full bg-[#F49B33] text-[16px] font-semibold uppercase tracking-[0.08em] text-white shadow-[0_16px_32px_rgba(244,155,51,0.28)] transition-transform active:scale-[0.99]"
+                className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[#F49B33] text-[16px] font-semibold uppercase tracking-[0.08em] text-white shadow-[0_16px_32px_rgba(244,155,51,0.28)] transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-90"
               >
                 {isSubmitting
                   ? t("admin.services.saving")
@@ -703,7 +779,7 @@ export default function EditServicePage() {
                 type="button"
                 onClick={() => void handleDelete()}
                 disabled={isDeleting || isSubmitting || isLoadingService}
-                className="flex h-14 w-full items-center justify-center rounded-full border border-[#f3b6b3] bg-white text-[14px] font-semibold uppercase tracking-[0.08em] text-[#ef4444]"
+                className="flex h-14 w-full items-center justify-center gap-2 rounded-full border border-[#f3b6b3] bg-white text-[14px] font-semibold uppercase tracking-[0.08em] text-[#ef4444]"
               >
                 {isDeleting
                   ? t("admin.services.deleting")

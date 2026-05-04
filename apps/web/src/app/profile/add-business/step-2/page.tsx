@@ -24,13 +24,55 @@ import type {
 } from "@shared/types/general_types";
 
 const dayMeta = [
-  { dayOfWeek: 1, day: "Monday", id: "monday", defaultStart: "09:00", defaultEnd: "18:00" },
-  { dayOfWeek: 2, day: "Tuesday", id: "tuesday", defaultStart: "09:00", defaultEnd: "18:00" },
-  { dayOfWeek: 3, day: "Wednesday", id: "wednesday", defaultStart: "09:00", defaultEnd: "18:00" },
-  { dayOfWeek: 4, day: "Thursday", id: "thursday", defaultStart: "09:00", defaultEnd: "18:00" },
-  { dayOfWeek: 5, day: "Friday", id: "friday", defaultStart: "09:00", defaultEnd: "20:00" },
-  { dayOfWeek: 6, day: "Saturday", id: "saturday", defaultStart: "10:00", defaultEnd: "17:00" },
-  { dayOfWeek: 0, day: "Sunday", id: "sunday", defaultStart: "09:00", defaultEnd: "18:00" },
+  {
+    dayOfWeek: 1,
+    day: "Monday",
+    id: "monday",
+    defaultStart: "09:00",
+    defaultEnd: "18:00",
+  },
+  {
+    dayOfWeek: 2,
+    day: "Tuesday",
+    id: "tuesday",
+    defaultStart: "09:00",
+    defaultEnd: "18:00",
+  },
+  {
+    dayOfWeek: 3,
+    day: "Wednesday",
+    id: "wednesday",
+    defaultStart: "09:00",
+    defaultEnd: "18:00",
+  },
+  {
+    dayOfWeek: 4,
+    day: "Thursday",
+    id: "thursday",
+    defaultStart: "09:00",
+    defaultEnd: "18:00",
+  },
+  {
+    dayOfWeek: 5,
+    day: "Friday",
+    id: "friday",
+    defaultStart: "09:00",
+    defaultEnd: "20:00",
+  },
+  {
+    dayOfWeek: 6,
+    day: "Saturday",
+    id: "saturday",
+    defaultStart: "10:00",
+    defaultEnd: "17:00",
+  },
+  {
+    dayOfWeek: 0,
+    day: "Sunday",
+    id: "sunday",
+    defaultStart: "09:00",
+    defaultEnd: "18:00",
+  },
 ] as const;
 
 type ExpandedDay = (typeof dayMeta)[number]["id"] | "";
@@ -60,10 +102,13 @@ const getTodayDayId = () => {
   };
 
   const todayDayOfWeek = dayByName[weekdayName] ?? new Date().getDay();
-  return dayMeta.find((meta) => meta.dayOfWeek === todayDayOfWeek)?.id || "monday";
+  return (
+    dayMeta.find((meta) => meta.dayOfWeek === todayDayOfWeek)?.id || "monday"
+  );
 };
 
-const normalizeTime = (value?: string | null) => (value ? value.slice(0, 5) : "00:00");
+const normalizeTime = (value?: string | null) =>
+  value ? value.slice(0, 5) : "00:00";
 
 const parseTime = (value?: string) => {
   const [h, m] = (value || "13:00").split(":");
@@ -85,7 +130,8 @@ const addMinutes = (time: string, minutesToAdd: number) => {
   return toTimeString(nextHour, nextMinute);
 };
 
-const isValidRange = (startTime: string, endTime: string) => startTime < endTime;
+const isValidRange = (startTime: string, endTime: string) =>
+  startTime < endTime;
 
 const buildNonOverlappingDaySlots = (day: DaySchedule) => {
   if (!day.enabled || !isValidRange(day.openStart, day.openEnd)) {
@@ -93,7 +139,12 @@ const buildNonOverlappingDaySlots = (day: DaySchedule) => {
   }
 
   const filteredBreaks = day.breaks
-    .filter((b) => isValidRange(b.startTime, b.endTime) && b.startTime >= day.openStart && b.endTime <= day.openEnd)
+    .filter(
+      (b) =>
+        isValidRange(b.startTime, b.endTime) &&
+        b.startTime >= day.openStart &&
+        b.endTime <= day.openEnd,
+    )
     .sort((a, b) => a.startTime.localeCompare(b.startTime));
 
   const mergedBreaks: { startTime: string; endTime: string }[] = [];
@@ -115,7 +166,11 @@ const buildNonOverlappingDaySlots = (day: DaySchedule) => {
     if (cursor < block.startTime) {
       slots.push({ startTime: cursor, endTime: block.startTime, block: false });
     }
-    slots.push({ startTime: block.startTime, endTime: block.endTime, block: true });
+    slots.push({
+      startTime: block.startTime,
+      endTime: block.endTime,
+      block: true,
+    });
     cursor = block.endTime;
   }
 
@@ -124,7 +179,11 @@ const buildNonOverlappingDaySlots = (day: DaySchedule) => {
   }
 
   if (!slots.length) {
-    slots.push({ startTime: day.openStart, endTime: day.openEnd, block: false });
+    slots.push({
+      startTime: day.openStart,
+      endTime: day.openEnd,
+      block: false,
+    });
   }
 
   return slots;
@@ -141,20 +200,38 @@ const getDefaultDays = (): DaySchedule[] =>
     enabled: meta.id !== "sunday",
   }));
 
-const mapBackendToDays = (response?: BackendWeeklyScheduleResponse): DaySchedule[] => {
+const mapBackendToDays = (
+  response?: BackendWeeklyScheduleResponse,
+): DaySchedule[] => {
   const incoming = response?.schedule || {};
-  const weekNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const weekNames = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
 
   return dayMeta.map((meta) => {
     const dayName = weekNames[meta.dayOfWeek];
     const dayData = incoming[dayName] || { opens: [], blocks: [] };
 
-    const opens = [...dayData.opens].sort((a, b) => a.startTime.localeCompare(b.startTime));
-    const blocks = [...dayData.blocks].sort((a, b) => a.startTime.localeCompare(b.startTime));
+    const opens = [...dayData.opens].sort((a, b) =>
+      a.startTime.localeCompare(b.startTime),
+    );
+    const blocks = [...dayData.blocks].sort((a, b) =>
+      a.startTime.localeCompare(b.startTime),
+    );
 
     const enabled = opens.length > 0;
-    const openStart = enabled ? normalizeTime(opens[0]?.startTime) : meta.defaultStart;
-    const openEnd = enabled ? normalizeTime(opens[opens.length - 1]?.endTime) : meta.defaultEnd;
+    const openStart = enabled
+      ? normalizeTime(opens[0]?.startTime)
+      : meta.defaultStart;
+    const openEnd = enabled
+      ? normalizeTime(opens[opens.length - 1]?.endTime)
+      : meta.defaultEnd;
 
     return {
       id: meta.id,
@@ -174,13 +251,18 @@ const mapBackendToDays = (response?: BackendWeeklyScheduleResponse): DaySchedule
 export default function AddBusinessStepTwoPage() {
   const router = useRouter();
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<"schedule" | "exceptions">("schedule");
+  const [activeTab, setActiveTab] = useState<"schedule" | "exceptions">(
+    "schedule",
+  );
   const [expandedDay, setExpandedDay] = useState<ExpandedDay>(getTodayDayId);
   const [days, setDays] = useState<DaySchedule[]>(getDefaultDays());
   const [shopId, setShopId] = useState<string | null>(null);
   const [isCreatingShop, setIsCreatingShop] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [toast, setToast] = useState<{ message: string; kind: "error" | "success" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    kind: "error" | "success";
+  } | null>(null);
   const [timePicker, setTimePicker] = useState<TimePickerState>({
     isOpen: false,
     dayId: null,
@@ -191,19 +273,24 @@ export default function AddBusinessStepTwoPage() {
     minute: 0,
   });
   const [touchStartY, setTouchStartY] = useState<number | null>(null);
-  const [currentSwipeTarget, setCurrentSwipeTarget] = useState<"hour" | "minute" | null>(null);
+  const [currentSwipeTarget, setCurrentSwipeTarget] = useState<
+    "hour" | "minute" | null
+  >(null);
 
-  const { data: weeklyScheduleData, isLoading: isScheduleLoading } = useApiQuery<BackendWeeklyScheduleResponse>(
-    shopId ? `${API_ENDPOINTS.admin.schedule}?date=all` : null,
-    {
-      key: ["new-shop-weekly-schedule", shopId || "none"],
-      enabled: Boolean(shopId),
-      staleTime: 30_000,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      headers: shopId ? { "x-shopid": shopId, "x-shop-id": shopId } : undefined,
-    },
-  );
+  const { data: weeklyScheduleData, isLoading: isScheduleLoading } =
+    useApiQuery<BackendWeeklyScheduleResponse>(
+      shopId ? `${API_ENDPOINTS.admin.schedule}?date=all` : null,
+      {
+        key: ["new-shop-weekly-schedule", shopId || "none"],
+        enabled: Boolean(shopId),
+        staleTime: 30_000,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        headers: shopId
+          ? { "x-shopid": shopId, "x-shop-id": shopId }
+          : undefined,
+      },
+    );
 
   useEffect(() => {
     if (timePicker.isOpen) {
@@ -239,7 +326,8 @@ export default function AddBusinessStepTwoPage() {
       return;
     }
 
-    const isShopCreating = window.sessionStorage.getItem(CREATION_LOCK_KEY) === "1";
+    const isShopCreating =
+      window.sessionStorage.getItem(CREATION_LOCK_KEY) === "1";
     if (isShopCreating) {
       setIsCreatingShop(true);
 
@@ -314,7 +402,10 @@ export default function AddBusinessStepTwoPage() {
         setShopId(createdShopId);
       } catch (error) {
         setToast({
-          message: error instanceof Error ? error.message : t("newShop.step2.createFailed"),
+          message:
+            error instanceof Error
+              ? error.message
+              : t("newShop.step2.createFailed"),
           kind: "error",
         });
       } finally {
@@ -364,12 +455,17 @@ export default function AddBusinessStepTwoPage() {
     });
   };
 
-  const openEditBreakModal = (id: string, breakIndex: number, field: "startTime" | "endTime") => {
+  const openEditBreakModal = (
+    id: string,
+    breakIndex: number,
+    field: "startTime" | "endTime",
+  ) => {
     const targetDay = days.find((item) => item.id === id);
     const targetBreak = targetDay?.breaks[breakIndex];
     if (!targetBreak) return;
 
-    const currentTime = field === "startTime" ? targetBreak.startTime : targetBreak.endTime;
+    const currentTime =
+      field === "startTime" ? targetBreak.startTime : targetBreak.endTime;
     const initial = parseTime(currentTime);
 
     setTimePicker({
@@ -383,11 +479,15 @@ export default function AddBusinessStepTwoPage() {
     });
   };
 
-  const openEditWorkingHoursModal = (id: string, field: "startTime" | "endTime") => {
+  const openEditWorkingHoursModal = (
+    id: string,
+    field: "startTime" | "endTime",
+  ) => {
     const targetDay = days.find((item) => item.id === id);
     if (!targetDay) return;
 
-    const currentTime = field === "startTime" ? targetDay.openStart : targetDay.openEnd;
+    const currentTime =
+      field === "startTime" ? targetDay.openStart : targetDay.openEnd;
     const initial = parseTime(currentTime);
 
     setTimePicker({
@@ -461,7 +561,10 @@ export default function AddBusinessStepTwoPage() {
       setDays((prev) =>
         prev.map((item) =>
           item.id === timePicker.dayId
-            ? { ...item, breaks: [...item.breaks, { startTime: selectedTime, endTime }] }
+            ? {
+                ...item,
+                breaks: [...item.breaks, { startTime: selectedTime, endTime }],
+              }
             : item,
         ),
       );
@@ -483,7 +586,8 @@ export default function AddBusinessStepTwoPage() {
 
           return {
             ...item,
-            [timePicker.field === "startTime" ? "openStart" : "openEnd"]: selectedTime,
+            [timePicker.field === "startTime" ? "openStart" : "openEnd"]:
+              selectedTime,
           };
         }),
       );
@@ -496,7 +600,10 @@ export default function AddBusinessStepTwoPage() {
     setDays((prev) =>
       prev.map((item) =>
         item.id === id
-          ? { ...item, breaks: item.breaks.filter((_, index) => index !== breakIndex) }
+          ? {
+              ...item,
+              breaks: item.breaks.filter((_, index) => index !== breakIndex),
+            }
           : item,
       ),
     );
@@ -537,14 +644,18 @@ export default function AddBusinessStepTwoPage() {
       const json = await response.json().catch(() => null);
       if (!response.ok) {
         throw new Error(
-          (json && typeof json.message === "string" && json.message) || t("admin.schedule.saveFailed"),
+          (json && typeof json.message === "string" && json.message) ||
+            t("admin.schedule.saveFailed"),
         );
       }
 
       return true;
     } catch (error) {
       setToast({
-        message: error instanceof Error ? error.message : t("admin.schedule.saveFailed"),
+        message:
+          error instanceof Error
+            ? error.message
+            : t("admin.schedule.saveFailed"),
         kind: "error",
       });
       return false;
@@ -565,7 +676,7 @@ export default function AddBusinessStepTwoPage() {
   const todayDayId = useMemo(() => getTodayDayId(), []);
 
   return (
-    <main className="min-h-screen bg-[#f4f5f8] px-4 py-5 text-slate-900 dark:bg-[#211201] dark:text-white">
+    <main className="min-h-screen bg-[#f4f5f8] px-4 py-5 text-slate-900">
       {toast && (
         <div className="fixed left-1/2 top-4 z-60 w-[92%] max-w-sm -translate-x-1/2">
           <div
@@ -591,11 +702,13 @@ export default function AddBusinessStepTwoPage() {
             type="button"
             onClick={() => router.back()}
             aria-label={t("common.back")}
-            className="absolute left-0 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-white/80"
+            className="absolute left-0 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-lg font-semibold">{t("newShop.step2.pageTitle")}</h1>
+          <h1 className="text-lg font-semibold">
+            {t("newShop.step2.pageTitle")}
+          </h1>
         </header>
 
         <div className="mb-5 flex items-center justify-center gap-2">
@@ -609,12 +722,12 @@ export default function AddBusinessStepTwoPage() {
                   className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
                     isActive || isDone
                       ? "bg-[#F49B33] text-white"
-                      : "bg-slate-200 text-slate-500 dark:bg-white/10 dark:text-white/60"
+                      : "bg-slate-200 text-slate-500"
                   }`}
                 >
                   {isDone ? <Check className="h-4 w-4" /> : step}
                 </span>
-                {step < 3 && <span className="h-px w-12 bg-slate-300 dark:bg-white/15" />}
+                {step < 3 && <span className="h-px w-12 bg-slate-300" />}
               </div>
             );
           })}
@@ -649,7 +762,7 @@ export default function AddBusinessStepTwoPage() {
 
         {activeTab === "schedule" ? (
           <section>
-            <h3 className="pb-2 text-[21px] font-bold tracking-tight text-[#1f1f1f] dark:text-white">
+            <h3 className="pb-2 text-[21px] font-bold tracking-tight text-[#1f1f1f]">
               {t("admin.schedule.weekly")}
             </h3>
 
@@ -704,7 +817,9 @@ export default function AddBusinessStepTwoPage() {
                                 <>
                                   <span className="mx-1 text-[#d6d9de]">•</span>
                                   <span className="text-[#f39a36]">
-                                    {t("admin.schedule.breakCount", { count: item.breaks.length })}
+                                    {t("admin.schedule.breakCount", {
+                                      count: item.breaks.length,
+                                    })}
                                   </span>
                                 </>
                               )}
@@ -718,7 +833,9 @@ export default function AddBusinessStepTwoPage() {
                               className={`relative h-6 w-11 rounded-full transition-colors ${
                                 item.enabled ? "bg-[#24b565]" : "bg-[#dbdde2]"
                               }`}
-                              aria-label={t("admin.schedule.aria.toggleDay", { day: dayLabel })}
+                              aria-label={t("admin.schedule.aria.toggleDay", {
+                                day: dayLabel,
+                              })}
                               aria-pressed={item.enabled}
                             >
                               <span
@@ -731,14 +848,20 @@ export default function AddBusinessStepTwoPage() {
                               type="button"
                               disabled={!item.enabled}
                               onClick={() =>
-                                setExpandedDay((prev) => (prev === item.id ? "" : (item.id as ExpandedDay)))
+                                setExpandedDay((prev) =>
+                                  prev === item.id
+                                    ? ""
+                                    : (item.id as ExpandedDay),
+                                )
                               }
                               className={`inline-flex items-center justify-center transition-colors ${
                                 isExpanded
                                   ? "h-9 w-9 rounded-2xl bg-[#f2f3f5] text-[#20b35f]"
                                   : "h-9 w-9 rounded-full text-[#b8bdc8] hover:bg-[#f3f4f6]"
                               } ${!item.enabled ? "cursor-not-allowed opacity-40 hover:bg-transparent" : ""}`}
-                              aria-label={t("admin.schedule.aria.editDay", { day: dayLabel })}
+                              aria-label={t("admin.schedule.aria.editDay", {
+                                day: dayLabel,
+                              })}
                             >
                               {isExpanded ? (
                                 <Check className="h-4 w-4 text-[#21b462]" />
@@ -761,15 +884,27 @@ export default function AddBusinessStepTwoPage() {
                                 </p>
                                 <button
                                   type="button"
-                                  onClick={() => openEditWorkingHoursModal(item.id, "startTime")}
+                                  onClick={() =>
+                                    openEditWorkingHoursModal(
+                                      item.id,
+                                      "startTime",
+                                    )
+                                  }
                                   className="inline-flex h-9 items-center justify-center rounded-xl border border-[#d9dde3] bg-[#f3f4f6] px-2.5 text-[13px] font-bold text-[#1e232b]"
                                 >
                                   {item.openStart}
                                 </button>
-                                <span className="text-[15px] text-[#c5cbd4]">-</span>
+                                <span className="text-[15px] text-[#c5cbd4]">
+                                  -
+                                </span>
                                 <button
                                   type="button"
-                                  onClick={() => openEditWorkingHoursModal(item.id, "endTime")}
+                                  onClick={() =>
+                                    openEditWorkingHoursModal(
+                                      item.id,
+                                      "endTime",
+                                    )
+                                  }
                                   className="inline-flex h-9 items-center justify-center rounded-xl border border-[#d9dde3] bg-[#f3f4f6] px-2.5 text-[13px] font-bold text-[#1e232b]"
                                 >
                                   {item.openEnd}
@@ -790,24 +925,42 @@ export default function AddBusinessStepTwoPage() {
                                     </p>
                                     <button
                                       type="button"
-                                      onClick={() => openEditBreakModal(item.id, breakIndex, "startTime")}
+                                      onClick={() =>
+                                        openEditBreakModal(
+                                          item.id,
+                                          breakIndex,
+                                          "startTime",
+                                        )
+                                      }
                                       className="inline-flex h-9 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-2.5 text-[13px] font-bold text-[#262b33]"
                                     >
                                       {breakItem.startTime}
                                     </button>
-                                    <span className="text-[15px] text-[#c5cbd4]">-</span>
+                                    <span className="text-[15px] text-[#c5cbd4]">
+                                      -
+                                    </span>
                                     <button
                                       type="button"
-                                      onClick={() => openEditBreakModal(item.id, breakIndex, "endTime")}
+                                      onClick={() =>
+                                        openEditBreakModal(
+                                          item.id,
+                                          breakIndex,
+                                          "endTime",
+                                        )
+                                      }
                                       className="inline-flex h-9 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-2.5 text-[13px] font-bold text-[#262b33]"
                                     >
                                       {breakItem.endTime}
                                     </button>
                                     <button
                                       type="button"
-                                      onClick={() => removeBreak(item.id, breakIndex)}
+                                      onClick={() =>
+                                        removeBreak(item.id, breakIndex)
+                                      }
                                       className="inline-flex h-6 w-6 items-center justify-center text-[#ff6662]"
-                                      aria-label={t("admin.schedule.aria.deleteBreak")}
+                                      aria-label={t(
+                                        "admin.schedule.aria.deleteBreak",
+                                      )}
                                     >
                                       <Trash2 className="h-3.5 w-3.5" />
                                     </button>
@@ -828,7 +981,9 @@ export default function AddBusinessStepTwoPage() {
                                   >
                                     -:-
                                   </button>
-                                  <span className="text-[15px] text-[#c5cbd4]">-</span>
+                                  <span className="text-[15px] text-[#c5cbd4]">
+                                    -
+                                  </span>
                                   <button
                                     type="button"
                                     onClick={() => openAddBreakModal(item.id)}
@@ -840,7 +995,9 @@ export default function AddBusinessStepTwoPage() {
                                     type="button"
                                     disabled
                                     className="inline-flex h-6 w-6 items-center justify-center text-[#ff6662]/40"
-                                    aria-label={t("admin.schedule.aria.deleteBreak")}
+                                    aria-label={t(
+                                      "admin.schedule.aria.deleteBreak",
+                                    )}
                                   >
                                     <Trash2 className="h-3.5 w-3.5" />
                                   </button>
@@ -865,8 +1022,12 @@ export default function AddBusinessStepTwoPage() {
           </section>
         ) : (
           <section className="rounded-3xl border border-dashed border-[#d2d6de] bg-white px-4 py-8 text-center">
-            <h3 className="text-[16px] font-semibold text-[#2e3440]">{t("admin.schedule.exceptions.title")}</h3>
-            <p className="mt-1 text-[13px] text-[#8f96a3]">{t("admin.schedule.exceptions.description")}</p>
+            <h3 className="text-[16px] font-semibold text-[#2e3440]">
+              {t("admin.schedule.exceptions.title")}
+            </h3>
+            <p className="mt-1 text-[13px] text-[#8f96a3]">
+              {t("admin.schedule.exceptions.description")}
+            </p>
           </section>
         )}
         <button
@@ -880,7 +1041,10 @@ export default function AddBusinessStepTwoPage() {
       </div>
 
       {timePicker.isOpen && (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/30" onClick={closeTimePicker}>
+        <div
+          className="fixed inset-0 z-50 flex items-end bg-black/30"
+          onClick={closeTimePicker}
+        >
           <div
             className="w-full rounded-t-[22px] bg-white p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.18)]"
             onClick={(event) => event.stopPropagation()}
@@ -898,7 +1062,10 @@ export default function AddBusinessStepTwoPage() {
                 role="slider"
                 aria-label="Hour"
               >
-                <button type="button" className="pointer-events-none text-[15px] text-[#d0d5dd]">
+                <button
+                  type="button"
+                  className="pointer-events-none text-[15px] text-[#d0d5dd]"
+                >
                   {String((timePicker.hour + 23) % 24).padStart(2, "0")}
                 </button>
                 <button
@@ -907,12 +1074,17 @@ export default function AddBusinessStepTwoPage() {
                 >
                   {String(timePicker.hour).padStart(2, "0")}
                 </button>
-                <button type="button" className="pointer-events-none text-[15px] text-[#d0d5dd]">
+                <button
+                  type="button"
+                  className="pointer-events-none text-[15px] text-[#d0d5dd]"
+                >
                   {String((timePicker.hour + 1) % 24).padStart(2, "0")}
                 </button>
               </div>
 
-              <span className="px-1 text-[18px] font-semibold text-[#f09a35]">:</span>
+              <span className="px-1 text-[18px] font-semibold text-[#f09a35]">
+                :
+              </span>
 
               <div
                 className="flex select-none flex-col items-center gap-1"
@@ -921,7 +1093,10 @@ export default function AddBusinessStepTwoPage() {
                 role="slider"
                 aria-label="Minute"
               >
-                <button type="button" className="pointer-events-none text-[15px] text-[#d0d5dd]">
+                <button
+                  type="button"
+                  className="pointer-events-none text-[15px] text-[#d0d5dd]"
+                >
                   {String((timePicker.minute + 55) % 60).padStart(2, "0")}
                 </button>
                 <button
@@ -930,7 +1105,10 @@ export default function AddBusinessStepTwoPage() {
                 >
                   {String(timePicker.minute).padStart(2, "0")}
                 </button>
-                <button type="button" className="pointer-events-none text-[15px] text-[#d0d5dd]">
+                <button
+                  type="button"
+                  className="pointer-events-none text-[15px] text-[#d0d5dd]"
+                >
                   {String((timePicker.minute + 5) % 60).padStart(2, "0")}
                 </button>
               </div>

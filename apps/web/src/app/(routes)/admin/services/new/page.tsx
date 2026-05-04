@@ -2,9 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ChevronLeft,
   Clock3,
+  Loader2,
   DollarSign,
   EllipsisVertical,
   Info,
@@ -25,10 +27,10 @@ export default function AddNewService() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const [persistedShopId, setPersistedShopId] = useState<string | null>(null);
   const [hasLoadedPersistedShop, setHasLoadedPersistedShop] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [durationWarnings, setDurationWarnings] = useState<{
     hours: string | null;
@@ -82,6 +84,20 @@ export default function AddNewService() {
 
     return userShops[0]?.id || null;
   }, [hasLoadedPersistedShop, persistedShopId, shopIdFromQuery, user?.shops]);
+
+  const { mutateAsync: createService, isPending: isSubmitting } =
+    useApiMutation<AdminService, CreateServicePayload>(
+      API_ENDPOINTS.admin.services,
+      "post",
+      activeShopId
+        ? {
+            headers: {
+              "x-shopid": activeShopId,
+              "x-shop-id": activeShopId,
+            },
+          }
+        : undefined,
+    );
 
   const handleHoursChange = (value: string) => {
     const digitsOnly = value.replace(/\D/g, "");
@@ -157,27 +173,14 @@ export default function AddNewService() {
     }
 
     try {
-      setIsSubmitting(true);
       setSubmitError(null);
 
-      const token = getStoredAuth()?.token;
-      const response = await fetch(API_ENDPOINTS.admin.services, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          "x-shopid": activeShopId,
-          "x-shop-id": activeShopId,
-        },
-        body: JSON.stringify({
-          name: service.name.trim(),
-          price,
-          durationMin,
-          bufferTime:
-            isBufferTimeEnabled && bufferTime !== ""
-              ? Number(bufferTime)
-              : null,
-        }),
+      const createdService = await createService({
+        name: service.name.trim(),
+        price,
+        durationMin,
+        bufferTime:
+          isBufferTimeEnabled && bufferTime !== "" ? Number(bufferTime) : null,
       });
 
       if (!response.ok) {
@@ -196,8 +199,6 @@ export default function AddNewService() {
           ? error.message
           : t("admin.services.error.createFailed"),
       );
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -272,7 +273,7 @@ export default function AddNewService() {
                   pattern="[0-9]*"
                   value={service.hours}
                   onChange={(e) => handleHoursChange(e.target.value)}
-                  placeholder="0-23"
+                  placeholder={t("admin.services.new.hoursPlaceholder")}
                   className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[15px] text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
                 />
                 {durationWarnings.hours && (
@@ -292,7 +293,7 @@ export default function AddNewService() {
                   pattern="[0-9]*"
                   value={service.minutes}
                   onChange={(e) => handleMinutesChange(e.target.value)}
-                  placeholder="0-60"
+                  placeholder={t("admin.services.new.minutesPlaceholder")}
                   className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[15px] text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
                 />
                 {durationWarnings.minutes && (
@@ -332,7 +333,7 @@ export default function AddNewService() {
                 onChange={(e) => {
                   setService({ ...service, bufferTime: e.target.value });
                 }}
-                placeholder="15"
+                placeholder={t("admin.services.new.bufferPlaceholder")}
                 disabled={!isBufferTimeEnabled}
                 className={`h-12 w-full rounded-2xl border px-4 text-[15px] outline-none transition-colors placeholder:text-[#b0b7c3] ${
                   isBufferTimeEnabled
@@ -362,7 +363,7 @@ export default function AddNewService() {
                 onChange={(e) =>
                   setService({ ...service, price: e.target.value })
                 }
-                placeholder="50000"
+                placeholder={t("admin.services.new.pricePlaceholder")}
                 className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 pl-8 text-[15px] text-[#111827] outline-none transition-colors placeholder:text-[#b0b7c3] focus:border-[#F49B33]"
               />
             </label>
@@ -455,7 +456,7 @@ export default function AddNewService() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex h-14 w-full items-center justify-center rounded-full bg-[#F49B33] text-[16px] font-semibold uppercase tracking-[0.08em] text-white shadow-[0_16px_32px_rgba(244,155,51,0.28)] transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+              className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[#F49B33] text-[16px] font-semibold uppercase tracking-[0.08em] text-white shadow-[0_16px_32px_rgba(244,155,51,0.28)] transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isSubmitting
                 ? t("admin.services.saving")

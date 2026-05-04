@@ -37,8 +37,8 @@ export default function AppSearchInput({
   filterAriaLabel,
 }: AppSearchInputProps) {
   return (
-    <div className="flex items-center gap-2 rounded-2xl border border-[#f1c894] bg-white px-3 py-2.5 shadow-sm dark:border-[#4a2e1b] dark:bg-white">
-      <Search className="h-5 w-5 text-[#F49B33] dark:text-[#F49B33]" />
+    <div className="flex items-center gap-2 rounded-2xl border border-[#f1c894] bg-white px-3 py-2.5 shadow-sm">
+      <Search className="h-5 w-5 text-[#F49B33]" />
       <input
         ref={inputRef}
         type="text"
