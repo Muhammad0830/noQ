@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Calendar, Navigation, Scissors, XCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { formatPrice } from "@/lib/utils";
 import { OngoingBookingCardData } from "../bookings.types";
 import { getStatusColor, getStatusLabel } from "./booking-status";
 
@@ -77,6 +79,7 @@ export default function OngoingPanel({
   isCancellingBooking,
   t,
 }: Props) {
+  const { locale } = useLanguage();
   if (filter !== "ongoing") {
     return null;
   }
@@ -207,7 +210,7 @@ export default function OngoingPanel({
               {t("history.serviceDetails")}
             </p>
             <p className="text-sm font-semibold text-slate-800">
-              {activeBooking.duration} • ${activeBooking.price.toFixed(2)}
+              {activeBooking.duration} • {formatPrice(activeBooking.price, locale)} {t("currency.som")}
             </p>
           </div>
 

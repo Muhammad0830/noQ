@@ -16,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS } from "@/lib/api";
+import { formatPrice } from "@/lib/utils";
 import AdminSidebar from "@/components/AdminSidebar";
 import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 
@@ -74,12 +75,7 @@ const parseDateQuery = (value: string | null) => {
 };
 
 const formatCurrency = (value: number, locale?: string) =>
-  new Intl.NumberFormat(locale || "uz", {
-    style: "currency",
-    currency: "UZS",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(Number.isFinite(value) ? value : 0);
+  formatPrice(Number.isFinite(value) ? value : 0, locale || "uz-UZ");
 
 const formatTime = (value: string) => {
   const date = new Date(value);
@@ -268,6 +264,15 @@ export default function Page() {
   // strictly before today.
   const canMoveForward = visibleWeekStart < todayDate;
 
+  const statusLabels: Record<AdminHistoryBooking["status"], string> = {
+    PENDING: t("history.status.pending"),
+    CONFIRMED: t("history.status.confirmed"),
+    IN_PROGRESS: t("history.status.inProgress"),
+    COMPLETED: t("history.status.completed"),
+    CANCELLED: t("history.status.cancelled"),
+    NO_SHOW: t("history.status.noShow"),
+  };
+
   const normalizedBookings = useMemo(() => {
     return [...bookings]
       .sort(
@@ -289,20 +294,7 @@ export default function Page() {
           duration: formatDuration(booking.startTime, booking.endTime),
           amount: formatCurrency(amountValue, locale),
           status: booking.status,
-          statusLabel:
-            booking.status === "COMPLETED"
-              ? t("history.status.completed")
-              : booking.status === "CANCELLED"
-                ? t("history.status.cancelled")
-                : booking.status === "NO_SHOW"
-                  ? t("history.status.noShow")
-                  : booking.status === "PENDING"
-                    ? t("history.status.pending")
-                    : booking.status === "CONFIRMED"
-                      ? t("history.status.confirmed")
-                      : booking.status === "IN_PROGRESS"
-                        ? t("history.status.inProgress")
-                        : booking.status.replaceAll("_", " "),
+          statusLabel: statusLabels[booking.status],
           badgeClass:
             booking.status === "COMPLETED"
               ? "bg-[#d4f8d4] text-[#2aa85d]"

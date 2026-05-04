@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Star,
   Scissors,
@@ -130,12 +130,6 @@ const shopCard: React.FC<ShopCardProps> = ({
       ? rawImage
       : getImageUrl(rawImage, "shop_images")
     : null;
-  const [imageHasError, setImageHasError] = useState(false);
-
-  useEffect(() => {
-    setImageHasError(false);
-  }, [imageUrl]);
-
   return (
     <Link href={`/user/shop/${shopId}`} className="block">
       <div className="group overflow-hidden rounded-3xl border border-[#f1c894] bg-linear-to-br from-[#fff8f0] via-white to-[#f6e4cd] shadow-sm transition-all duration-300 hover:shadow-[0_18px_36px_rgba(244,155,51,0.18)]">
@@ -147,7 +141,6 @@ const shopCard: React.FC<ShopCardProps> = ({
               alt={title}
               onError={() => setImageLoadError(true)}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-              onError={() => setImageHasError(true)}
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-[#ffd8a6] via-[#f49b33] to-[#f08a17]">

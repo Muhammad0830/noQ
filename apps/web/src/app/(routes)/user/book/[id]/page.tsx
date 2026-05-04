@@ -8,6 +8,7 @@ import { API_ENDPOINTS } from "@/lib/api";
 import type { Shop, Service } from "@shared/types/general_types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface Staff {
@@ -152,12 +153,7 @@ export default function BookingPage({
     : null;
   const totalPrice = useMemo(() => {
     const price = selectedService?.price ?? 0;
-    return new Intl.NumberFormat(locale || "uz", {
-      style: "currency",
-      currency: "UZS",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
+    return `${formatPrice(price, locale)} ${t("currency.som")}`;
   }, [selectedService?.price, locale]);
   const monthYearFormatter = useMemo(
     () => new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }),
@@ -324,12 +320,7 @@ export default function BookingPage({
                 </p>
                 <div className="flex items-center gap-2 mt-1 text-sm">
                   <span className="text-[#F49B33] dark:text-[#F49B33] font-bold">
-                    {new Intl.NumberFormat(locale || "uz", {
-                      style: "currency",
-                      currency: "UZS",
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    }).format(selectedService.price ?? 0)}
+                    {formatPrice(selectedService.price ?? 0, locale)} {t("currency.som")}
                   </span>
                   <span className="text-[#d3b089]">·</span>
                   <span className="text-slate-500">
@@ -369,12 +360,7 @@ export default function BookingPage({
                   {service.name}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-300 mt-1">
-                  {new Intl.NumberFormat(locale || "uz", {
-                    style: "currency",
-                    currency: "UZS",
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                  }).format(service.price ?? 0)} ·{" "}
+                  {formatPrice(service.price ?? 0, locale)} {t("currency.som")} ·{" "}
                   {service.durationMin ?? 45} {t("services.duration")}
                 </p>
               </button>

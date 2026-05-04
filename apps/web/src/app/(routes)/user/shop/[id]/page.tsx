@@ -18,6 +18,7 @@ import type { Shop, Service, Review } from "@shared/types/general_types";
 import { getImageUrl } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { formatPrice } from "@/lib/utils";
 
 // Helper function to truncate address
 const truncateAddress = (address: string, words: number = 4): string => {
@@ -106,10 +107,7 @@ export default function ShopProfile({
 
           <div className="space-y-4">
             {[...Array(4)].map((_, i) => (
-              <div
-                key={i}
-                className="p-4 sm:p-5 bg-gray-50 rounded-xl"
-              >
+              <div key={i} className="p-4 sm:p-5 bg-gray-50 rounded-xl">
                 <Skeleton className="h-5 w-44 mb-3" />
                 <Skeleton className="h-4 w-60 mb-3" />
                 <div className="flex items-center justify-between">
@@ -218,9 +216,10 @@ export default function ShopProfile({
                 <img
                   src={backgroundImage}
                   alt={shopData.name}
-                  onError={() => setImageLoadError(true)}
+                  onError={() => {
+                    setImageLoadError(true);
+                  }}
                   className="w-full h-full object-cover"
-                  onError={() => setHeroImageHasError(true)}
                 />
               ) : (
                 <div className="w-full h-full bg-linear-to-br from-blue-100 to-purple-100 flex items-center justify-center">
@@ -316,10 +315,7 @@ export default function ShopProfile({
           <div className="space-y-4">
             {servicesLoading ? (
               [...Array(4)].map((_, i) => (
-                <div
-                  key={i}
-                  className="p-4 sm:p-5 bg-gray-50 rounded-xl"
-                >
+                <div key={i} className="p-4 sm:p-5 bg-gray-50 rounded-xl">
                   <Skeleton className="h-5 w-44 mb-3" />
                   <Skeleton className="h-4 w-60 mb-3" />
                   <div className="flex items-center justify-between">
@@ -355,18 +351,14 @@ export default function ShopProfile({
                   </div>
                   <div className="flex flex-col gap-2 ml-4 shrink-0">
                     <div className="text-right">
-                      <p className="text-base sm:text-lg font-bold text-teal-600 dark:text-teal-400 break-words">
-                        {new Intl.NumberFormat(locale || "uz", {
-                          style: "currency",
-                          currency: "UZS",
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0,
-                        }).format(service.price || 0)}
+                      <p
+                        className="text-base sm:text-lg font-bold text-teal-600 dark:text-teal-400"
+                        style={{ overflowWrap: "anywhere" }}
+                      >
+                        {formatPrice(service.price || 0, locale)} {t("currency.som")}
                       </p>
                     </div>
-                    <button
-                      className="px-4 sm:px-6 py-2 bg-teal-500 dark:bg-teal-600 text-white text-xs sm:text-sm font-medium rounded-full hover:bg-teal-600 dark:hover:bg-teal-700 transition whitespace-nowrap text-center"
-                    >
+                    <button className="px-4 sm:px-6 py-2 bg-teal-500 dark:bg-teal-600 text-white text-xs sm:text-sm font-medium rounded-full hover:bg-teal-600 dark:hover:bg-teal-700 transition whitespace-nowrap text-center">
                       {t("shops.book")}
                     </button>
                   </div>
@@ -410,10 +402,7 @@ export default function ShopProfile({
           <div className="space-y-4">
             {reviewsLoading ? (
               [...Array(3)].map((_, i) => (
-                <div
-                  key={i}
-                  className="p-4 bg-gray-50 rounded-lg"
-                >
+                <div key={i} className="p-4 bg-gray-50 rounded-lg">
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <Skeleton className="h-4 w-28 mb-2" />
@@ -427,10 +416,7 @@ export default function ShopProfile({
               ))
             ) : reviews.length > 0 ? (
               reviews.map((review) => (
-                <div
-                  key={review.id}
-                  className="p-4 bg-gray-50 rounded-lg"
-                >
+                <div key={review.id} className="p-4 bg-gray-50 rounded-lg">
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <h4 className="font-semibold text-gray-900">

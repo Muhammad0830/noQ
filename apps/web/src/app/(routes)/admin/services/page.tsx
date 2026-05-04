@@ -18,6 +18,7 @@ import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS, getStoredAuth } from "@/lib/api";
+import { formatPrice } from "@/lib/utils";
 import AdminSidebar from "@/components/AdminSidebar";
 import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 
@@ -35,20 +36,15 @@ type AdminService = {
   };
 };
 
+const EMPTY_PENDING_IDS: string[] = [];
+
 const headersByShop = (shopId: string) => ({
   "x-shopid": shopId,
   "x-shop-id": shopId,
 });
 
 const toPriceLabel = (price: string, priceUnit: string) => {
-  const parsed = Number(price);
-  if (Number.isNaN(parsed)) {
-    return `${price} ${priceUnit}`;
-  }
-  if (Number.isInteger(parsed)) {
-    return `${parsed.toFixed(0)} ${priceUnit}`;
-  }
-  return `${parsed.toFixed(2)} ${priceUnit}`;
+  return `${formatPrice(price)} ${priceUnit}`;
 };
 
 export default function AdminServicesPage() {
@@ -56,6 +52,7 @@ export default function AdminServicesPage() {
   const { t } = useLanguage();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [persistedShopId, setPersistedShopId] = useState<string | null>(null);
   const [hasLoadedPersistedShop, setHasLoadedPersistedShop] =
@@ -134,7 +131,7 @@ export default function AdminServicesPage() {
     },
   );
 
-  const { data: pendingFromCache = [] } = useQuery<string[]>({
+  const { data: pendingFromCacheData } = useQuery<string[]>({
     queryKey: ["admin-services-pending", activeShopId || "none"],
     queryFn: () =>
       (queryClient.getQueryData<string[]>([
@@ -143,6 +140,7 @@ export default function AdminServicesPage() {
       ]) ?? []) as string[],
     enabled: Boolean(activeShopId),
   });
+  const pendingFromCache = pendingFromCacheData ?? EMPTY_PENDING_IDS;
 
   useEffect(() => {
     if (!services) return;
@@ -478,15 +476,12 @@ export default function AdminServicesPage() {
                               </span>
                               <span className="text-[#d8dbe1]">•</span>
                               <span>
-                                {toPriceLabel(
-                                  service.price,
-                                  t("services.price"),
-                                )}
+                                {toPriceLabel(service.price, t("services.price"))}
                               </span>
                             </div>
                           </div>
-                          <div className="inline-flex min-h-12 md:min-h-13 lg:min-h-14 min-w-12 md:min-w-13 lg:min-w-14 items-center justify-center rounded-3xl md:rounded-3xl lg:rounded-3xl bg-[#fff2e4] px-2 md:px-3 lg:px-3 py-1.5 md:py-2 lg:py-2">
-                            <p className="text-2xl md:text-3xl lg:text-4xl font-bold leading-none tracking-tight text-[#F49B33]">
+                          <div className="inline-flex min-h-9 md:min-h-13 lg:min-h-9 min-w-12 md:min-w-13 lg:min-w-14 items-center justify-center rounded-3xl md:rounded-3xl lg:rounded-3xl bg-[#fff2e4] px-2 md:px-3 lg:px-3 py-1.5 md:py-2 lg:py-2">
+                            <p className="text-md md:text-2xl lg:text-md font-bold leading-none tracking-tight text-[#F49B33]">
                               {toPriceLabel(service.price, t("services.price"))}
                             </p>
                           </div>

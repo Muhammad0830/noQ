@@ -17,11 +17,19 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { API_ENDPOINTS, getStoredAuth } from "@/lib/api";
+import { useApiMutation } from "@/hooks/useApiMutation";
 
 const staffMembers = [
   { id: "alex", name: "Alex Johnson", selected: true },
   { id: "sarah", name: "Sarah Miller", selected: false },
 ];
+
+type CreateServicePayload = {
+  name: string;
+  price: number;
+  durationMin: number;
+  bufferTime: number | null;
+};
 
 export default function AddNewService() {
   const { user } = useAuth();
@@ -86,7 +94,7 @@ export default function AddNewService() {
   }, [hasLoadedPersistedShop, persistedShopId, shopIdFromQuery, user?.shops]);
 
   const { mutateAsync: createService, isPending: isSubmitting } =
-    useApiMutation<AdminService, CreateServicePayload>(
+    useApiMutation<unknown, CreateServicePayload>(
       API_ENDPOINTS.admin.services,
       "post",
       activeShopId
@@ -175,22 +183,13 @@ export default function AddNewService() {
     try {
       setSubmitError(null);
 
-      const createdService = await createService({
+      await createService({
         name: service.name.trim(),
         price,
         durationMin,
         bufferTime:
           isBufferTimeEnabled && bufferTime !== "" ? Number(bufferTime) : null,
       });
-
-      if (!response.ok) {
-        const body = await response.json().catch(() => null);
-        const message =
-          body && typeof body.message === "string"
-            ? body.message
-            : t("admin.services.error.createFailed");
-        throw new Error(message);
-      }
 
       router.push(`/admin/services?shopId=${encodeURIComponent(activeShopId)}`);
     } catch (error) {

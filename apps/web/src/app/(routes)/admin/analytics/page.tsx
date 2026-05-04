@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS } from "@/lib/api";
+import { formatPrice } from "@/lib/utils";
 import AdminSidebar from "@/components/AdminSidebar";
 import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 
@@ -447,12 +448,7 @@ export default function ShopAnalytics() {
     t("admin.analytics.error.peakHoursFallback");
 
   const revenue = analyticsSummary?.currentRevenue ?? 0;
-  const revenueText = new Intl.NumberFormat(locale || undefined, {
-    style: "currency",
-    currency: "UZS",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(revenue);
+  const revenueText = formatPrice(revenue, locale || "uz-UZ");
 
   const revenueChange = analyticsSummary?.revenueChange ?? 0;
   const bookingsCount = analyticsSummary?.currentBookingsCount ?? 0;
@@ -595,7 +591,7 @@ export default function ShopAnalytics() {
             {isSummaryLoading ? (
               <div className="h-10 md:h-11 lg:h-11 w-40 md:w-44 lg:w-44 animate-pulse rounded-2xl bg-gray-200" />
             ) : (
-              <h2 className="text-2xl md:text-3xl lg:text-[32px] font-bold leading-none tracking-tight text-[#111111] break-words line-clamp-2">
+              <h2 className="text-2xl md:text-3xl lg:text-[32px] font-bold leading-none tracking-tight text-[#111111] line-clamp-2">
                 {revenueText}
               </h2>
             )}

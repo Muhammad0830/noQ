@@ -23,6 +23,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS } from "@/lib/api";
+import { formatPrice } from "@/lib/utils";
 import AdminSidebar from "@/components/AdminSidebar";
 
 type DashboardBaseInfoResponse = {
@@ -316,12 +317,7 @@ export default function AdminDashboard() {
 
   const revenue = useMemo(() => {
     const value = baseInfo?.currentRevenue ?? 0;
-    return new Intl.NumberFormat(locale || undefined, {
-      style: "currency",
-      currency: "UZS",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
+    return formatPrice(value, locale || "uz-UZ");
   }, [baseInfo?.currentRevenue, locale]);
 
   const bookingsCount = baseInfo?.sevenDayBookingsCount ?? 0;
@@ -840,7 +836,7 @@ export default function AdminDashboard() {
                       </div>
                     ) : (
                       <>
-                        <p className="text-lg sm:text-xl font-bold mt-2 break-words line-clamp-2">
+                        <p className="text-lg sm:text-xl font-bold mt-2 wrap-break-word line-clamp-2">
                           {revenue}
                         </p>
                         <div
