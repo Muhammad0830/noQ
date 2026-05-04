@@ -13,6 +13,7 @@ import historyRouter from "./admin_panel/history.routes.js";
 import staffRouter from "./admin_panel/staff.routes.js";
 import scheduleRouter from "./admin_panel/schedule.routes.js";
 import bookingAdminRouter from "./admin_panel/bookings.routes.js";
+import adminShopRouter from "./admin_panel/shop.routes.js";
 
 export const userRoutes = {
   categoryRouter,
@@ -31,6 +32,7 @@ export const adminRoutes = {
   staffRouter,
   scheduleRouter,
   bookingAdminRouter,
+  adminShopRouter,
 };
 
 export const generalRoutes = {
