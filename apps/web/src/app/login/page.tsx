@@ -65,13 +65,13 @@ export default function Login() {
         </div>
 
         <div className="relative rounded-2xl bg-white p-5 shadow-lg sm:p-8">
-          <div className="mb-5 flex items-center gap-2 sm:gap-3">
-            <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+          <div className="mb-4 flex items-center gap-1.5 whitespace-nowrap sm:gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2">
               <button
                 type="button"
                 onClick={() => setSelectedRole("user")}
                 disabled={isLoading}
-                className={`inline-flex h-11 flex-1 items-center justify-center rounded-xl px-3 text-sm font-medium transition whitespace-nowrap sm:px-5 ${
+                className={`inline-flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl px-2 text-xs font-medium transition whitespace-nowrap sm:px-3 sm:text-sm ${
                   selectedRole === "user"
                     ? "bg-[#F49B33] text-white shadow-sm"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -83,7 +83,7 @@ export default function Login() {
                 type="button"
                 onClick={() => setSelectedRole("admin")}
                 disabled={isLoading}
-                className={`inline-flex h-11 flex-1 items-center justify-center rounded-xl px-3 text-sm font-medium transition whitespace-nowrap sm:px-5 ${
+                className={`inline-flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl px-2 text-xs font-medium transition whitespace-nowrap sm:px-3 sm:text-sm ${
                   selectedRole === "admin"
                     ? "bg-[#F49B33] text-white shadow-sm"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -93,7 +93,7 @@ export default function Login() {
               </button>
             </div>
 
-            <LanguageSwitcher className="shrink-0" />
+            <LanguageSwitcher compact className="shrink-0" />
           </div>
 
           {error && (
@@ -122,7 +122,7 @@ export default function Login() {
                     setFormData({ ...formData, email: e.target.value })
                   }
                   placeholder={t("auth.emailPlaceholder")}
-                  className="w-full rounded-lg border border-gray-300 bg-white py-3 pl-10 pr-4 text-gray-900 outline-none focus:ring-2"
+                  className="w-full rounded-lg border border-gray-300 bg-white py-3 pl-10 pr-4 text-gray-900 outline-none transition focus:border-[#F49B33] focus:ring-2 focus:ring-[#F49B33]/20 focus:ring-offset-0"
                   disabled={isLoading}
                 />
               </div>
@@ -143,7 +143,7 @@ export default function Login() {
                     setFormData({ ...formData, password: e.target.value })
                   }
                   placeholder={t("auth.passwordPlaceholder")}
-                  className="w-full rounded-lg border border-gray-300 bg-white py-3 pl-10 pr-12 text-gray-900 outline-none focus:ring-2"
+                  className="w-full rounded-lg border border-gray-300 bg-white py-3 pl-10 pr-12 text-gray-900 outline-none transition focus:border-[#F49B33] focus:ring-2 focus:ring-[#F49B33]/20 focus:ring-offset-0"
                   disabled={isLoading}
                 />
                 <button
@@ -160,24 +160,24 @@ export default function Login() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between gap-3">
-              <label className="flex cursor-pointer items-center gap-2">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <label className="flex min-w-0 cursor-pointer items-start gap-2 sm:items-center">
                 <input
                   type="checkbox"
                   checked={formData.remember}
                   onChange={(e) =>
                     setFormData({ ...formData, remember: e.target.checked })
                   }
-                  className="rounded"
+                  className="mt-1 shrink-0 rounded sm:mt-0"
                   disabled={isLoading}
                 />
-                <span className="text-sm text-gray-700">
+                <span className="min-w-0 text-sm leading-tight text-gray-700">
                   {t("auth.rememberMe")}
                 </span>
               </label>
               <Link
                 href="/forgot-password"
-                className="text-sm text-blue-600 hover:underline"
+                className="self-start text-sm text-right text-blue-600 hover:underline sm:self-auto"
               >
                 {t("auth.forgotPassword")}
               </Link>
