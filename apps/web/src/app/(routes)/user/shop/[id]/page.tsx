@@ -39,9 +39,10 @@ export default function ShopProfile({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [activeTab, setActiveTab] = useState("services");
   const [isFavorite, setIsFavorite] = useState(false);
+  const [imageLoadError, setImageLoadError] = useState(false);
 
   // 🔥 FETCH SHOP DETAILS
   const {
@@ -209,10 +210,11 @@ export default function ShopProfile({
             <Skeleton className="h-full w-full rounded-3xl" />
           ) : (
             <>
-              {backgroundImage ? (
+              {backgroundImage && !imageLoadError ? (
                 <img
                   src={backgroundImage}
                   alt={shopData.name}
+                  onError={() => setImageLoadError(true)}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -323,17 +325,18 @@ export default function ShopProfile({
               ))
             ) : services.length > 0 ? (
               services.map((service) => (
-                <div
+                <Link
                   key={service.id}
+                  href={`/user/book/${id}?service=${service.id}`}
                   className="flex items-center justify-between p-4 sm:p-5 bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                 >
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white">
                       {service.name}
                     </h3>
-                    <div className="flex items-center gap-3 sm:gap-4 mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center gap-2 mt-2 text-xs text-gray-600 dark:text-gray-400">
                       {service.durationMin && (
-                        <span className="flex items-center gap-1.5">
+                        <span className="flex items-center gap-1 whitespace-nowrap">
                           <Clock className="w-4 h-4 shrink-0" />
                           <span>
                             {service.durationMin} {t("services.duration")}
@@ -345,21 +348,24 @@ export default function ShopProfile({
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 ml-4 shrink-0">
+                  <div className="flex flex-col gap-2 ml-4 shrink-0">
                     <div className="text-right">
-                      <p className="text-lg sm:text-xl font-bold text-teal-600 dark:text-teal-400">
-                        {(service.price || 0).toLocaleString()}{" "}
-                        {t("services.price")}
+                      <p className="text-base sm:text-lg font-bold text-teal-600 dark:text-teal-400 break-words">
+                        {new Intl.NumberFormat(locale || "uz", {
+                          style: "currency",
+                          currency: "UZS",
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }).format(service.price || 0)}
                       </p>
                     </div>
-                    <Link
-                      href={`/user/book/${id}?service=${service.id}`}
-                      className="px-4 sm:px-6 py-2 bg-teal-500 dark:bg-teal-600 text-white text-xs sm:text-sm font-medium rounded-full hover:bg-teal-600 dark:hover:bg-teal-700 transition whitespace-nowrap"
+                    <button
+                      className="px-4 sm:px-6 py-2 bg-teal-500 dark:bg-teal-600 text-white text-xs sm:text-sm font-medium rounded-full hover:bg-teal-600 dark:hover:bg-teal-700 transition whitespace-nowrap text-center"
                     >
                       {t("shops.book")}
-                    </Link>
+                    </button>
                   </div>
-                </div>
+                </Link>
               ))
             ) : (
               <p className="text-gray-500 dark:text-gray-400 text-center py-8">
@@ -372,11 +378,12 @@ export default function ShopProfile({
         {/* Gallery Tab */}
         {activeTab === "gallery" && (
           <div className="grid grid-cols-3 gap-4">
-            {backgroundImage ? (
+            {backgroundImage && !imageLoadError ? (
               <div className="col-span-3">
                 <img
                   src={backgroundImage}
                   alt={shopData.name}
+                  onError={() => setImageLoadError(true)}
                   className="w-full h-64 object-cover rounded-lg"
                 />
               </div>
