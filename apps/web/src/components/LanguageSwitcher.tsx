@@ -8,8 +8,10 @@ type LanguageCode = "uz-latn" | "uz-cyrl" | "ru";
 
 export default function LanguageSwitcher({
   className = "",
+  compact = false,
 }: {
   className?: string;
+  compact?: boolean;
 }) {
   const { language, setLanguage } = useLanguage();
   const [open, setOpen] = useState(false);
@@ -54,17 +56,17 @@ export default function LanguageSwitcher({
         aria-expanded={open}
         aria-label="Change language"
         onClick={() => setOpen((value) => !value)}
-        className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F49B33]/30"
+        className={`inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F49B33]/30 ${compact ? "h-10 px-2.5 text-xs" : "h-11 px-3 text-sm"}`}
       >
-        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#fff3e6] text-[#F49B33]">
-          <Languages className="h-3.5 w-3.5" />
+        <span className={`inline-flex items-center justify-center rounded-full bg-[#fff3e6] text-[#F49B33] ${compact ? "h-5 w-5" : "h-6 w-6"}`}>
+          <Languages className={compact ? "h-3 w-3" : "h-3.5 w-3.5"} />
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="text-base leading-none">{current.flag}</span>
-          <span className="hidden sm:inline">{current.short}</span>
+          {!compact && <span className="text-base leading-none">{current.flag}</span>}
+          <span className={compact ? "text-xs leading-none" : "hidden sm:inline"}>{current.short}</span>
         </span>
         <ChevronDown
-          className={`h-4 w-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`h-4 w-4 shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
 

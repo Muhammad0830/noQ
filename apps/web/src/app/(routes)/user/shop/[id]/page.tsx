@@ -329,13 +329,13 @@ export default function ShopProfile({
                 <Link
                   key={service.id}
                   href={`/user/book/${id}?service=${service.id}`}
-                  className="flex items-center justify-between p-4 sm:p-5 bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                  className="flex items-center justify-between p-4 sm:p-5 bg-gray-50 rounded-xl hover:bg-gray-100 transition"
                 >
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-sm sm:text-base text-gray-900">
                       {service.name}
                     </h3>
-                    <div className="flex items-center gap-2 mt-2 text-xs text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center gap-2 mt-2 text-xs text-gray-600">
                       {service.durationMin && (
                         <span className="flex items-center gap-1 whitespace-nowrap">
                           <Clock className="w-4 h-4 shrink-0" />
@@ -352,13 +352,13 @@ export default function ShopProfile({
                   <div className="flex flex-col gap-2 ml-4 shrink-0">
                     <div className="text-right">
                       <p
-                        className="text-base sm:text-lg font-bold text-teal-600 dark:text-teal-400"
+                        className="text-base sm:text-lg font-bold text-teal-600"
                         style={{ overflowWrap: "anywhere" }}
                       >
                         {formatPrice(service.price || 0, locale)} {t("currency.som")}
                       </p>
                     </div>
-                    <button className="px-4 sm:px-6 py-2 bg-teal-500 dark:bg-teal-600 text-white text-xs sm:text-sm font-medium rounded-full hover:bg-teal-600 dark:hover:bg-teal-700 transition whitespace-nowrap text-center">
+                    <button className="px-4 sm:px-6 py-2 bg-teal-500 text-white text-xs sm:text-sm font-medium rounded-full hover:bg-teal-600 transition whitespace-nowrap text-center">
                       {t("shops.book")}
                     </button>
                   </div>
