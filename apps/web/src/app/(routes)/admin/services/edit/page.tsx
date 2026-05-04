@@ -448,15 +448,6 @@ export default function EditServicePage() {
 
       await deleteService(undefined);
 
-      if (!response.ok) {
-        const body = await response.json().catch(() => null);
-        const message =
-          body && typeof body.message === "string"
-            ? body.message
-            : t("admin.services.error.deleteFailed");
-        throw new Error(message);
-      }
-
       router.push(`/admin/services?shopId=${encodeURIComponent(activeShopId)}`);
     } catch (error) {
       setSubmitError(
