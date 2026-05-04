@@ -170,6 +170,16 @@ export const translations: Translations = {
     "admin.services.edit.error.updateFailed": "Xizmatni yangilash muvaffaqiyatsiz",
     "admin.services.edit.error.deleteFailed": "Xizmatni o'chirish muvaffaqiyatsiz",
 
+    "admin.schedule.tab.schedule": "Jadval",
+    "admin.schedule.tab.exceptions": "Istisnolar",
+    "admin.schedule.weekly": "Haftalik jadval",
+    "admin.schedule.closed": "Yopiq",
+    "admin.schedule.today": "Bugun",
+    "admin.schedule.breakCount": "{{count}} ta tanaffus",
+    "admin.schedule.hours": "Ish vaqti",
+    "admin.schedule.break": "Tanaffus",
+    "admin.schedule.addBreak": "Tanaffus qo'shish",
+
     "admin.schedule.exceptions.title": "Istisnolar",
     "admin.schedule.exceptions.description":
       "Maxsus kunlar va bayram ish vaqtlarini shu yerda qo'shishingiz mumkin.",
