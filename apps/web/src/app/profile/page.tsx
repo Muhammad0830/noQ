@@ -21,7 +21,11 @@ import {
   Store,
   Menu,
 } from "lucide-react";
-import type { Language } from "@shared/types/general_types";
+import type {
+  Language,
+  Shop,
+  User as UserType,
+} from "@shared/types/general_types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -34,12 +38,24 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import useApiQuery from "@/hooks/useApiQuery";
-import { API_ENDPOINTS } from "@/lib/api";
+import api, { API_ENDPOINTS } from "@/lib/api";
 import LogoutConfirmModal from "@/components/LogoutConfirmModal";
 import { getImageUrl } from "@/lib/supabaseClient";
 import { resolveCategoryIcon } from "@/lib/getCategoryIcon";
 import AdminSidebar from "@/components/AdminSidebar";
 import { useAdminSidebar } from "@/hooks/useAdminSidebar";
+import { toast } from "sonner";
+
+type ApiUserPayload = {
+  id: string;
+  email: string;
+  name?: string;
+  phoneNumber?: string | null;
+  avatarUrl?: string | null;
+  role?: "USER" | "ADMIN";
+  createdAt?: string;
+  shops?: Shop[];
+};
 
 const LANGUAGES: { code: Language; label: string }[] = [
   { code: "uz-latn", label: "O'zbekcha" },
@@ -88,6 +104,9 @@ export default function ProfilePage() {
   const { providerMode, setProviderMode } = useProviderMode();
 
   const [file, setFile] = useState<File | null>(null);
+  const [backgroundImageFile, setBackgroundImageFile] = useState<File | null>(
+    null,
+  );
   const [preview, setPreview] = useState<string | null>(null);
   const [isSavingImage, setIsSavingImage] = useState(false);
 
@@ -119,20 +138,20 @@ export default function ProfilePage() {
     setSelectedShopId(window.localStorage.getItem("selected_shop_id"));
   }, []);
 
-    useEffect(() => {
-      const handleToggleSidebar = () => {
-        if (isSidebarVisible) {
-          closeSidebar();
-        } else {
-          openSidebar();
-        }
-      };
+  useEffect(() => {
+    const handleToggleSidebar = () => {
+      if (isSidebarVisible) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    };
 
-      window.addEventListener("toggleAdminSidebar", handleToggleSidebar);
-      return () => {
-        window.removeEventListener("toggleAdminSidebar", handleToggleSidebar);
-      };
-    }, [isSidebarVisible, openSidebar, closeSidebar]);
+    window.addEventListener("toggleAdminSidebar", handleToggleSidebar);
+    return () => {
+      window.removeEventListener("toggleAdminSidebar", handleToggleSidebar);
+    };
+  }, [isSidebarVisible, openSidebar, closeSidebar]);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -274,6 +293,71 @@ export default function ProfilePage() {
     }
   };
 
+  // const updateBackgroundImage = async (data: {
+  //   name?: string;
+  //   address?: string;
+  //   phone?: string;
+  //   description?: string;
+  //   file?: File | null;
+  // }) => {
+  //   if (!user) {
+  //     throw new Error("User not authenticated");
+  //   }
+
+  //   const toastId = toast.loading(t("common.loading"));
+
+  //   try {
+  //     const formData = new FormData();
+  //     if (data.name !== undefined) formData.append("name", data.name);
+  //     if (data.address !== undefined) formData.append("address", data.address);
+  //     if (data.phone !== undefined) formData.append("phone", data.phone);
+  //     if (data.file) formData.append("file", data.file);
+
+  //     await api.put(
+  //       "http://localhost:3001/admin/shops/4c953f8f-f7c8-4860-962d-21a2f06bcb89",
+  //       formData,
+  //       {
+  //         headers: {
+  //           "Content-Type": "multipart/form-data",
+  //           "x-shopId": "4c953f8f-f7c8-4860-962d-21a2f06bcb89",
+  //         },
+  //       },
+  //     );
+
+  //     console.log("success ✅");
+  //     toast.success(t("common.success"), {
+  //       id: toastId,
+  //     });
+  //   } catch (error) {
+  //     toast.error(t("common.error"), {
+  //       id: toastId,
+  //     });
+  //     throw error;
+  //   }
+  // };
+
+  // const handleSaveBackgroundImage = async () => {
+  //   if (!user || !backgroundImageFile || isSavingImage) return;
+
+  //   setIsSavingImage(true);
+
+  //   try {
+  //     await updateBackgroundImage({
+  //       name: "Ayyubbek Barber",
+  //       address:
+  //         "Republic of Uzbekistan, Tashkent city, Chilonzor district, Bunyodkor Avenue, near Chilonzor Metro Station",
+  //       phone: "+998928392363",
+  //       file: backgroundImageFile,
+  //     });
+
+  //     // Hide Save/Cancel actions once upload succeeds.
+  //     setFile(null);
+  //     setPreview(null);
+  //   } finally {
+  //     setIsSavingImage(false);
+  //   }
+  // };
+
   const handleSavePersonalInfo = async () => {
     if (!user || isSavingInfo) return;
 
@@ -327,7 +411,6 @@ export default function ProfilePage() {
         />
 
         <section className="relative mb-6 border-b border-slate-200 pb-6 text-center dark:border-white/10">
-       
           <div className="relative mx-auto mb-4 inline-block">
             <div className="relative h-24 w-24 rounded-full p-0.5 ring-1 ring-[#F49B33]/60">
               {preview ? (
@@ -679,6 +762,39 @@ export default function ProfilePage() {
           <LogOut className="h-4 w-4" />
           {t("profile.logout")}
         </button>
+
+        {/* <div>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              if (e.target.files) {
+                setBackgroundImageFile(e.target.files[0]);
+              }
+            }}
+            className="hidden"
+            id="profile-background-image-input"
+          />
+
+          <button
+            type="button"
+            onClick={() =>
+              document.getElementById("profile-background-image-input")?.click()
+            }
+            className=" inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#F49B33] text-white shadow-lg transition hover:bg-blue-600"
+            aria-label="Update profile image"
+            title="Click to change profile image"
+          >
+            <Camera className="h-4 w-4" />
+          </button>
+
+          <button
+            className="bg-red-500 w-30 h-10 text-white"
+            onClick={handleSaveBackgroundImage}
+          >
+            save
+          </button>
+        </div> */}
       </div>
 
       {isInfoModalOpen && (

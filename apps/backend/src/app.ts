@@ -88,5 +88,12 @@ app.use(
   adminOnly,
   adminRoutes.bookingAdminRouter,
 );
+app.use(
+  "/admin/shops",
+  authMiddleware,
+  shopValidateMiddleware,
+  adminOnly,
+  adminRoutes.adminShopRouter,
+);
 
 export default app;
