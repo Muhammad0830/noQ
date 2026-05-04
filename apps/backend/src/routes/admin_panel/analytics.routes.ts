@@ -13,9 +13,28 @@ function formatLocalDate(date: Date, type: string) {
     .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
 }
 
-function fillMissingDates(data: any[], type: string, startDate: Date) {
+function fillMissingDates(
+  data: { date: Date; revenue: number }[],
+  type: "week" | "month" | "year" | "all",
+  startDate: Date,
+) {
+  const normalize = (date: Date) => {
+    const d = new Date(date);
+
+    if (type === "year") {
+      return new Date(d.getFullYear(), d.getMonth(), 1).toISOString();
+    }
+
+    if (type === "all") {
+      return new Date(d.getFullYear(), 0, 1).toISOString();
+    }
+
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString();
+  };
+
   const map = new Map(
-    data.map((d) => [formatLocalDate(new Date(d.date), type), d.revenue]),
+    data.map((d) => [normalize(new Date(d.date)), d.revenue]),
   );
 
   const result = [];
@@ -23,20 +42,26 @@ function fillMissingDates(data: any[], type: string, startDate: Date) {
   const now = new Date();
 
   while (current <= now) {
-    const key = formatLocalDate(current, type);
+    let bucketDate: Date;
+
+    if (type === "year") {
+      bucketDate = new Date(current.getFullYear(), current.getMonth(), 1);
+      current.setMonth(current.getMonth() + 1);
+    } else if (type === "all") {
+      bucketDate = new Date(current.getFullYear(), 0, 1);
+      current.setFullYear(current.getFullYear() + 1);
+    } else {
+      bucketDate = new Date(current);
+      bucketDate.setHours(0, 0, 0, 0);
+      current.setDate(current.getDate() + 1);
+    }
+
+    const key = bucketDate.toISOString();
 
     result.push({
       date: key,
-      revenue: map.get(key) || 0,
+      revenue: map.get(key) ?? 0,
     });
-
-    if (type === "year") {
-      current.setMonth(current.getMonth() + 1);
-    } else if (type === "all") {
-      current.setFullYear(current.getFullYear() + 1); // 🔥 NEW
-    } else {
-      current.setDate(current.getDate() + 1);
-    }
   }
 
   return result;
@@ -45,10 +70,11 @@ function fillMissingDates(data: any[], type: string, startDate: Date) {
 function getDateRange(type: "week" | "month" | "year" | "all") {
   const now = new Date();
   const startDate = new Date();
+  startDate.setHours(0, 0, 0, 0);
 
   switch (type) {
     case "week":
-      startDate.setDate(now.getDate() - 7);
+      startDate.setDate(now.getDate() - 6);
       break;
 
     case "month":
@@ -125,7 +151,7 @@ analyticsRouter.get("/", async (req: any, res) => {
         where: {
           shopId: req.shop.id,
           status: "COMPLETED",
-          createdAt: {
+          startTime: {
             gte: startDate,
             lte: now,
           },
@@ -139,7 +165,7 @@ analyticsRouter.get("/", async (req: any, res) => {
         where: {
           shopId: req.shop.id,
           status: "COMPLETED",
-          createdAt: {
+          startTime: {
             gte: prevStartDate,
             lte: startDate,
           },
@@ -251,25 +277,25 @@ analyticsRouter.get("/diagram_info", async (req: any, res) => {
     if (type === "all") {
       const firstBooking = await prisma.booking.findFirst({
         where: { shopId: req.shop.id },
-        orderBy: { createdAt: "asc" },
-        select: { createdAt: true },
+        orderBy: { startTime: "asc" },
+        select: { startTime: true },
       });
 
       if (firstBooking) {
-        startDate = new Date(firstBooking.createdAt);
+        startDate = new Date(firstBooking.startTime);
       }
     }
 
     // 🔥 build WHERE condition safely
     let dateFilter = "";
     if (type !== "all") {
-      dateFilter = `AND b."createdAt" >= '${startDate.toISOString()}'`;
+      dateFilter = `AND b."startTime" >= '${startDate.toISOString()}'`;
     }
 
     // 🔥 FINAL QUERY (fixed syntax)
     const result: any[] = await prisma.$queryRawUnsafe(`
       SELECT 
-        date_trunc('${groupBy}', b."createdAt") AS bucket,
+        date_trunc('${groupBy}', b."startTime") AS bucket,
         COALESCE(SUM(s.price), 0)::float AS revenue
       FROM "Booking" b
       JOIN "Service" s ON b."serviceId" = s.id
@@ -333,7 +359,7 @@ analyticsRouter.get("/famousServices", async (req: any, res) => {
             bookings: {
               where: {
                 status: "COMPLETED",
-                createdAt: {
+                startTime: {
                   gte: startDate,
                   lte: now,
                 },

@@ -106,7 +106,8 @@ dashboardRouter.get(
       ]);
 
       const bookingsCountChange = prevSevenDayBookingsCount
-        ? ((sevenDayBookingsCount - prevSevenDayBookingsCount) / prevSevenDayBookingsCount) *
+        ? ((sevenDayBookingsCount - prevSevenDayBookingsCount) /
+            prevSevenDayBookingsCount) *
           100
         : sevenDayBookingsCount > 0
           ? 100
@@ -136,7 +137,6 @@ dashboardRouter.get(
         currentRevenue,
         prevRevenue,
         revenueChange,
-        
       });
     } catch (error) {
       console.error(error);
