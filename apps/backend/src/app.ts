@@ -5,11 +5,8 @@ import { userRoutes, adminRoutes, generalRoutes } from "./routes/index.js";
 import { shopValidateMiddleware } from "./middlewares/shopValidate.middleware.js";
 import { adminOnly } from "./middlewares/admin.middleware.js";
 import { authMiddleware } from "./middlewares/auth.middleware.js";
-import serverless from "serverless-http";
 
 const app = express();
-
-app.options("*", cors());
 
 app.use(
   cors({
