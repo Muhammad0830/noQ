@@ -93,6 +93,7 @@ export default function BookingPage({
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [visibleDayStart, setVisibleDayStart] = useState(0);
+  const [currentTimestamp, setCurrentTimestamp] = useState(() => Date.now());
 
   const { data: shop } = useApiQuery<Shop>(API_ENDPOINTS.shopById(shopId), {
     key: ["shop", shopId],
@@ -211,6 +212,11 @@ export default function BookingPage({
       cursor += durationMin
     ) {
       const start = `${String(Math.floor(cursor / 60)).padStart(2, "0")}:${String(cursor % 60).padStart(2, "0")}`;
+      const slotDateTime = new Date(`${effectiveDate}T${start}:00`);
+      if (slotDateTime.getTime() <= currentTimestamp) {
+        continue;
+      }
+
       const end = addMinutes(start, durationMin);
       const slotStartMin = cursor;
       const slotEndMin = cursor + durationMin;
@@ -230,7 +236,7 @@ export default function BookingPage({
     }
 
     return slots;
-  }, [effectiveDate, shopId, selectedService, timelineData]);
+  }, [currentTimestamp, effectiveDate, shopId, selectedService, timelineData]);
 
   const { mutateAsync: bookingMutation, isPending } = useApiMutation(
     API_ENDPOINTS.bookings,
@@ -252,6 +258,24 @@ export default function BookingPage({
       setSelectedStaff(staff[0]!.id);
     }
   }, [selectedService, selectedStaff, staff]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setCurrentTimestamp(Date.now());
+    }, 30_000);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedTime) return;
+
+    const selectedDateTime = new Date(`${effectiveDate}T${selectedTime}:00`);
+    if (selectedDateTime.getTime() <= currentTimestamp) {
+      setSelectedTime(null);
+      toast.info(t("booking.noSlots"));
+    }
+  }, [currentTimestamp, effectiveDate, selectedTime, t]);
 
   const toggleServices = () => {
     setShowServices((prev) => !prev);

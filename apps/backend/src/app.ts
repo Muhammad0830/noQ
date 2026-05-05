@@ -9,8 +9,6 @@ import serverless from "serverless-http";
 
 const app = express();
 
-app.options("*", cors());
-
 app.use(
   cors({
     origin: ["https://no-q-bay.vercel.app", "http://localhost:3000"],
