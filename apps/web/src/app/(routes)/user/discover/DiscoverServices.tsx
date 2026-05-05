@@ -51,15 +51,15 @@ export default function DiscoverServices() {
   const [appliedPriceEnabled, setAppliedPriceEnabled] = useState(false);
   const [draftPriceEnabled, setDraftPriceEnabled] = useState(false);
   const [appliedMinPrice, setAppliedMinPrice] = useState(0);
-  const [appliedMaxPrice, setAppliedMaxPrice] = useState(200);
+  const [appliedMaxPrice, setAppliedMaxPrice] = useState(1000000);
   const [draftMinPrice, setDraftMinPrice] = useState(0);
-  const [draftMaxPrice, setDraftMaxPrice] = useState(200);
+  const [draftMaxPrice, setDraftMaxPrice] = useState(1000000);
   const popularScrollRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [activePopularDot, setActivePopularDot] = useState(0);
 
   const DEFAULT_MIN_PRICE = 0;
-  const DEFAULT_MAX_PRICE = 200;
+  const DEFAULT_MAX_PRICE = 1000000;
   const categoriesUrl = `${API_ENDPOINTS.categories}?lang=${encodeURIComponent(language)}`;
 
   const { data: filterCategoriesData = [] } = useApiQuery<ShopCategory[]>(
@@ -105,7 +105,7 @@ export default function DiscoverServices() {
 
   const priceTrackStyle = useMemo(() => {
     const min = DEFAULT_MIN_PRICE;
-    const max = 200;
+    const max = DEFAULT_MAX_PRICE;
     const left = ((draftMinPrice - min) / (max - min)) * 100;
     const right = ((draftMaxPrice - min) / (max - min)) * 100;
 
@@ -514,48 +514,66 @@ export default function DiscoverServices() {
                 </div>
               </div>
 
-              <div>
-                <div className="mb-2 flex items-center justify-between gap-2">
-                  <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500">
-                    {t("filter.priceRange").toUpperCase()}
-                  </p>
-                  <div className="flex min-w-0 items-center justify-end gap-2">
-                    <span className="whitespace-nowrap text-base font-bold text-[#F49B33] sm:text-lg">
-                      ${draftMinPrice} - ${draftMaxPrice}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setDraftPriceEnabled((prev) => {
-                          const next = !prev;
-                          if (next) {
-                            setDraftMinPrice(DEFAULT_MIN_PRICE);
-                            setDraftMaxPrice(DEFAULT_MAX_PRICE);
-                          }
-                          return next;
-                        });
-                      }}
-                      className={`relative inline-flex h-6 w-11 shrink-0 items-center overflow-hidden rounded-full p-0.5 transition ${
-                        draftPriceEnabled
-                          ? "bg-[#F49B33]"
-                          : "bg-slate-300"
+              <div className="rounded-3xl border border-slate-200 bg-linear-to-b from-white to-slate-50 p-4 shadow-sm">
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500">
+                      {t("filter.priceRange").toUpperCase()}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {t("filter.togglePrice")}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDraftPriceEnabled((prev) => {
+                        const next = !prev;
+                        if (next) {
+                          setDraftMinPrice(DEFAULT_MIN_PRICE);
+                          setDraftMaxPrice(DEFAULT_MAX_PRICE);
+                        }
+                        return next;
+                      });
+                    }}
+                    className={`relative inline-flex h-7 w-12 shrink-0 items-center overflow-hidden rounded-full p-0.5 transition ${
+                      draftPriceEnabled ? "bg-[#F49B33]" : "bg-slate-300"
+                    }`}
+                    aria-label={t("filter.togglePrice")}
+                    aria-pressed={draftPriceEnabled}
+                  >
+                    <span
+                      className={`block h-6 w-6 rounded-full bg-white shadow transition-transform ${
+                        draftPriceEnabled ? "translate-x-5" : "translate-x-0"
                       }`}
-                      aria-label={t("filter.togglePrice")}
-                      aria-pressed={draftPriceEnabled}
-                    >
-                      <span
-                        className={`block h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                          draftPriceEnabled ? "translate-x-5" : "translate-x-0"
-                        }`}
-                      />
-                    </button>
+                    />
+                  </button>
+                </div>
+
+                  <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
+                  <div className="rounded-2xl border border-slate-200 bg-white px-2.5 py-2 shadow-sm">
+                    <p className="text-[8px] font-semibold uppercase tracking-[0.16em] text-slate-400 sm:text-[9px]">
+                      {t("filter.priceFrom")}
+                    </p>
+                    <p className="mt-1 text-base font-bold leading-tight text-slate-900 sm:text-lg">
+                      {formatPrice(draftMinPrice, language || "uz-UZ")} {t("currency.som")}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-200 bg-white px-2.5 py-2 shadow-sm">
+                    <p className="text-[8px] font-semibold uppercase tracking-[0.16em] text-slate-400 sm:text-[9px]">
+                      {t("filter.priceTo")}
+                    </p>
+                    <p className="mt-1 text-base font-bold leading-tight text-slate-900 sm:text-lg">
+                      {formatPrice(draftMaxPrice, language || "uz-UZ")} {t("currency.som")}
+                    </p>
                   </div>
                 </div>
 
                 <div
-                  className={`rangePrice mt-0.5 ${draftPriceEnabled ? "" : "opacity-45"}`}
+                  className={`rangePrice mb-8 ${draftPriceEnabled ? "" : "opacity-45"}`}
                 >
-                  <div className="slider">
+                  <div className="slider rounded-full bg-linear-to-r from-[#fff4e7] via-[#ffe1bd] to-[#fff4e7]">
                     <input
                       type="range"
                       min={DEFAULT_MIN_PRICE}
@@ -567,7 +585,7 @@ export default function DiscoverServices() {
                         const nextMin = Number(e.target.value);
                         setDraftMinPrice(Math.min(nextMin, draftMaxPrice));
                       }}
-                      className={`thumb ${draftMinPrice > DEFAULT_MAX_PRICE - 20 ? "thumb--zindex-5" : "thumb--zindex-3"}`}
+                      className={`range-thumb ${draftMinPrice > DEFAULT_MAX_PRICE - 20 ? "range-thumb--zindex-5" : "range-thumb--zindex-3"}`}
                     />
 
                     <input
@@ -581,16 +599,19 @@ export default function DiscoverServices() {
                         const nextMax = Number(e.target.value);
                         setDraftMaxPrice(Math.max(nextMax, draftMinPrice));
                       }}
-                      className="thumb thumb--zindex-4"
+                      className="range-thumb range-thumb--zindex-4"
                     />
 
-                    <div className="slider__track" />
-                    <div className="slider__range" style={priceTrackStyle} />
-                    <div className="slider__left-value">
-                      ${DEFAULT_MIN_PRICE}
+                    <div className="slider-track bg-slate-200/90" />
+                    <div
+                      className="slider-range bg-linear-to-r from-[#f49b33] via-[#f7b35c] to-[#f49b33]"
+                      style={priceTrackStyle}
+                    />
+                    <div className="slider-left-value">
+                      {formatPrice(DEFAULT_MIN_PRICE, language || "uz-UZ")} {t("currency.som")}
                     </div>
-                    <div className="slider__right-value">
-                      ${DEFAULT_MAX_PRICE}
+                    <div className="slider-right-value">
+                      {formatPrice(DEFAULT_MAX_PRICE, language || "uz-UZ")} {t("currency.som")}
                     </div>
                   </div>
                 </div>
@@ -599,14 +620,14 @@ export default function DiscoverServices() {
                   <button
                     type="button"
                     onClick={resetDraftFilters}
-                    className="flex-1 rounded-2xl border border-[#f1c894] bg-[#fff3e6] px-4 py-3 text-sm font-semibold text-[#8a5620] transition hover:bg-[#fce2c4]"
+                    className="flex-1 rounded-2xl border border-[#F49B33]/25 bg-white px-4 py-3 text-sm font-semibold text-[#8a5620] shadow-sm transition hover:border-[#F49B33]/35 hover:bg-[#fff8ef]"
                   >
                     {t("filter.reset")}
                   </button>
                   <button
                     type="button"
                     onClick={applyFilters}
-                    className="flex-1 rounded-2xl bg-[#F49B33] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#e58d26]"
+                    className="flex-1 rounded-2xl bg-[#F49B33] px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#e58d26] hover:shadow-md"
                   >
                     {t("common.save")}
                   </button>
@@ -785,147 +806,6 @@ export default function DiscoverServices() {
             </div>
           </div>
         )}
-
-        <style jsx>{`
-          .rangePrice {
-            height: 46px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-
-          .slider {
-            position: relative;
-            width: 100%;
-          }
-
-          .slider__track,
-          .slider__range,
-          .slider__left-value,
-          .slider__right-value {
-            position: absolute;
-          }
-
-          .slider__track,
-          .slider__range {
-            border-radius: 3px;
-            height: 5px;
-            top: 10px;
-          }
-
-          .slider__track {
-            background: linear-gradient(90deg, #f7e4cc 0%, #f0d2a8 100%);
-            width: 100%;
-            z-index: 1;
-            box-shadow: inset 0 1px 1px rgba(15, 23, 42, 0.08);
-          }
-
-          .slider__range {
-            background: #f49b33;
-            z-index: 2;
-            box-shadow:
-              0 0 0 1px rgba(244, 155, 51, 0.28),
-              0 0 12px rgba(244, 155, 51, 0.35);
-          }
-
-          .slider__left-value,
-          .slider__right-value {
-            color: #8a5620;
-            font-size: 12px;
-            font-weight: 700;
-            margin-top: 20px;
-          }
-
-          .slider__left-value {
-            left: 0;
-          }
-
-          .slider__right-value {
-            right: 0;
-          }
-
-          .thumb,
-          .thumb::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            -webkit-tap-highlight-color: transparent;
-          }
-
-          .thumb {
-            pointer-events: none;
-            position: absolute;
-            height: 0;
-            width: 100%;
-            outline: none;
-            top: 10px;
-            background: none;
-          }
-
-          .thumb--zindex-3 {
-            z-index: 3;
-          }
-
-          .thumb--zindex-4 {
-            z-index: 4;
-          }
-
-          .thumb--zindex-5 {
-            z-index: 5;
-          }
-
-          .thumb::-webkit-slider-thumb {
-            background: radial-gradient(
-              circle at 30% 30%,
-              #ffffff 0%,
-              #fff3e6 45%,
-              #ffe2bf 100%
-            );
-            border: 2px solid #f49b33;
-            border-radius: 50%;
-            box-shadow:
-              0 2px 10px rgba(15, 23, 42, 0.2),
-              0 0 0 3px rgba(244, 155, 51, 0.28);
-            cursor: pointer;
-            height: 18px;
-            width: 18px;
-            margin-top: 4px;
-            pointer-events: all;
-            position: relative;
-            transition:
-              transform 0.15s ease,
-              box-shadow 0.2s ease;
-          }
-
-          .thumb::-webkit-slider-thumb:hover {
-            transform: scale(1.06);
-          }
-
-          .thumb::-moz-range-thumb {
-            background: radial-gradient(
-              circle at 30% 30%,
-              #ffffff 0%,
-              #fff3e6 45%,
-              #ffe2bf 100%
-            );
-            border: 2px solid #f49b33;
-            border-radius: 50%;
-            box-shadow:
-              0 2px 10px rgba(15, 23, 42, 0.2),
-              0 0 0 3px rgba(244, 155, 51, 0.28);
-            cursor: pointer;
-            height: 18px;
-            width: 18px;
-            margin-top: 4px;
-            pointer-events: all;
-            position: relative;
-            transition:
-              transform 0.15s ease,
-              box-shadow 0.2s ease;
-          }
-
-          .thumb::-moz-range-thumb:hover {
-            transform: scale(1.06);
-          }
-        `}</style>
       </div>
     </div>
   );

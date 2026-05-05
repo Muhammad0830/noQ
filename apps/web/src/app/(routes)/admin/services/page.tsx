@@ -17,10 +17,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
-import { API_ENDPOINTS, getStoredAuth } from "@/lib/api";
+import { API_ENDPOINTS } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import AdminSidebar from "@/components/AdminSidebar";
 import { useAdminSidebar } from "@/hooks/useAdminSidebar";
+import { useApiMutation } from "@/hooks/useApiMutation";
 
 type AdminService = {
   id: string;
@@ -142,6 +143,14 @@ export default function AdminServicesPage() {
   });
   const pendingFromCache = pendingFromCacheData ?? EMPTY_PENDING_IDS;
 
+  const toggleServiceMutation = useApiMutation<unknown, { id: string }>(
+    API_ENDPOINTS.admin.toggleServiceActive,
+    "post",
+    () => ({
+      headers: activeShopId ? headersByShop(activeShopId) : undefined,
+    }),
+  );
+
   useEffect(() => {
     if (!services) return;
 
@@ -218,25 +227,7 @@ export default function AdminServicesPage() {
         ),
       );
 
-      const token = getStoredAuth()?.token;
-      const res = await fetch(API_ENDPOINTS.admin.toggleServiceActive, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          ...headersByShop(activeShopId),
-        },
-        body: JSON.stringify({ id }),
-      });
-
-      if (!res.ok) {
-        const body = await res.json().catch(() => null);
-        const message =
-          body && typeof body.message === "string"
-            ? body.message
-            : t("admin.services.error.toggleFailed");
-        throw new Error(message);
-      }
+      await toggleServiceMutation.mutateAsync({ id });
     } catch (err) {
       setServicesState((currentState) =>
         currentState.map((service) =>
@@ -476,7 +467,10 @@ export default function AdminServicesPage() {
                               </span>
                               <span className="text-[#d8dbe1]">•</span>
                               <span>
-                                {toPriceLabel(service.price, t("services.price"))}
+                                {toPriceLabel(
+                                  service.price,
+                                  t("services.price"),
+                                )}
                               </span>
                             </div>
                           </div>
