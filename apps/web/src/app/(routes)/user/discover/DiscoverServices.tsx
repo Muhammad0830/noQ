@@ -537,7 +537,7 @@ export default function DiscoverServices() {
                       });
                     }}
                     className={`relative inline-flex h-7 w-12 shrink-0 items-center overflow-hidden rounded-full p-0.5 transition ${
-                      draftPriceEnabled ? "bg-[#F49B33]" : "bg-slate-300"
+                      draftPriceEnabled ? "bg-green-500" : "bg-slate-300"
                     }`}
                     aria-label={t("filter.togglePrice")}
                     aria-pressed={draftPriceEnabled}
@@ -552,19 +552,19 @@ export default function DiscoverServices() {
 
                   <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
                   <div className="rounded-2xl border border-slate-200 bg-white px-2.5 py-2 shadow-sm">
-                    <p className="text-[8px] font-semibold uppercase tracking-[0.16em] text-slate-400 sm:text-[9px]">
+                    <p className="text-[7px] font-semibold uppercase tracking-[0.16em] text-slate-400 sm:text-[7px]">
                       {t("filter.priceFrom")}
                     </p>
-                    <p className="mt-1 text-base font-bold leading-tight text-slate-900 sm:text-lg">
+                    <p className="mt-1 text-sm font-bold whitespace-nowrap text-slate-900 sm:text-xs">
                       {formatPrice(draftMinPrice, language || "uz-UZ")} {t("currency.som")}
                     </p>
                   </div>
 
                   <div className="rounded-2xl border border-slate-200 bg-white px-2.5 py-2 shadow-sm">
-                    <p className="text-[8px] font-semibold uppercase tracking-[0.16em] text-slate-400 sm:text-[9px]">
+                    <p className="text-[7px] font-semibold uppercase tracking-[0.16em] text-slate-400 sm:text-[7px]">
                       {t("filter.priceTo")}
                     </p>
-                    <p className="mt-1 text-base font-bold leading-tight text-slate-900 sm:text-lg">
+                    <p className="mt-1 text-sm font-bold whitespace-nowrap text-slate-900 sm:text-xs">
                       {formatPrice(draftMaxPrice, language || "uz-UZ")} {t("currency.som")}
                     </p>
                   </div>
