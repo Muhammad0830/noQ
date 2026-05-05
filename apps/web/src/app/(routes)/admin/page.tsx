@@ -12,6 +12,8 @@ import {
   Menu,
   CircleUser,
   ChevronDown,
+  CircleCheckBig,
+  CircleX,
   SquareArrowOutUpRight,
   CalendarDays,
   ClipboardList,
@@ -22,6 +24,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
+import { useApiMutation } from "@/hooks/useApiMutation";
 import { API_ENDPOINTS } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import AdminSidebar from "@/components/AdminSidebar";
@@ -346,6 +349,8 @@ export default function AdminDashboard() {
   });
   const [monthOpen, setMonthOpen] = useState(false);
   const [nowMarkerTop, setNowMarkerTop] = useState<number | null>(null);
+  const [selectedPendingAppointment, setSelectedPendingAppointment] =
+    useState<TimelineAppointment | null>(null);
   const monthDropdownRef = useRef<HTMLDivElement | null>(null);
   const timelineListRef = useRef<HTMLDivElement | null>(null);
   const appointmentRowRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -486,6 +491,7 @@ export default function AdminDashboard() {
     isLoading: isHistoryLoading,
     error: historyError,
     isError: isHistoryError,
+    refetch: refetchHistory,
   } = useApiQuery<AdminDashboardBooking[]>(
     activeShopId
       ? `${API_ENDPOINTS.admin.dashboardHistory}?shopId=${encodeURIComponent(activeShopId)}&date=${encodeURIComponent(selectedDateQuery)}`
@@ -694,6 +700,61 @@ export default function AdminDashboard() {
   }, [isSelectedToday, now, timelineAppointments]);
 
   const timelineSkeletonItems = useMemo(() => Array.from({ length: 3 }), []);
+
+  const { mutateAsync: completeBooking, isPending: isCompletingBooking } =
+    useApiMutation<unknown, { bookingId: string }>(
+      ({ bookingId }) => API_ENDPOINTS.admin.bookingComplete(bookingId),
+      "put",
+      () => ({
+        headers: activeShopId
+          ? { "x-shopid": activeShopId, "x-shop-id": activeShopId }
+          : undefined,
+      }),
+    );
+
+  const { mutateAsync: cancelBooking, isPending: isCancellingBooking } =
+    useApiMutation<unknown, { bookingId: string }>(
+      ({ bookingId }) => API_ENDPOINTS.admin.bookingCancel(bookingId),
+      "put",
+      () => ({
+        headers: activeShopId
+          ? { "x-shopid": activeShopId, "x-shop-id": activeShopId }
+          : undefined,
+      }),
+    );
+
+  const isUpdatingBookingStatus = isCompletingBooking || isCancellingBooking;
+
+  const closePendingAppointmentModal = () => {
+    if (isUpdatingBookingStatus) return;
+    setSelectedPendingAppointment(null);
+  };
+
+  const openPendingAppointmentModal = (appointment: TimelineAppointment) => {
+    if (appointment.status !== "PENDING") return;
+    setSelectedPendingAppointment(appointment);
+  };
+
+  const updatePendingAppointmentStatus = async (
+    nextStatus: "COMPLETED" | "CANCELLED",
+  ) => {
+    if (!selectedPendingAppointment || !activeShopId) return;
+
+    const payload = { bookingId: selectedPendingAppointment.id };
+
+    try {
+      if (nextStatus === "COMPLETED") {
+        await completeBooking(payload);
+      } else {
+        await cancelBooking(payload);
+      }
+
+      await refetchHistory();
+      setSelectedPendingAppointment(null);
+    } catch {
+      // Toasts are handled by useApiMutation.
+    }
+  };
 
   const historyErrorMessage =
     (historyError?.data &&
@@ -1088,6 +1149,7 @@ export default function AdminDashboard() {
                 {timelineAppointments.map((appointment) => {
                   const statusStyle = statusStyles[appointment.status]
                   const isCompleted = appointment.status === "COMPLETED"
+                  const isPending = appointment.status === "PENDING"
 
                   return (
                     <Fragment key={appointment.id}>
@@ -1109,7 +1171,12 @@ export default function AdminDashboard() {
                             ref={(el) => {
                               appointmentCardRefs.current[appointment.id] = el;
                             }}
-                            className={`rounded-2xl md:rounded-2xl lg:rounded-3xl px-3 md:px-4 lg:px-5 py-3 md:py-3.5 lg:py-4 shadow-sm ${statusStyle.card}`}
+                            onClick={() => openPendingAppointmentModal(appointment)}
+                            className={`rounded-2xl md:rounded-2xl lg:rounded-3xl px-3 md:px-4 lg:px-5 py-3 md:py-3.5 lg:py-4 shadow-sm ${statusStyle.card} ${
+                              isPending
+                                ? "cursor-pointer transition hover:border-orange-300 hover:shadow-md"
+                                : ""
+                            }`}
                             style={
                               isCompleted
                                 ? {
@@ -1156,6 +1223,98 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {selectedPendingAppointment && (
+        <div
+          className="fixed inset-0 z-60 flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm"
+          onClick={closePendingAppointmentModal}
+          role="presentation"
+        >
+          <div
+            className="w-full max-w-md rounded-3xl border border-orange-200 bg-white p-4 shadow-[0_24px_60px_rgba(15,23,42,0.25)]"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("history.status.pending")}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <span className="inline-flex items-center rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-orange-500">
+                  {t("history.status.pending")}
+                </span>
+                <h3 className="mt-2 text-lg font-bold text-slate-900">
+                  {selectedPendingAppointment.customer}
+                </h3>
+                <p className="mt-0.5 text-xs font-medium text-slate-600">
+                  {selectedPendingAppointment.service}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={closePendingAppointmentModal}
+                disabled={isUpdatingBookingStatus}
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 disabled:opacity-60"
+                aria-label={t("common.cancel")}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-orange-100 bg-orange-50/80 p-3">
+              <div className="grid grid-cols-[1fr_auto] gap-3">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    {t("admin.schedule.title") || "Schedule"}
+                  </p>
+                  <p className="mt-1 text-xs font-semibold text-slate-900">
+                    {selectedPendingAppointment.timeRange}
+                  </p>
+                </div>
+
+                <div className="text-right">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    {t("history.status.pending")}
+                  </p>
+                  <p className="mt-1 text-xs font-semibold text-orange-500">
+                    {selectedPendingAppointment.status}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                {t("admin.dashboard.panel") || "Details"}
+              </p>
+              <p className="mt-1.5 text-xs leading-5 text-slate-700">
+                {selectedPendingAppointment.customer} - {selectedPendingAppointment.service}
+              </p>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => updatePendingAppointmentStatus("CANCELLED")}
+                disabled={isUpdatingBookingStatus}
+                className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-600 shadow-sm transition hover:border-red-300 hover:bg-red-100 disabled:opacity-60"
+              >
+                <CircleX className="h-3.5 w-3.5" />
+                {isCancellingBooking ? t("common.loading") : t("admin.bookingModal.cancelAction")}
+              </button>
+              <button
+                type="button"
+                onClick={() => updatePendingAppointmentStatus("COMPLETED")}
+                disabled={isUpdatingBookingStatus}
+                className="flex h-11 items-center justify-center gap-2 rounded-2xl bg-green-500 px-3 text-xs font-semibold text-white shadow-[0_12px_24px_rgba(34,197,94,0.3)] transition hover:bg-green-600 disabled:opacity-60"
+              >
+                <CircleCheckBig className="h-3.5 w-3.5" />
+                {isCompletingBooking ? t("common.loading") : t("admin.bookingModal.completeAction")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
