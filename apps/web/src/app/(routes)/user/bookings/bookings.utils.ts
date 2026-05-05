@@ -6,6 +6,16 @@ import {
     OngoingBookingCardData,
 } from "./bookings.types";
 
+const resolveShopImage = (rawImage?: string | null) => {
+    if (!rawImage) return null;
+    const trimmedImage = rawImage.trim();
+    if (!trimmedImage) return null;
+
+    return trimmedImage.startsWith("http")
+        ? trimmedImage
+        : getImageUrl(trimmedImage, "shop_images");
+};
+
 export const buildOngoingCard = (
     booking: ActiveBookingItem,
 ): OngoingBookingCardData => {
@@ -45,9 +55,7 @@ export const buildOngoingCard = (
             hour: "numeric",
             minute: "2-digit",
         }),
-        image: booking.shop.backgroundImageUrl
-            ? getImageUrl(booking.shop.backgroundImageUrl, "shop_images")
-            : null,
+        image: resolveShopImage(booking.shop.backgroundImageUrl),
     };
 };
 
@@ -74,8 +82,6 @@ export const buildHistoryCard = (
         status,
         address: booking.shop?.address || "Address unavailable",
         cancelReason: booking.cancelReason || booking.reason || undefined,
-        image: booking.shop?.backgroundImageUrl
-            ? getImageUrl(booking.shop.backgroundImageUrl, "shop_images")
-            : null,
+        image: resolveShopImage(booking.shop?.backgroundImageUrl),
     };
 };
