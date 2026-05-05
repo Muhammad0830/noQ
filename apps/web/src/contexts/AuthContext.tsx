@@ -5,12 +5,13 @@ import type { AuthContextType, Shop, User } from "@shared/types/general_types";
 import api, {
   API_ENDPOINTS,
   clearPersistedAuth,
-  getStorageBySource,
   getStoredAuth,
   persistAuth,
-  USER_STORAGE_KEY,
 } from "@/lib/api";
 import { useApiMutation } from "@/hooks/useApiMutation";
+import { supabase } from "@/lib/supabaseClient";
+import { toast } from "sonner";
+import { useLanguage } from "./LanguageContext";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -56,8 +57,8 @@ const mapApiUserToUser = (apiUser: ApiUserPayload): User => ({
 
 function clearProviderSessionState() {
   if (typeof window === "undefined") return;
-  window.localStorage.removeItem("providerMode");
-  window.localStorage.removeItem("selected_shop_id");
+  localStorage.removeItem("providerMode");
+  localStorage.removeItem("selected_shop_id");
 }
 
 function readCachedUser(): User | null {
@@ -78,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedAuth = getStoredAuth();
     return !!storedAuth?.token && !storedAuth?.savedUser;
   });
+  const { t } = useLanguage();
 
   const signInMutation = useApiMutation<SignInResponse, SignInPayload>(
     API_ENDPOINTS.auth.signin,
@@ -91,43 +93,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initializeAuth = async () => {
       const storedAuth = getStoredAuth();
-      const token = storedAuth?.token ?? null;
-      const savedUserRaw = storedAuth?.savedUser ?? null;
 
-      if (!token) {
-        if (savedUserRaw) {
-          localStorage.removeItem(USER_STORAGE_KEY);
-        }
+      if (!storedAuth?.token || !storedAuth?.refreshToken) {
         setIsLoading(false);
         return;
       }
 
-      // User already hydrated synchronously via useState(readCachedUser).
-      // Just clear any blocking loading state.
-      setIsLoading(false);
-
       try {
-        const profileResponse = await api.get<ApiUserPayload>(
-          API_ENDPOINTS.auth.me,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
+        const { data, error } = await supabase.auth.setSession({
+          access_token: storedAuth.token,
+          refresh_token: storedAuth.refreshToken,
+        });
+
+        if (error || !data.session) {
+          throw error;
+        }
+
+        const newAccessToken = data.session.access_token;
+        const newRefreshToken = data.session.refresh_token;
+
+        persistAuth(
+          newAccessToken,
+          newRefreshToken,
+          JSON.parse(storedAuth.savedUser || "{}"),
+          storedAuth.source,
         );
 
-        const profileData = profileResponse.data;
-        const mappedUser = mapApiUserToUser(profileData);
-        if (mappedUser.role !== "ADMIN") {
-          clearProviderSessionState();
-        }
+        const profileResponse = await api.get(API_ENDPOINTS.auth.me, {
+          headers: {
+            Authorization: `Bearer ${newAccessToken}`,
+          },
+        });
+
+        const mappedUser = mapApiUserToUser(profileResponse.data);
         setUser(mappedUser);
-        const activeStorage = getStorageBySource(storedAuth?.source ?? "local");
-        activeStorage?.setItem(USER_STORAGE_KEY, JSON.stringify(mappedUser));
       } catch {
         clearPersistedAuth();
-        clearProviderSessionState();
         setUser(null);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -143,11 +147,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error("Invalid login response");
       }
 
-      const profileResponse = await api.get<ApiUserPayload>(API_ENDPOINTS.auth.me, {
-        headers: {
-          Authorization: `Bearer ${data.access_token}`,
+      const profileResponse = await api.get<ApiUserPayload>(
+        API_ENDPOINTS.auth.me,
+        {
+          headers: {
+            Authorization: `Bearer ${data.access_token}`,
+          },
         },
-      });
+      );
 
       const profileData = profileResponse.data;
       const mappedUser = mapApiUserToUser(profileData);
@@ -160,7 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data.access_token,
         data.refresh_token ?? null,
         mappedUser,
-        remember ? "local" : "session",
+        "local",
       );
     } catch (error) {
       throw error;
@@ -230,6 +237,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error("User not authenticated");
     }
 
+    setIsLoading(true);
+
+    const toastId = toast.loading(t("common.loading"));
+
     try {
       const formData = new FormData();
       if (data.name !== undefined) formData.append("name", data.name);
@@ -259,8 +270,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         storedAuth.source,
       );
       console.log("success ✅");
+      toast.success(t("common.success"), {
+        id: toastId,
+      });
     } catch (error) {
+      toast.error(t("common.error"), {
+        id: toastId,
+      });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 

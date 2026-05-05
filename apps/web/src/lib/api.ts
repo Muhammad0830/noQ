@@ -20,7 +20,7 @@ export const getStorageBySource = (
   if (!isBrowser()) {
     return null;
   }
-  return source === "local" ? window.localStorage : window.sessionStorage;
+  return source === "local" ? localStorage : sessionStorage;
 };
 
 export const getStoredAuth = () => {
@@ -28,23 +28,23 @@ export const getStoredAuth = () => {
     return null;
   }
 
-  const localToken = window.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  const localToken = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
   if (localToken) {
     return {
       source: "local" as const,
       token: localToken,
-      refreshToken: window.localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
-      savedUser: window.localStorage.getItem(USER_STORAGE_KEY),
+      refreshToken: localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
+      savedUser: localStorage.getItem(USER_STORAGE_KEY),
     };
   }
 
-  const sessionToken = window.sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  const sessionToken = sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
   if (sessionToken) {
     return {
       source: "session" as const,
       token: sessionToken,
-      refreshToken: window.sessionStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
-      savedUser: window.sessionStorage.getItem(USER_STORAGE_KEY),
+      refreshToken: sessionStorage.getItem(REFRESH_TOKEN_STORAGE_KEY),
+      savedUser: sessionStorage.getItem(USER_STORAGE_KEY),
     };
   }
 
@@ -88,12 +88,13 @@ export const clearPersistedAuth = () => {
     return;
   }
 
-  window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-  window.localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
-  window.localStorage.removeItem(USER_STORAGE_KEY);
-  window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-  window.sessionStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
-  window.sessionStorage.removeItem(USER_STORAGE_KEY);
+  localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+  localStorage.removeItem("token");
+  localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+  localStorage.removeItem(USER_STORAGE_KEY);
+  sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+  sessionStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+  sessionStorage.removeItem(USER_STORAGE_KEY);
 };
 
 const api = axios.create({
@@ -103,7 +104,7 @@ const api = axios.create({
 
 // attach token to every request
 api.interceptors.request.use((config) => {
-  const storedAuth = getStoredAuth()
+  const storedAuth = getStoredAuth();
   if (storedAuth?.token) {
     config.headers.Authorization = `Bearer ${storedAuth.token}`;
   }
@@ -127,7 +128,7 @@ export const API_ENDPOINTS = {
   shops_trending: `${API_BASE_URL}/shops/trending/7days`,
   shopById: (id: string) => `${API_BASE_URL}/shops/${id}`,
   shopServices: (id: string) => `${API_BASE_URL}/shops/${id}/services`,
-  shopStaff: (id: string) => `${API_BASE_URL}/shops/${id}/staff`,
+  shopStaff: (id: string) => `${API_BASE_URL}/shops/${id}/staffs`,
   shopReviews: (id: string) => `${API_BASE_URL}/shops/${id}/reviews`,
   shopTimeline: (id: string) => `${API_BASE_URL}/shops/${id}/day-timeline`,
 
@@ -145,7 +146,8 @@ export const API_ENDPOINTS = {
     active: `${API_BASE_URL}/bookings/users/active`,
     history: `${API_BASE_URL}/bookings/users/history`,
   },
-  bookingCancel: (bookingId: string) => `${API_BASE_URL}/bookings/${bookingId}/cancel`,
+  bookingCancel: (bookingId: string) =>
+    `${API_BASE_URL}/bookings/${bookingId}/cancel`,
 
   // Favourites
   favourites: {

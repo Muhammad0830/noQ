@@ -1,17 +1,24 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
+  Bell,
   Check,
   ChevronLeft,
-  MoreVertical,
+  ChevronRight,
   Search,
   Share2,
   UserRound,
+  Menu,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS } from "@/lib/api";
+import { formatPrice } from "@/lib/utils";
+import AdminSidebar from "@/components/AdminSidebar";
+import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 
 type AdminHistoryBooking = {
   id: string;
@@ -52,21 +59,23 @@ const formatDateQuery = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
-const parseDateQuery = (value: string | null) => {
-  if (!value) {
-    return new Date();
-  }
-
-  const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+const normalizeDate = (date: Date) => {
+  const normalized = new Date(date);
+  normalized.setHours(0, 0, 0, 0);
+  return normalized;
 };
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(Number.isFinite(value) ? value : 0);
+const parseDateQuery = (value: string | null) => {
+  if (!value) {
+    return normalizeDate(new Date());
+  }
+
+  const parsed = normalizeDate(new Date(value));
+  return Number.isNaN(parsed.getTime()) ? normalizeDate(new Date()) : parsed;
+};
+
+const formatCurrency = (value: number, locale?: string) =>
+  formatPrice(Number.isFinite(value) ? value : 0, locale || "uz-UZ");
 
 const formatTime = (value: string) => {
   const date = new Date(value);
@@ -123,15 +132,15 @@ const getInitials = (value?: string | null) => {
 };
 
 const buildWeekDays = (referenceDate: Date) => {
-  return Array.from({ length: 7 }, (_, index) => {
+  // Build a 5-day window ending at referenceDate (referenceDate is the last day)
+  return Array.from({ length: 5 }, (_, index) => {
     const date = new Date(referenceDate);
-    date.setDate(referenceDate.getDate() - 3 + index);
+    date.setDate(referenceDate.getDate() - 4 + index);
 
     return {
       id: formatDateQuery(date),
       day: date.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase(),
       date: date.getDate(),
-      isWeekend: date.getDay() === 0 || date.getDay() === 6,
     };
   });
 };
@@ -139,26 +148,61 @@ const buildWeekDays = (referenceDate: Date) => {
 export default function Page() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user } = useAuth();
+  const { t, locale } = useLanguage();
   const shopId = searchParams.get("shopId");
   const [search, setSearch] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [exportDone, setExportDone] = useState(false);
+  const {
+    isSidebarVisible,
+    isSidebarClosing,
+    adminNavItems,
+    openSidebar,
+    closeSidebar,
+    getAdminHrefWithShopId,
+  } = useAdminSidebar(shopId);
+  const todayDate = useMemo(() => normalizeDate(new Date()), []);
+  const todayQuery = useMemo(() => formatDateQuery(todayDate), [todayDate]);
+  // `visibleWeekStart` is actually used as the reference (week end) for building
+  // the 7-day window in `buildWeekDays`. Initialize it to `todayDate` so the
+  // visible week includes today by default.
+  const initialWeekStart = useMemo(() => {
+    return new Date(todayDate);
+  }, [todayDate]);
+  const [visibleWeekStart, setVisibleWeekStart] = useState(initialWeekStart);
 
-  const selectedDate = useMemo(
-    () => parseDateQuery(searchParams.get("date")),
-    [searchParams],
-  );
+  const isShopNameLoading = !user;
+  const currentShopName = useMemo(() => {
+    if (!user) {
+      return t("admin.dashboard.panel");
+    }
+
+    if (shopId) {
+      const activeShop = user.shops?.find((shop) => shop.id === shopId);
+      return activeShop?.name || t("admin.dashboard.panel");
+    }
+
+    return user.shops?.[0]?.name || t("admin.dashboard.panel");
+  }, [shopId, t, user]);
+
+  const selectedDate = useMemo(() => {
+    const parsedDate = parseDateQuery(searchParams.get("date"));
+    return parsedDate > todayDate ? new Date(todayDate) : parsedDate;
+  }, [searchParams, todayDate]);
   const selectedDateQuery = useMemo(
     () => formatDateQuery(selectedDate),
     [selectedDate],
   );
   const searchQuery = search.trim();
 
-  const weekDays = useMemo(() => buildWeekDays(selectedDate), [selectedDate]);
+  const weekDays = useMemo(
+    () => buildWeekDays(visibleWeekStart),
+    [visibleWeekStart],
+  );
 
   const historyUrl = shopId
-    ? `${API_ENDPOINTS.admin.dashboardHistory}?shopId=${encodeURIComponent(shopId)}&date=${encodeURIComponent(selectedDateQuery)}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ""}`
+    ? `${API_ENDPOINTS.admin.dashboardHistory}?shopId=${encodeURIComponent(shopId)}&date=${encodeURIComponent(selectedDateQuery)}`
     : null;
 
   const {
@@ -168,7 +212,7 @@ export default function Page() {
     error,
     refetch,
   } = useApiQuery<AdminHistoryBooking[]>(historyUrl, {
-    key: ["admin-history", shopId || "none", selectedDateQuery, searchQuery],
+    key: ["admin-history", shopId || "none", selectedDateQuery],
     enabled: Boolean(shopId),
     staleTime: 0,
     refetchOnMount: "always",
@@ -186,8 +230,47 @@ export default function Page() {
 
     const params = new URLSearchParams(searchParams.toString());
     params.set("shopId", shopId);
-    params.set("date", date);
+    params.set("date", date > todayQuery ? todayQuery : date);
     router.replace(`/admin/history?${params.toString()}`);
+  };
+
+  const moveBackOneDay = () => {
+    // Move window and selected date back by 5 days (new window size)
+    const nextDate = normalizeDate(new Date(selectedDate));
+    nextDate.setDate(nextDate.getDate() - 5);
+
+    const nextWeekStart = normalizeDate(new Date(visibleWeekStart));
+    nextWeekStart.setDate(nextWeekStart.getDate() - 5);
+    setVisibleWeekStart(nextWeekStart);
+
+    handleDateChange(formatDateQuery(nextDate));
+  };
+
+  const moveForwardOneWeek = () => {
+    // Move forward by 5 days
+    const nextDate = normalizeDate(new Date(selectedDate));
+    nextDate.setDate(nextDate.getDate() + 5);
+
+    const nextWeekStart = normalizeDate(new Date(visibleWeekStart));
+    nextWeekStart.setDate(nextWeekStart.getDate() + 5);
+    setVisibleWeekStart(nextWeekStart);
+
+    handleDateChange(
+      formatDateQuery(nextDate > todayDate ? todayDate : nextDate),
+    );
+  };
+
+  // Allow moving forward only while the visible week's reference (end) is
+  // strictly before today.
+  const canMoveForward = visibleWeekStart < todayDate;
+
+  const statusLabels: Record<AdminHistoryBooking["status"], string> = {
+    PENDING: t("history.status.pending"),
+    CONFIRMED: t("history.status.confirmed"),
+    IN_PROGRESS: t("history.status.inProgress"),
+    COMPLETED: t("history.status.completed"),
+    CANCELLED: t("history.status.cancelled"),
+    NO_SHOW: t("history.status.noShow"),
   };
 
   const normalizedBookings = useMemo(() => {
@@ -197,9 +280,9 @@ export default function Page() {
           new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
       )
       .map((booking) => {
-        const customerName = booking.user?.name?.trim() || "Unknown customer";
-        const serviceName = booking.service?.name?.trim() || "Unknown service";
-        const staffName = booking.staff?.user?.name?.trim() || "Unassigned";
+        const customerName = booking.user?.name?.trim() || t("admin.history.unknownCustomer");
+        const serviceName = booking.service?.name?.trim() || t("admin.history.unknownService");
+        const staffName = booking.staff?.user?.name?.trim() || t("admin.history.unassigned");
         const amountValue = Number(booking.service?.price ?? 0);
 
         return {
@@ -209,16 +292,9 @@ export default function Page() {
           staffName,
           time: formatTime(booking.startTime),
           duration: formatDuration(booking.startTime, booking.endTime),
-          amount: formatCurrency(amountValue),
+          amount: formatCurrency(amountValue, locale),
           status: booking.status,
-          statusLabel:
-            booking.status === "COMPLETED"
-              ? "Completed"
-              : booking.status === "CANCELLED"
-                ? "Cancelled"
-                : booking.status === "NO_SHOW"
-                  ? "No show"
-                  : booking.status.replaceAll("_", " "),
+          statusLabel: statusLabels[booking.status],
           badgeClass:
             booking.status === "COMPLETED"
               ? "bg-[#d4f8d4] text-[#2aa85d]"
@@ -233,9 +309,24 @@ export default function Page() {
                 : "bg-[#f8ece0] text-[#e5a65f]",
         };
       });
-  }, [bookings]);
+  }, [bookings, t]);
 
-  const filteredBookings = normalizedBookings;
+  const filteredBookings = useMemo(() => {
+    const q = search.toLowerCase().trim();
+
+    if (!q) {
+      return normalizedBookings;
+    }
+
+    return normalizedBookings.filter((booking) => {
+      return (
+        booking.customerName.toLowerCase().includes(q) ||
+        booking.serviceName.toLowerCase().includes(q) ||
+        booking.staffName.toLowerCase().includes(q) ||
+        booking.amount.toLowerCase().includes(q)
+      );
+    });
+  }, [normalizedBookings, search]);
 
   const completedCount = useMemo(
     () => bookings.filter((item) => item.status === "COMPLETED").length,
@@ -333,194 +424,240 @@ export default function Page() {
   );
 
   return (
-    <div className="min-h-dvh bg-white">
-      <div className="mx-auto w-full bg-white">
-        <header className="sticky top-0 z-10 border-b border-[#d6d6d6] bg-white px-4 py-3 backdrop-blur-sm">
-          <div className="relative flex items-center justify-center">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="absolute left-0 inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#cfcfcf] text-[#8f8f8f] transition-transform duration-200 hover:scale-105 active:scale-95"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <h1 className="text-[30px] font-bold tracking-tight text-[#191919]">
-              Shop History
-            </h1>
-            <button
-              type="button"
-              onClick={() => setMenuOpen((prev) => !prev)}
-              className="absolute right-0 inline-flex h-8 w-8 items-center justify-center rounded-full text-[#9e9e9e] transition-colors duration-200 hover:bg-[#e7e7e7]"
-            >
-              <MoreVertical className="h-5 w-5" />
-            </button>
+    <div className="h-dvh bg-white overflow-hidden">
+      <AdminSidebar
+        isVisible={isSidebarVisible}
+        isClosing={isSidebarClosing}
+        currentShopName={currentShopName}
+        adminNavItems={adminNavItems}
+        onClose={closeSidebar}
+        getAdminHrefWithShopId={getAdminHrefWithShopId}
+      />
 
-            {menuOpen && (
-              <div className="absolute right-0 top-10 w-44 rounded-lg border border-[#d7d9dd] bg-white p-1 shadow-lg">
-                <button
-                  type="button"
-                  onClick={() => refetch()}
-                  className="w-full rounded-md px-3 py-2 text-left text-xs font-medium text-[#4e5560] transition-colors hover:bg-[#f7f7f7]"
-                >
-                  Refresh Logs
-                </button>
-                <button
-                  type="button"
-                  onClick={handleExport}
-                  className="w-full rounded-md px-3 py-2 text-left text-xs font-medium text-[#4e5560] transition-colors hover:bg-[#f7f7f7]"
-                >
-                  Export CSV
-                </button>
+      <div className="mx-auto flex h-full w-full max-w-107.5 flex-col bg-white">
+        <div className="sticky top-0 z-40 w-full">
+          <div className="mx-auto flex w-full max-w-107.5 items-center justify-between border-b bg-orange-50 p-3 md:bg-white md:shadow-sm">
+            <div className="flex items-center gap-3">
+              {isShopNameLoading ? (
+                <div className="h-12 w-12 animate-pulse rounded-full bg-gray-200 sm:h-10 sm:w-10" />
+              ) : (
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 text-sm font-bold text-orange-600 sm:h-10 sm:w-10">
+                  {(currentShopName || "A")
+                    .split(" ")
+                    .map((s: string) => s[0])
+                    .slice(0, 2)
+                    .join("")}
+                </div>
+              )}
+              <div>
+                {isShopNameLoading ? (
+                  <div className="h-4 w-28 animate-pulse rounded-full bg-gray-200" />
+                ) : (
+                  <div className="text-sm font-semibold">{currentShopName}</div>
+                )}
+                <div className="text-xs font-semibold uppercase text-orange-400">
+                  {t("admin.dashboard.panel")}
+                </div>
               </div>
-            )}
-          </div>
-        </header>
+            </div>
 
-        <main className="space-y-5 px-4 pb-6 pt-3">
+            <div className="flex items-center gap-2">
+              <button className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-gray-600 shadow">
+                <Bell className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={openSidebar}
+                aria-label="Open admin sidebar"
+                className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-gray-600 shadow transition-colors hover:bg-[#f4f4f4]"
+              >
+                <Menu className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <main className="flex min-h-0 flex-1 flex-col gap-4 px-3 pt-3 pb-32 sm:px-4 md:pb-6">
           {!shopId ? (
             <div className="rounded-2xl border border-[#d7d9dd] bg-[#fafafa] p-4 text-sm text-[#8f949a]">
-              shopId topilmadi. Sahifani{" "}
-              <span className="font-semibold text-[#191919]">
-                /admin/history?shopId=...
-              </span>{" "}
-              ko'rinishida oching.
+              {t("admin.history.noShopSelected")}
             </div>
           ) : null}
 
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8f949a]" />
+          <div className="hidden sm:flex sm:flex-col sm:gap-3">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9aa0aa]" />
               <input
                 type="text"
-                placeholder="Search customer or staff..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-2xl border border-[#aeb6c1] bg-transparent py-2.5 pl-10 pr-3 text-[13px] text-[#2c2f34] placeholder:text-[#8f949a] transition-colors focus:border-[#f0a339] focus:outline-none"
+                placeholder={t("admin.history.searchPlaceholder")}
+                className="w-full rounded-[18px] border border-[#d7d7d7] bg-white py-4 pl-11 pr-4 text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#F49B33] focus:outline-none"
               />
             </div>
+          </div>
 
-            <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1">
+          <div className="flex items-center gap-3 sm:hidden">
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9aa0aa]" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={t("admin.history.searchPlaceholder")}
+                className="w-full rounded-full border border-[#d7d7d7] bg-white py-4 pl-11 pr-4 text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#F49B33] focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <section className="rounded-[26px] sm:px-4">
+            <div
+              className={`grid items-stretch gap-1.5 sm:gap-2 ${canMoveForward ? "grid-cols-7" : "grid-cols-6"}`}
+            >
+              <button
+                type="button"
+                onClick={moveBackOneDay}
+                className="inline-flex h-14.5 w-full items-center justify-center rounded-[10px] border border-slate-200 bg-white text-slate-700 shadow-[0_6px_18px_rgba(15,17,21,0.04)] transition-transform duration-200 hover:scale-[1.02] active:scale-95"
+                aria-label="Previous day"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+
               {weekDays.map((day) => (
                 <button
                   key={day.id}
                   type="button"
                   onClick={() => handleDateChange(day.id)}
-                  className={`min-w-12 rounded-2xl border px-2 py-1.5 text-center leading-tight transition-colors ${
+                  className={`flex h-14.5 w-full min-w-0 flex-col items-center justify-center rounded-[10px] border px-1 text-center leading-tight transition-all duration-200 ${
                     day.id === selectedDateQuery
-                      ? "border-[#efa83c] bg-[#efa83c] text-white"
-                      : day.isWeekend
-                        ? "border-[#c5ccd7] bg-white text-[#b4bcc9]"
-                        : "border-[#3b4858] bg-white text-[#1f2a36]"
+                      ? "border-[#F49B33] bg-[#F49B33] text-white shadow-[0_12px_22px_rgba(244,155,51,0.24)]"
+                      : "border-slate-200 bg-white text-[#1f2a36] hover:border-[#F49B33] hover:bg-[#fff8ee]"
                   } active:scale-95`}
                 >
-                  <p className="text-[9px] font-semibold leading-none">
+                  <p className="text-[10px] font-semibold uppercase leading-none tracking-[0.12em] sm:text-[9px]">
                     {day.day}
                   </p>
-                  <p className="mt-1 text-[28px] font-semibold leading-none tracking-tight">
+                  <p className="mt-1 text-[17px] font-semibold leading-none tracking-tight sm:text-[24px]">
                     {day.date}
                   </p>
                 </button>
               ))}
-            </div>
 
-          <section>
+              {canMoveForward && (
+                <button
+                  type="button"
+                  onClick={moveForwardOneWeek}
+                  className="inline-flex h-14.5 w-full items-center justify-center rounded-[10px] border border-slate-200 bg-white text-slate-700 shadow-[0_6px_18px_rgba(15,17,21,0.04)] transition-transform duration-200 hover:scale-[1.02] active:scale-95"
+                  aria-label="Next day"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          </section>
+
+          <section className="flex min-h-0 flex-1 flex-col">
             <div className="mb-3 flex items-center justify-between gap-3">
               <h2 className="text-[11px] font-bold uppercase tracking-[0.17em] text-[#8f949a]">
-                Daily Bookings
+                {t("admin.history.dailyBookings")}
               </h2>
-              <span className="rounded-md border border-[#c8ccd1] px-2 py-1 text-[10px] font-medium text-[#9ba0a6]">
-                {filteredBookings.length} Logs
+              <span className="rounded-md border border-[#c8ccd1] px-2 md:px-2.5 lg:px-2.5 py-0.5 md:py-1 lg:py-1 text-[9px] md:text-[10px] lg:text-[10px] font-medium text-[#9ba0a6]">
+                {filteredBookings.length} {t("admin.history.recordsCount")}
               </span>
             </div>
 
-            {isLoading && (
-              <div className="border-y border-[#d7d9dd]">
-                {renderBookingSkeleton("history-skeleton-1")}
-                {renderBookingSkeleton("history-skeleton-2")}
-                {renderBookingSkeleton("history-skeleton-3")}
-              </div>
-            )}
+            <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+              {isLoading && (
+                <div className="border-y border-[#d7d9dd]">
+                  {renderBookingSkeleton("history-skeleton-1")}
+                  {renderBookingSkeleton("history-skeleton-2")}
+                  {renderBookingSkeleton("history-skeleton-3")}
+                </div>
+              )}
 
-            {isError && !isLoading && (
-              <div className="rounded-2xl border border-[#f2dddd] bg-[#fff7f7] px-4 py-6 text-center text-sm text-[#c56b6b]">
-                {error?.data?.message ||
-                  error?.message ||
-                  "History data could not be loaded."}
-              </div>
-            )}
+              {isError && !isLoading && (
+                <div className="rounded-2xl border border-[#f2dddd] bg-[#fff7f7] px-4 py-6 text-center text-sm text-[#c56b6b]">
+                  {error?.data?.message ||
+                    error?.message ||
+                    t("admin.history.loadingError")}
+                </div>
+              )}
 
-            {!isLoading && !isError && (
-              <div className="divide-y divide-[#d7d9dd] border-y border-[#d7d9dd]">
-                {filteredBookings.map((item) => (
-                  <article
-                    key={item.id}
-                    className="flex items-start gap-3 py-3"
-                  >
-                    <div
-                      className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${item.iconClass}`}
+              {!isLoading && !isError && (
+                <div className="divide-y divide-[#d7d9dd] border-y border-[#d7d9dd]">
+                  {filteredBookings.map((item) => (
+                    <article
+                      key={item.id}
+                      className="flex items-start gap-3 py-3"
                     >
-                      <UserRound className="h-3.5 w-3.5" />
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[20px] font-semibold leading-tight tracking-tight text-[#0f172a]">
-                        {item.customerName}
-                      </p>
-                      <p className="truncate text-[13px] font-medium leading-tight">
-                        <span className="text-[#f0a339]">{item.time}</span>
-                        <span className="mx-2 text-[#b7bcc2]">•</span>
-                        <span className="text-[#8f949a]">
-                          {item.serviceName}
-                        </span>
-                      </p>
-                      <p className="truncate text-[10px] uppercase tracking-[0.18em] text-[#b7bcc2]">
-                        Staff: {item.staffName}
-                      </p>
-                    </div>
-
-                    <div className="text-right">
-                      <p className="text-[32px] font-semibold leading-none tracking-tight text-[#f0932b]">
-                        {item.amount}
-                      </p>
-                      <div className="flex items-center justify-end gap-2 pt-2">
-                        <span
-                          className={`rounded-full px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] ${item.badgeClass}`}
-                        >
-                          {item.statusLabel}
-                        </span>
+                      <div
+                        className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${item.iconClass}`}
+                      >
+                        <UserRound className="h-3.5 w-3.5" />
                       </div>
-                    </div>
-                  </article>
-                ))}
 
-                {!isLoading && filteredBookings.length === 0 && (
-                  <div className="py-8 text-center text-sm text-[#8f949a]">
-                    Bu kunga mos transaction topilmadi.
-                  </div>
-                )}
-              </div>
-            )}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[17px] font-semibold leading-tight tracking-tight text-[#0f172a]">
+                          {item.customerName}
+                        </p>
+                        <p className="truncate text-[12px] font-medium leading-tight">
+                          <span className="text-[#f0a339]">{item.time}</span>
+                          <span className="mx-2 text-[#b7bcc2]">•</span>
+                          <span className="text-[#8f949a]">
+                            {item.serviceName}
+                          </span>
+                        </p>
+                        <p className="truncate text-[9px] uppercase tracking-[0.18em] text-[#b7bcc2]">
+                          {t("admin.history.staffColumn")}: {item.staffName}
+                        </p>
+                      </div>
+
+                      <div className="text-right">
+                        <p className="text-[22px] font-semibold leading-none tracking-tight text-[#f0932b]">
+                          {item.amount}
+                        </p>
+                        <div className="flex items-center justify-end gap-2 pt-2">
+                          <span
+                            className={`rounded-full px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] ${item.badgeClass}`}
+                          >
+                            {item.statusLabel}
+                          </span>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+
+                  {!isLoading && filteredBookings.length === 0 && (
+                    <div className="py-8 text-center text-sm text-[#8f949a]">
+                      {t("admin.history.noBookings")}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </section>
 
-          <footer className="flex items-end justify-between pt-1">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#f0a339]">
-                Daily Total Revenue
-              </p>
-              <div className="flex items-baseline gap-2">
-                <p className="text-[42px] font-bold tracking-tight text-[#0f1115]">
-                  {formatCurrency(revenueTotal)}
+          <footer className="fixed bottom-16 left-0 right-0 z-30 border-t border-[#d7d9dd] bg-white/95 backdrop-blur-sm md:static md:bottom-auto md:left-auto md:right-auto md:z-auto md:border-t-0 md:bg-transparent md:backdrop-blur-0">
+            <div className="mx-auto flex w-full max-w-107.5 items-end justify-between gap-4 px-4 pt-3 pb-4 md:px-0 md:pt-1 md:pb-0">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#f0a339]">
+                  {t("admin.history.totalRevenue")}
                 </p>
-                <span className="text-[14px] font-semibold text-[#2aa85d]">
-                  +{completedCount}
-                </span>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-[30px] font-bold tracking-tight text-[#0f1115]">
+                    {formatCurrency(revenueTotal, locale)}
+                  </p>
+                  <span className="text-[14px] font-semibold text-[#2aa85d]">
+                    +{completedCount}
+                  </span>
+                </div>
               </div>
-            </div>
 
               <button
                 type="button"
                 onClick={handleExport}
                 disabled={filteredBookings.length === 0}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#eea338] px-5 py-3 text-[16px] font-semibold text-white shadow-[0_8px_18px_rgba(238,163,56,0.35)] transition-transform duration-200 hover:-translate-y-0.5 active:scale-95 disabled:cursor-not-allowed disabled:bg-[#d7d9dd] disabled:shadow-none"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#eea338] px-5 py-3 text-[14px] font-semibold text-white shadow-[0_8px_18px_rgba(238,163,56,0.35)] transition-transform duration-200 hover:-translate-y-0.5 active:scale-95 disabled:cursor-not-allowed disabled:bg-[#d7d9dd] disabled:shadow-none"
               >
                 {exportDone ? (
                   <Check className="h-4 w-4" />
@@ -530,11 +667,12 @@ export default function Page() {
                   />
                 )}
                 {isExporting
-                  ? "Exporting..."
+                  ? t("admin.history.exporting")
                   : exportDone
-                    ? "Exported"
-                    : "Export"}
+                    ? t("admin.history.exportSuccess")
+                    : t("admin.history.exportCSV")}
               </button>
+            </div>
           </footer>
         </main>
       </div>

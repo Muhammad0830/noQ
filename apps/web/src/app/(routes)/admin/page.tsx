@@ -2,21 +2,29 @@
 
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import {
   BarChart3,
   DollarSign,
   Users,
   PlusCircle,
   Bell,
-  Settings,
+  Menu,
+  CircleUser,
   ChevronDown,
   SquareArrowOutUpRight,
+  CalendarDays,
+  ClipboardList,
+  Scissors,
+  History,
+  X,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS } from "@/lib/api";
+import { formatPrice } from "@/lib/utils";
+import AdminSidebar from "@/components/AdminSidebar";
 
 type DashboardBaseInfoResponse = {
   sevenDayBookingsCount: number;
@@ -84,13 +92,18 @@ type ShopsResponse =
 export default function AdminDashboard() {
   const { user } = useAuth();
   const { locale, t, language } = useLanguage();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [persistedShopId, setPersistedShopId] = useState<string | null>(null);
   const [hasLoadedPersistedShop, setHasLoadedPersistedShop] =
     useState<boolean>(false);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+  const [isSidebarClosing, setIsSidebarClosing] = useState(false);
+  const sidebarCloseTimerRef = useRef<number | null>(null);
 
   const shopId = searchParams.get("shopId");
+  const selectedShopHint = shopId || persistedShopId;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -102,12 +115,20 @@ export default function AdminDashboard() {
   }, []);
 
   const isAdmin = user?.role === "ADMIN";
-  const { data: shopsResponse } = useApiQuery<ShopsResponse>(
+  const { data: shopsResponse, isLoading: isLoadingShopsFallback } = useApiQuery<ShopsResponse>(
     isAdmin ? API_ENDPOINTS.shops : null,
     {
       key: ["admin-shops-fallback", user?.id || "guest"],
       enabled: Boolean(
-        isAdmin && user?.id && !(user?.shops && user.shops.length > 0),
+        isAdmin &&
+          user?.id &&
+          (
+            !(user?.shops && user.shops.length > 0) ||
+            Boolean(
+              selectedShopHint &&
+                !(user?.shops || []).some((shop) => shop.id === selectedShopHint),
+            )
+          ),
       ),
       staleTime: 30_000,
       refetchOnMount: false,
@@ -118,15 +139,13 @@ export default function AdminDashboard() {
   const adminShops = useMemo<AdminShop[]>(() => {
     if (!user?.id) return [];
 
-    if (user.shops && user.shops.length > 0) {
-      return user.shops.map((shop) => ({
-        id: shop.id,
-        name: shop.name,
-        ownerId: shop.ownerId,
-      }));
-    }
+    const userShops = (user.shops || []).map((shop) => ({
+      id: shop.id,
+      name: shop.name,
+      ownerId: shop.ownerId,
+    }));
 
-    if (!shopsResponse) return [];
+    if (!shopsResponse) return userShops;
 
     const shops = Array.isArray(shopsResponse)
       ? shopsResponse
@@ -136,19 +155,26 @@ export default function AdminDashboard() {
           ? shopsResponse.data
           : [];
 
-    return shops.filter((shop) => shop.ownerId === user.id);
+    const fallbackShops = shops.filter((shop) => shop.ownerId === user.id);
+
+    if (fallbackShops.length === 0) return userShops;
+    if (userShops.length === 0) return fallbackShops;
+
+    const merged = new Map<string, AdminShop>();
+    userShops.forEach((shop) => merged.set(shop.id, shop));
+    fallbackShops.forEach((shop) => merged.set(shop.id, shop));
+    return Array.from(merged.values());
   }, [shopsResponse, user?.id, user?.shops]);
 
   const activeShopId = useMemo(() => {
     if (!hasLoadedPersistedShop) return null;
 
-    if (shopId && adminShops.some((shop) => shop.id === shopId)) return shopId;
-    if (
-      persistedShopId &&
-      adminShops.some((shop) => shop.id === persistedShopId)
-    ) {
-      return persistedShopId;
-    }
+    // Trust explicit URL/localStorage selection first.
+    // This is important right after creating a new shop because `user.shops`
+    // can be stale for a moment and may not include the new shop yet.
+    if (shopId) return shopId;
+    if (persistedShopId) return persistedShopId;
+
     if (user?.shops?.[0]?.id) return user.shops[0].id;
     if (adminShops[0]?.id) return adminShops[0].id;
     return null;
@@ -164,19 +190,96 @@ export default function AdminDashboard() {
     return `${path}?shopId=${encodeURIComponent(activeShopId)}`;
   };
 
-  const currentShopName = useMemo(() => {
-    if (!user) return t("admin.dashboard.panel");
+  const openSidebar = () => {
+    if (sidebarCloseTimerRef.current) {
+      window.clearTimeout(sidebarCloseTimerRef.current);
+      sidebarCloseTimerRef.current = null;
+    }
+    setIsSidebarVisible(true);
+    setIsSidebarClosing(false);
+  };
+
+  const closeSidebar = () => {
+    if (!isSidebarVisible || isSidebarClosing) return;
+    setIsSidebarClosing(true);
+    sidebarCloseTimerRef.current = window.setTimeout(() => {
+      setIsSidebarVisible(false);
+      setIsSidebarClosing(false);
+      sidebarCloseTimerRef.current = null;
+    }, 280);
+  };
+
+  type AdminNavItem = {
+    title: string;
+    href: string;
+    icon: typeof BarChart3;
+    exact?: boolean;
+  };
+
+  const adminNavItems = useMemo<AdminNavItem[]>(
+    () => [
+      {
+        title: t("admin.dashboard.panel"),
+        href: getAdminHrefWithShopId("/admin"),
+        icon: BarChart3,
+        exact: true,
+      },
+      {
+        title: t("admin.analytics.title") || "Analytics",
+        href: getAdminHrefWithShopId("/admin/analytics"),
+        icon: ClipboardList,
+      },
+      {
+        title: t("admin.schedule.title") || "Schedule",
+        href: getAdminHrefWithShopId("/admin/schedule"),
+        icon: CalendarDays,
+      },
+      {
+        title: t("services.title") || "Services",
+        href: getAdminHrefWithShopId("/admin/services"),
+        icon: Scissors,
+      },
+      {
+        title: t("admin.history.title") || "History",
+        href: getAdminHrefWithShopId("/admin/history"),
+        icon: History,
+      },
+      {
+        title: t("admin.staff.title") || "Staff",
+        href: getAdminHrefWithShopId("/admin/staff"),
+        icon: Users,
+      },
+      {
+        title: t("nav.profile") || "Profile",
+        href: "/profile",
+        icon: CircleUser,
+      },
+    ],
+    [activeShopId, t],
+  );
+
+  const resolvedCurrentShop = useMemo(() => {
+    if (!user) return null;
 
     if (activeShopId) {
       const foundInUser = (user.shops || []).find(
         (s: any) => s.id === activeShopId,
       );
       const foundInFallback = adminShops.find((s) => s.id === activeShopId);
-      return foundInUser?.name || foundInFallback?.name || t("admin.dashboard.panel");
+      return foundInUser || foundInFallback || null;
     }
 
-    return user.shops?.[0]?.name || adminShops[0]?.name || t("admin.dashboard.panel");
-  }, [activeShopId, adminShops, t, user]);
+    return (user.shops?.[0] as any) || adminShops[0] || null;
+  }, [activeShopId, adminShops, user]);
+
+  const currentShopName = resolvedCurrentShop?.name || t("admin.dashboard.panel");
+
+  const isShopNameLoading = useMemo(() => {
+    if (!hasLoadedPersistedShop) return true;
+    if (!activeShopId) return false;
+    if (resolvedCurrentShop?.name) return false;
+    return isLoadingShopsFallback;
+  }, [activeShopId, hasLoadedPersistedShop, isLoadingShopsFallback, resolvedCurrentShop?.name]);
 
   const {
     data: baseInfo,
@@ -214,12 +317,7 @@ export default function AdminDashboard() {
 
   const revenue = useMemo(() => {
     const value = baseInfo?.currentRevenue ?? 0;
-    return new Intl.NumberFormat(locale || undefined, {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value);
+    return formatPrice(value, locale || "uz-UZ");
   }, [baseInfo?.currentRevenue, locale]);
 
   const bookingsCount = baseInfo?.sevenDayBookingsCount ?? 0;
@@ -252,6 +350,42 @@ export default function AdminDashboard() {
   const timelineListRef = useRef<HTMLDivElement | null>(null);
   const appointmentRowRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const appointmentCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  useEffect(() => {
+    if (!isSidebarVisible && !isSidebarClosing) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeSidebar();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isSidebarVisible, isSidebarClosing]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const shouldLockScroll = isSidebarVisible && !isSidebarClosing;
+    document.body.style.overflow = shouldLockScroll ? "hidden" : "";
+
+    return () => {
+      if (shouldLockScroll) {
+        document.body.style.overflow = "";
+      }
+    };
+  }, [isSidebarVisible, isSidebarClosing]);
+
+  useEffect(() => {
+    return () => {
+      if (sidebarCloseTimerRef.current) {
+        window.clearTimeout(sidebarCloseTimerRef.current);
+      }
+    };
+  }, []);
 
   const monthOptions = useMemo(() => {
     const currentYear = currentDate.getFullYear();
@@ -623,35 +757,56 @@ export default function AdminDashboard() {
     <div className="bg-gray-50 pb-4 sm:pb-24">
       {/* Header pill with avatar and actions (sticky top) */}
       <div className="sticky top-0 z-40 w-full">
-        <div className="w-full p-3 flex items-center justify-between border-b md:bg-white md:shadow-sm bg-orange-50">
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 sm:h-10 sm:w-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm">
-              {(currentShopName || "A")
-                .split(" ")
-                .map((s) => s[0])
-                .slice(0, 2)
-                .join("")}
-            </div>
+        <div className="mx-auto flex w-full max-w-360 items-center justify-between border-b bg-orange-50 p-3 md:bg-white md:px-5 md:py-4 lg:px-6 lg:py-5">
+          <div className="flex items-center gap-3 md:gap-4 lg:gap-4">
+            {isShopNameLoading ? (
+              <div className="h-12 w-12 md:h-11 md:w-11 lg:h-12 lg:w-12 rounded-full bg-gray-200 animate-pulse" />
+            ) : (
+              <div className="h-12 w-12 md:h-11 md:w-11 lg:h-12 lg:w-12 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm">
+                {(currentShopName || "A")
+                  .split(" ")
+                  .map((s: string) => s[0])
+                  .slice(0, 2)
+                  .join("")}
+              </div>
+            )}
             <div>
-              <div className="text-sm font-semibold">{currentShopName}</div>
-              <div className="text-xs text-orange-400 uppercase font-semibold">
+              {isShopNameLoading ? (
+                <div className="h-4 w-28 md:w-32 lg:w-36 rounded-full bg-gray-200 animate-pulse" />
+              ) : (
+                <div className="text-sm md:text-base lg:text-lg font-semibold">{currentShopName}</div>
+              )}
+              <div className="text-xs md:text-[13px] lg:text-sm text-orange-400 uppercase font-semibold">
                 {t("admin.dashboard.panel")}
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <button className="h-9 w-9 rounded-full bg-white border shadow flex items-center justify-center text-gray-600">
+            <button className="h-9 w-9 md:h-10 md:w-10 lg:h-11 lg:w-11 rounded-full bg-white border shadow flex items-center justify-center text-gray-600">
               <Bell className="w-4 h-4" />
             </button>
-            <button className="h-9 w-9 rounded-full bg-white border shadow flex items-center justify-center text-gray-600">
-              <Settings className="w-4 h-4" />
+            <button
+              onClick={openSidebar}
+              className="h-9 w-9 md:h-10 md:w-10 lg:h-11 lg:w-11 rounded-full bg-white border shadow flex items-center justify-center text-gray-600"
+              aria-label="Open admin sidebar"
+            >
+              <Menu className="w-4 h-4" />
             </button>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 mt-5">
+      <AdminSidebar
+        isVisible={isSidebarVisible}
+        isClosing={isSidebarClosing}
+        currentShopName={currentShopName}
+        adminNavItems={adminNavItems}
+        onClose={closeSidebar}
+        getAdminHrefWithShopId={getAdminHrefWithShopId}
+      />
+
+      <div className="mx-auto mt-5 w-full max-w-360 px-4">
         {!activeShopId && (
           <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-700">
             {t("admin.dashboard.shopNotFound")}
@@ -665,9 +820,9 @@ export default function AdminDashboard() {
         )}
 
         {/* Top cards + actions (match mock) */}
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
-          <div className="flex-1 grid grid-cols-2 gap-4">
-            <div className="relative bg-white rounded-3xl p-5 shadow-lg flex flex-col overflow-visible">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6 lg:gap-6">
+          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-3 md:gap-4 lg:gap-4">
+            <div className="relative bg-white rounded-2xl md:rounded-2xl lg:rounded-3xl p-4 md:p-5 lg:p-5 shadow-lg flex flex-col overflow-visible">
               <div className="absolute top-3 right-3 h-10 w-10 rounded-full bg-orange-400 flex items-center justify-center text-white shadow-sm z-10">
                 <DollarSign className="w-4 h-4 text-white" />
               </div>
@@ -681,7 +836,7 @@ export default function AdminDashboard() {
                       </div>
                     ) : (
                       <>
-                        <p className="text-xl sm:text-2xl font-bold mt-2">
+                        <p className="text-lg sm:text-xl font-bold mt-2 wrap-break-word line-clamp-2">
                           {revenue}
                         </p>
                         <div
@@ -728,7 +883,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="flex flex-row items-center gap-2 sm:gap-3 md:ml-4 w-full">
+          <div className="flex flex-row items-center gap-2 md:gap-3 lg:gap-4 md:w-auto lg:ml-4 w-full md:min-w-max">
             <button
               onClick={() => {
                 const year = selectedDate.getFullYear();
@@ -739,22 +894,22 @@ export default function AdminDashboard() {
                 const joiner = base.includes("?") ? "&" : "?";
                 router.push(`${base}${joiner}date=${encodeURIComponent(dateValue)}`);
               }}
-              className="flex-1 flex items-center justify-center gap-2 sm:gap-3 bg-orange-400 text-white px-3 sm:px-4 py-3 rounded-full shadow-lg"
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 md:gap-2 lg:gap-3 bg-orange-400 text-white px-3 md:px-3 lg:px-4 py-2.5 md:py-2.5 lg:py-3 rounded-full shadow-lg"
             >
-              <span className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-white flex items-center justify-center shrink-0">
-                <PlusCircle className="w-4 h-4 text-orange-400" />
+              <span className="h-6 w-6 md:h-6 md:w-6 lg:h-8 lg:w-8 rounded-full bg-white flex items-center justify-center shrink-0">
+                <PlusCircle className="w-3.5 h-3.5 md:w-4 md:h-4 text-orange-400" />
               </span>
-              <span className="font-semibold text-[10px] sm:text-xs uppercase text-center leading-tight">{t("admin.dashboard.newAppointment")}</span>
+              <span className="font-semibold text-[9px] md:text-[10px] lg:text-xs uppercase text-center leading-tight">{t("admin.dashboard.newAppointment")}</span>
             </button>
 
             <Link
               href={getAdminHrefWithShopId("/admin/staff")}
-              className="flex-1 flex items-center justify-center gap-2 sm:gap-3 bg-white border border-gray-200 px-3 sm:px-4 py-3 rounded-full shadow"
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 md:gap-2 lg:gap-3 bg-white border border-gray-200 px-3 md:px-3 lg:px-4 py-2.5 md:py-2.5 lg:py-3 rounded-full shadow"
             >
-              <span className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-white flex items-center justify-center shrink-0">
-                <Users className="w-4 h-4 text-orange-400" />
+              <span className="h-6 w-6 md:h-6 md:w-6 lg:h-10 lg:w-10 rounded-full bg-white flex items-center justify-center shrink-0">
+                <Users className="w-3.5 h-3.5 md:w-4 md:h-4 text-orange-400" />
               </span>
-              <span className="font-semibold text-[10px] sm:text-xs uppercase text-center leading-tight">
+              <span className="font-semibold text-[9px] md:text-[10px] lg:text-xs uppercase text-center leading-tight">
                 {t("admin.dashboard.staff")} ({isBaseInfoLoading ? "..." : staffCount})
               </span>
             </Link>
@@ -762,8 +917,8 @@ export default function AdminDashboard() {
         </div>
 
         {/* Schedule + sidebar */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white rounded-2xl shadow-md p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-5 lg:gap-6">
+          <div className="lg:col-span-2 bg-white rounded-xl md:rounded-xl lg:rounded-2xl shadow-md p-4 md:p-5 lg:p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-lg font-bold">{t('booking.timeline')}</h2>
@@ -830,7 +985,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Date strip */}
-            <div className="p-1 flex items-center gap-3 mb-6 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div className="p-1 flex items-center gap-2 md:gap-2.5 lg:gap-3 mb-4 md:mb-5 lg:mb-6 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {weekDates.map((d) => {
                 const isToday = d.toDateString() === currentDate.toDateString()
                 const isSelected = d.toDateString() === selectedDate.toDateString()
@@ -847,11 +1002,11 @@ export default function AdminDashboard() {
                       setSelectedMonthDate(new Date(selected.getFullYear(), selected.getMonth(), 1))
                     }}
                     aria-pressed={isSelected}
-                    className={`flex flex-col items-center justify-center ${isSelected ? 'py-5 px-6 scale-105' : 'py-3 px-4'} rounded-2xl min-w-16 border transition-all duration-200 ${isSelected ? 'bg-orange-400 text-white shadow-lg border-orange-300 ring-2 ring-orange-200' : 'bg-gray-100 text-gray-700 border-transparent hover:bg-orange-50 hover:text-orange-500'}`}
+                    className={`flex flex-col items-center justify-center ${isSelected ? 'py-4 md:py-4 lg:py-5 px-5 md:px-5 lg:px-6 scale-105' : 'py-2.5 md:py-2.5 lg:py-3 px-3 md:px-3.5 lg:px-4'} rounded-2xl min-w-14 md:min-w-14 lg:min-w-16 border transition-all duration-200 ${isSelected ? 'bg-orange-400 text-white shadow-lg border-orange-300 ring-2 ring-orange-200' : 'bg-gray-100 text-gray-700 border-transparent hover:bg-orange-50 hover:text-orange-500'}`}
                   >
-                    <div className="text-xs opacity-80">{shortDay}</div>
-                    <div className={`font-semibold ${isSelected ? 'text-xl' : ''}`}>{dayNum}</div>
-                    {isToday && <div className={`mt-2 h-1 w-1 rounded-full ${isSelected ? 'bg-white' : 'bg-orange-400'}`} />}
+                    <div className="text-[10px] md:text-[11px] lg:text-xs opacity-80">{shortDay}</div>
+                    <div className={`font-semibold ${isSelected ? 'text-lg md:text-lg lg:text-xl' : 'text-base'}`}>{dayNum}</div>
+                    {isToday && <div className={`mt-1 md:mt-1.5 lg:mt-2 h-1 w-1 rounded-full ${isSelected ? 'bg-white' : 'bg-orange-400'}`} />}
                   </button>
                 )
               })}
@@ -868,9 +1023,9 @@ export default function AdminDashboard() {
               {isHistoryLoading && (
                 <div className="space-y-4 mb-4">
                   {timelineSkeletonItems.map((_, index) => (
-                    <div key={index} className="grid grid-cols-[36px_12px_minmax(0,1fr)] sm:grid-cols-[56px_14px_minmax(0,1fr)] gap-1.5 sm:gap-2 items-start animate-pulse">
-                      <div className="pt-2 flex justify-start">
-                        <div className="h-3 w-8 rounded-full bg-gray-200" />
+                    <div key={index} className="grid grid-cols-[40px_12px_minmax(0,1fr)] md:grid-cols-[52px_13px_minmax(0,1fr)] lg:grid-cols-[64px_14px_minmax(0,1fr)] gap-1 md:gap-1.5 lg:gap-2 items-start animate-pulse">
+                      <div className="pt-1 md:pt-1 lg:pt-2 flex justify-start">
+                        <div className="h-2.5 md:h-3 lg:h-3 w-7 md:w-7 lg:w-8 rounded-full bg-gray-200" />
                       </div>
 
                       <div className="relative min-h-full min-w-0">
@@ -879,7 +1034,7 @@ export default function AdminDashboard() {
                       </div>
 
                       <div className="min-w-0">
-                        <div className="rounded-3xl px-4 sm:px-5 py-4 shadow-sm border border-gray-200 bg-white">
+                        <div className="rounded-2xl md:rounded-2xl lg:rounded-3xl px-3 md:px-4 lg:px-5 py-3 md:py-3.5 lg:py-4 shadow-sm border border-gray-200 bg-white">
                           <div className="mb-1 flex items-start justify-between gap-2 sm:gap-3 min-w-0">
                             <div className="h-5 w-28 rounded-full bg-gray-200" />
                             <div className="h-5 w-20 rounded-full bg-gray-200 shrink-0" />
@@ -912,9 +1067,9 @@ export default function AdminDashboard() {
                     className="pointer-events-none absolute left-0 right-0 z-20"
                     style={{ top: nowMarkerTop }}
                   >
-                    <div className="grid grid-cols-[44px_12px_minmax(0,1fr)] sm:grid-cols-[64px_14px_minmax(0,1fr)] gap-1.5 sm:gap-2 items-center">
+                    <div className="grid grid-cols-[40px_12px_minmax(0,1fr)] md:grid-cols-[52px_13px_minmax(0,1fr)] lg:grid-cols-[64px_14px_minmax(0,1fr)] gap-1 md:gap-1.5 lg:gap-2 items-center">
                       <div className="flex justify-end">
-                        <span className="inline-flex rounded-full bg-orange-400 px-2.5 py-0.5 text-[9px] font-bold text-white shadow-sm z-30">
+                        <span className="inline-flex rounded-full bg-orange-400 px-2 md:px-2 lg:px-2.5 py-0.5 md:py-0.5 lg:py-0.5 text-[8px] md:text-[8px] lg:text-[9px] font-bold text-white shadow-sm z-30">
                           {currentTimeLabel}
                         </span>
                       </div>
@@ -940,21 +1095,21 @@ export default function AdminDashboard() {
                         ref={(el) => {
                           appointmentRowRefs.current[appointment.id] = el;
                         }}
-                        className="relative z-10 grid grid-cols-[44px_12px_minmax(0,1fr)] sm:grid-cols-[64px_14px_minmax(0,1fr)] gap-1.5 sm:gap-2 items-start"
+                        className="relative z-10 grid grid-cols-[40px_12px_minmax(0,1fr)] md:grid-cols-[52px_13px_minmax(0,1fr)] lg:grid-cols-[64px_14px_minmax(0,1fr)] gap-1 md:gap-1.5 lg:gap-2 items-start"
                       >
-                        <div className={`pt-2 text-[10px] sm:text-[11px] font-semibold ${statusStyle.time}`}>{appointment.time}</div>
+                        <div className={`pt-1 md:pt-1.5 lg:pt-2 text-[9px] md:text-[10px] lg:text-[11px] font-semibold ${statusStyle.time}`}>{appointment.time}</div>
 
                         <div className="relative min-h-full min-w-0">
                           <span className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-gray-300" />
                           <span className={`absolute left-1/2 top-3 h-3 w-3 -translate-x-1/2 rounded-full border-2 bg-white ${statusStyle.dot}`} />
                         </div>
 
-                        <div className="min-w-0 pl-1 sm:pl-1.5">
+                        <div className="min-w-0 pl-0.5 md:pl-1 lg:pl-1.5">
                           <div
                             ref={(el) => {
                               appointmentCardRefs.current[appointment.id] = el;
                             }}
-                            className={`rounded-3xl px-4 sm:px-5 py-4 shadow-sm ${statusStyle.card}`}
+                            className={`rounded-2xl md:rounded-2xl lg:rounded-3xl px-3 md:px-4 lg:px-5 py-3 md:py-3.5 lg:py-4 shadow-sm ${statusStyle.card}`}
                             style={
                               isCompleted
                                 ? {
@@ -964,23 +1119,23 @@ export default function AdminDashboard() {
                                 : undefined
                             }
                           >
-                            <div className="mb-1 flex items-start justify-between gap-2 sm:gap-3 min-w-0">
-                              <p className="flex-1 min-w-0 text-base sm:text-lg font-bold leading-tight text-gray-900 wrap-break-word">{appointment.customer}</p>
-                              <span className={`shrink-0 rounded-full px-2 sm:px-2.5 py-1 text-[8px] sm:text-[9px] font-bold tracking-widest whitespace-nowrap ${statusStyle.badge}`}>
+                            <div className="mb-0.5 md:mb-1 lg:mb-1 flex items-start justify-between gap-1.5 md:gap-2 lg:gap-3 min-w-0">
+                              <p className="flex-1 min-w-0 text-sm md:text-base lg:text-lg font-bold leading-tight text-gray-900 wrap-break-word">{appointment.customer}</p>
+                              <span className={`shrink-0 rounded-full px-2 md:px-2 lg:px-2.5 py-0.5 md:py-0.5 lg:py-1 text-[7px] md:text-[8px] lg:text-[9px] font-bold tracking-widest whitespace-nowrap ${statusStyle.badge}`}>
                                 {statusLabels[appointment.status] || appointment.status.replace("_", " ")}
                               </span>
                             </div>
-                            <div className="mt-1 flex items-center gap-2 min-w-0 text-xs text-gray-400">
+                            <div className="mt-0.5 md:mt-1 lg:mt-1 flex items-center gap-1.5 md:gap-1.5 lg:gap-2 min-w-0 text-[11px] md:text-xs lg:text-xs text-gray-400">
                               <span className="min-w-0 flex-1 truncate">
                                 {appointment.service}
                               </span>
-                              <span className="shrink-0 rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-semibold text-orange-500 whitespace-nowrap">
+                              <span className="shrink-0 rounded-full bg-orange-50 px-2 md:px-2.5 lg:px-2.5 py-0.5 md:py-0.5 lg:py-1 text-[9px] md:text-[9px] lg:text-[10px] font-semibold text-orange-500 whitespace-nowrap">
                                 {appointment.timeMinutes}
                               </span>
                             </div>
-                            <div className="my-3 h-px bg-gray-300" />
-                            <div className="flex items-center gap-2 text-xs text-gray-400 min-w-0">
-                              <span className="h-6 w-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-[10px] font-semibold">
+                            <div className="my-2 md:my-2.5 lg:my-3 h-px bg-gray-300" />
+                            <div className="flex items-center gap-1.5 md:gap-1.5 lg:gap-2 text-[11px] md:text-xs lg:text-xs text-gray-400 min-w-0">
+                              <span className="h-5 w-5 md:h-5 md:w-5 lg:h-6 lg:w-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-[8px] md:text-[9px] lg:text-[10px] font-semibold">
                                 {appointment.stylist
                                   .split(" ")
                                   .map((part) => part[0])
@@ -1001,6 +1156,7 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
     </div>
   );
 }

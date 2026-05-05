@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, use } from "react";
+import { useEffect, useMemo, useState, use } from "react";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import useApiQuery from "@/hooks/useApiQuery";
 import { useApiMutation } from "@/hooks/useApiMutation";
@@ -8,11 +8,23 @@ import { API_ENDPOINTS } from "@/lib/api";
 import type { Shop, Service } from "@shared/types/general_types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { formatPrice } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface Staff {
   id: string;
   name: string;
   avatarUrl?: string | null;
+}
+
+interface ShopStaffApiItem {
+  id: string;
+  role: "OWNER" | "MANAGER" | "STAFF";
+  user?: {
+    name?: string | null;
+    email?: string | null;
+    avatarUrl?: string | null;
+  } | null;
 }
 
 interface TimeSlot {
@@ -49,12 +61,17 @@ const addMinutes = (time: string, minutes: number) => {
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 };
 
-const toRangeDate = (date: string, value: string) => {
+const toRangeMinutes = (value: string) => {
+  // If backend returns an ISO datetime (with 'T'), extract the time part
+  // without letting the Date constructor apply timezone conversions.
   if (value.includes("T")) {
-    return new Date(value);
+    const timePart = value.split("T")[1].split(/[Z+-]/)[0];
+    const [h, m] = timePart.split(":").map((s) => Number(s));
+    return h * 60 + (isNaN(m) ? 0 : m);
   }
 
-  return new Date(`${date}T${value}:00`);
+  // Plain HH:MM string
+  return timeToMinutes(value);
 };
 
 export default function BookingPage({
@@ -85,14 +102,14 @@ export default function BookingPage({
   >(API_ENDPOINTS.shopServices(shopId), {
     key: ["services", shopId],
   });
-  const staff = useMemo<Staff[]>(
-    () => [
-      { id: "mock-1", name: "Axmadov Ayyubbek" },
-      { id: "mock-2", name: "Abduqayumov Muhammad" },
-      { id: "mock-3", name: "Sobitjanov Sunnatilla" },
-    ],
-    [],
-  );
+  const staff = useMemo<Staff[]>(() => {
+    const members = (shop as any)?.staffs ?? [];
+    return members.map((member: any) => ({
+      id: member.id,
+      name: member.user?.name?.trim() || member.user?.email?.trim() || "Staff",
+      avatarUrl: member.user?.avatarUrl || null,
+    }));
+  }, [shop]);
 
   const nextDays = useMemo(() => {
     const days: Date[] = [];
@@ -111,7 +128,11 @@ export default function BookingPage({
     const found = services.find((service) => service.id === selectedServiceId);
     return found ?? services[0] ?? null;
   }, [services, selectedServiceId]);
-  const activeStaffId = "";
+  const activeStaffId =
+    selectedStaff ||
+    (selectedService && !selectedService.assignedToAllStaff
+      ? selectedService.assignedStaffId || undefined
+      : undefined);
 
   const { data: timelineData, isLoading: timelineLoading } =
     useApiQuery<DayTimelineResponse>(
@@ -130,7 +151,10 @@ export default function BookingPage({
   const bookingEndTime = selectedTime
     ? addMinutes(selectedTime, duration)
     : null;
-  const totalPrice = selectedService?.price ?? 0;
+  const totalPrice = useMemo(() => {
+    const price = selectedService?.price ?? 0;
+    return `${formatPrice(price, locale)} ${t("currency.som")}`;
+  }, [selectedService?.price, locale]);
   const monthYearFormatter = useMemo(
     () => new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }),
     [locale],
@@ -188,13 +212,13 @@ export default function BookingPage({
     ) {
       const start = `${String(Math.floor(cursor / 60)).padStart(2, "0")}:${String(cursor % 60).padStart(2, "0")}`;
       const end = addMinutes(start, durationMin);
-      const slotStart = new Date(`${effectiveDate}T${start}:00`);
-      const slotEnd = new Date(`${effectiveDate}T${end}:00`);
+      const slotStartMin = cursor;
+      const slotEndMin = cursor + durationMin;
 
       const hasConflict = busyRanges.some((range) => {
-        const rangeStart = toRangeDate(effectiveDate, range.start);
-        const rangeEnd = toRangeDate(effectiveDate, range.end);
-        return rangeStart < slotEnd && rangeEnd > slotStart;
+        const rangeStartMin = toRangeMinutes(range.start);
+        const rangeEndMin = toRangeMinutes(range.end);
+        return rangeStartMin < slotEndMin && rangeEndMin > slotStartMin;
       });
 
       slots.push({
@@ -213,6 +237,22 @@ export default function BookingPage({
     "post",
   );
 
+  useEffect(() => {
+    if (!selectedService) return;
+
+    if (
+      !selectedService.assignedToAllStaff &&
+      selectedService.assignedStaffId
+    ) {
+      setSelectedStaff(selectedService.assignedStaffId);
+      return;
+    }
+
+    if (!selectedStaff && staff.length > 0) {
+      setSelectedStaff(staff[0]!.id);
+    }
+  }, [selectedService, selectedStaff, staff]);
+
   const toggleServices = () => {
     setShowServices((prev) => !prev);
   };
@@ -228,63 +268,62 @@ export default function BookingPage({
         startTime: `${effectiveDate}T${selectedTime}:00`,
       });
 
-      alert(t("booking.success"));
       window.location.href = "/user/bookings";
-    } catch {
-      alert(t("booking.error"));
+    } catch (err) {
+      console.error("booking error", err);
     }
   };
 
   if (servicesLoading) {
     return (
-      <div className="min-h-dvh bg-slate-50 dark:bg-gray-900 p-4">
-        <Skeleton className="h-24 w-full rounded-2xl bg-slate-200 dark:bg-gray-800" />
+      <div className="min-h-dvh bg-slate-50 p-4">
+        <Skeleton className="h-24 w-full rounded-2xl bg-slate-200" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-dvh bg-[#f7f0e7] dark:bg-[#211201] text-slate-900 dark:text-white pb-0">
+    <div className="min-h-dvh bg-white text-slate-900 pb-0">
       <div className="max-w-md mx-auto px-4 pt-3">
         <div className="flex items-center justify-between mb-4">
           <button
             type="button"
             onClick={() => window.history.back()}
-            className="h-9 w-9 rounded-full bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 flex items-center justify-center"
+            className="h-9 w-9 rounded-full bg-white border border-slate-200 flex items-center justify-center"
           >
-            <ChevronLeft className="w-5 h-5 text-slate-700 dark:text-gray-300" />
+            <ChevronLeft className="w-5 h-5 text-slate-700" />
           </button>
 
           <div className="text-center">
             <p className="text-sm font-semibold tracking-wide">
               {t("booking.title")}
             </p>
-            <p className="text-[10px] text-[#F49B33] dark:text-[#F49B33] uppercase tracking-[0.2em]">
+            <p className="text-[10px] text-[#F49B33] uppercase tracking-[0.2em]">
               {shop?.name || t("booking.defaultShop")}
             </p>
           </div>
 
-          <button className="h-9 w-9 rounded-full bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 flex items-center justify-center">
-            <MoreHorizontal className="w-5 h-5 text-slate-700 dark:text-gray-300" />
+          <button className="h-9 w-9 rounded-full bg-white border border-slate-200 flex items-center justify-center">
+            <MoreHorizontal className="w-5 h-5 text-slate-700" />
           </button>
         </div>
 
         {selectedService && (
           <div
             onClick={toggleServices}
-            className="rounded-2xl border border-[#f1c894] bg-linear-to-br from-[#fff7ef] to-[#f5e3cf] p-4 mb-6 cursor-pointer shadow-[0_10px_24px_rgba(244,155,51,0.14)] dark:border-[#F49B33]/25 dark:from-[#2b170b] dark:to-[#211201] dark:shadow-[0_10px_24px_rgba(0,0,0,0.24)]"
+            className="rounded-2xl border border-[#f1c894] bg-white p-4 mb-6 cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <div className="flex-1">
-                <p className="text-base font-semibold text-slate-900 dark:text-white">
+                <p className="text-base font-semibold text-slate-900">
                   {selectedService.name}
                 </p>
                 <div className="flex items-center gap-2 mt-1 text-sm">
                   <span className="text-[#F49B33] dark:text-[#F49B33] font-bold">
-                    ${selectedService.price ?? 0}
+                    {formatPrice(selectedService.price ?? 0, locale)} {t("currency.som")}
                   </span>
-                  <span className="text-[#d3b089] dark:text-[#b89163]">·</span>
-                  <span className="text-slate-500 dark:text-slate-300">
+                  <span className="text-[#d3b089]">·</span>
+                  <span className="text-slate-500">
                     {duration} {t("services.duration")}
                   </span>
                 </div>
@@ -294,7 +333,7 @@ export default function BookingPage({
                   event.stopPropagation();
                   toggleServices();
                 }}
-                className="text-xs font-semibold rounded-full px-4 py-2 border border-[#F49B33]/40 bg-[#fff3e6] text-[#F49B33] dark:border-[#F49B33]/40 dark:bg-[#F49B33]/10 dark:text-[#F49B33]"
+                className="text-xs font-semibold rounded-full px-4 py-2 border border-[white] bg-[#fff3e6] text-[#F49B33]"
               >
                 {t("booking.edit")}
               </button>
@@ -304,36 +343,36 @@ export default function BookingPage({
 
         {showServices && (
           <div className="space-y-2 mb-6">
-            {services.map((service) => (
+            {services.map((service, index) => (
               <button
-                key={service.id}
+                key={`${service.id ?? "service"}-${index}`}
                 onClick={() => {
                   setSelectedServiceId(service.id);
                   setShowServices(false);
                 }}
                 className={`w-full text-left rounded-xl p-3 border ${
                   selectedService?.id === service.id
-                    ? "border-[#F49B33] bg-[#fff3e6] shadow-[0_8px_18px_rgba(244,155,51,0.14)] dark:border-[#F49B33]/55 dark:bg-[#F49B33]/10"
-                    : "border-slate-200 bg-white dark:border-white/10 dark:bg-white/5"
+                    ? "border-[#F49B33] bg-white"
+                    : "border-slate-200 bg-white"
                 }`}
               >
-                <p className="text-sm font-medium text-slate-900 dark:text-white">
+                <p className="text-sm font-medium text-slate-900">
                   {service.name}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-300 mt-1">
-                  ${service.price ?? 0} · {service.durationMin ?? 45}{" "}
-                  {t("services.duration")}
+                  {formatPrice(service.price ?? 0, locale)} {t("currency.som")} ·{" "}
+                  {service.durationMin ?? 45} {t("services.duration")}
                 </p>
               </button>
             ))}
           </div>
         )}
 
-        <section className="mb-6">
-          <h3 className="text-sm font-semibold mb-3 text-slate-800 dark:text-gray-200">
+        <section className="mb-2">
+          <h3 className="text-sm font-semibold mb-3 text-slate-800">
             {t("booking.selectStaff")}
           </h3>
-          <div className="flex items-start gap-3 overflow-x-auto pb-2 px-1 snap-x snap-mandatory">
+          <div className="flex items-start gap-3 overflow-x-auto px-1 snap-x snap-mandatory">
             {staff.map((member, index) => {
               const isActive =
                 (selectedStaff ?? selectedStaffMember?.id) === member.id;
@@ -341,12 +380,12 @@ export default function BookingPage({
                 avatarGradients[index % avatarGradients.length];
               return (
                 <button
-                  key={member.id}
+                  key={`${member.id ?? "staff"}-${index}`}
                   onClick={() => setSelectedStaff(member.id)}
                   className="shrink-0 w-23 text-center snap-start flex flex-col items-center"
                 >
                   <div
-                    className={`h-16 w-16 rounded-full border-2 p-0.5 ${isActive ? "border-[#F49B33] shadow-[0_0_0_2px_rgba(244,155,51,0.28)]" : "border-slate-300 dark:border-white/20"}`}
+                    className={`h-16 w-16 rounded-full border-2 p-0.5 ${isActive ? "border-[#F49B33]" : "border-slate-300"}`}
                   >
                     <div
                       className={`h-full w-full rounded-full bg-linear-to-br ${gradientClass} flex items-center justify-center`}
@@ -357,7 +396,7 @@ export default function BookingPage({
                     </div>
                   </div>
                   <p
-                    className={`mt-2 w-full px-1 text-[11px] leading-[1.2] min-h-[2.4rem] whitespace-normal wrap-break-word ${isActive ? "text-[#F49B33] dark:text-[#F49B33]" : "text-slate-500 dark:text-slate-300"}`}
+                    className={`mt-2 w-full px-1 text-[11px] leading-[1.2] min-h-[2.4rem] whitespace-normal wrap-break-word ${isActive ? "text-[black]" : "text-slate-500"}`}
                   >
                     {member.name}
                   </p>
@@ -375,7 +414,7 @@ export default function BookingPage({
                 onClick={() =>
                   setVisibleDayStart((prev) => Math.max(0, prev - 5))
                 }
-                className="h-7 w-7 rounded-full border border-slate-300 dark:border-gray-700 flex items-center justify-center text-slate-500 dark:text-gray-400"
+                className="h-7 w-7 rounded-full border border-slate-300 flex items-center justify-center text-slate-500"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -385,7 +424,7 @@ export default function BookingPage({
                     Math.min(Math.max(nextDays.length - 5, 0), prev + 5),
                   )
                 }
-                className="h-7 w-7 rounded-full border border-slate-300 dark:border-gray-700 flex items-center justify-center text-slate-500 dark:text-gray-400"
+                className="h-7 w-7 rounded-full border border-slate-300 flex items-center justify-center text-slate-500"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -393,20 +432,20 @@ export default function BookingPage({
           </div>
 
           <div className="grid grid-cols-5 gap-2">
-            {visibleDays.map((day) => {
+            {visibleDays.map((day, index) => {
               const dateStr = day.toISOString().split("T")[0];
               const isActive = effectiveDate === dateStr;
               return (
                 <button
-                  key={dateStr}
+                  key={`${dateStr}-${index}`}
                   onClick={() => {
                     setSelectedDate(dateStr);
                     setSelectedTime(null);
                   }}
                   className={`rounded-xl py-2 text-center border ${
                     isActive
-                      ? "bg-[#F49B33] text-white border-[#F49B33] shadow-[0_8px_18px_rgba(244,155,51,0.28)]"
-                      : "bg-white border-[#ead8c3] text-slate-700 dark:bg-white/5 dark:border-white/10 dark:text-slate-300"
+                      ? "bg-[#F49B33] text-white border-[#F49B33]"
+                      : "bg-white border-[#ead8c3] text-slate-700"
                   }`}
                 >
                   <p className="text-[10px] uppercase">
@@ -423,35 +462,35 @@ export default function BookingPage({
 
         <section className="mb-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-[20px] leading-none font-bold text-slate-900 dark:text-white">
+            <h3 className="text-[20px] leading-none font-bold text-slate-900">
               {t("booking.timeline")}
             </h3>
-            <p className="text-[10px] tracking-[0.16em] text-[#F49B33] dark:text-[#F49B33] uppercase">
+            <p className="text-[10px] tracking-[0.16em] text-[#F49B33] uppercase">
               {t("booking.liveSelection")}
             </p>
           </div>
 
-          <div className="rounded-3xl border border-[#f1c894]/80 bg-linear-to-b from-[#fff8f0] via-white to-[#fff3e6]/65 p-3 sm:p-4 shadow-[0_8px_24px_rgba(244,155,51,0.14)] dark:border-[#F49B33]/20 dark:from-[#2b170b] dark:via-[#211201] dark:to-[#1a0e06] dark:shadow-[0_12px_32px_rgba(0,0,0,0.55)]">
+          <div className="rounded-3xl border border-[#f1c894]/80 bg-white p-3 sm:p-4">
             <div className="max-h-72 overflow-y-auto pr-1">
               {timelineLoading ? (
                 <div className="grid grid-cols-2 gap-3">
                   {Array.from({ length: 6 }).map((_, idx) => (
                     <div
                       key={`timeline-skeleton-${idx}`}
-                      className="rounded-3xl min-h-18 border border-[#f1c894]/80 dark:border-[#F49B33]/30 p-3"
+                      className="rounded-3xl min-h-18 border border-[#f1c894]/80 p-3"
                     >
-                      <Skeleton className="h-4 w-28 mx-auto rounded bg-[#fde5c7] dark:bg-[#F49B33]/20" />
-                      <Skeleton className="h-2 w-16 mx-auto mt-2 rounded bg-[#fde5c7] dark:bg-[#F49B33]/15" />
+                      <Skeleton className="h-4 w-28 mx-auto rounded bg-[#fde5c7]" />
+                      <Skeleton className="h-2 w-16 mx-auto mt-2 rounded bg-[#fde5c7]" />
                     </div>
                   ))}
                 </div>
               ) : timelineSlots.length === 0 ? (
-                <div className="rounded-2xl border border-[#f1c894]/80 bg-white/80 px-3 py-4 text-center text-sm text-slate-600 dark:border-[#F49B33]/30 dark:bg-[#F49B33]/8 dark:text-slate-300">
+                <div className="rounded-2xl border border-[#f1c894]/80 bg-white/80 px-3 py-4 text-center text-sm text-slate-600">
                   {t("booking.noSlots")}
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-3">
-                  {timelineSlots.map((slot) => {
+                  {timelineSlots.map((slot, index) => {
                     const isSelected = selectedTime === slot.time;
                     const isBreakTime =
                       slot.startMin >= breakStartMin &&
@@ -476,34 +515,34 @@ export default function BookingPage({
                             : t("booking.alreadyReserved");
                     const timeColorClass =
                       status === "selected"
-                        ? "text-white dark:text-white"
+                        ? "text-white"
                         : status === "available"
-                          ? "text-[#F49B33] dark:text-[#F49B33]"
+                          ? "text-[#F49B33]"
                           : status === "break"
-                            ? "text-[#8a5620] dark:text-[#ffd4a6]"
-                            : "text-slate-600 dark:text-slate-400";
+                            ? "text-[#8a5620]"
+                            : "text-slate-600";
                     const statusColorClass =
                       status === "selected"
                         ? "text-white"
                         : status === "available"
-                          ? "text-[#F49B33] dark:text-[#F49B33]"
+                          ? "text-[#F49B33]"
                           : status === "break"
-                            ? "text-[#8a5620] dark:text-[#ffd4a6]"
-                            : "text-slate-500 dark:text-slate-400";
+                            ? "text-[#8a5620]"
+                            : "text-slate-500";
 
                     return (
                       <button
-                        key={slot.id}
+                        key={`${slot.id ?? "slot"}-${index}`}
                         onClick={() => canSelect && setSelectedTime(slot.time)}
                         disabled={!canSelect}
                         className={`rounded-3xl min-h-18 border px-3 py-2 text-center transition-all ${
                           status === "selected"
-                            ? "border-[#F49B33] bg-[#F49B33] text-white shadow-[0_0_0_1px_rgba(244,155,51,0.45),0_6px_14px_rgba(244,155,51,0.22)] dark:border-[#F49B33] dark:bg-[#F49B33] dark:text-white dark:shadow-[0_0_0_1px_rgba(244,155,51,0.75),0_0_16px_rgba(244,155,51,0.28)]"
+                            ? "border-[#F49B33] bg-[#F49B33] text-white"
                             : status === "available"
-                              ? "border-[#f1c894] bg-white/95 text-[#F49B33] hover:border-[#F49B33] hover:bg-[#fff3e6] dark:border-[#F49B33]/35 dark:bg-[#F49B33]/8 dark:text-[#F49B33] dark:hover:border-[#F49B33] dark:hover:bg-[#F49B33]/12"
+                              ? "border-[#f1c894] bg-white/95 text-[#F49B33] hover:border-[#F49B33] hover:bg-[#fff3e6]"
                               : status === "break"
-                                ? "border-[#f1c894] bg-[#fff3e6] text-[#8a5620] cursor-not-allowed dark:border-[#F49B33]/30 dark:bg-[#2b170b] dark:text-[#ffd4a6]"
-                                : "border-slate-200 bg-slate-100/90 text-slate-500 cursor-not-allowed dark:border-white/10 dark:bg-[#090d1b] dark:text-slate-500"
+                                ? "border-[#f1c894] bg-[#fff3e6] text-[#8a5620] cursor-not-allowed"
+                                : "border-slate-200 bg-slate-100/90 text-slate-500 cursor-not-allowed"
                         }`}
                       >
                         <p
@@ -527,9 +566,9 @@ export default function BookingPage({
       </div>
 
       <div className="mt-6 mb-4 px-3 sm:px-0">
-        <div className="max-w-md mx-auto p-4 rounded-2xl bg-white/90 dark:bg-[#211201] backdrop-blur-md border border-[#f1c894] dark:border-[#F49B33]/20 shadow-[0_14px_30px_rgba(244,155,51,0.12)]">
-          <div className="rounded-2xl border border-[#f1c894]/70 dark:border-[#F49B33]/25 bg-linear-to-r from-[#fff7ef] to-[#f6e4cd] dark:from-[#2b170b] dark:to-[#211201] p-3 mb-3">
-            <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300">
+        <div className="max-w-md mx-auto p-4 rounded-2xl bg-white/90 backdrop-blur-md border border-[#f1c894]">
+          <div className="rounded-2xl border border-[#f1c894]/70 bg-white p-3 mb-3">
+            <div className="flex justify-between text-xs text-slate-600">
               <span className="uppercase tracking-wide">
                 {t("booking.selectedWindow")}
               </span>
@@ -538,13 +577,13 @@ export default function BookingPage({
               </span>
             </div>
             <div className="flex justify-between items-end mt-1">
-              <p className="font-semibold text-[#F49B33] dark:text-[#F49B33]">
+              <p className="font-semibold text-[#F49B33]">
                 {selectedTime && bookingEndTime
                   ? `${selectedTime} — ${bookingEndTime}`
                   : "--:--"}
               </p>
               <p className="text-2xl font-bold text-[#F49B33] dark:text-[#F49B33]">
-                ${totalPrice}
+                {totalPrice}
               </p>
             </div>
           </div>
@@ -552,7 +591,7 @@ export default function BookingPage({
           <button
             onClick={handleConfirmBooking}
             disabled={!selectedService || !selectedTime || isPending}
-            className="w-full py-3 rounded-full bg-[#F49B33] text-white font-bold tracking-wide shadow-[0_10px_24px_rgba(244,155,51,0.28)] disabled:opacity-50"
+            className="w-full py-3 rounded-full bg-[#F49B33] text-white font-bold tracking-wide disabled:opacity-50"
           >
             {isPending ? t("booking.processing") : t("booking.confirmBooking")}
           </button>

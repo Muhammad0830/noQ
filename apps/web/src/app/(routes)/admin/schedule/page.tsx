@@ -36,6 +36,30 @@ const dayMeta = [
   { dayOfWeek: 0, day: "Sunday", id: "sunday", defaultStart: "09:00", defaultEnd: "18:00" },
 ] as const;
 
+type ExpandedDay = (typeof dayMeta)[number]["id"] | "";
+
+const getTodayDayId = () => {
+  const weekdayName = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    timeZone: "Asia/Tashkent",
+  }).format(new Date());
+
+  const dayByName: Record<string, number> = {
+    Sunday: 0,
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6,
+  };
+
+  const todayDayOfWeek = dayByName[weekdayName] ?? new Date().getDay();
+  return (
+    dayMeta.find((meta) => meta.dayOfWeek === todayDayOfWeek)?.id || "monday"
+  );
+};
+
 const normalizeTime = (value?: string | null) => {
   if (!value) return "00:00";
   return value.slice(0, 5);
@@ -184,7 +208,7 @@ export default function AdminSchedulePage() {
   const [activeTab, setActiveTab] = useState<"schedule" | "exceptions">(
     "schedule",
   );
-  const [expandedDay, setExpandedDay] = useState("thursday");
+  const [expandedDay, setExpandedDay] = useState<ExpandedDay>(getTodayDayId);
   const [days, setDays] = useState<DaySchedule[]>(getDefaultDays());
   const [persistedShopId, setPersistedShopId] = useState<string | null>(null);
   const [hasLoadedPersistedShop, setHasLoadedPersistedShop] =
@@ -203,6 +227,8 @@ export default function AdminSchedulePage() {
     hour: 13,
     minute: 0,
   });
+  const [touchStartY, setTouchStartY] = useState<number | null>(null);
+  const [currentSwipeTarget, setCurrentSwipeTarget] = useState<"hour" | "minute" | null>(null);
 
   const shopId = searchParams.get("shopId");
 
@@ -252,6 +278,17 @@ export default function AdminSchedulePage() {
           : undefined,
       },
     );
+
+  useEffect(() => {
+    if (timePicker.isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [timePicker.isOpen]);
 
   useEffect(() => {
     if (!weeklyScheduleData) return;
@@ -325,6 +362,28 @@ export default function AdminSchedulePage() {
     });
   };
 
+  const openEditWorkingHoursModal = (
+    id: string,
+    field: "startTime" | "endTime",
+  ) => {
+    const targetDay = days.find((item) => item.id === id);
+    if (!targetDay) return;
+
+    const currentTime =
+      field === "startTime" ? targetDay.openStart : targetDay.openEnd;
+    const initial = parseTime(currentTime);
+
+    setTimePicker({
+      isOpen: true,
+      dayId: id,
+      mode: "edit",
+      breakIndex: null,
+      field,
+      hour: initial.hour,
+      minute: Math.round(initial.minute / 5) * 5,
+    });
+  };
+
   const closeTimePicker = () => {
     setTimePicker((prev) => ({
       ...prev,
@@ -364,6 +423,34 @@ export default function AdminSchedulePage() {
     });
   };
 
+  const handleSwipeStart = (e: React.TouchEvent, target: "hour" | "minute") => {
+    e.preventDefault();
+    setTouchStartY(e.touches[0].clientY);
+    setCurrentSwipeTarget(target);
+  };
+
+  const handleSwipeEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
+    if (touchStartY === null || currentSwipeTarget === null) return;
+
+    const touchEndY = e.changedTouches[0]?.clientY;
+    if (touchEndY === undefined) return;
+
+    const deltaY = touchStartY - touchEndY;
+    const threshold = 10;
+
+    if (Math.abs(deltaY) > threshold) {
+      if (currentSwipeTarget === "hour") {
+        shiftHour(deltaY > 0 ? 1 : -1);
+      } else {
+        shiftMinute(deltaY > 0 ? 5 : -5);
+      }
+    }
+
+    setTouchStartY(null);
+    setCurrentSwipeTarget(null);
+  };
+
   const confirmTimePicker = () => {
     if (!timePicker.dayId) return;
 
@@ -381,21 +468,29 @@ export default function AdminSchedulePage() {
             : item,
         ),
       );
-    } else if (timePicker.breakIndex !== null) {
+    } else {
       setDays((prev) =>
         prev.map((item) => {
           if (item.id !== timePicker.dayId) return item;
 
+          if (timePicker.breakIndex !== null) {
+            return {
+              ...item,
+              breaks: item.breaks.map((breakItem, idx) =>
+                idx === timePicker.breakIndex
+                  ? {
+                      ...breakItem,
+                      [timePicker.field]: selectedTime,
+                    }
+                  : breakItem,
+              ),
+            };
+          }
+
           return {
             ...item,
-            breaks: item.breaks.map((breakItem, idx) =>
-              idx === timePicker.breakIndex
-                ? {
-                    ...breakItem,
-                    [timePicker.field]: selectedTime,
-                  }
-                : breakItem,
-            ),
+            [timePicker.field === "startTime" ? "openStart" : "openEnd"]:
+              selectedTime,
           };
         }),
       );
@@ -469,84 +564,85 @@ export default function AdminSchedulePage() {
   };
 
   const getDayLabel = (dayId: string) => t(`admin.schedule.day.${dayId}`);
+  const todayDayId = useMemo(() => getTodayDayId(), []);
 
   return (
-    <div className="px-3 py-2 sm:px-4">
-      <div className="mx-auto relative w-full max-w-105 rounded-[28px]  pb-3 shadow-[0_20px_50px_rgba(17,24,39,0.15)]">
-        {toast && (
-          <div className="fixed left-1/2 top-4 z-60 w-[92%] max-w-sm -translate-x-1/2">
-            <div
-              className={`flex items-start gap-2 rounded-xl border px-4 py-3 text-sm font-semibold shadow-xl ${
-                toast.kind === "error"
-                  ? "border-red-700 bg-red-600 text-white"
-                  : "border-emerald-700 bg-emerald-600 text-white"
-              }`}
-            >
-              {toast.kind === "success" ? (
-                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-white" />
-              ) : (
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-white" />
-              )}
-              <p>{toast.message}</p>
-            </div>
+    <div className="pt-16 py-2">
+      {toast && (
+        <div className="fixed left-1/2 top-4 z-60 w-[92%] max-w-sm -translate-x-1/2">
+          <div
+            className={`flex items-start gap-2 rounded-xl border px-4 py-3 text-sm font-semibold shadow-xl ${
+              toast.kind === "error"
+                ? "border-red-700 bg-red-600 text-white"
+                : "border-emerald-700 bg-emerald-600 text-white"
+            }`}
+          >
+            {toast.kind === "success" ? (
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-white" />
+            ) : (
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-white" />
+            )}
+            <p>{toast.message}</p>
           </div>
-        )}
+        </div>
+      )}
 
-        <ScheduleHeader
-          title={t("admin.schedule.title")}
-          onBack={() => router.back()}
-          backAriaLabel={t("common.back")}
-          moreAriaLabel={t("common.close")}
-        />
+      <ScheduleHeader
+        title={t("admin.schedule.title")}
+        onBack={() => router.back()}
+        backAriaLabel={t("common.back")}
+        moreAriaLabel={t("common.close")}
+      />
 
-        <main className="space-y-3 px-3 pb-5">
+      <div className="mx-auto relative w-full max-w-105 rounded-[28px] pb-3 shadow-[0_20px_50px_rgba(17,24,39,0.15)]">
+        <main className="space-y-3 px-3 pb-16 sm:pb-16">
           <section className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => setActiveTab("schedule")}
-              className={`inline-flex items-center justify-center gap-2 rounded-2xl border py-2.5 text-[11px] font-semibold uppercase tracking-[0.15em] transition-colors ${
+              className={`inline-flex items-center justify-center gap-2 rounded-2xl border py-2 md:py-2.5 lg:py-2.5 px-3 md:px-3 lg:px-3 text-[10px] md:text-[10px] lg:text-[11px] font-semibold uppercase tracking-[0.15em] transition-colors ${
                 activeTab === "schedule"
                   ? "border-[#f09a35] bg-[#f09a35] text-white"
                   : "border-[#d9dbe0] bg-white text-[#97a0ab]"
               }`}
             >
-              <CalendarClock className="h-4 w-4" />
+              <CalendarClock className="h-3.5 w-3.5 md:h-4 md:w-4 lg:h-4 lg:w-4" />
               {t("admin.schedule.tab.schedule")}
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("exceptions")}
-              className={`inline-flex items-center justify-center gap-2 rounded-2xl border py-2.5 text-[11px] font-semibold uppercase tracking-[0.15em] transition-colors ${
+              className={`inline-flex items-center justify-center gap-2 rounded-2xl border py-2 md:py-2.5 lg:py-2.5 px-3 md:px-3 lg:px-3 text-[10px] md:text-[10px] lg:text-[11px] font-semibold uppercase tracking-[0.15em] transition-colors ${
                 activeTab === "exceptions"
                   ? "border-[#f09a35] bg-[#f09a35] text-white"
                   : "border-[#d9dbe0] bg-white text-[#97a0ab]"
               }`}
             >
-              <CalendarClock className="h-4 w-4" />
+              <CalendarClock className="h-3.5 w-3.5 md:h-4 md:w-4 lg:h-4 lg:w-4" />
               {t("admin.schedule.tab.exceptions")}
             </button>
           </section>
 
           {activeTab === "schedule" ? (
             <section>
-              <h3 className="pb-2 text-[21px] font-bold tracking-tight text-[#1f1f1f]">
+              <h3 className="pb-2 md:pb-2.5 lg:pb-3 text-lg md:text-xl lg:text-2xl font-bold tracking-tight text-[#1f1f1f]">
                 {t("admin.schedule.weekly")}
               </h3>
 
-              <div className="space-y-2.5">
+              <div className="space-y-2 md:space-y-2.5 lg:space-y-3">
                 {isScheduleLoading && !weeklyScheduleData
                   ? Array.from({ length: 6 }).map((_, index) => (
                       <div
                         key={`schedule-skeleton-${index}`}
-                        className="rounded-[14px] border border-[#e7e8ec] bg-white px-3 py-3 shadow-[0_4px_14px_rgba(17,24,39,0.04)]"
+                        className="rounded-[14px] border border-[#e7e8ec] bg-white px-3 md:px-4 lg:px-4 py-2.5 md:py-3 lg:py-3 shadow-[0_4px_14px_rgba(17,24,39,0.04)]"
                       >
-                        <div className="mb-2 flex items-start justify-between gap-2">
+                        <div className="mb-2 flex items-start justify-between gap-2 md:gap-3 lg:gap-3">
                           <div className="space-y-2">
-                            <div className="h-5 w-28 animate-pulse rounded-md bg-[#eceff3]" />
-                            <div className="h-3 w-36 animate-pulse rounded-md bg-[#f1f3f6]" />
+                            <div className="h-4 md:h-5 lg:h-5 w-24 md:w-28 lg:w-28 animate-pulse rounded-md bg-[#eceff3]" />
+                            <div className="h-3 w-32 md:w-36 lg:w-36 animate-pulse rounded-md bg-[#f1f3f6]" />
                           </div>
                           <div className="flex items-center gap-2">
-                            <div className="h-6 w-11 animate-pulse rounded-full bg-[#eceff3]" />
+                            <div className="h-6 w-10 md:w-11 lg:w-11 animate-pulse rounded-full bg-[#eceff3]" />
                             <div className="h-9 w-9 animate-pulse rounded-full bg-[#f1f3f6]" />
                           </div>
                         </div>
@@ -563,23 +659,23 @@ export default function AdminSchedulePage() {
                   return (
                     <article
                       key={item.id}
-                      className={`rounded-[14px] border bg-white px-3 py-2.5 shadow-[0_4px_14px_rgba(17,24,39,0.04)] ${
+                      className={`rounded-[14px] border bg-white px-3 md:px-4 lg:px-4 py-2.5 md:py-3 lg:py-3 shadow-[0_4px_14px_rgba(17,24,39,0.04)] ${
                         isExpanded ? "border-[#f0bc89]" : "border-[#e7e8ec]"
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start justify-between gap-2 md:gap-3 lg:gap-3">
                         <div>
-                          <div className="flex items-center gap-2">
-                            <p className="text-[18px] font-semibold tracking-tight text-[#252a31]">
+                          <div className="flex items-center gap-2 md:gap-2.5 lg:gap-2.5">
+                            <p className="text-base md:text-lg lg:text-lg font-semibold tracking-tight text-[#252a31]">
                               {dayLabel}
                             </p>
-                            {item.id === "thursday" && (
-                              <span className="rounded-full bg-[#f9b15a] px-2 py-0.5 text-[9px] font-bold uppercase text-white">
+                            {item.id === todayDayId && (
+                              <span className="rounded-full bg-[#f9b15a] px-1.5 md:px-2 lg:px-2 py-0.5 text-[8px] md:text-[9px] lg:text-[9px] font-bold uppercase text-white">
                                 {t("admin.schedule.today")}
                               </span>
                             )}
                           </div>
-                          <p className="mt-0.5 text-[11px] text-[#8d94a1]">
+                          <p className="mt-0.5 text-[10px] md:text-[11px] lg:text-[11px] text-[#8d94a1]">
                             <span>{hoursText}</span>
                             {item.enabled && (
                               <>
@@ -594,7 +690,7 @@ export default function AdminSchedulePage() {
                           </p>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 md:gap-2 lg:gap-2">
                           <button
                             type="button"
                             onClick={() => toggleDay(item.id)}
@@ -617,7 +713,7 @@ export default function AdminSchedulePage() {
                             disabled={!item.enabled}
                             onClick={() =>
                               setExpandedDay((prev) =>
-                                prev === item.id ? "" : item.id,
+                                prev === item.id ? "" : (item.id as ExpandedDay),
                               )
                             }
                             className={`inline-flex items-center justify-center transition-colors ${
@@ -641,32 +737,44 @@ export default function AdminSchedulePage() {
                       {isExpanded && item.enabled && (
                         <div className="mt-3 border-t border-[#eceef2] pt-3">
                           <div className="space-y-3">
-                            <div className="grid grid-cols-[48px_auto_1fr_auto_1fr] items-center gap-2">
-                              <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#f4eee9] text-[#ee952d]">
-                                <Clock3 className="h-4 w-4" />
+                            <div className="grid grid-cols-[40px_auto_1fr_auto_1fr] items-center gap-1.5">
+                              <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#f4eee9] text-[#e8a767]">
+                                <Clock3 className="h-3.5 w-3.5" />
                               </div>
-                              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#959daa]">
+                              <p className="text-[9px] font-semibold uppercase tracking-widest text-[#959daa]">
                                 {t("admin.schedule.hours")}
                               </p>
-                              <div className="inline-flex h-10 items-center justify-center rounded-xl border border-[#d9dde3] bg-[#f3f4f6] px-3 text-[15px] font-bold text-[#1e232b]">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  openEditWorkingHoursModal(item.id, "startTime")
+                                }
+                                className="inline-flex h-8 md:h-9 lg:h-9 items-center justify-center rounded-xl border border-[#d9dde3] bg-[#f3f4f6] px-2 md:px-2.5 lg:px-2.5 text-[12px] md:text-[13px] lg:text-[13px] font-bold text-[#1e232b]"
+                              >
                                 {item.openStart}
-                              </div>
-                              <span className="text-[18px] text-[#c5cbd4]">-</span>
-                              <div className="inline-flex h-10 items-center justify-center rounded-xl border border-[#d9dde3] bg-[#f3f4f6] px-3 text-[15px] font-bold text-[#1e232b]">
+                              </button>
+                              <span className="text-[15px] text-[#c5cbd4]">-</span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  openEditWorkingHoursModal(item.id, "endTime")
+                                }
+                                className="inline-flex h-8 md:h-9 lg:h-9 items-center justify-center rounded-xl border border-[#d9dde3] bg-[#f3f4f6] px-2 md:px-2.5 lg:px-2.5 text-[12px] md:text-[13px] lg:text-[13px] font-bold text-[#1e232b]"
+                              >
                                 {item.openEnd}
-                              </div>
+                              </button>
                             </div>
 
                             {item.breaks.length > 0 ? (
                               item.breaks.map((breakItem, breakIndex) => (
                                 <div
                                   key={`${item.id}-break-${breakIndex}`}
-                                  className="grid grid-cols-[48px_auto_1fr_auto_1fr_auto] items-center gap-2"
+                                  className="grid grid-cols-[36px_auto_1fr_auto_1fr_auto] md:grid-cols-[40px_auto_1fr_auto_1fr_auto] lg:grid-cols-[40px_auto_1fr_auto_1fr_auto] items-center gap-1.5 md:gap-2 lg:gap-2"
                                 >
-                                  <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#f4eee9] text-[#e8a767]">
-                                    <Coffee className="h-4 w-4" />
+                                  <div className="inline-flex h-7 md:h-8 lg:h-8 w-7 md:w-8 lg:w-8 items-center justify-center rounded-lg bg-[#f4eee9] text-[#e8a767]">
+                                    <Coffee className="h-3 w-3 md:h-3.5 md:w-3.5 lg:h-3.5 lg:w-3.5" />
                                   </div>
-                                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#959daa]">
+                                  <p className="text-[8px] md:text-[9px] lg:text-[9px] font-semibold uppercase tracking-widest text-[#959daa]">
                                     {t("admin.schedule.break")}
                                   </p>
                                   <button
@@ -678,11 +786,11 @@ export default function AdminSchedulePage() {
                                         "startTime",
                                       )
                                     }
-                                    className="inline-flex h-10 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-3 text-[15px] font-bold text-[#262b33]"
+                                    className="inline-flex h-8 md:h-9 lg:h-9 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-1.5 md:px-2.5 lg:px-2.5 text-[11px] md:text-[13px] lg:text-[13px] font-bold text-[#262b33]"
                                   >
                                     {breakItem.startTime}
                                   </button>
-                                  <span className="text-[18px] text-[#c5cbd4]">-</span>
+                                  <span className="text-[14px] md:text-[15px] lg:text-[15px] text-[#c5cbd4]">-</span>
                                   <button
                                     type="button"
                                     onClick={() =>
@@ -692,50 +800,50 @@ export default function AdminSchedulePage() {
                                         "endTime",
                                       )
                                     }
-                                    className="inline-flex h-10 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-3 text-[15px] font-bold text-[#262b33]"
+                                    className="inline-flex h-8 md:h-9 lg:h-9 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-1.5 md:px-2.5 lg:px-2.5 text-[11px] md:text-[13px] lg:text-[13px] font-bold text-[#262b33]"
                                   >
                                     {breakItem.endTime}
                                   </button>
                                   <button
                                     type="button"
                                     onClick={() => removeBreak(item.id, breakIndex)}
-                                    className="inline-flex h-7 w-7 items-center justify-center text-[#ff6662]"
+                                    className="inline-flex h-6 w-6 items-center justify-center text-[#ff6662]"
                                     aria-label={t("admin.schedule.aria.deleteBreak")}
                                   >
-                                    <Trash2 className="h-4 w-4" />
+                                    <Trash2 className="h-3.5 w-3.5" />
                                   </button>
                                 </div>
                               ))
                             ) : (
-                              <div className="grid grid-cols-[48px_auto_1fr_auto_1fr_auto] items-center gap-2">
-                                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#f4eee9] text-[#e8a767]">
-                                  <Coffee className="h-4 w-4" />
+                              <div className="grid grid-cols-[36px_auto_1fr_auto_1fr_auto] md:grid-cols-[40px_auto_1fr_auto_1fr_auto] lg:grid-cols-[40px_auto_1fr_auto_1fr_auto] items-center gap-1.5 md:gap-2 lg:gap-2">
+                                <div className="inline-flex h-7 md:h-8 lg:h-8 w-7 md:w-8 lg:w-8 items-center justify-center rounded-lg bg-[#f4eee9] text-[#e8a767]">
+                                  <Coffee className="h-3 w-3 md:h-3.5 md:w-3.5 lg:h-3.5 lg:w-3.5" />
                                 </div>
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#959daa]">
+                                <p className="text-[8px] md:text-[9px] lg:text-[9px] font-semibold uppercase tracking-widest text-[#959daa]">
                                   {t("admin.schedule.break")}
                                 </p>
                                 <button
                                   type="button"
                                   onClick={() => openAddBreakModal(item.id)}
-                                  className="inline-flex h-10 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-3 text-[15px] font-bold text-[#262b33]"
+                                  className="inline-flex h-8 md:h-9 lg:h-9 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-1.5 md:px-2.5 lg:px-2.5 text-[11px] md:text-[13px] lg:text-[13px] font-bold text-[#262b33]"
                                 >
-                                  --:--
+                                  -:-
                                 </button>
-                                <span className="text-[18px] text-[#c5cbd4]">-</span>
+                                <span className="text-[14px] md:text-[15px] lg:text-[15px] text-[#c5cbd4]">-</span>
                                 <button
                                   type="button"
                                   onClick={() => openAddBreakModal(item.id)}
-                                  className="inline-flex h-10 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-3 text-[15px] font-bold text-[#262b33]"
+                                  className="inline-flex h-8 md:h-9 lg:h-9 items-center justify-center rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-1.5 md:px-2.5 lg:px-2.5 text-[11px] md:text-[13px] lg:text-[13px] font-bold text-[#262b33]"
                                 >
-                                  --:--
+                                  -:-
                                 </button>
                                 <button
                                   type="button"
                                   disabled
-                                  className="inline-flex h-7 w-7 items-center justify-center text-[#ff6662]/40"
+                                  className="inline-flex h-6 w-6 items-center justify-center text-[#ff6662]/40"
                                   aria-label={t("admin.schedule.aria.deleteBreak")}
                                 >
-                                  <Trash2 className="h-4 w-4" />
+                                  <Trash2 className="h-3.5 w-3.5" />
                                 </button>
                               </div>
                             )}
@@ -794,24 +902,30 @@ export default function AdminSchedulePage() {
               </h4>
 
               <div className="mb-5 flex items-center justify-center gap-2">
-                <div className="flex flex-col items-center gap-1">
+                <div
+                  className="flex flex-col items-center gap-1 select-none"
+                  onTouchStart={(e) => handleSwipeStart(e, "hour")}
+                  onTouchEnd={handleSwipeEnd}
+                  role="slider"
+                  aria-label="Hour"
+                >
                   <button
                     type="button"
                     onClick={() => shiftHour(-1)}
-                    className="text-[15px] text-[#d0d5dd]"
+                    className="text-[15px] text-[#d0d5dd] pointer-events-none"
                   >
                     {String((timePicker.hour + 23) % 24).padStart(2, "0")}
                   </button>
                   <button
                     type="button"
-                    className="min-w-16 rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-4 py-1.5 text-[18px] font-bold text-[#222831]"
+                    className="min-w-16 rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-4 py-1.5 text-[18px] font-bold text-[#222831] pointer-events-none"
                   >
                     {String(timePicker.hour).padStart(2, "0")}
                   </button>
                   <button
                     type="button"
                     onClick={() => shiftHour(1)}
-                    className="text-[15px] text-[#d0d5dd]"
+                    className="text-[15px] text-[#d0d5dd] pointer-events-none"
                   >
                     {String((timePicker.hour + 1) % 24).padStart(2, "0")}
                   </button>
@@ -821,24 +935,30 @@ export default function AdminSchedulePage() {
                   :
                 </span>
 
-                <div className="flex flex-col items-center gap-1">
+                <div
+                  className="flex flex-col items-center gap-1 select-none"
+                  onTouchStart={(e) => handleSwipeStart(e, "minute")}
+                  onTouchEnd={handleSwipeEnd}
+                  role="slider"
+                  aria-label="Minute"
+                >
                   <button
                     type="button"
                     onClick={() => shiftMinute(-5)}
-                    className="text-[15px] text-[#d0d5dd]"
+                    className="text-[15px] text-[#d0d5dd] pointer-events-none"
                   >
                     {String((timePicker.minute + 55) % 60).padStart(2, "0")}
                   </button>
                   <button
                     type="button"
-                    className="min-w-16 rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-4 py-1.5 text-[18px] font-bold text-[#222831]"
+                    className="min-w-16 rounded-xl border border-[#f1dcc5] bg-[#fcf7f1] px-4 py-1.5 text-[18px] font-bold text-[#222831] pointer-events-none"
                   >
                     {String(timePicker.minute).padStart(2, "0")}
                   </button>
                   <button
                     type="button"
                     onClick={() => shiftMinute(5)}
-                    className="text-[15px] text-[#d0d5dd]"
+                    className="text-[15px] text-[#d0d5dd] pointer-events-none"
                   >
                     {String((timePicker.minute + 5) % 60).padStart(2, "0")}
                   </button>

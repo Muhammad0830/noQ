@@ -77,5 +77,19 @@ app.use(
   adminOnly,
   adminRoutes.scheduleRouter,
 );
+app.use(
+  "/admin/bookings",
+  authMiddleware,
+  shopValidateMiddleware,
+  adminOnly,
+  adminRoutes.bookingAdminRouter,
+);
+app.use(
+  "/admin/shops",
+  authMiddleware,
+  shopValidateMiddleware,
+  adminOnly,
+  adminRoutes.adminShopRouter,
+);
 
 export default app;

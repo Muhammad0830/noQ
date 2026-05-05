@@ -14,7 +14,7 @@ export default function BookingFilterTabs({ filter, onChange, t }: Props) {
   ];
 
   return (
-    <div className="mb-6 w-full rounded-2xl border border-[#f1c894] bg-white/90 p-1.5 dark:border-[#F49B33]/30 dark:bg-[#211201] sm:max-w-xl">
+    <div className="mb-6 w-full rounded-2xl border border-[#f1c894] bg-white/90 p-1.5 sm:max-w-xl">
       <div className="grid grid-cols-3 gap-1">
         {tabs.map(({ key, label }) => (
           <button
@@ -23,7 +23,7 @@ export default function BookingFilterTabs({ filter, onChange, t }: Props) {
             className={`rounded-xl px-2 py-2.5 text-xs font-medium transition sm:text-sm ${
               filter === key
                 ? "bg-[#F49B33] text-white shadow-[0_8px_18px_rgba(244,155,51,0.34)]"
-                : "text-[#F49B33] hover:bg-[#fff3e6] dark:text-[#F49B33] dark:hover:bg-[#F49B33]/12"
+                : "text-[#F49B33] hover:bg-[#fff3e6]"
             }`}
           >
             {label}

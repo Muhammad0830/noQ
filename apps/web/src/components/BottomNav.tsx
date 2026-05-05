@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { Home, Search, History, User } from "lucide-react";
 import { useProviderMode } from "@/contexts/ProviderModeContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAuthPrompt } from "@/contexts/AuthPromptContext";
 import { Scissors, BarChart2, History as HistoryIcon } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -99,6 +100,7 @@ const navItems = (t: any) => {
 export default function BottomNav() {
   const { t } = useLanguage();
   const { user } = useAuth();
+  const { openAuthPrompt } = useAuthPrompt();
   const { providerMode } = useProviderMode();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -118,6 +120,7 @@ export default function BottomNav() {
   const isOnProfileRoute = pathname.startsWith("/profile");
   const useAdmin =
     isAdminUser && (isOnAdminRoute || (providerMode && isOnProfileRoute));
+  const protectedRoutes = new Set(["/user/bookings", "/profile"]);
 
   const getAdminHref = (href: string) => {
     if (!href.startsWith("/admin") || !activeAdminShopId) return href;
@@ -135,7 +138,7 @@ export default function BottomNav() {
   const adminNavItemsArray = adminNavItems(t);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-40 md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 md:hidden">
       <div className="relative h-16 overflow-hidden">
         {/* two stacked bars: user (top) and admin (above) - animate translateY */}
         {(() => {
@@ -156,19 +159,48 @@ export default function BottomNav() {
               <div className={userClass} aria-hidden={useAdmin}>
                 {navItemsArray.map((item) => {
                   const active = isActive(item.activePatterns);
+                  const shouldPromptLogin =
+                    !user && protectedRoutes.has(item.href);
+
+                  if (shouldPromptLogin) {
+                    return (
+                      <button
+                        key={item.href}
+                        type="button"
+                        onClick={openAuthPrompt}
+                        className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-1 transition-colors ${
+                          active
+                            ? "text-blue-600"
+                            : "text-gray-600 hover:text-gray-900"
+                        }`}
+                      >
+                        <div
+                          className={
+                            active ? "text-blue-600" : ""
+                          }
+                        >
+                          {item.icon}
+                        </div>
+                        <span className="text-xs font-medium whitespace-nowrap">
+                          {item.label}
+                        </span>
+                      </button>
+                    );
+                  }
+
                   return (
                     <Link
                       key={item.href}
                       href={getAdminHref(item.href)}
                       className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-1 transition-colors ${
                         active
-                          ? "text-blue-600 dark:text-blue-400"
-                          : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                          ? "text-blue-600"
+                          : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
                       <div
                         className={
-                          active ? "text-blue-600 dark:text-blue-400" : ""
+                          active ? "text-blue-600" : ""
                         }
                       >
                         {item.icon}
@@ -190,13 +222,13 @@ export default function BottomNav() {
                       href={getAdminHref(item.href)}
                       className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-1 transition-colors ${
                         active
-                          ? "text-blue-600 dark:text-blue-400"
-                          : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                          ? "text-blue-600"
+                          : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
                       <div
                         className={
-                          active ? "text-blue-600 dark:text-blue-400" : ""
+                          active ? "text-blue-600" : ""
                         }
                       >
                         {item.icon}

@@ -2,11 +2,14 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
-import { Bell, CalendarDays, Star, Settings } from "lucide-react";
+import { Bell, CalendarDays, Star, Settings, Menu } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS } from "@/lib/api";
+import { formatPrice } from "@/lib/utils";
+import AdminSidebar from "@/components/AdminSidebar";
+import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 
 type AnalyticsType = "week" | "month" | "year";
 
@@ -284,6 +287,15 @@ export default function ShopAnalytics() {
     return userShops[0]?.id || null;
   }, [hasLoadedPersistedShop, persistedShopId, shopId, user?.shops]);
 
+  const {
+    isSidebarVisible,
+    isSidebarClosing,
+    openSidebar,
+    closeSidebar,
+    adminNavItems,
+    getAdminHrefWithShopId,
+  } = useAdminSidebar(activeShopId);
+
   const tabs = useMemo(
     () =>
       analyticsTabTypes.map((type) => ({
@@ -436,12 +448,7 @@ export default function ShopAnalytics() {
     t("admin.analytics.error.peakHoursFallback");
 
   const revenue = analyticsSummary?.currentRevenue ?? 0;
-  const revenueText = new Intl.NumberFormat(locale || undefined, {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(revenue);
+  const revenueText = formatPrice(revenue, locale || "uz-UZ");
 
   const revenueChange = analyticsSummary?.revenueChange ?? 0;
   const bookingsCount = analyticsSummary?.currentBookingsCount ?? 0;
@@ -491,10 +498,19 @@ export default function ShopAnalytics() {
 
   return (
     <div className="min-h-screen bg-[#f5f4f2] pb-8 text-[#111111]">
+      <AdminSidebar
+        isVisible={isSidebarVisible}
+        isClosing={isSidebarClosing}
+        currentShopName={currentShopName}
+        adminNavItems={adminNavItems}
+        onClose={closeSidebar}
+        getAdminHrefWithShopId={getAdminHrefWithShopId}
+      />
+
       <div className="sticky top-0 z-40 w-full">
-        <div className="mx-auto flex w-full max-w-107.5 items-center justify-between border-b bg-orange-50 p-3 md:bg-white md:shadow-sm">
+        <div className="mx-auto flex w-full max-w-107.5 items-center justify-between border-b bg-orange-50 p-3 md:bg-white md:shadow-sm md:p-4 lg:p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 text-sm font-bold text-orange-600 sm:h-10 sm:w-10">
+            <div className="flex h-12 w-12 md:h-11 md:w-11 lg:h-12 lg:w-12 items-center justify-center rounded-full bg-orange-100 text-sm font-bold text-orange-600">
               {shopInitials}
             </div>
             <div>
@@ -509,27 +525,31 @@ export default function ShopAnalytics() {
             <button className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-gray-600 shadow">
               <Bell className="h-4 w-4" />
             </button>
-            <button className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-gray-600 shadow">
-              <Settings className="h-4 w-4" />
+            <button
+              onClick={openSidebar}
+              className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-gray-600 shadow"
+              aria-label="Open admin sidebar"
+            >
+              <Menu className="h-4 w-4" />
             </button>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-107.5 flex-col gap-4 px-4 pt-4">
+      <div className="mx-auto flex w-full max-w-107.5 flex-col gap-4 md:gap-5 lg:gap-6 px-4 pt-4 md:pt-5 lg:pt-6">
         {!activeShopId && (
           <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-700">
             {t("admin.dashboard.shopNotFound")}
           </div>
         )}
 
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-2 md:gap-2.5 lg:gap-3">
           {tabs.map((tab, index) => (
             <button
               key={tab.type}
               type="button"
               onClick={() => setActiveTab(index)}
-              className={`w-full rounded-full px-2 py-2 text-[10px] font-semibold transition ${
+              className={`w-full rounded-full px-2 py-2 md:py-2.5 lg:py-2.5 text-[9px] md:text-[10px] lg:text-[10px] font-semibold transition ${
                 activeTab === index
                   ? "bg-[#f39c33] text-white shadow-[0_10px_24px_rgba(243,156,51,0.32)]"
                   : "bg-white text-[#7b7b7b] shadow-[0_10px_24px_rgba(15,17,21,0.05)]"
@@ -546,16 +566,16 @@ export default function ShopAnalytics() {
           </div>
         )}
 
-        <div className="rounded-[24px] bg-white p-4 shadow-[0_10px_30px_rgba(15,17,21,0.06)]">
-          <div className="mb-2 flex items-center justify-between">
-            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#bdbdbd]">
+        <div className="rounded-4xl bg-white p-4 md:p-5 lg:p-6 shadow-[0_10px_30px_rgba(15,17,21,0.06)]">
+          <div className="mb-2 md:mb-3 lg:mb-4 flex items-center justify-between">
+            <p className="text-[9px] md:text-[10px] lg:text-[10px] font-bold uppercase tracking-[0.28em] text-[#bdbdbd]">
               {t("admin.analytics.totalRevenue")}
             </p>
             {isSummaryLoading ? (
-              <span className="h-6 w-16 animate-pulse rounded-full bg-gray-200" />
+              <span className="h-6 w-14 md:w-16 lg:w-16 animate-pulse rounded-full bg-gray-200" />
             ) : (
               <span
-                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${
+                className={`rounded-full px-2 md:px-2.5 lg:px-2.5 py-0.5 md:py-1 lg:py-1 text-[9px] md:text-[10px] lg:text-[10px] font-semibold ${
                   revenueChange >= 0
                     ? "bg-[#fff1df] text-[#f39c33]"
                     : "bg-red-50 text-red-600"
@@ -569,19 +589,19 @@ export default function ShopAnalytics() {
 
           <div className="flex items-end gap-2">
             {isSummaryLoading ? (
-              <div className="h-11 w-44 animate-pulse rounded-2xl bg-gray-200" />
+              <div className="h-10 md:h-11 lg:h-11 w-40 md:w-44 lg:w-44 animate-pulse rounded-2xl bg-gray-200" />
             ) : (
-              <h2 className="text-[42px] font-bold leading-none tracking-tight text-[#111111]">
+              <h2 className="text-2xl md:text-3xl lg:text-[32px] font-bold leading-none tracking-tight text-[#111111] line-clamp-2">
                 {revenueText}
               </h2>
             )}
-            <span className="pb-1 text-[12px] font-semibold text-[#9a9a9a]">
+            <span className="pb-1 text-[11px] md:text-[12px] lg:text-[12px] font-semibold text-[#9a9a9a]">
               {t("admin.analytics.currency")}
             </span>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-3 md:gap-3.5 lg:gap-4">
           <MetricCard
             icon={<CalendarDays className="h-4 w-4" />}
             label={t("admin.analytics.bookings")}
@@ -618,8 +638,8 @@ export default function ShopAnalytics() {
           isLoading={isDiagramLoading}
         />
 
-        <section className="rounded-[24px] bg-white p-4 shadow-[0_10px_30px_rgba(15,17,21,0.06)]">
-          <h3 className="mb-4 text-[13px] font-bold uppercase tracking-[0.28em] text-[#111111]">
+        <section className="rounded-4xl bg-white p-4 md:p-5 lg:p-6 shadow-[0_10px_30px_rgba(15,17,21,0.06)]">
+          <h3 className="mb-4 md:mb-5 lg:mb-6 text-[12px] md:text-[13px] lg:text-[13px] font-bold uppercase tracking-[0.28em] text-[#111111]">
             {t("admin.analytics.mostPopularServices")}
           </h3>
 
@@ -644,7 +664,7 @@ export default function ShopAnalytics() {
             <div className="space-y-4">
               {topServices.map((service) => (
                 <div key={service.id}>
-                  <div className="mb-2 flex items-center justify-between gap-3 text-[12px]">
+                  <div className="mb-2 flex items-center justify-between gap-3 text-[11px] md:text-[12px] lg:text-[12px]">
                     <div className="font-medium text-[#1a1a1a]">
                       {service.name}
                     </div>
@@ -672,9 +692,9 @@ export default function ShopAnalytics() {
           )}
         </section>
 
-        <section className="rounded-[24px] bg-white p-4 shadow-[0_10px_30px_rgba(15,17,21,0.06)]">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-[13px] font-bold uppercase tracking-[0.28em] text-[#111111]">
+        <section className="rounded-4xl bg-white p-4 md:p-5 lg:p-6 shadow-[0_10px_30px_rgba(15,17,21,0.06)]">
+          <div className="mb-4 md:mb-5 lg:mb-6 flex items-center justify-between">
+            <h3 className="text-[12px] md:text-[13px] lg:text-[13px] font-bold uppercase tracking-[0.28em] text-[#111111]">
               {t("admin.analytics.peakHours")}
             </h3>
           </div>
@@ -686,18 +706,18 @@ export default function ShopAnalytics() {
           )}
 
           {isPeakHoursLoading && (
-            <div className="mb-3 flex items-end gap-1.5">
+            <div className="mb-3 flex items-end gap-1 md:gap-1.5 lg:gap-1.5">
               {Array.from({ length: 12 }).map((_, index) => (
                 <div
                   key={index}
-                  className="h-16 flex-1 animate-pulse rounded-md bg-gray-200"
+                  className="h-14 md:h-16 lg:h-16 flex-1 animate-pulse rounded-md bg-gray-200"
                 />
               ))}
             </div>
           )}
 
           {!isPeakHoursLoading && (
-            <div className="mb-3 flex items-end gap-1">
+            <div className="mb-3 flex items-end gap-0.5 md:gap-1 lg:gap-1">
               {peakHoursData.map((slot) => (
                 <div
                   key={`${slot.hour}-${slot.value}`}
@@ -713,11 +733,11 @@ export default function ShopAnalytics() {
           )}
 
           {!isPeakHoursLoading && (
-            <div className="flex justify-between text-[10px] font-semibold text-[#7d7d7d]">
+            <div className="flex justify-between text-[8px] md:text-[9px] lg:text-[10px] font-semibold text-[#7d7d7d]">
               {peakHoursData.map((slot, index) => (
                 <span
                   key={`${slot.hour}-${index}`}
-                  className={slot.label ? "min-w-7" : "min-w-1"}
+                  className={slot.label ? "min-w-6 md:min-w-7 lg:min-w-7" : "min-w-0 md:min-w-1 lg:min-w-1"}
                 >
                   {slot.label}
                 </span>

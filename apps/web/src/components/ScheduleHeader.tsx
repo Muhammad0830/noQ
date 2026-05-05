@@ -14,7 +14,7 @@ export default function ScheduleHeader({
   moreAriaLabel = "More",
 }: ScheduleHeaderProps) {
   return (
-    <header className="mb-2 flex items-center justify-center px-4 py-3">
+    <header className="fixed left-0 right-0 top-0 z-40 flex w-full items-center justify-center border-b border-[#eef0f3] bg-white px-4 py-3 shadow-[0_2px_12px_rgba(17,24,39,0.04)] sm:px-5">
       <button
         type="button"
         onClick={onBack}

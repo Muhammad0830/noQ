@@ -5,7 +5,12 @@ import { useRouter } from "next/navigation";
 import HeroSection from "@/components/HeroSection";
 import CategoriesSection from "@/components/CategoriesSection";
 import ServicesList from "@/components/ShopList";
-import { API_ENDPOINTS } from "@/lib/api";
+import {
+  API_ENDPOINTS,
+  getStorageBySource,
+  getStoredAuth,
+  REFRESH_TOKEN_STORAGE_KEY,
+} from "@/lib/api";
 import useApiQuery from "@/hooks/useApiQuery";
 import type { ShopCategory } from "@shared/types/general_types";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -23,6 +28,7 @@ export default function Home() {
 
   const categories = useMemo<ShopCategory[]>(
     () =>
+      // eslint-disable-next-line
       categoriesData.map((item: any) => ({
         id: String(item.id),
         name: String(item.name),
@@ -56,7 +62,7 @@ export default function Home() {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900">
+    <div className="bg-white">
       {/* Hero Section */}
       <HeroSection onSearch={handleSearch} />
 

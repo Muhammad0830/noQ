@@ -1,19 +1,26 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ChevronLeft,
   Clock3,
   Loader2,
-  MoreVertical,
   PenLine,
+  Plus,
   Search,
   Scissors,
+  Menu,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { useLanguage } from "@/contexts/LanguageContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS, getStoredAuth } from "@/lib/api";
+import { formatPrice } from "@/lib/utils";
+import AdminSidebar from "@/components/AdminSidebar";
+import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 
 type AdminService = {
   id: string;
@@ -29,27 +36,23 @@ type AdminService = {
   };
 };
 
+const EMPTY_PENDING_IDS: string[] = [];
+
 const headersByShop = (shopId: string) => ({
   "x-shopid": shopId,
   "x-shop-id": shopId,
 });
 
-const toPriceLabel = (price: string) => {
-  const parsed = Number(price);
-  if (Number.isNaN(parsed)) {
-    return `$${price}`;
-  }
-  if (Number.isInteger(parsed)) {
-    return `$${parsed.toFixed(0)}`;
-  }
-  return `$${parsed.toFixed(2)}`;
+const toPriceLabel = (price: string, priceUnit: string) => {
+  return `${formatPrice(price)} ${priceUnit}`;
 };
 
 export default function AdminServicesPage() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [persistedShopId, setPersistedShopId] = useState<string | null>(null);
   const [hasLoadedPersistedShop, setHasLoadedPersistedShop] =
@@ -89,6 +92,15 @@ export default function AdminServicesPage() {
     return userShops[0]?.id || null;
   }, [hasLoadedPersistedShop, persistedShopId, shopIdFromQuery, user?.shops]);
 
+  const {
+    isSidebarVisible,
+    isSidebarClosing,
+    openSidebar,
+    closeSidebar,
+    adminNavItems,
+    getAdminHrefWithShopId,
+  } = useAdminSidebar(activeShopId);
+
   useEffect(() => {
     if (
       !hasLoadedPersistedShop ||
@@ -119,10 +131,46 @@ export default function AdminServicesPage() {
     },
   );
 
+  const { data: pendingFromCacheData } = useQuery<string[]>({
+    queryKey: ["admin-services-pending", activeShopId || "none"],
+    queryFn: () =>
+      (queryClient.getQueryData<string[]>([
+        "admin-services-pending",
+        activeShopId || "none",
+      ]) ?? []) as string[],
+    enabled: Boolean(activeShopId),
+  });
+  const pendingFromCache = pendingFromCacheData ?? EMPTY_PENDING_IDS;
+
   useEffect(() => {
     if (!services) return;
-    setServicesState(services);
-  }, [services]);
+
+    // update pendingIds state from reactive query
+    if (pendingFromCache && pendingFromCache.length > 0) {
+      const pendingMap: Record<string, boolean> = {};
+      for (const id of pendingFromCache) pendingMap[id] = true;
+      setPendingIds((current) => ({ ...current, ...pendingMap }));
+
+      // Merge server services into previous state to preserve order for pending items
+      setServicesState((prev) => {
+        if (!prev) return services;
+
+        const serverMap = new Map(services.map((s) => [s.id, s]));
+
+        const merged = prev.map((item) => serverMap.get(item.id) ?? item);
+
+        // append any new items from server that weren't in prev
+        const missing = services.filter(
+          (s) => !prev.some((p) => p.id === s.id),
+        );
+
+        return [...merged, ...missing];
+      });
+    } else {
+      setPendingIds({});
+      setServicesState(services);
+    }
+  }, [services, activeShopId, pendingFromCache]);
 
   const displayedServices = servicesState;
 
@@ -186,7 +234,7 @@ export default function AdminServicesPage() {
         const message =
           body && typeof body.message === "string"
             ? body.message
-            : "Failed to toggle service";
+            : t("admin.services.error.toggleFailed");
         throw new Error(message);
       }
     } catch (err) {
@@ -200,16 +248,26 @@ export default function AdminServicesPage() {
             : service,
         ),
       );
-      setToggleError(err instanceof Error ? err.message : "Toggle failed");
+      setToggleError(
+        err instanceof Error
+          ? err.message
+          : t("admin.services.error.toggleFailed"),
+      );
     } finally {
       setPendingIds((current) => ({ ...current, [id]: false }));
       void refetch();
     }
   };
 
-  const getAdminHrefWithShopId = (path: string) => {
-    if (!activeShopId) return path;
-    return `${path}?shopId=${encodeURIComponent(activeShopId)}`;
+  const getServiceEditHref = (serviceId: string) => {
+    const params = new URLSearchParams();
+    params.set("serviceId", serviceId);
+
+    if (activeShopId) {
+      params.set("shopId", activeShopId);
+    }
+
+    return `/admin/services/edit?${params.toString()}`;
   };
 
   const renderProfileStyleToggle = (enabled: boolean, id: string) => (
@@ -217,19 +275,15 @@ export default function AdminServicesPage() {
       type="button"
       onClick={() => void toggleService(id)}
       disabled={pendingIds[id]}
-      className={`relative h-7 w-12 rounded-full border transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F49B33]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
-        enabled
-          ? "border-[#F49B33]/60 bg-[#F49B33]/25 dark:border-[#F49B33]/70 dark:bg-[#F49B33]/35"
-          : "border-slate-300 bg-slate-200 dark:border-white/25 dark:bg-white/10"
+      className={`relative h-7 w-12 rounded-full transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#22c55e]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
+        enabled ? "bg-[#22c55e]" : "bg-[#d7dbe3]"
       }`}
-      aria-label={`Toggle ${id}`}
+      aria-label={t("admin.services.aria.toggleService")}
       aria-pressed={enabled}
     >
       <span
-        className={`absolute top-0.75 h-5 w-5 rounded-full ring-1 transition-all duration-200 ${
-          enabled
-            ? "left-6 bg-[#F49B33] ring-[#F49B33]/60 dark:bg-[#F49B33] dark:ring-[#F49B33]/70"
-            : "left-1 bg-white ring-slate-300 dark:bg-slate-100 dark:ring-white/35"
+        className={`absolute top-0.75 h-5 w-5 rounded-full transition-all duration-200 ${
+          enabled ? "left-6 bg-white" : "left-1 bg-white"
         }`}
       />
     </button>
@@ -262,6 +316,20 @@ export default function AdminServicesPage() {
 
   return (
     <div className="min-h-dvh bg-[#f4f4f4]">
+      <AdminSidebar
+        isVisible={isSidebarVisible}
+        isClosing={isSidebarClosing}
+        currentShopName={
+          activeShopId
+            ? (user?.shops || []).find((s) => s.id === activeShopId)?.name ||
+              t("admin.services.title")
+            : t("admin.services.title")
+        }
+        adminNavItems={adminNavItems}
+        onClose={closeSidebar}
+        getAdminHrefWithShopId={getAdminHrefWithShopId}
+      />
+
       <div className="mx-auto w-full bg-[#f4f4f4] pb-4">
         <header className="sticky top-0 z-20 border-b border-[#dcdcdc] bg-[#f9f9f9]/95 px-4 py-3 backdrop-blur-sm">
           <div className="relative flex items-center justify-center">
@@ -273,53 +341,66 @@ export default function AdminServicesPage() {
               <ChevronLeft className="h-4 w-4" />
             </button>
             <h1 className="text-[18px] font-bold tracking-tight text-[#111111]">
-              Manage Services
+              {t("admin.services.manageTitle")}
             </h1>
+
             <button
               type="button"
-              onClick={() => setMenuOpen((prev) => !prev)}
+              onClick={openSidebar}
               className="absolute right-0 inline-flex h-9 w-9 items-center justify-center rounded-full text-[#b0b0b0] transition-colors duration-200 hover:bg-[#ececec]"
+              aria-label={t("admin.services.aria.openSidebar")}
             >
-              <MoreVertical className="h-5 w-5" />
+              <Menu className="h-5 w-5" />
             </button>
-
-            {menuOpen && (
-              <div className="absolute right-0 top-11 w-44 rounded-xl border border-[#e5e7eb] bg-white p-1 shadow-lg">
-                <button
-                  type="button"
-                  onClick={() =>
-                    router.push(getAdminHrefWithShopId("/admin/services/new"))
-                  }
-                  className="w-full rounded-lg px-3 py-2 text-left text-xs font-medium text-[#4d5560] transition-colors hover:bg-[#f7f7f7]"
-                >
-                  Add Service
-                </button>
-                <button
-                  type="button"
-                  className="w-full rounded-lg px-3 py-2 text-left text-xs font-medium text-[#4d5560] transition-colors hover:bg-[#f7f7f7]"
-                >
-                  Export Catalog
-                </button>
-              </div>
-            )}
           </div>
         </header>
 
-        <main className="px-4 pt-4">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9aa0aa]" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search service by name or duration"
-              className="w-full rounded-[18px] border border-[#d7d7d7] bg-white py-4 pl-11 pr-4 text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#F49B33] focus:outline-none"
-            />
+        <main className="px-4 md:px-5 lg:px-6 pt-4 md:pt-5 lg:pt-6">
+          <div className="hidden md:flex md:flex-col md:gap-3 lg:gap-4">
+            <Link
+              href={getAdminHrefWithShopId("/admin/services/new")}
+              className="inline-flex h-12 md:h-12 lg:h-14 w-full shrink-0 items-center justify-center gap-2 rounded-[18px] bg-[#F49B33] px-5 text-xs md:text-sm lg:text-sm font-semibold text-white shadow-[0_10px_24px_rgba(244,155,51,0.24)] transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0"
+            >
+              <Plus className="h-3.5 w-3.5 md:h-4 md:w-4 lg:h-4 lg:w-4" />
+              <span>{t("admin.services.addService")}</span>
+            </Link>
+
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9aa0aa]" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={t("admin.services.searchPlaceholder")}
+                className="w-full rounded-[18px] border border-[#d7d7d7] bg-white py-3 md:py-4 lg:py-4 pl-11 pr-4 text-[13px] md:text-[15px] lg:text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#F49B33] focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="flex md:hidden items-center gap-3">
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9aa0aa]" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={t("admin.services.searchPlaceholder")}
+                className="w-full rounded-full border border-[#d7d7d7] bg-white py-4 pl-11 pr-4 text-[15px] text-[#2c3138] placeholder:text-[#9aa0aa] shadow-[0_10px_28px_rgba(17,24,39,0.04)] transition-all duration-200 focus:border-[#F49B33] focus:outline-none"
+              />
+            </div>
+
+            <Link
+              href={getAdminHrefWithShopId("/admin/services/new")}
+              aria-label={t("admin.services.aria.addService")}
+              className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F49B33] text-white shadow-[0_10px_24px_rgba(244,155,51,0.24)] transition-transform duration-200 active:scale-95"
+            >
+              <Plus className="h-5 w-5" />
+            </Link>
           </div>
 
           {!activeShopId && (
             <div className="mt-4 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-              Shop tanlanmagan. Avval admin dashboarddan shop tanlang.
+              {t("admin.services.noShopSelected")}
             </div>
           )}
 
@@ -332,7 +413,7 @@ export default function AdminServicesPage() {
                   "string" &&
                 (error.data as { message: string }).message) ||
                 error?.message ||
-                "Failed to load services"}
+                t("admin.services.error.loadFailed")}
             </div>
           )}
 
@@ -342,18 +423,18 @@ export default function AdminServicesPage() {
             </div>
           )}
 
-          <section className="mt-5 flex items-center justify-between">
+          <section className="mt-4 md:mt-5 lg:mt-6 flex items-center justify-between">
             <div>
-              <h2 className="mt-1 text-[17px] font-medium text-[#8b95a1]">
-                Active Services
+              <h2 className="mt-1 text-[15px] md:text-[16px] lg:text-[17px] font-medium text-[#8b95a1]">
+                {t("admin.services.active")}
               </h2>
             </div>
-            <span className="rounded-full bg-[#fff2e1] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F49B33] shadow-[0_6px_14px_rgba(244,155,51,0.12)]">
-              {totalActive} Total
+            <span className="rounded-full bg-[#fff2e1] px-3 py-1 text-[10px] md:text-[10px] lg:text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F49B33] shadow-[0_6px_14px_rgba(244,155,51,0.12)]">
+              {t("admin.services.total", { count: totalActive })}
             </span>
           </section>
 
-          <section className="mt-4 space-y-4">
+          <section className="mt-4 md:mt-4 lg:mt-5 space-y-3 md:space-y-4 lg:space-y-4">
             {isLoading ? (
               <>
                 {renderServiceCardSkeleton("active-skeleton-1")}
@@ -368,7 +449,7 @@ export default function AdminServicesPage() {
                 return (
                   <article
                     key={service.id}
-                    className={`relative overflow-hidden rounded-[24px] bg-white p-4 shadow-[0_10px_25px_rgba(17,24,39,0.04)] ring-1 ring-black/5 transition-transform duration-200 hover:-translate-y-0.5 ${
+                    className={`relative overflow-hidden rounded-4xl bg-white p-3 md:p-4 lg:p-5 shadow-[0_10px_25px_rgba(17,24,39,0.04)] ring-1 ring-black/5 transition-transform duration-200 hover:-translate-y-0.5 ${
                       isCardPending ? "opacity-80" : ""
                     }`}
                   >
@@ -376,47 +457,57 @@ export default function AdminServicesPage() {
                       <div className="absolute inset-0 z-20 flex items-center justify-center gap-2 bg-white/65 backdrop-blur-[1px]">
                         <Loader2 className="h-4 w-4 animate-spin text-[#F49B33]" />
                         <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#7f8894]">
-                          Updating
+                          {t("admin.services.updating")}
                         </span>
                       </div>
                     )}
 
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-2 md:gap-3 lg:gap-3">
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start justify-between gap-2 md:gap-3 lg:gap-3">
                           <div>
-                            <h3 className="text-[18px] font-bold tracking-tight text-[#111827]">
+                            <h3 className="text-[16px] md:text-[17px] lg:text-[18px] font-bold tracking-tight text-[#111827]">
                               {service.name}
                             </h3>
-                            <div className="mt-1 flex items-center gap-2 text-[12px] text-[#8b95a1]">
-                              <Clock3 className="h-3.5 w-3.5" />
-                              <span>{service.durationMin} min</span>
+                            <div className="mt-1 flex items-center gap-2 text-[11px] md:text-[12px] lg:text-[12px] text-[#8b95a1]">
+                              <Clock3 className="h-3 w-3 md:h-3.5 md:w-3.5 lg:h-3.5 lg:w-3.5" />
+                              <span>
+                                {service.durationMin} {t("services.duration")}
+                              </span>
                               <span className="text-[#d8dbe1]">•</span>
-                              <span>{toPriceLabel(service.price)}</span>
+                              <span>
+                                {toPriceLabel(service.price, t("services.price"))}
+                              </span>
                             </div>
                           </div>
-                          <div className="inline-flex min-h-14 min-w-14 items-center justify-center rounded-[18px] bg-[#fff2e4] px-3 py-2">
-                            <p className="text-[32px] font-bold leading-none tracking-tight text-[#F49B33]">
-                              {toPriceLabel(service.price)}
+                          <div className="inline-flex min-h-9 md:min-h-13 lg:min-h-9 min-w-12 md:min-w-13 lg:min-w-14 items-center justify-center rounded-3xl md:rounded-3xl lg:rounded-3xl bg-[#fff2e4] px-2 md:px-3 lg:px-3 py-1.5 md:py-2 lg:py-2">
+                            <p className="text-md md:text-2xl lg:text-md font-bold leading-none tracking-tight text-[#F49B33]">
+                              {toPriceLabel(service.price, t("services.price"))}
                             </p>
                           </div>
                         </div>
 
-                        <div className="mt-4 flex items-center justify-between gap-3">
+                        <div className="mt-3 md:mt-4 lg:mt-4 flex items-center justify-between gap-2 md:gap-3 lg:gap-3">
                           <div className="flex items-center gap-2">
-                            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#fff2e4] text-[#F49B33]">
-                              <Scissors className="h-4 w-4" />
+                            <span className="flex h-7 md:h-8 lg:h-8 w-7 md:w-8 lg:w-8 items-center justify-center rounded-full bg-[#fff2e4] text-[#F49B33]">
+                              <Scissors className="h-3.5 w-3.5 md:h-4 md:w-4 lg:h-4 lg:w-4" />
                             </span>
-                            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7f8894]">
+                            <span className="text-[9px] md:text-[10px] lg:text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7f8894]">
                               {service.bufferTime
-                                ? `Buffer ${service.bufferTime} min`
-                                : "No buffer"}
+                                ? t("admin.services.buffer", {
+                                    minutes: service.bufferTime,
+                                  })
+                                : t("admin.services.noBuffer")}
                             </span>
                           </div>
 
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5 md:gap-2 lg:gap-2">
                             <button
                               type="button"
+                              onClick={() =>
+                                router.push(getServiceEditHref(service.id))
+                              }
+                              aria-label={t("admin.services.aria.editService")}
                               className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#8f98a4] transition-colors hover:bg-[#f3f4f6]"
                             >
                               <PenLine className="h-4 w-4" />
@@ -431,17 +522,17 @@ export default function AdminServicesPage() {
               })
             ) : (
               <div className="rounded-[24px] border border-dashed border-[#d5d9df] bg-white px-4 py-8 text-center text-sm text-[#8b95a1]">
-                No active services matched your search.
+                {t("admin.services.noActiveMatches")}
               </div>
             )}
           </section>
 
-          <section className="mt-6">
-            <h3 className="mt-1 text-[17px] font-medium text-[#8b95a1]">
-              Inactive Services
+          <section className="mt-6 md:mt-7 lg:mt-8">
+            <h3 className="mt-1 text-[15px] md:text-[16px] lg:text-[17px] font-medium text-[#8b95a1]">
+              {t("admin.services.inactive")}
             </h3>
 
-            <div className="mt-4 space-y-3 rounded-[24px] bg-white p-4 shadow-[0_10px_25px_rgba(17,24,39,0.04)] ring-1 ring-black/5">
+            <div className="mt-4 md:mt-4 lg:mt-5 space-y-2 md:space-y-3 lg:space-y-3 rounded-4xl bg-white p-3 md:p-4 lg:p-5 shadow-[0_10px_25px_rgba(17,24,39,0.04)] ring-1 ring-black/5">
               {isLoading && (
                 <>
                   <div className="h-14 animate-pulse rounded-2xl bg-[#f3f4f6]" />
@@ -451,7 +542,7 @@ export default function AdminServicesPage() {
 
               {inactiveServices.length === 0 && !isLoading && (
                 <div className="rounded-xl border border-dashed border-[#d5d9df] px-4 py-6 text-center text-sm text-[#8b95a1]">
-                  No inactive services found.
+                  {t("admin.services.noInactive")}
                 </div>
               )}
 
@@ -462,7 +553,7 @@ export default function AdminServicesPage() {
                 return (
                   <div
                     key={service.id}
-                    className={`relative flex items-center gap-3 rounded-2xl py-1 ${
+                    className={`relative flex items-center gap-2 md:gap-3 lg:gap-3 rounded-2xl md:rounded-2xl lg:rounded-2xl py-0.5 md:py-1 lg:py-1 ${
                       isCardPending ? "opacity-80" : ""
                     }`}
                   >
@@ -470,30 +561,37 @@ export default function AdminServicesPage() {
                       <div className="absolute inset-0 z-20 flex items-center justify-center gap-2 rounded-2xl bg-white/65 backdrop-blur-[1px]">
                         <Loader2 className="h-4 w-4 animate-spin text-[#F49B33]" />
                         <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#7f8894]">
-                          Updating
+                          {t("admin.services.updating")}
                         </span>
                       </div>
                     )}
 
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#f3f4f6] text-[#a4abb6]">
-                      <Scissors className="h-5 w-5" />
+                    <div className="flex h-9 md:h-10 lg:h-10 w-9 md:w-10 lg:w-10 items-center justify-center rounded-2xl md:rounded-2xl lg:rounded-2xl bg-[#f3f4f6] text-[#a4abb6]">
+                      <Scissors className="h-4 w-4 md:h-5 md:w-5 lg:h-5 lg:w-5" />
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[16px] font-semibold text-[#374151]">
+                      <p className="truncate text-[15px] md:text-[16px] lg:text-[16px] font-semibold text-[#374151]">
                         {service.name}
                       </p>
-                      <div className="mt-0.5 flex items-center gap-2 text-[11px] text-[#98a0ab]">
-                        <span>{service.durationMin} min</span>
+                      <div className="mt-0.5 flex items-center gap-2 text-[10px] md:text-[11px] lg:text-[11px] text-[#98a0ab]">
+                        <span>
+                          {service.durationMin} {t("services.duration")}
+                        </span>
                         <span className="text-[#d8dbe1]">•</span>
-                        <span>{toPriceLabel(service.price)}</span>
+                        <span>
+                          {toPriceLabel(service.price, t("services.price"))}
+                        </span>
                       </div>
                       <button
                         type="button"
-                        className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9aa1ab] transition-colors hover:text-[#F49B33]"
+                        onClick={() =>
+                          router.push(getServiceEditHref(service.id))
+                        }
+                        className="mt-1 inline-flex items-center gap-1 text-[9px] md:text-[10px] lg:text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9aa1ab] transition-colors hover:text-[#F49B33]"
                       >
-                        <PenLine className="h-3.5 w-3.5" />
-                        Edit
+                        <PenLine className="h-3 w-3 md:h-3.5 md:w-3.5 lg:h-3.5 lg:w-3.5" />
+                        {t("admin.services.edit")}
                       </button>
                     </div>
 
