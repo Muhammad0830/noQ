@@ -5,20 +5,17 @@ import { userRoutes, adminRoutes, generalRoutes } from "./routes/index.js";
 import { shopValidateMiddleware } from "./middlewares/shopValidate.middleware.js";
 import { adminOnly } from "./middlewares/admin.middleware.js";
 import { authMiddleware } from "./middlewares/auth.middleware.js";
-import shopRouter from "./routes/user_panel/shops.routes.js";
+import serverless from "serverless-http";
 
 const app = express();
 
+app.options("*", cors());
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://10.20.20.15:3000",
-      "https://no-q-bay.vercel.app",
-      "https://no-q-bay.vercel.app/",
-    ],
+    origin: ["https://no-q-bay.vercel.app", "http://localhost:3000"],
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   }),
 );
 
