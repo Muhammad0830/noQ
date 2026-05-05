@@ -13,7 +13,7 @@ app.options("*", cors());
 
 app.use(
   cors({
-    origin: ["https://no-q-bay.vercel.app", "http://localhost:3000"],
+    origin: "https://no-q-bay.vercel.app",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   }),
