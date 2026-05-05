@@ -235,15 +235,10 @@ export default function Page() {
   };
 
   const moveBackOneDay = () => {
-    // Move window and selected date back by 5 days (new window size)
-    const nextDate = normalizeDate(new Date(selectedDate));
-    nextDate.setDate(nextDate.getDate() - 5);
-
+    // Move only the visible 5-day window back without changing selected date.
     const nextWeekStart = normalizeDate(new Date(visibleWeekStart));
     nextWeekStart.setDate(nextWeekStart.getDate() - 5);
     setVisibleWeekStart(nextWeekStart);
-
-    handleDateChange(formatDateQuery(nextDate));
   };
 
   const moveForwardOneWeek = () => {
@@ -273,43 +268,44 @@ export default function Page() {
     NO_SHOW: t("history.status.noShow"),
   };
 
-  const normalizedBookings = useMemo(() => {
-    return [...bookings]
-      .sort(
-        (a, b) =>
-          new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
-      )
-      .map((booking) => {
-        const customerName = booking.user?.name?.trim() || t("admin.history.unknownCustomer");
-        const serviceName = booking.service?.name?.trim() || t("admin.history.unknownService");
-        const staffName = booking.staff?.user?.name?.trim() || t("admin.history.unassigned");
-        const amountValue = Number(booking.service?.price ?? 0);
+  const normalizedBookings = [...bookings]
+    .sort(
+      (a, b) =>
+        new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
+    )
+    .map((booking) => {
+      const customerName =
+        booking.user?.name?.trim() || t("admin.history.unknownCustomer");
+      const serviceName =
+        booking.service?.name?.trim() || t("admin.history.unknownService");
+      const staffName =
+        booking.staff?.user?.name?.trim() || t("admin.history.unassigned");
+      const amountValue = Number(booking.service?.price ?? 0);
 
-        return {
-          id: booking.id,
-          customerName,
-          serviceName,
-          staffName,
-          time: formatTime(booking.startTime),
-          duration: formatDuration(booking.startTime, booking.endTime),
-          amount: formatCurrency(amountValue, locale),
-          status: booking.status,
-          statusLabel: statusLabels[booking.status],
-          badgeClass:
-            booking.status === "COMPLETED"
-              ? "bg-[#d4f8d4] text-[#2aa85d]"
-              : booking.status === "CANCELLED" || booking.status === "NO_SHOW"
-                ? "bg-[#f2dddd] text-[#d09898]"
-                : "bg-[#f8ece0] text-[#e5a65f]",
-          iconClass:
-            booking.status === "COMPLETED"
-              ? "bg-[#dff5e5] text-[#2aa85d]"
-              : booking.status === "CANCELLED" || booking.status === "NO_SHOW"
-                ? "bg-[#f2dddd] text-[#d09898]"
-                : "bg-[#f8ece0] text-[#e5a65f]",
-        };
-      });
-  }, [bookings, t]);
+      return {
+        id: booking.id,
+        customerName,
+        serviceName,
+        staffName,
+        time: formatTime(booking.startTime),
+        duration: formatDuration(booking.startTime, booking.endTime),
+        amount: formatCurrency(amountValue, locale),
+        status: booking.status,
+        statusLabel: statusLabels[booking.status],
+        badgeClass:
+          booking.status === "COMPLETED"
+            ? "bg-[#d4f8d4] text-[#2aa85d]"
+            : booking.status === "CANCELLED" || booking.status === "NO_SHOW"
+              ? "bg-[#f2dddd] text-[#d09898]"
+              : "bg-[#f8ece0] text-[#e5a65f]",
+        iconClass:
+          booking.status === "COMPLETED"
+            ? "bg-[#dff5e5] text-[#2aa85d]"
+            : booking.status === "CANCELLED" || booking.status === "NO_SHOW"
+              ? "bg-[#f2dddd] text-[#d09898]"
+              : "bg-[#f8ece0] text-[#e5a65f]",
+      };
+    });
 
   const filteredBookings = useMemo(() => {
     const q = search.toLowerCase().trim();

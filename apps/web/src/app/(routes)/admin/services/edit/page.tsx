@@ -8,7 +8,6 @@ import {
   Check,
   ChevronLeft,
   Clock3,
-  Loader2,
   DollarSign,
   EllipsisVertical,
   Info,
@@ -92,7 +91,6 @@ export default function EditServicePage() {
   const [hasLoadedPersistedShop, setHasLoadedPersistedShop] = useState(false);
   const [isLoadingService, setIsLoadingService] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isBufferTimeEnabled, setIsBufferTimeEnabled] = useState(true);
   const [durationWarnings, setDurationWarnings] = useState<{
@@ -169,6 +167,35 @@ export default function EditServicePage() {
         }
       : undefined,
   );
+
+  const updateServiceMutation = useApiMutation<
+    unknown,
+    {
+      name: string;
+      price: number;
+      durationMin: number;
+      bufferTime: number | null;
+    }
+  >(
+    () => {
+      if (!serviceId) {
+        return API_ENDPOINTS.admin.services;
+      }
+
+      return `${API_ENDPOINTS.admin.services}/${encodeURIComponent(serviceId)}`;
+    },
+    "put",
+    () => ({
+      headers: activeShopId
+        ? {
+            "x-shopid": activeShopId,
+            "x-shop-id": activeShopId,
+          }
+        : {},
+    }),
+  );
+
+  const isSavingService = updateServiceMutation.isPending;
 
   const handleHoursChange = (value: string) => {
     const digitsOnly = value.replace(/\D/g, "");
@@ -305,136 +332,95 @@ export default function EditServicePage() {
     return () => controller.abort();
   }, [activeShopId, hasLoadedPersistedShop, serviceId, t]);
 
-  const handleSave = (e: React.FormEvent) => {
-    const saveService = async () => {
-      e.preventDefault();
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-      if (!activeShopId || !serviceId || isSubmitting) {
-        setSubmitError(t("admin.services.error.missingServiceOrShop"));
-        return;
-      }
+    if (!activeShopId || !serviceId || isSavingService) {
+      setSubmitError(t("admin.services.error.missingServiceOrShop"));
+      return;
+    }
 
-      const durationMin = Number(service.hours) * 60 + Number(service.minutes);
-      const price = Number(service.price);
-      const bufferTime = service.bufferTime.trim();
+    const durationMin = Number(service.hours) * 60 + Number(service.minutes);
+    const price = Number(service.price);
+    const bufferTime = service.bufferTime.trim();
 
-      if (!service.name.trim()) {
-        setSubmitError(t("admin.services.error.nameRequired"));
-        return;
-      }
+    if (!service.name.trim()) {
+      setSubmitError(t("admin.services.error.nameRequired"));
+      return;
+    }
 
-      if (Number.isNaN(durationMin) || durationMin <= 0) {
-        setSubmitError(t("admin.services.error.invalidDuration"));
-        return;
-      }
+    if (Number.isNaN(durationMin) || durationMin <= 0) {
+      setSubmitError(t("admin.services.error.invalidDuration"));
+      return;
+    }
 
-      if (Number.isNaN(price) || price <= 0) {
-        setSubmitError(t("admin.services.error.invalidPrice"));
-        return;
-      }
+    if (Number.isNaN(price) || price <= 0) {
+      setSubmitError(t("admin.services.error.invalidPrice"));
+      return;
+    }
 
-      try {
-        setIsSubmitting(true);
-        setSubmitError(null);
+    try {
+      setSubmitError(null);
 
-        const token = getStoredAuth()?.token;
-        console.log("[debug] submitting service", {
-          id: serviceId,
-          price: service.price,
-          priceNumber: price,
-        });
-        const response = await fetch(
-          `${API_ENDPOINTS.admin.services}/${encodeURIComponent(serviceId)}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              ...(token ? { Authorization: `Bearer ${token}` } : {}),
-              "x-shopid": activeShopId,
-              "x-shop-id": activeShopId,
-            },
-            body: JSON.stringify({
-              name: service.name.trim(),
-              price,
-              durationMin,
-              bufferTime:
-                isBufferTimeEnabled && bufferTime !== ""
-                  ? Number(bufferTime)
-                  : null,
-            }),
-          },
-        );
+      const updatedBody = (await updateServiceMutation.mutateAsync({
+        name: service.name.trim(),
+        price,
+        durationMin,
+        bufferTime:
+          isBufferTimeEnabled && bufferTime !== "" ? Number(bufferTime) : null,
+      })) as {
+        price?: number | string;
+      } | null;
 
-        if (!response.ok) {
-          const body = await response.json().catch(() => null);
-          const message =
-            body && typeof body.message === "string"
-              ? body.message
-              : t("admin.services.error.updateFailed");
-          throw new Error(message);
-        }
+      queryClient.setQueryData<AdminService[]>(
+        ["admin-services", activeShopId || "none"],
+        (currentServices) => {
+          if (!currentServices) return currentServices;
 
-        const updatedBody = (await response.json().catch(() => null)) as any;
-        console.log("[debug] update response body", updatedBody);
-
-        queryClient.setQueryData<AdminService[]>(
-          ["admin-services", activeShopId || "none"],
-          (currentServices) => {
-            if (!currentServices) return currentServices;
-
-            return currentServices.map((item) =>
-              item.id === serviceId
-                ? {
-                    ...item,
-                    name: service.name.trim(),
-                    price:
-                      updatedBody && typeof updatedBody.price !== "undefined"
-                        ? String(updatedBody.price)
-                        : String(price),
-                    durationMin,
-                    bufferTime:
-                      isBufferTimeEnabled && bufferTime !== ""
-                        ? Number(bufferTime)
-                        : null,
-                  }
-                : item,
-            );
-          },
-        );
-
-        // mark this service as pending-updated so the list preserves position
-        const pendingKey = [
-          "admin-services-pending",
-          activeShopId || "none",
-        ] as const;
-        queryClient.setQueryData<string[]>(pendingKey, (prev) => {
-          const arr = prev ?? [];
-          if (!arr.includes(serviceId)) return [...arr, serviceId];
-          return arr;
-        });
-
-        // clear pending flag after a short delay (keeps card stable while server settles)
-        setTimeout(() => {
-          queryClient.setQueryData<string[]>(pendingKey, (prev) =>
-            prev ? prev.filter((id) => id !== serviceId) : prev,
+          return currentServices.map((item) =>
+            item.id === serviceId
+              ? {
+                  ...item,
+                  name: service.name.trim(),
+                  price:
+                    updatedBody && typeof updatedBody.price !== "undefined"
+                      ? String(updatedBody.price)
+                      : String(price),
+                  durationMin,
+                  bufferTime:
+                    isBufferTimeEnabled && bufferTime !== ""
+                      ? Number(bufferTime)
+                      : null,
+                }
+              : item,
           );
-        }, 5000);
+        },
+      );
 
-        router.push(
-          `/admin/services?shopId=${encodeURIComponent(activeShopId)}`,
-        );
-      } catch (error) {
-        setSubmitError(
-          error instanceof Error
-            ? error.message
-            : t("admin.services.error.updateFailed"),
-        );
-      } finally {
-        setIsSubmitting(false);
-      }
-    };
+      const pendingKey = [
+        "admin-services-pending",
+        activeShopId || "none",
+      ] as const;
+      queryClient.setQueryData<string[]>(pendingKey, (prev) => {
+        const arr = prev ?? [];
+        if (!arr.includes(serviceId)) return [...arr, serviceId];
+        return arr;
+      });
 
-    void saveService();
+      setTimeout(() => {
+        queryClient.setQueryData<string[]>(pendingKey, (prev) =>
+          prev ? prev.filter((id) => id !== serviceId) : prev,
+        );
+      }, 5000);
+
+      router.push(`/admin/services?shopId=${encodeURIComponent(activeShopId)}`);
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : t("admin.services.error.updateFailed"),
+      );
+    }
   };
 
   const handleDelete = async () => {
@@ -758,10 +744,10 @@ export default function EditServicePage() {
             <div className="pt-2 space-y-3">
               <button
                 type="submit"
-                disabled={isSubmitting || isDeleting || isLoadingService}
+                disabled={isSavingService || isDeleting || isLoadingService}
                 className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[#F49B33] text-[16px] font-semibold uppercase tracking-[0.08em] text-white shadow-[0_16px_32px_rgba(244,155,51,0.28)] transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-90"
               >
-                {isSubmitting
+                {isSavingService
                   ? t("admin.services.saving")
                   : t("admin.services.save")}
               </button>
@@ -769,7 +755,7 @@ export default function EditServicePage() {
               <button
                 type="button"
                 onClick={() => void handleDelete()}
-                disabled={isDeleting || isSubmitting || isLoadingService}
+                disabled={isDeleting || isSavingService || isLoadingService}
                 className="flex h-14 w-full items-center justify-center gap-2 rounded-full border border-[#f3b6b3] bg-white text-[14px] font-semibold uppercase tracking-[0.08em] text-[#ef4444]"
               >
                 {isDeleting
