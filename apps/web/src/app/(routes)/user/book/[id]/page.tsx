@@ -8,6 +8,8 @@ import { API_ENDPOINTS } from "@/lib/api";
 import type { Shop, Service } from "@shared/types/general_types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useAuthPrompt } from "@/contexts/AuthPromptContext";
 import { formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -84,6 +86,8 @@ export default function BookingPage({
   const { id: shopId } = use(params);
   const { service: serviceFromQuery } = use(searchParams);
   const { t, locale } = useLanguage();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { openAuthPrompt } = useAuthPrompt();
 
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(
     serviceFromQuery ?? null,
@@ -283,6 +287,12 @@ export default function BookingPage({
 
   const handleConfirmBooking = async () => {
     if (!selectedService || !selectedTime) return;
+    if (isAuthLoading) return;
+
+    if (!isAuthenticated) {
+      openAuthPrompt();
+      return;
+    }
 
     try {
       await bookingMutation({
