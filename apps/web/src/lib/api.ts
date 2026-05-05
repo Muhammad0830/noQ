@@ -170,6 +170,10 @@ export const API_ENDPOINTS = {
   admin: {
     dashboardBaseInfo: `${API_BASE_URL}/admin/dashboard/base_info`,
     dashboardHistory: `${API_BASE_URL}/admin/history`,
+    bookingCancel: (bookingId: string) =>
+      `${API_BASE_URL}/admin/bookings/${bookingId}/cancel`,
+    bookingComplete: (bookingId: string) =>
+      `${API_BASE_URL}/admin/bookings/${bookingId}/complete`,
     analytics: `${API_BASE_URL}/admin/analytics`,
     analyticsDiagramInfo: `${API_BASE_URL}/admin/analytics/diagram_info`,
     analyticsFamousServices: `${API_BASE_URL}/admin/analytics/famousServices`,
