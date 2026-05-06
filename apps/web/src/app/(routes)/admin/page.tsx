@@ -508,9 +508,31 @@ export default function AdminDashboard() {
     },
   );
 
+  const parseBackendWallClockDate = (value: string) => {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+
+    const hasExplicitTimezone = /(?:Z|[+-]\d{2}:\d{2})$/i.test(value);
+    if (!hasExplicitTimezone) {
+      return parsed;
+    }
+
+    return new Date(
+      parsed.getUTCFullYear(),
+      parsed.getUTCMonth(),
+      parsed.getUTCDate(),
+      parsed.getUTCHours(),
+      parsed.getUTCMinutes(),
+      parsed.getUTCSeconds(),
+      parsed.getUTCMilliseconds(),
+    );
+  };
+
   const toDurationLabel = (startTime: string, endTime: string) => {
-    const start = new Date(startTime);
-    const end = new Date(endTime);
+    const start = parseBackendWallClockDate(startTime);
+    const end = parseBackendWallClockDate(endTime);
     const diffMs = end.getTime() - start.getTime();
 
     if (Number.isNaN(diffMs) || diffMs <= 0) {
@@ -531,7 +553,8 @@ export default function AdminDashboard() {
   };
 
   const formatTime = (value: string) => {
-    const date = new Date(value);
+    const date = parseBackendWallClockDate(value);
+
     if (Number.isNaN(date.getTime())) {
       return "--:--";
     }
@@ -556,8 +579,8 @@ export default function AdminDashboard() {
       return `${durationMin} min`;
     }
 
-    const start = new Date(startTime);
-    const end = new Date(endTime);
+    const start = parseBackendWallClockDate(startTime);
+    const end = parseBackendWallClockDate(endTime);
     const diffMs = end.getTime() - start.getTime();
 
     if (Number.isNaN(diffMs) || diffMs <= 0) {
@@ -572,7 +595,8 @@ export default function AdminDashboard() {
     return [...historyBookings]
       .sort(
         (a, b) =>
-          new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
+          parseBackendWallClockDate(a.startTime).getTime() -
+          parseBackendWallClockDate(b.startTime).getTime(),
       )
       .map((booking) => {
         const customer =
@@ -622,8 +646,12 @@ export default function AdminDashboard() {
         const cardEl = appointmentCardRefs.current[appointment.id];
         if (!rowEl) return null;
 
-        const startMs = new Date(appointment.startTime).getTime();
-        const fallbackEndMs = new Date(appointment.endTime).getTime();
+        const startMs = parseBackendWallClockDate(
+          appointment.startTime,
+        ).getTime();
+        const fallbackEndMs = parseBackendWallClockDate(
+          appointment.endTime,
+        ).getTime();
         const durationBasedEndMs =
           typeof appointment.durationMin === "number" && appointment.durationMin > 0
             ? startMs + appointment.durationMin * 60 * 1000
@@ -749,8 +777,12 @@ export default function AdminDashboard() {
         await cancelBooking(payload);
       }
 
-      await refetchHistory();
+      // Close modal immediately after successful mutation so UX is snappy.
       setSelectedPendingAppointment(null);
+
+      // Refetch history in background; we don't need to block the UI on this.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      refetchHistory();
     } catch {
       // Toasts are handled by useApiMutation.
     }
