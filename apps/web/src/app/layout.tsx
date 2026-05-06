@@ -36,7 +36,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "NoQ - Navbatsiz xizmat",
   description: "O'zingizga kerakli xizmatni toping va onlayn band qiling",
+  icons: {
+    icon: "/logo/noq_logo.png",
+    shortcut: "/logo/noq_logo.png",
+    apple: "/logo/noq_logo.png",
+  },
 };
+
 
 export default function RootLayout({
   children,
