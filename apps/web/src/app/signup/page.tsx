@@ -247,7 +247,7 @@ export default function SignUp() {
 
           <form
             onSubmit={handleSubmit}
-            className="space-y-5 sm:space-y-6"
+            className="space-y-5 pt-10 sm:space-y-6 sm:pt-12"
             autoComplete="off"
           >
             {/* Full Name */}
@@ -442,19 +442,13 @@ export default function SignUp() {
               />
               <span className="text-sm text-gray-600">
                 Men{" "}
-                <Link
-                  href="/user/terms"
-                  className="text-blue-600 hover:underline"
-                >
+                <span className="text-blue-600">
                   Foydalanish shartlari
-                </Link>{" "}
+                </span>{" "}
                 va{" "}
-                <Link
-                  href="/user/privacy"
-                  className="text-blue-600 hover:underline"
-                >
+                <span className="text-blue-600">
                   Maxfiylik siyosati
-                </Link>
+                </span>
                 ni qabul qilaman
               </span>
             </label>
