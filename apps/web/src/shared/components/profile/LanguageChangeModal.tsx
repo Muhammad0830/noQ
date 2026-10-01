@@ -1,15 +1,25 @@
 import React from "react";
 import ModalShell from "./ModalShell";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { Language } from "@shared/types/general_types";
-import platformConfig from "@/config/platform";
+import platformConfig, { SupportedLocalesType } from "@/config/platform";
+import { useLocale, useTranslations } from "next-intl";
+import { usePathname, useRouter } from "@/i18n/navigation";
 
 interface Props {
   setIsLanguageModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function LanguageChangeModal({ setIsLanguageModalOpen }: Props) {
-  const { language, setLanguage, t } = useLanguage();
+  const t = useTranslations();
+  const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const changeLanguage = (newLocale: "uz-latn" | "uz-cyrl" | "ru") => {
+    router.replace(pathname, {
+      locale: newLocale,
+    });
+  };
+
   return (
     <ModalShell
       title={t("profile.languageModalTitle")}
@@ -18,14 +28,14 @@ export default function LanguageChangeModal({ setIsLanguageModalOpen }: Props) {
     >
       <div className="space-y-2">
         {Object.entries(platformConfig.supportedLocales).map(([key, value]) => {
-          const isActive = key === language;
+          const isActive = key === locale;
 
           return (
             <button
               key={key}
               type="button"
               onClick={() => {
-                setLanguage(key as Language);
+                changeLanguage(key as SupportedLocalesType);
                 setIsLanguageModalOpen(false);
               }}
               className={`w-full rounded-xl border px-4 py-3 text-left text-sm font-medium transition ${

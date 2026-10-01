@@ -4,9 +4,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { resolveCategoryIcon } from "@/lib/getCategoryIcon";
 import { Plus, Store, User } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 type AdminShop = {
@@ -34,7 +34,7 @@ export default function PanelChangeAccordion({
   visibleAdminShops,
 }: Props) {
     const router = useRouter();
-  const { t } = useLanguage();
+  const t = useTranslations();
 
   if (isAdmin) {
     return (

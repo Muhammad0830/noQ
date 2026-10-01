@@ -10,11 +10,11 @@ import {
   Dumbbell,
   Palette,
 } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
 import type { Shop } from "@shared/types/general_types";
 import Link from "next/link";
 import { getImageUrl } from "@/lib/supabaseClient";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 interface ShopCardProps {
   shop: Shop;
@@ -93,7 +93,7 @@ const ShopCard: React.FC<ShopCardProps> = ({
   onFavorite: _onFavorite,
   isFavorite: _isFavorite = false,
 }) => {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const [imageLoadError, setImageLoadError] = useState(false);
   const rootShop = shop as Partial<Shop> & {
     id?: string;

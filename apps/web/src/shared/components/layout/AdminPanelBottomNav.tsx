@@ -1,6 +1,6 @@
-import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { ADMIN_NAV_ITEMS } from "@/shared/utils/getBottomNavValues";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 export default function AdminPanelBottomNav({
@@ -10,7 +10,7 @@ export default function AdminPanelBottomNav({
   isAdmin: boolean;
   isActive: (patterns: string[]) => boolean;
 }) {
-  const { t } = useLanguage();
+  const t = useTranslations();
   return (
     <div
       className={cn(

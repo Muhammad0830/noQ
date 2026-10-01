@@ -1,8 +1,8 @@
 import React from "react";
 import ModalShell from "./ModalShell";
 import { User } from "@shared/types/general_types";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { Pencil } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type InfoFormState = {
   name: string;
@@ -36,7 +36,7 @@ export default function InfoModal({
   infoSaveError,
   profileFields,
 }: Props) {
-  const { t } = useLanguage();
+  const t = useTranslations();
 
   return (
     <ModalShell

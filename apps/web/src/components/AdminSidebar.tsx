@@ -8,15 +8,10 @@ import {
   BarChart3,
   Users,
   PlusCircle,
-  CircleUser,
   SquareArrowOutUpRight,
-  CalendarDays,
-  ClipboardList,
-  Scissors,
-  History,
   X,
 } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslations } from "next-intl";
 
 const asRoute = (href: string) => href as Route;
 
@@ -45,7 +40,7 @@ export default function AdminSidebar({
   getAdminHrefWithShopId,
 }: AdminSidebarProps) {
   const pathname = usePathname();
-  const { t } = useLanguage();
+  const t = useTranslations();
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

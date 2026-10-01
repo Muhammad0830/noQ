@@ -4,7 +4,7 @@ export { default as AppShell } from "../../components/AppShell";
 export { default as AuthRequiredModal } from "../../components/AuthRequiredModal";
 export { default as CategoriesSection } from "../../components/CategoriesSection";
 export { default as ConditionalBottomNav } from "../../components/ConditionalBottomNav";
-export { default as DiscoverServices } from "../../app/(routes)/user/discover/DiscoverServices";
+export { default as DiscoverServices } from "../../app/[localce]/(routes)/user/discover/DiscoverServices";
 export { default as Header } from "../../components/Header";
 export { default as HeroSection } from "../../components/HeroSection";
 export { default as LanguageSwitcher } from "../../components/LanguageSwitcher";

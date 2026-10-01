@@ -10,4 +10,6 @@ export const platformConfig = {
   },
 };
 
+export type SupportedLocalesType = keyof typeof platformConfig.supportedLocales;
+
 export default platformConfig;

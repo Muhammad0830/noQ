@@ -1,8 +1,8 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { getImageUrl } from "@/lib/supabaseClient";
 import { User } from "@shared/types/general_types";
 import { Camera } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 
 interface Props {
@@ -32,7 +32,7 @@ export default function ProfileAvatarSection({
   setPreview,
   setFile,
 }: Props) {
-  const { t } = useLanguage();
+  const t = useTranslations();
   return (
     <>
       <div className="relative mx-auto mb-4 inline-block">

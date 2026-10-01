@@ -1,7 +1,7 @@
-import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { USER_NAV_ITEMS } from "@/shared/utils/getBottomNavValues";
 import { User } from "@shared/types/general_types";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 interface Props {
@@ -17,7 +17,7 @@ export default function UserPanelBottomNav({
   user,
   openAuthPrompt,
 }: Props) {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const protectedRoutes = new Set(["/user/bookings", "/profile"]);
 
   return (

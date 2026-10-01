@@ -1,19 +1,17 @@
 import React from "react";
 import ProfileRow from "./ProfileRow";
 import { Bell, HelpCircle, Languages } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { useRouter } from "next/navigation";
-import platformConfig from "@/config/platform";
-import { Language } from "@shared/types/general_types";
+import platformConfig, { SupportedLocalesType } from "@/config/platform";
+import { useLocale, useTranslations } from "use-intl";
 
 export default function Preferences({
   setIsLanguageModalOpen,
-  language,
 }: {
   setIsLanguageModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  language: Language;
 }) {
-  const { t } = useLanguage();
+  const t = useTranslations();
+  const locale = useLocale() as SupportedLocalesType;
   const router = useRouter();
 
   return (
@@ -35,7 +33,7 @@ export default function Preferences({
           icon={<Languages className="h-4 w-4" />}
           title={t("profile.language")}
           subtitle={
-            platformConfig.supportedLocales[language] || t("profile.language")
+            platformConfig.supportedLocales[locale] || t("profile.language")
           }
           trailing={
             <span className="rounded-md px-2 py-1 text-xs font-medium text-slate-500">

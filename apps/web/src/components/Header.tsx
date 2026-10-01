@@ -5,19 +5,19 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAuthPrompt } from "@/contexts/AuthPromptContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { useProviderMode } from "@/contexts/ProviderModeContext";
 import { User, LogIn, LogOut, Bell, Menu } from "lucide-react";
 import { getImageUrl } from "@/lib/supabaseClient";
 import LogoutConfirmModal from "@/components/LogoutConfirmModal";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "next-intl";
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const { openAuthPrompt } = useAuthPrompt();
-  const { t } = useLanguage();
+  const t = useTranslations();
   const { providerMode } = useProviderMode();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);

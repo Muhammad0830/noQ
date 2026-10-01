@@ -11,7 +11,7 @@ import api, {
 import { useApiMutation } from "@/hooks/useApiMutation";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
-import { useLanguage } from "./LanguageContext";
+import { useTranslations } from "next-intl";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedAuth = getStoredAuth();
     return !!storedAuth?.token && !storedAuth?.savedUser;
   });
-  const { t } = useLanguage();
+  const t = useTranslations();
 
   const signInMutation = useApiMutation<SignInResponse, SignInPayload>(
     API_ENDPOINTS.auth.signin,

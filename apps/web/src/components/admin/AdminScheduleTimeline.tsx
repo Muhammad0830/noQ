@@ -10,6 +10,7 @@ import {
   SquareArrowOutUpRight,
   X,
 } from "lucide-react";
+import { useLocale } from "next-intl";
 
 export type AdminDashboardBookingStatus =
   | "PENDING"
@@ -45,8 +46,6 @@ export type TimelineAppointment = {
 };
 
 type AdminScheduleTimelineProps = {
-  locale?: string;
-  language: string;
   currentDate: Date;
   selectedDate: Date;
   selectedMonthDate: Date;
@@ -196,8 +195,6 @@ const getWeekDates = (selectedMonthDate: Date, currentDate: Date) => {
 };
 
 export function AdminScheduleTimeline({
-  locale,
-  language,
   currentDate,
   selectedDate,
   selectedMonthDate,
@@ -219,6 +216,7 @@ export function AdminScheduleTimeline({
   onUpdatePendingAppointmentStatus,
   t,
 }: AdminScheduleTimelineProps) {
+  const locale = useLocale()
   const [monthOpen, setMonthOpen] = useState(false);
   const monthDropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -239,17 +237,17 @@ export function AdminScheduleTimeline({
     [currentDate, selectedMonthDate],
   );
 
-  const selectedMonthLabel = (monthNames[language] || monthNames["uz-latn"])[
+  const selectedMonthLabel = (monthNames[locale] || monthNames["uz-latn"])[
     selectedMonthDate.getMonth()
   ];
 
   const headerWeekday = (
-    weekdayShort[language]?.[currentDate.getDay()] ??
-    currentDate.toLocaleDateString(locale || undefined, { weekday: "long" })
+    weekdayShort[locale]?.[currentDate.getDay()] ??
+    currentDate.toLocaleDateString(undefined, { weekday: "long" })
   ).toUpperCase();
 
   const headerMonthDay =
-    `${monthNames[language]?.[currentDate.getMonth()] ?? currentDate.toLocaleDateString(locale || undefined, { month: "long" })} ${currentDate.getDate()}`.toUpperCase();
+    `${monthNames[locale]?.[currentDate.getMonth()] ?? currentDate.toLocaleDateString(undefined, { month: "long" })} ${currentDate.getDate()}`.toUpperCase();
 
   const isSelectedToday = useMemo(
     () => selectedDate.toDateString() === new Date().toDateString(),
@@ -320,7 +318,7 @@ export function AdminScheduleTimeline({
                   {monthOptions.map((optionDate) => {
                     const monthIdx = optionDate.getMonth();
                     const optionYear = optionDate.getFullYear();
-                    const monthText = (monthNames[language] ||
+                    const monthText = (monthNames[locale] ||
                       monthNames["uz-latn"])[monthIdx];
                     const isSelected =
                       monthIdx === selectedMonthDate.getMonth() &&
@@ -379,8 +377,8 @@ export function AdminScheduleTimeline({
           const isToday = day.toDateString() === currentDate.toDateString();
           const isSelected = day.toDateString() === selectedDate.toDateString();
           const shortDay = (
-            weekdayShort[language]?.[day.getDay()] ??
-            day.toLocaleDateString(locale || undefined, { weekday: "short" })
+            weekdayShort[locale]?.[day.getDay()] ??
+            day.toLocaleDateString(undefined, { weekday: "short" })
           ).toUpperCase();
 
           return (

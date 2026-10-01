@@ -1,0 +1,815 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { ChevronRight, Clock3, X } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
+import ShopCard from "@/components/ShopCard";
+import AppSearchInput from "@/components/AppSearchInput";
+import { Skeleton } from "@/components/ui/skeleton";
+import { API_ENDPOINTS } from "@/lib/api";
+import { getImageUrl } from "@/lib/supabaseClient";
+import type { Shop, ShopCategory } from "@shared/types/general_types";
+import useApiQuery from "@/hooks/useApiQuery";
+import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
+
+type TrendingService = {
+  id: string;
+  name: string;
+  shopId?: string;
+  price?: number | string | null;
+  durationMin?: number | string | null;
+  shop?: {
+    id?: string;
+    name?: string;
+    categoryId?: string;
+    category?: {
+      id?: string;
+    };
+  };
+};
+
+type ShopsListResponse =
+  | Shop[]
+  | {
+      shops?: Shop[];
+    };
+
+export default function DiscoverServices() {
+  const t = useTranslations();
+  const locale = useLocale();
+  const searchParams = useSearchParams();
+  const initialCategoryId = searchParams.get("categoryId");
+  const initialSearch = searchParams.get("q") ?? "";
+  const shouldFocusSearch = searchParams.get("focus") === "search";
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [appliedCategories, setAppliedCategories] = useState<string[]>([]);
+  const [draftCategories, setDraftCategories] = useState<string[]>([]);
+  const [appliedPriceEnabled, setAppliedPriceEnabled] = useState(false);
+  const [draftPriceEnabled, setDraftPriceEnabled] = useState(false);
+  const [appliedMinPrice, setAppliedMinPrice] = useState(0);
+  const [appliedMaxPrice, setAppliedMaxPrice] = useState(1000000);
+  const [draftMinPrice, setDraftMinPrice] = useState(0);
+  const [draftMaxPrice, setDraftMaxPrice] = useState(1000000);
+  const popularScrollRef = useRef<HTMLDivElement | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const [activePopularDot, setActivePopularDot] = useState(0);
+
+  const DEFAULT_MIN_PRICE = 0;
+  const DEFAULT_MAX_PRICE = 1000000;
+  const categoriesUrl = `${API_ENDPOINTS.categories}?lang=${encodeURIComponent(locale)}`;
+
+  const { data: filterCategoriesData = [] } = useApiQuery<ShopCategory[]>(
+    categoriesUrl,
+    {
+      key: ["discover-filter-categories", locale],
+    },
+  );
+
+  const filterCategories = useMemo(
+    () => filterCategoriesData,
+    [filterCategoriesData],
+  );
+
+  const hasAppliedFilters = appliedCategories.length > 0 || appliedPriceEnabled;
+
+  const hasCategoryFilter = appliedCategories.length > 0;
+  const hasPriceFilter = appliedPriceEnabled;
+  const isPriceOnlyFilter = hasPriceFilter && !hasCategoryFilter;
+  const isTypingSearch = search.trim() !== debouncedSearch;
+
+  const searchOnlyMode = search.trim().length > 0 && !hasAppliedFilters;
+  const shouldShowContent = !(
+    isSearchFocused &&
+    search.trim().length === 0 &&
+    !hasAppliedFilters
+  );
+  const shouldShowShops =
+    shouldShowContent &&
+    !isTypingSearch &&
+    !isPriceOnlyFilter &&
+    (searchOnlyMode || hasCategoryFilter || !hasAppliedFilters);
+  const shouldShowServices =
+    shouldShowContent &&
+    !isTypingSearch &&
+    (isPriceOnlyFilter ||
+      hasCategoryFilter ||
+      searchOnlyMode ||
+      !hasAppliedFilters);
+
+  const searchTerm = debouncedSearch.toLowerCase().trim();
+  const useListLayoutForShops = hasCategoryFilter || searchTerm.length > 0;
+
+  const priceTrackStyle = useMemo(() => {
+    const min = DEFAULT_MIN_PRICE;
+    const max = DEFAULT_MAX_PRICE;
+    const left = ((draftMinPrice - min) / (max - min)) * 100;
+    const right = ((draftMaxPrice - min) / (max - min)) * 100;
+
+    return {
+      left: `${Math.max(0, Math.min(left, 100))}%`,
+      width: `${Math.max(0, Math.min(right, 100) - Math.max(0, Math.min(left, 100)))}%`,
+    };
+  }, [draftMinPrice, draftMaxPrice, DEFAULT_MIN_PRICE]);
+
+  const openFilterModal = () => {
+    setDraftCategories(appliedCategories);
+    setDraftPriceEnabled(appliedPriceEnabled);
+    setDraftMinPrice(appliedMinPrice);
+    setDraftMaxPrice(appliedMaxPrice);
+    setIsFilterOpen(true);
+  };
+
+  const applyFilters = () => {
+    setAppliedCategories(draftCategories);
+    setAppliedPriceEnabled(draftPriceEnabled);
+    setAppliedMinPrice(draftMinPrice);
+    setAppliedMaxPrice(draftMaxPrice);
+    setIsFilterOpen(false);
+  };
+
+  const resetDraftFilters = () => {
+    setDraftCategories([]);
+    setDraftPriceEnabled(false);
+    setDraftMinPrice(DEFAULT_MIN_PRICE);
+    setDraftMaxPrice(DEFAULT_MAX_PRICE);
+  };
+
+  useEffect(() => {
+    if (initialCategoryId) {
+      setAppliedCategories([initialCategoryId]); // eslint-disable-line
+      setDraftCategories([initialCategoryId]);
+    } else {
+      setAppliedCategories([]);
+      setDraftCategories([]);
+    }
+
+    if (initialSearch) {
+      setSearch(initialSearch);
+      setDebouncedSearch(initialSearch);
+    } else {
+      setSearch("");
+      setDebouncedSearch("");
+    }
+  }, [initialCategoryId, initialSearch]);
+
+  useEffect(() => {
+    if (!shouldFocusSearch) return;
+
+    const timer = window.setTimeout(() => {
+      searchInputRef.current?.focus();
+      searchInputRef.current?.select();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [shouldFocusSearch]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSearch(search.trim());
+    }, 1000);
+
+    return () => window.clearTimeout(timer);
+  }, [search]);
+
+  const isSearching = debouncedSearch.trim().length > 0;
+  const shouldUseFullCatalog = isSearching || hasAppliedFilters;
+
+  const shopsUrl = shouldUseFullCatalog
+    ? `${API_ENDPOINTS.shops}?limit=1000${isSearching ? `&search=${encodeURIComponent(debouncedSearch)}` : ""}`
+    : `${API_ENDPOINTS.shops_trending}?search=${encodeURIComponent(debouncedSearch)}`;
+
+  const servicesUrl = shouldUseFullCatalog
+    ? `${API_ENDPOINTS.services}?limit=1000${isSearching ? `&search=${encodeURIComponent(debouncedSearch)}` : ""}${hasPriceFilter ? `&minPrice=${appliedMinPrice}&maxPrice=${appliedMaxPrice}` : ""}`
+    : `${API_ENDPOINTS.services_trending}?search=${encodeURIComponent(debouncedSearch)}`;
+
+  const { data: popularShopsData, isLoading: isPopularShopsLoading } =
+    useApiQuery<ShopsListResponse>(shopsUrl, {
+      key: [
+        "discover-popular-purchases",
+        shouldUseFullCatalog ? "all-shops" : "trending-shops",
+        debouncedSearch,
+        appliedCategories.join(","),
+        appliedPriceEnabled ? "price-on" : "price-off",
+        appliedMinPrice,
+        appliedMaxPrice,
+      ],
+    });
+
+  const popularShops = useMemo<Shop[]>(() => {
+    if (Array.isArray(popularShopsData)) {
+      return popularShopsData;
+    }
+
+    if (popularShopsData && Array.isArray(popularShopsData.shops)) {
+      return popularShopsData.shops;
+    }
+
+    return [];
+  }, [popularShopsData]);
+
+  const { data: popularServices = [], isLoading: isPopularServicesLoading } =
+    useApiQuery<TrendingService[]>(servicesUrl, {
+      key: [
+        "discover-popular-services",
+        shouldUseFullCatalog ? "all-services" : "trending-services",
+        debouncedSearch,
+        appliedCategories.join(","),
+        appliedPriceEnabled ? "price-on" : "price-off",
+        appliedMinPrice,
+        appliedMaxPrice,
+      ],
+    });
+
+  const filteredServices = useMemo(() => {
+    return popularServices.filter((item) => {
+      if (
+        searchTerm &&
+        !item.name.toLowerCase().includes(searchTerm) &&
+        !(item.shop?.name ?? "").toLowerCase().includes(searchTerm)
+      ) {
+        return false;
+      }
+
+      if (appliedCategories.length > 0) {
+        const categoryId =
+          item.shop?.category?.id ?? item.shop?.categoryId ?? "";
+        if (!appliedCategories.includes(categoryId)) {
+          return false;
+        }
+      }
+
+      if (hasPriceFilter) {
+        const priceValue = Number(item.price);
+        if (!Number.isFinite(priceValue)) return false;
+        if (priceValue < appliedMinPrice || priceValue > appliedMaxPrice) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+    // eslint-disable-next-line
+  }, [
+    popularServices,
+    searchTerm,
+    appliedMinPrice,
+    appliedCategories,
+    appliedMaxPrice,
+    DEFAULT_MIN_PRICE,
+    DEFAULT_MAX_PRICE,
+    hasPriceFilter,
+  ]);
+
+  const filteredPopularShops = useMemo(() => {
+    return popularShops.filter((shop) => {
+      if (searchTerm && !shop.name.toLowerCase().includes(searchTerm)) {
+        return false;
+      }
+
+      // Agar barcha kategoriyalar tanlangan bo'lsa, filterni qo'llama
+      // filterCategories.length > 0 check - data loading bo'lganida to'g'ri ishlay
+      if (
+        appliedCategories.length > 0 &&
+        filterCategories.length > 0 &&
+        appliedCategories.length < filterCategories.length
+      ) {
+        const categoryId = shop.category?.id ?? shop.categoryId ?? "";
+        if (!appliedCategories.includes(categoryId)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [popularShops, searchTerm, appliedCategories, filterCategories.length]);
+
+  const shouldHideServicesSectionForEmptyCategory =
+    hasCategoryFilter &&
+    !isPopularServicesLoading &&
+    filteredServices.length === 0;
+
+  useEffect(() => {
+    setActivePopularDot(0); // eslint-disable-line
+    if (popularScrollRef.current) {
+      popularScrollRef.current.scrollTo({ left: 0, behavior: "auto" });
+    }
+  }, [searchTerm, appliedCategories]);
+
+  const popularIndicatorCount = Math.max(1, filteredPopularShops.length);
+
+  const updatePopularActiveDot = () => {
+    const el = popularScrollRef.current;
+    if (!el) return;
+
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    if (maxScroll <= 0) {
+      setActivePopularDot(0);
+      return;
+    }
+
+    const progress = el.scrollLeft / maxScroll;
+    setActivePopularDot(Math.round(progress * (popularIndicatorCount - 1)));
+  };
+
+  const scrollToPopularDot = (index: number) => {
+    const el = popularScrollRef.current;
+    if (!el) return;
+
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    const target = (maxScroll * index) / Math.max(1, popularIndicatorCount - 1);
+    el.scrollTo({ left: target, behavior: "smooth" });
+  };
+
+  const toggleCategory = (category: string) => {
+    setDraftCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((item) => item !== category)
+        : [...prev, category],
+    );
+  };
+
+  const PopularShopCardSkeleton = () => (
+    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <div className="relative h-52 overflow-hidden">
+        <div className="h-full w-full bg-slate-200" />
+
+        <Skeleton className="absolute top-3 right-3 h-7 w-14 rounded-full bg-slate-200" />
+        <Skeleton className="absolute top-3 left-3 h-8 w-8 rounded-full bg-slate-200" />
+        <Skeleton className="absolute bottom-3 left-3 h-6 w-20 rounded-full bg-slate-200" />
+      </div>
+
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <Skeleton className="h-5 w-3/5 rounded-full bg-slate-200" />
+            <Skeleton className="mt-2 h-4 w-4/5 rounded-full bg-slate-200" />
+          </div>
+
+          <div className="shrink-0 text-right">
+            <Skeleton className="h-4 w-12 rounded-full bg-slate-200" />
+            <Skeleton className="mt-2 h-3 w-10 rounded-full bg-slate-200" />
+          </div>
+        </div>
+
+        <div className="my-4 h-px bg-slate-200/70" />
+
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <Skeleton className="h-3 w-20 rounded-full bg-slate-200" />
+            <Skeleton className="mt-2 h-4 w-24 rounded-full bg-slate-200" />
+          </div>
+
+          <Skeleton className="h-9 w-20 rounded-full bg-slate-200" />
+        </div>
+      </div>
+    </div>
+  );
+
+  const ServiceCardSkeleton = () => (
+    <div className="flex items-center justify-between gap-4 border-b border-slate-200/70 py-4 last:border-b-0">
+      <div className="min-w-0 flex-1">
+        <Skeleton className="h-5 w-36 rounded-full bg-slate-200" />
+        <Skeleton className="mt-2 h-3.5 w-44 rounded-full bg-slate-200" />
+      </div>
+
+      <div className="shrink-0 text-right">
+        <Skeleton className="ml-auto h-6 w-18 rounded-full bg-slate-200" />
+        <Skeleton className="mt-2 ml-auto h-4 w-12 rounded-full bg-slate-200" />
+      </div>
+    </div>
+  );
+
+  const CompactShopRowSkeleton = ({ isLast = false }: { isLast?: boolean }) => (
+    <div
+      className={`flex items-center gap-3 px-2 py-3 ${isLast ? "" : "border-b border-slate-200/70"}`}
+    >
+      <Skeleton className="h-14 w-14 shrink-0 rounded-2xl bg-slate-200" />
+      <div className="min-w-0 flex-1">
+        <Skeleton className="h-5 w-36 rounded-full bg-slate-200" />
+        <Skeleton className="mt-2 h-4 w-24 rounded-full bg-slate-200" />
+      </div>
+      <Skeleton className="h-5 w-5 rounded-full bg-slate-200" />
+    </div>
+  );
+
+  const CompactShopRow = ({
+    shop,
+    isLast = false,
+  }: {
+    shop: Shop;
+    isLast?: boolean;
+  }) => {
+    const imageUrl = shop.backgroundImageUrl
+      ? getImageUrl("shop_images", shop.backgroundImageUrl)
+      : null;
+
+    return (
+      <Link
+        href={`/user/shop/${shop.id}`}
+        className={`group flex items-center gap-3 px-2 py-3 ${isLast ? "" : "border-b border-slate-200/70"}`}
+      >
+        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-slate-200">
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={shop.name}
+              fill
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-slate-500 to-slate-700 text-lg font-bold text-white">
+              {shop.name.charAt(0)}
+            </div>
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-lg font-semibold leading-tight text-slate-900 sm:text-xl">
+            {shop.name}
+          </p>
+          <p className="mt-1 text-sm text-slate-500">
+            {t("discover.distanceAway", { distance: "1.5" })}
+          </p>
+        </div>
+
+        <ChevronRight className="h-5 w-5 text-slate-400 transition-colors group-hover:text-slate-300" />
+      </Link>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <div className="mx-auto w-full max-w-md px-4 pb-8 pt-3">
+        <AppSearchInput
+          value={search}
+          inputRef={searchInputRef}
+          onValueChange={setSearch}
+          onFocus={() => setIsSearchFocused(true)}
+          onBlur={() => setIsSearchFocused(false)}
+          placeholder={t("hero.search.placeholder")}
+          showClearButton={search.length > 0}
+          onClear={() => {
+            setSearch("");
+            setDebouncedSearch("");
+          }}
+          showFilterButton={search.length === 0}
+          onFilterClick={openFilterModal}
+          clearAriaLabel={t("common.clearSearch")}
+          filterAriaLabel={t("filter.title")}
+        />
+
+        {isFilterOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-3"
+            onClick={() => setIsFilterOpen(false)}
+          >
+            <div
+              className="w-full max-w-md rounded-3xl border border-[#f1c894] bg-white p-4 text-slate-900 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-2xl font-bold">{t("filter.title")}</h3>
+                <button
+                  type="button"
+                  onClick={() => setIsFilterOpen(false)}
+                  className="rounded-full bg-[#fff3e6] p-2 text-[#8a5620] transition hover:bg-[#fce2c4]"
+                  aria-label={t("common.close")}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="mb-5">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500">
+                    {t("filter.category").toUpperCase()}
+                  </p>
+                  <span className="text-[10px] font-bold tracking-[0.14em] text-[#F49B33]">
+                    {t("filter.multiSelect").toUpperCase()}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap gap-2.5">
+                  {filterCategories.map((category) => {
+                    const active = draftCategories.includes(category.id);
+
+                    return (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() => toggleCategory(category.id)}
+                        className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                          active
+                            ? "bg-[#F49B33] text-white"
+                            : "bg-[#fff3e6] text-[#8a5620]"
+                        }`}
+                      >
+                        {category.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-slate-200 bg-linear-to-b from-white to-slate-50 p-4 shadow-sm">
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500">
+                      {t("filter.priceRange").toUpperCase()}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {t("filter.togglePrice")}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDraftPriceEnabled((prev) => {
+                        const next = !prev;
+                        if (next) {
+                          setDraftMinPrice(DEFAULT_MIN_PRICE);
+                          setDraftMaxPrice(DEFAULT_MAX_PRICE);
+                        }
+                        return next;
+                      });
+                    }}
+                    className={`relative inline-flex h-7 w-12 shrink-0 items-center overflow-hidden rounded-full p-0.5 transition ${
+                      draftPriceEnabled ? "bg-green-500" : "bg-slate-300"
+                    }`}
+                    aria-label={t("filter.togglePrice")}
+                    aria-pressed={draftPriceEnabled}
+                  >
+                    <span
+                      className={`block h-6 w-6 rounded-full bg-white shadow transition-transform ${
+                        draftPriceEnabled ? "translate-x-5" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                  <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
+                  <div className="rounded-2xl border border-slate-200 bg-white px-2.5 py-2 shadow-sm">
+                    <p className="text-[7px] font-semibold uppercase tracking-[0.16em] text-slate-400 sm:text-[7px]">
+                      {t("filter.priceFrom")}
+                    </p>
+                    <p className="mt-1 text-sm font-bold whitespace-nowrap text-slate-900 sm:text-xs">
+                      {formatPrice(draftMinPrice, locale)} {t("currency.som")}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-200 bg-white px-2.5 py-2 shadow-sm">
+                    <p className="text-[7px] font-semibold uppercase tracking-[0.16em] text-slate-400 sm:text-[7px]">
+                      {t("filter.priceTo")}
+                    </p>
+                    <p className="mt-1 text-sm font-bold whitespace-nowrap text-slate-900 sm:text-xs">
+                      {formatPrice(draftMaxPrice, locale)} {t("currency.som")}
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  className={`rangePrice mb-8 ${draftPriceEnabled ? "" : "opacity-45"}`}
+                >
+                  <div className="slider rounded-full bg-linear-to-r from-[#fff4e7] via-[#ffe1bd] to-[#fff4e7]">
+                    <input
+                      type="range"
+                      min={DEFAULT_MIN_PRICE}
+                      max={DEFAULT_MAX_PRICE}
+                      step={1}
+                      value={draftMinPrice}
+                      disabled={!draftPriceEnabled}
+                      onChange={(e) => {
+                        const nextMin = Number(e.target.value);
+                        setDraftMinPrice(Math.min(nextMin, draftMaxPrice));
+                      }}
+                      className={`range-thumb ${draftMinPrice > DEFAULT_MAX_PRICE - 20 ? "range-thumb--zindex-5" : "range-thumb--zindex-3"}`}
+                    />
+
+                    <input
+                      type="range"
+                      min={DEFAULT_MIN_PRICE}
+                      max={DEFAULT_MAX_PRICE}
+                      step={1}
+                      value={draftMaxPrice}
+                      disabled={!draftPriceEnabled}
+                      onChange={(e) => {
+                        const nextMax = Number(e.target.value);
+                        setDraftMaxPrice(Math.max(nextMax, draftMinPrice));
+                      }}
+                      className="range-thumb range-thumb--zindex-4"
+                    />
+
+                    <div className="slider-track bg-slate-200/90" />
+                    <div
+                      className="slider-range bg-linear-to-r from-[#f49b33] via-[#f7b35c] to-[#f49b33]"
+                      style={priceTrackStyle}
+                    />
+                    <div className="slider-left-value">
+                      {formatPrice(DEFAULT_MIN_PRICE, locale)} {t("currency.som")}
+                    </div>
+                    <div className="slider-right-value">
+                      {formatPrice(DEFAULT_MAX_PRICE, locale)} {t("currency.som")}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={resetDraftFilters}
+                    className="flex-1 rounded-2xl border border-[#F49B33]/25 bg-white px-4 py-3 text-sm font-semibold text-[#8a5620] shadow-sm transition hover:border-[#F49B33]/35 hover:bg-[#fff8ef]"
+                  >
+                    {t("filter.reset")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={applyFilters}
+                    className="flex-1 rounded-2xl bg-[#F49B33] px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#e58d26] hover:shadow-md"
+                  >
+                    {t("common.save")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {shouldShowShops && (
+          <div className="mt-5">
+            <p className="mb-3 text-sm font-semibold text-slate-700">
+              {t("discover.popularShops")}
+            </p>
+
+            {isPopularShopsLoading ? (
+              useListLayoutForShops ? (
+                <div className="rounded-2xl border border-slate-200 bg-white px-2">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <CompactShopRowSkeleton
+                      key={`discover-popular-list-skeleton-${i}`}
+                      isLast={i === 2}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex gap-4 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                  {Array.from({ length: 2 }).map((_, i) => (
+                    <div
+                      key={`discover-popular-skeleton-${i}`}
+                      className="w-[70vw] max-w-85 min-w-65 shrink-0"
+                    >
+                      <PopularShopCardSkeleton />
+                    </div>
+                  ))}
+                </div>
+              )
+            ) : filteredPopularShops.length > 0 ? (
+              useListLayoutForShops ? (
+                <div className="rounded-2xl border border-slate-200 bg-white px-2">
+                  {filteredPopularShops.map((shop, index) => (
+                    <CompactShopRow
+                      key={shop.id}
+                      shop={shop}
+                      isLast={index === filteredPopularShops.length - 1}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <>
+                  <div className="sm:hidden">
+                    <div
+                      ref={popularScrollRef}
+                      onScroll={updatePopularActiveDot}
+                      className="flex gap-4 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                    >
+                      {filteredPopularShops.map((shop) => (
+                        <div
+                          key={shop.id}
+                          className="w-[70vw] max-w-85 min-w-65 shrink-0"
+                        >
+                          <ShopCard shop={shop} />
+                        </div>
+                      ))}
+                    </div>
+
+                    {popularIndicatorCount > 1 && (
+                      <div className="mt-3 flex justify-center gap-2">
+                        {Array.from({ length: popularIndicatorCount }).map(
+                          (_, i) => (
+                            <button
+                              key={`popular-dot-${i}`}
+                              type="button"
+                              onClick={() => scrollToPopularDot(i)}
+                              className={`h-2 w-2 rounded-full transition-colors ${
+                                i === activePopularDot
+                                  ? "bg-cyan-500"
+                                  : "bg-slate-300"
+                              }`}
+                              aria-label={t("discover.goToCard", {
+                                index: i + 1,
+                              })}
+                            />
+                          ),
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="hidden gap-4 sm:grid sm:grid-cols-2">
+                    {filteredPopularShops.slice(0, 4).map((shop) => (
+                      <ShopCard key={shop.id} shop={shop} />
+                    ))}
+                  </div>
+                </>
+              )
+            ) : (
+              <div className="rounded-xl border border-slate-200 bg-white px-3 py-5 text-center text-sm text-slate-500 shadow-sm">
+                {t("discover.noShopsFound")}
+              </div>
+            )}
+          </div>
+        )}
+
+        {shouldShowServices && !shouldHideServicesSectionForEmptyCategory && (
+          <div className="mt-6">
+            <p className="mb-3 text-sm font-semibold text-slate-700">
+              {t("services.title")}
+            </p>
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-1 shadow-sm">
+              {isPopularServicesLoading
+                ? Array.from({ length: 3 }).map((_, i) => (
+                    <ServiceCardSkeleton
+                      key={`popular-service-skeleton-${i}`}
+                    />
+                  ))
+                : filteredServices.map((item) => {
+                    const priceValue =
+                      item.price === null || item.price === undefined
+                        ? Number.NaN
+                        : Number(item.price);
+                    const durationValue =
+                      item.durationMin === null ||
+                      item.durationMin === undefined
+                        ? 0
+                        : Number(item.durationMin);
+                    const targetShopId = item.shopId || item.shop?.id;
+
+                    return (
+                      <Link
+                        key={item.id}
+                        href={
+                          targetShopId
+                            ? `/user/book/${targetShopId}?service=${item.id}`
+                            : "/user/discover"
+                        }
+                        className="block border-b border-slate-200/70 py-4 last:border-b-0"
+                      >
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-[15px] font-semibold text-slate-900 sm:text-base">
+                              {item.name}
+                            </p>
+                            <p className="mt-1 flex items-center gap-1.5 text-[10px] tracking-wide text-slate-500">
+                              <Clock3 className="h-4 w-4" />
+                              <span className="truncate">
+                                {Number.isFinite(durationValue)
+                                  ? durationValue
+                                  : 0}{" "}
+                                {t("services.duration")} •{" "}
+                                {item.shop?.name ?? t("services.unknownShop")}
+                              </span>
+                            </p>
+                          </div>
+
+                          <div className="shrink-0 text-right">
+                              <p className="text-[18px] font-bold text-slate-800 sm:text-xl">
+                              {Number.isFinite(priceValue)
+                                ? `${formatPrice(priceValue, locale)} ${t("currency.som")}`
+                                : "--"}
+                            </p>
+                            <span className="mt-1 inline-block text-[10px] font-semibold text-emerald-500">
+                              {t("shops.book").toUpperCase()}
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+
+              {!isPopularServicesLoading && filteredServices.length === 0 && (
+                <div className="py-5 text-center text-sm text-slate-500">
+                  {t("services.noResults")}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

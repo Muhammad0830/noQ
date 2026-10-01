@@ -2,8 +2,8 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useLanguage } from "./LanguageContext";
 import AuthRequiredModal from "@/components/AuthRequiredModal";
+import { useTranslations } from "next-intl";
 
 type AuthPromptContextType = {
   openAuthPrompt: () => void;
@@ -21,7 +21,7 @@ export function AuthPromptProvider({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { t } = useLanguage();
+  const t = useTranslations();
   const [isAuthPromptOpen, setIsAuthPromptOpen] = useState(false);
 
   const isAuthPage =

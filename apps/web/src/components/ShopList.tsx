@@ -2,12 +2,12 @@
 
 import React, { useMemo, useRef, useState } from "react";
 import { Filter } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
 import ShopCard from "./ShopCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { API_ENDPOINTS } from "@/lib/api";
 import type { Shop, ShopCategory } from "@shared/types/general_types";
 import useApiQuery from "@/hooks/useApiQuery";
+import { useTranslations } from "next-intl";
 
 interface ServicesListProps {
   initialShops?: Shop[];
@@ -20,7 +20,7 @@ const ServicesList: React.FC<ServicesListProps> = ({
   selectedCategory = null,
   searchQuery = "",
 }) => {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [activeDot, setActiveDot] = useState(0);
 

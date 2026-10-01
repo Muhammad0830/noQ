@@ -1,15 +1,15 @@
-import { useLanguage } from "@/contexts/LanguageContext";
 import React from "react";
 import ProfileRow from "./ProfileRow";
 import { CreditCard, Shield, User } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export default function AccountSettings({
   setIsInfoModalOpen,
 }: {
   setIsInfoModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const router = useRouter();
 
   return (

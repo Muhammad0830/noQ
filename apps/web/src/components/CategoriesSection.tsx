@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useRef } from "react";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ShopCategory } from "@shared/types/general_types";
 import { resolveCategoryIcon } from "@/lib/getCategoryIcon";
+import { useTranslations } from "next-intl";
 
 interface CategoriesSectionProps {
   categories?: ShopCategory[];
@@ -19,7 +19,7 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
   onCategorySelect,
   selectedCategory = null,
 }) => {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   return (
