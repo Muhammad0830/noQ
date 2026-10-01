@@ -143,7 +143,7 @@ export default function ShopProfile({
   const backgroundImage = shopData.backgroundImageUrl
     ? shopData.backgroundImageUrl.startsWith("http")
       ? shopData.backgroundImageUrl
-      : getImageUrl(shopData.backgroundImageUrl, "shop_images")
+      : getImageUrl("shop_images", shopData.backgroundImageUrl)
     : null;
   const distance = "1.2 miles";
   const hours = "9AM - 8PM";

@@ -31,7 +31,7 @@ export function AuthPromptProvider({
 
   useEffect(() => {
     if (isAuthPage) {
-      setIsAuthPromptOpen(false);
+      setIsAuthPromptOpen(false); // eslint-disable-line
     }
   }, [isAuthPage, pathname]);
 

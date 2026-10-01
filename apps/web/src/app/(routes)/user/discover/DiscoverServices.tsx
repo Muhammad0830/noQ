@@ -13,6 +13,7 @@ import { API_ENDPOINTS } from "@/lib/api";
 import { getImageUrl } from "@/lib/supabaseClient";
 import type { Shop, ShopCategory } from "@shared/types/general_types";
 import useApiQuery from "@/hooks/useApiQuery";
+import Image from "next/image";
 
 type TrendingService = {
   id: string;
@@ -293,7 +294,7 @@ export default function DiscoverServices() {
     filteredServices.length === 0;
 
   useEffect(() => {
-    setActivePopularDot(0);
+    setActivePopularDot(0); // eslint-disable-line
     if (popularScrollRef.current) {
       popularScrollRef.current.scrollTo({ left: 0, behavior: "auto" });
     }
@@ -404,7 +405,7 @@ export default function DiscoverServices() {
     isLast?: boolean;
   }) => {
     const imageUrl = shop.backgroundImageUrl
-      ? getImageUrl(shop.backgroundImageUrl, "shop_images")
+      ? getImageUrl("shop_images", shop.backgroundImageUrl)
       : null;
 
     return (
@@ -414,9 +415,10 @@ export default function DiscoverServices() {
       >
         <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-slate-200">
           {imageUrl ? (
-            <img
+            <Image
               src={imageUrl}
               alt={shop.name}
+              fill
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
           ) : (

@@ -7,9 +7,6 @@ import CategoriesSection from "@/components/CategoriesSection";
 import ServicesList from "@/components/ShopList";
 import {
   API_ENDPOINTS,
-  getStorageBySource,
-  getStoredAuth,
-  REFRESH_TOKEN_STORAGE_KEY,
 } from "@/lib/api";
 import useApiQuery from "@/hooks/useApiQuery";
 import type { ShopCategory } from "@shared/types/general_types";
@@ -37,7 +34,7 @@ export default function Home() {
     [categoriesData],
   );
 
-  const handleSearch = (query: string, location: string) => {
+  const handleSearch = (query: string) => {
     setSearchQuery(query);
     // Scroll to services section
     const servicesSection = document.getElementById("services");

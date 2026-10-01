@@ -80,7 +80,7 @@ export default function Header() {
   const avatarImageSrc = user?.avatarUrl
     ? user.avatarUrl.startsWith("http")
       ? user.avatarUrl
-      : getImageUrl(user.avatarUrl, "user_avatars")
+      : getImageUrl("user_avatars", user.avatarUrl)
     : null;
 
   const initials = (() => {

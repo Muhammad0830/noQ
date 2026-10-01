@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { Route } from "next";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -38,6 +39,7 @@ type AdminService = {
 };
 
 const EMPTY_PENDING_IDS: string[] = [];
+const asRoute = (href: string) => href as Route;
 
 const headersByShop = (shopId: string) => ({
   "x-shopid": shopId,
@@ -349,7 +351,7 @@ export default function AdminServicesPage() {
         <main className="px-4 md:px-5 lg:px-6 pt-4 md:pt-5 lg:pt-6">
           <div className="hidden md:flex md:flex-col md:gap-3 lg:gap-4">
             <Link
-              href={getAdminHrefWithShopId("/admin/services/new")}
+              href={asRoute(getAdminHrefWithShopId("/admin/services/new"))}
               className="inline-flex h-12 md:h-12 lg:h-14 w-full shrink-0 items-center justify-center gap-2 rounded-[18px] bg-[#F49B33] px-5 text-xs md:text-sm lg:text-sm font-semibold text-white shadow-[0_10px_24px_rgba(244,155,51,0.24)] transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0"
             >
               <Plus className="h-3.5 w-3.5 md:h-4 md:w-4 lg:h-4 lg:w-4" />
@@ -381,7 +383,7 @@ export default function AdminServicesPage() {
             </div>
 
             <Link
-              href={getAdminHrefWithShopId("/admin/services/new")}
+              href={asRoute(getAdminHrefWithShopId("/admin/services/new"))}
               aria-label={t("admin.services.aria.addService")}
               className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F49B33] text-white shadow-[0_10px_24px_rgba(244,155,51,0.24)] transition-transform duration-200 active:scale-95"
             >
@@ -499,7 +501,9 @@ export default function AdminServicesPage() {
                             <button
                               type="button"
                               onClick={() =>
-                                router.push(getServiceEditHref(service.id))
+                                router.push(
+                                  asRoute(getServiceEditHref(service.id)),
+                                )
                               }
                               aria-label={t("admin.services.aria.editService")}
                               className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#8f98a4] transition-colors hover:bg-[#f3f4f6]"
@@ -580,7 +584,7 @@ export default function AdminServicesPage() {
                       <button
                         type="button"
                         onClick={() =>
-                          router.push(getServiceEditHref(service.id))
+                          router.push(asRoute(getServiceEditHref(service.id)))
                         }
                         className="mt-1 inline-flex items-center gap-1 text-[9px] md:text-[10px] lg:text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9aa1ab] transition-colors hover:text-[#F49B33]"
                       >

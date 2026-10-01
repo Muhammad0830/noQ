@@ -13,7 +13,7 @@ const resolveShopImage = (rawImage?: string | null) => {
 
     return trimmedImage.startsWith("http")
         ? trimmedImage
-        : getImageUrl(trimmedImage, "shop_images");
+        : getImageUrl("shop_images", trimmedImage);
 };
 
 export const buildOngoingCard = (

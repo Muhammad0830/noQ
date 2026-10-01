@@ -7,11 +7,7 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import "./toast.css";
-import { ThemeProvider } from "@/contexts/ThemeContext";
-import { LanguageProvider } from "@/contexts/LanguageContext";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { ProviderModeProvider } from "@/contexts/ProviderModeContext";
-import Providers from "@/contexts/ReactQueryProvider";
+import AppProviders from "./providers";
 import AppShell from "@/components/AppShell";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
@@ -43,7 +39,6 @@ export const metadata: Metadata = {
   },
 };
 
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -63,18 +58,10 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <LanguageProvider>
-          <Providers>
-            <ThemeProvider>
-              <AuthProvider>
-                <ProviderModeProvider>
-                  <AppShell>{children}</AppShell>
-                </ProviderModeProvider>
-              </AuthProvider>
-              <Toaster />
-            </ThemeProvider>
-          </Providers>
-        </LanguageProvider>
+        <AppProviders>
+          <AppShell>{children}</AppShell>
+          <Toaster />
+        </AppProviders>
       </body>
     </html>
   );

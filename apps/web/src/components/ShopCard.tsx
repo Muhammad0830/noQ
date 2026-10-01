@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Star,
   Scissors,
@@ -14,6 +14,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { Shop } from "@shared/types/general_types";
 import Link from "next/link";
 import { getImageUrl } from "@/lib/supabaseClient";
+import Image from "next/image";
 
 interface ShopCardProps {
   shop: Shop;
@@ -87,7 +88,7 @@ const getCategoryIcon = (iconOrName?: string) => {
   return <Sparkles className="w-5 h-5" />;
 };
 
-const shopCard: React.FC<ShopCardProps> = ({
+const ShopCard: React.FC<ShopCardProps> = ({
   shop,
   onFavorite: _onFavorite,
   isFavorite: _isFavorite = false,
@@ -128,7 +129,7 @@ const shopCard: React.FC<ShopCardProps> = ({
   const imageUrl = rawImage
     ? rawImage.startsWith("http")
       ? rawImage
-      : getImageUrl(rawImage, "shop_images")
+      : getImageUrl("shop_images", rawImage)
     : null;
   return (
     <Link href={`/user/shop/${shopId}`} className="block">
@@ -136,9 +137,10 @@ const shopCard: React.FC<ShopCardProps> = ({
         {/* Image Section */}
         <div className="relative h-52 overflow-hidden">
           {imageUrl && !imageLoadError ? (
-            <img
+            <Image
               src={imageUrl}
               alt={title}
+              fill
               onError={() => setImageLoadError(true)}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
@@ -213,4 +215,4 @@ const shopCard: React.FC<ShopCardProps> = ({
   );
 };
 
-export default shopCard;
+export default ShopCard;

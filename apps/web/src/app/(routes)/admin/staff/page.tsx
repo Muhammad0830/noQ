@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { Route } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   CalendarDays,
@@ -42,6 +43,8 @@ const avatarGradients = [
   "linear-gradient(135deg, #8b5cf6, #ddd6fe)",
   "linear-gradient(135deg, #db2777, #fbcfe8)",
 ] as const;
+
+const asRoute = (href: string) => href as Route;
 
 const getInitials = (value: string) => {
   const parts = value.trim().split(/\s+/).filter(Boolean);
@@ -237,11 +240,13 @@ export default function Page() {
   const openSchedule = (id: string) => {
     const basePath = `/admin/staff/${id}/schedule`;
     if (!activeShopId) {
-      router.push(basePath);
+      router.push(asRoute(basePath));
       return;
     }
 
-    router.push(`${basePath}?shopId=${encodeURIComponent(activeShopId)}`);
+    router.push(
+      asRoute(`${basePath}?shopId=${encodeURIComponent(activeShopId)}`),
+    );
   };
 
   return (

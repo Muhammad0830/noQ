@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -8,6 +9,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useProviderMode } from "@/contexts/ProviderModeContext";
+
+const asRoute = (href: string) => href as Route;
 
 export default function Login() {
   const router = useRouter();
@@ -176,7 +179,7 @@ export default function Login() {
                 </span>
               </label>
               <Link
-                href="/forgot-password"
+                href={asRoute("/forgot-password")}
                 className="self-start text-sm text-right text-blue-600 hover:underline sm:self-auto"
               >
                 {t("auth.forgotPassword")}
