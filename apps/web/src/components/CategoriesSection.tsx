@@ -19,7 +19,7 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
   onCategorySelect,
   selectedCategory = null,
 }) => {
-  const t = useTranslations();
+  const t = useTranslations('user.hero');
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   return (

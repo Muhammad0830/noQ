@@ -120,7 +120,6 @@ export default function Header() {
               <div className="flex items-center gap-3">
                 <button
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fff3e6] text-[#F49B33] transition-colors hover:bg-[#fce2c4] sm:h-11 sm:w-11"
-                  aria-label={t("header.notifications")}
                 >
                   <Bell className="h-5 w-5" />
                 </button>
@@ -128,7 +127,6 @@ export default function Header() {
                   <button
                     onClick={handleMenuClick}
                     className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-[#fff3e6] sm:h-11 sm:w-11"
-                    aria-label={t("header.profileMenu")}
                   >
                     {isAdmin && isOnProfilePage && providerMode ? (
                       <Menu className="w-6 h-6 text-[#F49B33]" />

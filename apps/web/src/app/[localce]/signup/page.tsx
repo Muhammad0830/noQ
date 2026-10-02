@@ -48,20 +48,20 @@ export default function SignUp() {
 
   const validateEmail = (email: string) => {
     const value = email.trim();
-    if (!value) return t("signup.validation.email.required");
-    if (value.includes(" ")) return t("signup.validation.email.noSpace");
-    if (!value.includes("@")) return t("signup.validation.email.noAt");
+    if (!value) return t("auth.register.validation.email.required");
+    if (value.includes(" ")) return t("auth.register.validation.email.noSpace");
+    if (!value.includes("@")) return t("auth.register.validation.email.noAt");
 
     const [localPart, domainPart] = value.split("@");
-    if (!localPart) return t("signup.validation.email.localMissing");
-    if (!domainPart) return t("signup.validation.email.domainMissing");
+    if (!localPart) return t("auth.register.validation.email.localMissing");
+    if (!domainPart) return t("auth.register.validation.email.domainMissing");
     if (!domainPart.includes(".")) {
-      return t("signup.validation.email.noDot");
+      return t("auth.register.validation.email.noDot");
     }
 
     const domainSuffix = domainPart.split(".").pop() || "";
     if (domainSuffix.length < 2) {
-      return t("signup.validation.email.suffixShort");
+      return t("auth.register.validation.email.suffixShort");
     }
 
     return "";
@@ -85,31 +85,31 @@ export default function SignUp() {
       "99",
     ];
 
-    if (!value) return t("signup.validation.phone.required");
-    if (!value.startsWith("+")) return t("signup.validation.phone.plus");
+    if (!value) return t("auth.register.validation.phone.required");
+    if (!value.startsWith("+")) return t("auth.register.validation.phone.plus");
     if (!value.startsWith("+998"))
-      return t("signup.validation.phone.startsWith998");
+      return t("auth.register.validation.phone.startsWith998");
 
     const rest = value.slice(4).replace(/[\s()-]/g, "");
     if (!/^\d*$/.test(rest)) {
-      return t("signup.validation.phone.invalidChars");
+      return t("auth.register.validation.phone.invalidChars");
     }
 
     if (rest.length < 2) {
-      return t("signup.validation.phone.noOperatorCode");
+      return t("auth.register.validation.phone.noOperatorCode");
     }
 
     const operatorCode = rest.slice(0, 2);
     if (!allowedOperatorCodes.includes(operatorCode)) {
-      return t("signup.validation.phone.invalidOperator");
+      return t("auth.register.validation.phone.invalidOperator");
     }
 
     if (rest.length < 9) {
-      return t("signup.validation.phone.lengthShort");
+      return t("auth.register.validation.phone.lengthShort");
     }
 
     if (rest.length > 9) {
-      return t("signup.validation.phone.lengthLong");
+      return t("auth.register.validation.phone.lengthLong");
     }
 
     return "";
@@ -143,7 +143,7 @@ export default function SignUp() {
       if (exists) {
         setFieldErrors((prev) => ({
           ...prev,
-          email: t("signup.email.exists"),
+          email: t("auth.register.email_exists"),
         }));
       }
     } finally {
@@ -157,11 +157,11 @@ export default function SignUp() {
     const phoneError = validateUzPhone(formData.phone);
     const confirmPasswordError =
       formData.password !== formData.confirmPassword
-        ? t("signup.validation.confirmPassword")
+        ? t("auth.register.validation.confirmPassword")
         : "";
     const acceptTermsError = formData.acceptTerms
       ? ""
-      : t("signup.validation.acceptTerms");
+      : t("auth.register.validation.acceptTerms");
 
     const nextFieldErrors: FieldErrors = {
       email: emailError,
@@ -173,7 +173,7 @@ export default function SignUp() {
     setFieldErrors(nextFieldErrors);
 
     if (Object.values(nextFieldErrors).some(Boolean)) {
-      setError(t("signup.validation.fixErrors"));
+      setError(t("auth.register.validation.fixErrors"));
       return;
     }
 
@@ -187,9 +187,9 @@ export default function SignUp() {
       if (emailExists) {
         setFieldErrors((prev) => ({
           ...prev,
-          email: t("signup.email.exists"),
+          email: t("auth.register.email_exists"),
         }));
-        setError(t("signup.email.exists"));
+        setError(t("auth.register.email_exists"));
         return;
       }
 
@@ -209,10 +209,10 @@ export default function SignUp() {
       ) {
         setFieldErrors((prev) => ({
           ...prev,
-          email: t("signup.email.exists"),
+          email: t("auth.register.email_exists"),
         }));
       }
-      setError(err instanceof Error ? err.message : t("signup.error.general"));
+      setError(err instanceof Error ? err.message : t("auth.register.error.general"));
     } finally {
       setIsLoading(false);
     }
@@ -231,7 +231,7 @@ export default function SignUp() {
           <h2 className="mb-2 text-xl font-bold text-gray-900 sm:text-2xl">
             {t("nav.signup")}
           </h2>
-          <p className="text-gray-600">{t("signup.subtitle")}</p>
+          <p className="text-gray-600">{t("auth.register.subtitle")}</p>
         </div>
 
         <div className="relative rounded-2xl bg-white p-5 shadow-lg sm:p-8">
@@ -253,7 +253,7 @@ export default function SignUp() {
             {/* Full Name */}
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-900">
-                {t("signup.fullName")}
+                {t("auth.register.fullName")}
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
@@ -264,7 +264,7 @@ export default function SignUp() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  placeholder={t("signup.fullNamePlaceholder")}
+                  placeholder={t("auth.register.fullNamePlaceholder")}
                   className="w-full rounded-lg border border-gray-300 bg-white py-3 pl-10 pr-4 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
                   disabled={isLoading}
                 />
@@ -274,7 +274,7 @@ export default function SignUp() {
             {/* Email */}
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-900">
-                {t("auth.email")}
+                {t("auth.login.email")}
               </label>
               {fieldErrors.email && (
                 <p className="mb-2 text-xs font-medium text-red-600">
@@ -283,7 +283,7 @@ export default function SignUp() {
               )}
               {isCheckingEmail && !fieldErrors.email && (
                 <p className="mb-2 text-xs text-gray-500">
-                  {t("signup.checkingEmail")}
+                  {t("auth.register.checkingEmail")}
                 </p>
               )}
               <div className="relative">
@@ -304,7 +304,7 @@ export default function SignUp() {
                       }));
                     }
                   }}
-                  placeholder={t("auth.emailPlaceholder")}
+                  placeholder={t("auth.login.emailPlaceholder")}
                   className={getInputClass(!!fieldErrors.email)}
                   disabled={isLoading}
                 />
@@ -314,7 +314,7 @@ export default function SignUp() {
             {/* Phone */}
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-900">
-                {t("signup.phone")}
+                {t("auth.register.phone")}
               </label>
               {fieldErrors.phone && (
                 <p className="mb-2 text-xs font-medium text-red-600">
@@ -343,7 +343,7 @@ export default function SignUp() {
                       }));
                     }
                   }}
-                  placeholder={t("signup.phonePlaceholder")}
+                  placeholder={t("auth.register.phonePlaceholder")}
                   className={getInputClass(!!fieldErrors.phone)}
                   disabled={isLoading}
                 />
@@ -353,7 +353,7 @@ export default function SignUp() {
             {/* Password */}
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-900">
-                {t("auth.password")}
+                {t("auth.login.password")}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
@@ -365,7 +365,7 @@ export default function SignUp() {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  placeholder={t("signup.passwordPlaceholder")}
+                  placeholder={t("auth.register.passwordPlaceholder")}
                   className="w-full rounded-lg border border-gray-300 bg-white py-3 pl-10 pr-12 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
                   disabled={isLoading}
                 />
@@ -386,7 +386,7 @@ export default function SignUp() {
             {/* Confirm Password */}
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-900">
-                {t("signup.confirmPassword")}
+                {t("auth.register.confirmPassword")}
               </label>
               {fieldErrors.confirmPassword && (
                 <p className="mb-2 text-xs font-medium text-red-600">
@@ -413,11 +413,11 @@ export default function SignUp() {
                         confirmPassword:
                           formData.password === value
                             ? ""
-                            : t("signup.validation.confirmPassword"),
+                            : t("auth.register.validation.confirmPassword"),
                       }));
                     }
                   }}
-                  placeholder={t("signup.confirmPasswordPlaceholder")}
+                  placeholder={t("auth.register.confirmPasswordPlaceholder")}
                   className={getInputClass(!!fieldErrors.confirmPassword)}
                   disabled={isLoading}
                 />
@@ -470,7 +470,7 @@ export default function SignUp() {
                   <span>{t("common.loading")}</span>
                 </>
               ) : (
-                <span>{t("signup.submit")}</span>
+                <span>{t("auth.register.submit")}</span>
               )}
             </button>
           </form>

@@ -240,7 +240,7 @@ export default function ShopProfile({
                 <span
                   className={`px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold text-white ${shopData.isOpen ? "bg-teal-500" : "bg-red-500"}`}
                 >
-                  {shopData.isOpen ? t("shop.openNow") : t("shop.closed")}
+                  {shopData.isOpen ? t("user.shop.openNow") : t("user.shop.closed")}
                 </span>
                 <p className="mt-1.5 sm:mt-2 text-white text-base sm:text-2xl font-medium leading-tight drop-shadow-md line-clamp-2">
                   {truncateAddress(shopData.address, 4) ||
@@ -276,7 +276,7 @@ export default function ShopProfile({
               <div className="flex flex-col items-center gap-2 sm:gap-3 rounded-2xl border border-[#f1c894] bg-white p-3 text-center">
                 <Map className="h-5 w-5 sm:h-6 sm:w-6 text-[#F49B33]" />
                 <span className="text-xs font-semibold text-[#8a5620] sm:text-sm">
-                  {t("shop.viewDetails")}
+                  {t("user.shop.viewDetails")}
                 </span>
               </div>
               {hasPhone && (
@@ -286,7 +286,7 @@ export default function ShopProfile({
                 >
                   <Phone className="h-5 w-5 sm:h-6 sm:w-6 text-[#F49B33]" />
                   <span className="text-xs font-semibold text-[#8a5620] sm:text-sm">
-                    {t("shop.phone")}
+                    {t("user.shop.phone")}
                   </span>
                 </a>
               )}
@@ -343,7 +343,7 @@ export default function ShopProfile({
                         <span className="flex items-center gap-1 whitespace-nowrap">
                           <Clock className="w-4 h-4 shrink-0" />
                           <span>
-                            {service.durationMin} {t("services.duration")}
+                            {service.durationMin} {t("user.services.duration")}
                           </span>
                         </span>
                       )}
@@ -358,18 +358,18 @@ export default function ShopProfile({
                         className="text-base sm:text-lg font-bold text-teal-600"
                         style={{ overflowWrap: "anywhere" }}
                       >
-                        {formatPrice(service.price || 0, locale)} {t("currency.som")}
+                        {formatPrice(service.price || 0, locale)} {t("common.currency")}
                       </p>
                     </div>
                     <button className="px-4 sm:px-6 py-2 bg-teal-500 text-white text-xs sm:text-sm font-medium rounded-full hover:bg-teal-600 transition whitespace-nowrap text-center">
-                      {t("shops.book")}
+                      {t("user.services.book")}
                     </button>
                   </div>
                 </Link>
               ))
             ) : (
               <p className="text-gray-500 text-center py-8">
-                {t("shop.noServices")}
+                {t("user.shop.noServices")}
               </p>
             )}
           </div>
@@ -443,7 +443,7 @@ export default function ShopProfile({
               ))
             ) : (
               <p className="text-gray-500 text-center py-8">
-                {t("shop.noReviews")}
+                {t("user.shop.noReviews")}
               </p>
             )}
           </div>
@@ -453,7 +453,7 @@ export default function ShopProfile({
         {activeTab === "about" && (
           <div className="mt-8 p-6 bg-gray-50 rounded-lg">
             <h3 className="font-semibold text-gray-900 mb-2">
-              {t("shop.about")}
+              {t("user.shop.about")}
             </h3>
             <p className="text-gray-700 text-sm">
               {shopData.description || "No description yet"}

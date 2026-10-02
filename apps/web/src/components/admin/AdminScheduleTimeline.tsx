@@ -293,7 +293,7 @@ export function AdminScheduleTimeline({
     <div className="lg:col-span-2 rounded-xl bg-white p-4 shadow-md md:rounded-xl md:p-5 lg:rounded-2xl lg:p-6">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold">{t("booking.timeline")}</h2>
+          <h2 className="text-lg font-bold">{t("user.booking.timeline")}</h2>
           <div className="mt-1 text-sm uppercase text-gray-500">
             {headerWeekday}, {headerMonthDay}
           </div>
@@ -561,7 +561,7 @@ export function AdminScheduleTimeline({
                             .toUpperCase()}
                         </span>
                         <span className="truncate">
-                          {t("booking.staff")}:{" "}
+                          {t("user.booking.staff")}:{" "}
                           <span className="font-semibold text-gray-700">
                             {appointment.stylist}
                           </span>
@@ -587,12 +587,12 @@ export function AdminScheduleTimeline({
             onClick={(event) => event.stopPropagation()}
             role="dialog"
             aria-modal="true"
-            aria-label={t("history.status.pending")}
+            aria-label={t("user.history.status.pending")}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <span className="inline-flex items-center rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-orange-500">
-                  {t("history.status.pending")}
+                  {t("user.history.status.pending")}
                 </span>
                 <h3 className="mt-2 text-lg font-bold text-slate-900">
                   {selectedPendingAppointment.customer}
@@ -626,7 +626,7 @@ export function AdminScheduleTimeline({
 
                 <div className="text-right">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                    {t("history.status.pending")}
+                    {t("user.history.status.pending")}
                   </p>
                   <p className="mt-1 text-xs font-semibold text-orange-500">
                     {selectedPendingAppointment.status}

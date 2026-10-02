@@ -110,7 +110,7 @@ export default function MyBookings() {
     }
 
     const shouldCancel = window.confirm(
-      t("history.cancelConfirm") || "Bookingni bekor qilasizmi?",
+      t("user.booking.cancel_confirm") || "Bookingni bekor qilasizmi?",
     );
     if (!shouldCancel) {
       return;
@@ -122,8 +122,7 @@ export default function MyBookings() {
     } catch (cancelError) {
       console.error("Cancel booking failed", cancelError);
       alert(
-        t("history.cancelError") ||
-          "Bookingni bekor qilishda xatolik yuz berdi",
+        t("user.booking.cancel_error")
       );
     }
   };
@@ -218,10 +217,10 @@ export default function MyBookings() {
             </button>
 
             <h3 className="pr-8 text-lg font-semibold text-slate-900 sm:text-xl">
-              {t("history.authRequiredTitle")}
+              {t("user.history.authRequiredTitle")}
             </h3>
             <p className="mt-2 text-sm leading-relaxed text-slate-600">
-              {t("history.authRequiredMessage")}
+              {t("user.history.authRequiredMessage")}
             </p>
 
             <button
@@ -230,7 +229,7 @@ export default function MyBookings() {
               className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-purple-600 px-4 text-sm font-semibold text-white transition hover:brightness-105"
             >
               <LogIn className="h-4 w-4" />
-              {t("history.authRequiredAction")}
+              {t("user.history.authRequiredAction")}
             </button>
           </div>
         </div>

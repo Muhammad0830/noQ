@@ -140,7 +140,7 @@ export default function AdminNewBookingPage() {
 
   const currentShopName = useMemo(() => {
     const match = user?.shops?.find((s) => s.id === activeShopId);
-    return match?.name || t("booking.defaultShop");
+    return match?.name || t("user.booking.defaultShop");
   }, [activeShopId, t, user?.shops]);
 
   const { data: services = [], isLoading: servicesLoading } = useApiQuery<
@@ -395,11 +395,11 @@ export default function AdminNewBookingPage() {
         startTime: `${selectedDate}T${selectedTime}:00`,
       });
 
-      setToast({ message: t("booking.success"), kind: "success" });
+      setToast({ message: t("user.booking.success"), kind: "success" });
       router.push(asRoute(adminBackHref));
     } catch (error: any) { // eslint-disable-line
       const backendMessage =
-        error?.response?.data?.message || error?.message || t("booking.error");
+        error?.response?.data?.message || error?.message || t("user.booking.error");
       setToast({ message: backendMessage, kind: "error" });
     }
   };
@@ -416,7 +416,7 @@ export default function AdminNewBookingPage() {
 
 const priceLabel = useMemo(() => {
   if (selectedService?.price == null) return "—";
-  return `${formatPrice(selectedService.price, locale || "uz-UZ")} ${t("currency.som")}`;
+  return `${formatPrice(selectedService.price, locale || "uz-UZ")} ${t("common.currency")}`;
 }, [locale, selectedService, t]);
 
   const selectedDuration = selectedService?.durationMin ?? 45;
@@ -527,7 +527,7 @@ const priceLabel = useMemo(() => {
 
         <section className="mb-3">
           <h3 className="mb-2 text-sm font-bold text-slate-900">
-            1. {t("booking.service")}
+            1. {t("user.booking.service")}
           </h3>
         </section>
 
@@ -545,7 +545,7 @@ const priceLabel = useMemo(() => {
                   <span className="text-[#F49B33] font-bold">{priceLabel}</span>
                   <span className="text-orange-300">·</span>
                   <span className="text-slate-500">
-                    {selectedDuration} {t("services.duration")}
+                    {selectedDuration} {t("admin.services.duration")}
                   </span>
                 </div>
               </div>
@@ -556,7 +556,7 @@ const priceLabel = useMemo(() => {
                 }}
                 className="text-xs font-semibold rounded-full px-4 py-2 border border-orange-200 bg-white text-orange-500"
               >
-                {t("booking.edit")}
+                {t("user.booking.edit")}
               </button>
             </div>
           </div>
@@ -582,8 +582,8 @@ const priceLabel = useMemo(() => {
                 </p>
                 <p className="text-xs text-slate-500 mt-1">
                   {formatPrice(service.price ?? 0, locale || "uz-UZ")}{" "}
-                  {t("currency.som")} · {service.durationMin ?? 45}{" "}
-                  {t("services.duration")}
+                  {t("common.currency")} · {service.durationMin ?? 45}{" "}
+                  {t("admin.services.duration")}
                 </p>
               </button>
             ))}
@@ -608,7 +608,7 @@ const priceLabel = useMemo(() => {
                   onClick={() => setIsCustomerPickerOpen(true)}
                   className="text-[11px] font-semibold text-[#F49B33]"
                 >
-                  {t("booking.edit")}
+                  {t("user.booking.edit")}
                 </button>
               )}
             </div>
@@ -721,7 +721,7 @@ const priceLabel = useMemo(() => {
           <>
             <section className="mb-6">
               <h3 className="mb-3 text-sm font-bold text-slate-900">
-                3. {t("booking.selectStaff")}
+                3. {t("user.booking.selectStaff")}
               </h3>
               <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
                 {staffOptions.slice(0, 3).map((member, index) => {
@@ -825,10 +825,10 @@ const priceLabel = useMemo(() => {
             <section className="mb-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-bold text-slate-900">
-                  5. {t("booking.timeline")}
+                  5. {t("user.booking.timeline")}
                 </h3>
                 <p className="text-[10px] tracking-[0.16em] text-[#F49B33] uppercase">
-                  {t("booking.liveSelection")}
+                  {t("user.booking.liveSelection")}
                 </p>
               </div>
 
@@ -867,10 +867,10 @@ const priceLabel = useMemo(() => {
                             : "available";
                         const statusLabel =
                           status === "selected"
-                            ? t("booking.selected")
+                            ? t("user.booking.selected")
                             : status === "available"
-                              ? t("booking.availableSlot")
-                              : t("booking.alreadyReserved");
+                              ? t("user.booking.availableSlot")
+                              : t("user.booking.alreadyReserved");
 
                         return (
                           <button
@@ -911,10 +911,10 @@ const priceLabel = useMemo(() => {
             <div className="rounded-2xl border border-orange-100 bg-orange-50 p-3 mb-3">
               <div className="flex justify-between text-xs text-slate-600">
                 <span className="uppercase tracking-wide">
-                  {t("booking.selectedWindow")}
+                  {t("user.booking.selectedWindow")}
                 </span>
                 <span className="uppercase tracking-wide">
-                  {t("booking.total")}
+                  {t("user.booking.total")}
                 </span>
               </div>
               <div className="flex justify-between items-end mt-1">
@@ -937,7 +937,7 @@ const priceLabel = useMemo(() => {
               <div className="mt-1 flex items-center gap-1.5 text-[11px] text-slate-700">
                 <Clock className="h-3.5 w-3.5 text-slate-500" />
                 <span className="truncate">
-                  {t("booking.staff")}:{" "}
+                  {t("user.booking.staff")}:{" "}
                   {staffOptions.find((s) => s.id === selectedStaffId)?.user
                     ?.name || "—"}
                 </span>
@@ -950,8 +950,8 @@ const priceLabel = useMemo(() => {
               className="w-full py-3 rounded-full bg-[#F49B33] text-white font-bold tracking-wide shadow-[0_10px_24px_rgba(244,155,51,0.28)] disabled:opacity-50"
             >
               {isPending
-                ? t("booking.processing")
-                : t("booking.confirmBooking")}
+                ? t("user.booking.processing")
+                : t("user.booking.confirmBooking")}
             </button>
           </div>
         </div>

@@ -106,8 +106,8 @@ const ShopCard: React.FC<ShopCardProps> = ({
   const rating =
     typeof backendRating === "number" ? backendRating.toFixed(1) : "0.0";
   const distance = "0.8 km";
-  const driveTime = `12 ${t("shopCard.minDrive")}`;
-  const nextSlot = `2:00 PM ${t("shopCard.today")}`;
+  const driveTime = `12 ${t("user.discover.shopCard.minDrive")}`;
+  const nextSlot = `2:00 PM ${t("user.discover.shopCard.today")}`;
   const title = shop.name;
   const shopInitial = (title?.trim()?.charAt(0) || "S").toUpperCase();
   const shopId = shop.id || rootShop.id || "";
@@ -167,8 +167,8 @@ const ShopCard: React.FC<ShopCardProps> = ({
             }`}
           >
             {isCurrentlyOpen
-              ? t("shopCard.availableNow")
-              : t("shopCard.closedNow")}
+              ? t("user.discover.shopCard.availableNow")
+              : t("user.discover.shopCard.closedNow")}
           </div>
         </div>
 
@@ -198,7 +198,7 @@ const ShopCard: React.FC<ShopCardProps> = ({
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                {t("shopCard.nextSlot")}
+                {t("user.discover.shopCard.nextSlot")}
               </p>
               <p className="mt-1 text-sm font-bold text-slate-800 sm:text-base">
                 {nextSlot}
@@ -206,7 +206,7 @@ const ShopCard: React.FC<ShopCardProps> = ({
             </div>
 
             <button className="rounded-full bg-[#F49B33] px-5 py-2 text-xs font-semibold text-white shadow-[0_10px_18px_rgba(244,155,51,0.24)] transition hover:bg-[#e28a20] sm:text-sm">
-              {t("shops.book")}
+              {t("user.services.book")}
             </button>
           </div>
         </div>

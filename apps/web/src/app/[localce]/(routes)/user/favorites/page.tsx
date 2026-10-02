@@ -54,9 +54,9 @@ export default function MyFavorites() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">{t("favorites.title")}</h1>
+          <h1 className="text-3xl font-bold">{t("favourites.title")}</h1>
           <span className="text-gray-600">
-            {t("favorites.savedPlaces", { count: favorites.length })}
+            {t("favourites.savedPlaces", { count: favorites.length })}
           </span>
         </div>
 
@@ -64,16 +64,16 @@ export default function MyFavorites() {
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
             <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-600 mb-2">
-              {t("favorites.emptyTitle")}
+              {t("favourites.emptyTitle")}
             </h3>
             <p className="text-gray-500 mb-6">
-              {t("favorites.emptyDescription")}
+              {t("favourites.emptyDescription")}
             </p>
             <Link
               href="/user/discover"
               className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              {t("favorites.discoverServices")}
+              {t("favourites.discoverServices")}
             </Link>
           </div>
         ) : (
@@ -137,13 +137,13 @@ export default function MyFavorites() {
                         href={`/user/shop/${shop.id}`}
                         className="flex-1 text-center py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 text-sm"
                       >
-                        {t("favorites.view")}
+                        {t("favourites.view")}
                       </Link>
                       <Link
                         href={`/user/book/${shop.id}`}
                         className="flex-1 text-center py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
                       >
-                        {t("favorites.book")}
+                        {t("favourites.book")}
                       </Link>
                     </div>
                   </div>

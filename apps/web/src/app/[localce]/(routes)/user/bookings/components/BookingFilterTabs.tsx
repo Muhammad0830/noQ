@@ -8,9 +8,9 @@ type Props = {
 
 export default function BookingFilterTabs({ filter, onChange, t }: Props) {
   const tabs: Array<{ key: BookingFilter; label: string }> = [
-    { key: "ongoing", label: t("history.tab.ongoing") },
-    { key: "completed", label: t("history.tab.completed") },
-    { key: "cancelled", label: t("history.tab.cancelled") },
+    { key: "ongoing", label: t("user.history.tab.ongoing") },
+    { key: "completed", label: t("user.history.tab.completed") },
+    { key: "cancelled", label: t("user.history.tab.cancelled") },
   ];
 
   return (

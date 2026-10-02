@@ -149,7 +149,7 @@ export default function BookingPage({
     : null;
   const totalPrice = useMemo(() => {
     const price = selectedService?.price ?? 0;
-    return `${formatPrice(price, locale)} ${t("currency.som")}`;
+    return `${formatPrice(price, locale)} ${t("common.currency")}`;
   }, [selectedService?.price, locale]);
   const monthYearFormatter = useMemo(
     () => new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }),
@@ -268,7 +268,7 @@ export default function BookingPage({
     const selectedDateTime = new Date(`${effectiveDate}T${selectedTime}:00`);
     if (selectedDateTime.getTime() <= currentTimestamp) {
       setSelectedTime(null);
-      toast.info(t("booking.noSlots"));
+      toast.info(t("user.booking.noSlots"));
     }
   }, [currentTimestamp, effectiveDate, selectedTime, t]);
 
@@ -321,10 +321,10 @@ export default function BookingPage({
 
           <div className="text-center">
             <p className="text-sm font-semibold tracking-wide">
-              {t("booking.title")}
+              {t("user.booking.title")}
             </p>
             <p className="text-[10px] text-[#F49B33] uppercase tracking-[0.2em]">
-              {shop?.name || t("booking.defaultShop")}
+              {shop?.name || t("user.booking.defaultShop")}
             </p>
           </div>
 
@@ -345,11 +345,11 @@ export default function BookingPage({
                 </p>
                 <div className="flex items-center gap-2 mt-1 text-sm">
                   <span className="text-[#F49B33] dark:text-[#F49B33] font-bold">
-                    {formatPrice(selectedService.price ?? 0, locale)} {t("currency.som")}
+                    {formatPrice(selectedService.price ?? 0, locale)} {t("common.currency")}
                   </span>
                   <span className="text-[#d3b089]">·</span>
                   <span className="text-slate-500">
-                    {duration} {t("services.duration")}
+                    {duration} {t("user.services.duration")}
                   </span>
                 </div>
               </div>
@@ -360,7 +360,7 @@ export default function BookingPage({
                 }}
                 className="text-xs font-semibold rounded-full px-4 py-2 border border-[white] bg-[#fff3e6] text-[#F49B33]"
               >
-                {t("booking.edit")}
+                {t("user.booking.edit")}
               </button>
             </div>
           </div>
@@ -385,8 +385,8 @@ export default function BookingPage({
                   {service.name}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-300 mt-1">
-                  {formatPrice(service.price ?? 0, locale)} {t("currency.som")} ·{" "}
-                  {service.durationMin ?? 45} {t("services.duration")}
+                  {formatPrice(service.price ?? 0, locale)} {t("common.currency")} ·{" "}
+                  {service.durationMin ?? 45} {t("user.services.duration")}
                 </p>
               </button>
             ))}
@@ -395,7 +395,7 @@ export default function BookingPage({
 
         <section className="mb-2">
           <h3 className="text-sm font-semibold mb-3 text-slate-800">
-            {t("booking.selectStaff")}
+            {t("user.booking.selectStaff")}
           </h3>
           <div className="flex items-start gap-3 overflow-x-auto px-1 snap-x snap-mandatory">
             {staff.map((member, index) => {
@@ -488,10 +488,10 @@ export default function BookingPage({
         <section className="mb-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-[20px] leading-none font-bold text-slate-900">
-              {t("booking.timeline")}
+              {t("user.booking.timeline")}
             </h3>
             <p className="text-[10px] tracking-[0.16em] text-[#F49B33] uppercase">
-              {t("booking.liveSelection")}
+              {t("user.booking.liveSelection")}
             </p>
           </div>
 
@@ -511,7 +511,7 @@ export default function BookingPage({
                 </div>
               ) : timelineSlots.length === 0 ? (
                 <div className="rounded-2xl border border-[#f1c894]/80 bg-white/80 px-3 py-4 text-center text-sm text-slate-600">
-                  {t("booking.noSlots")}
+                  {t("user.booking.noSlots")}
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-3">
@@ -532,12 +532,12 @@ export default function BookingPage({
                           : "available";
                     const statusLabel =
                       status === "selected"
-                        ? t("booking.selected")
+                        ? t("user.booking.selected")
                         : status === "available"
-                          ? t("booking.availableSlot")
+                          ? t("user.booking.availableSlot")
                           : status === "break"
-                            ? t("booking.break")
-                            : t("booking.alreadyReserved");
+                            ? t("user.booking.break")
+                            : t("user.booking.alreadyReserved");
                     const timeColorClass =
                       status === "selected"
                         ? "text-white"
@@ -595,10 +595,10 @@ export default function BookingPage({
           <div className="rounded-2xl border border-[#f1c894]/70 bg-white p-3 mb-3">
             <div className="flex justify-between text-xs text-slate-600">
               <span className="uppercase tracking-wide">
-                {t("booking.selectedWindow")}
+                {t("user.booking.selectedWindow")}
               </span>
               <span className="uppercase tracking-wide">
-                {t("booking.total")}
+                {t("user.booking.total")}
               </span>
             </div>
             <div className="flex justify-between items-end mt-1">
@@ -618,7 +618,7 @@ export default function BookingPage({
             disabled={!selectedService || !selectedTime || isPending}
             className="w-full py-3 rounded-full bg-[#F49B33] text-white font-bold tracking-wide disabled:opacity-50"
           >
-            {isPending ? t("booking.processing") : t("booking.confirmBooking")}
+            {isPending ? t("user.booking.processing") : t("user.booking.confirmBooking")}
           </button>
         </div>
       </div>

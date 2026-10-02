@@ -44,7 +44,7 @@ export default function Login() {
       }
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : t("auth.invalidCredentials"),
+        err instanceof Error ? err.message : t("auth.login.invalidCredentials"),
       );
     } finally {
       setIsLoading(false);
@@ -64,7 +64,7 @@ export default function Login() {
           <h2 className="mb-2 text-xl font-bold text-gray-900 sm:text-2xl">
             {t("nav.signin")}
           </h2>
-          <p className="text-gray-600">{t("auth.signInToAccount")}</p>
+          <p className="text-gray-600">{t("auth.login.signInToAccount")}</p>
         </div>
 
         <div className="relative rounded-2xl bg-white p-5 shadow-lg sm:p-8">
@@ -80,7 +80,7 @@ export default function Login() {
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {t("auth.roleUser") || "User"}
+                {t("auth.login.roleUser") || "User"}
               </button>
               <button
                 type="button"
@@ -92,7 +92,7 @@ export default function Login() {
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {t("auth.roleAdmin") || "Admin"}
+                {t("auth.login.roleAdmin") || "Admin"}
               </button>
             </div>
 
@@ -112,7 +112,7 @@ export default function Login() {
           >
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-900">
-                {t("auth.email")}
+                {t("auth.login.email")}
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -124,7 +124,7 @@ export default function Login() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  placeholder={t("auth.emailPlaceholder")}
+                  placeholder={t("auth.login.emailPlaceholder")}
                   className="w-full rounded-lg border border-gray-300 bg-white py-3 pl-10 pr-4 text-gray-900 outline-none transition focus:border-[#F49B33] focus:ring-2 focus:ring-[#F49B33]/20 focus:ring-offset-0"
                   disabled={isLoading}
                 />
@@ -133,7 +133,7 @@ export default function Login() {
 
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-900">
-                {t("auth.password")}
+                {t("auth.login.password")}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -145,7 +145,7 @@ export default function Login() {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  placeholder={t("auth.passwordPlaceholder")}
+                  placeholder={t("auth.login.passwordPlaceholder")}
                   className="w-full rounded-lg border border-gray-300 bg-white py-3 pl-10 pr-12 text-gray-900 outline-none transition focus:border-[#F49B33] focus:ring-2 focus:ring-[#F49B33]/20 focus:ring-offset-0"
                   disabled={isLoading}
                 />
@@ -175,14 +175,14 @@ export default function Login() {
                   disabled={isLoading}
                 />
                 <span className="min-w-0 text-sm leading-tight text-gray-700">
-                  {t("auth.rememberMe")}
+                  {t("auth.login.rememberMe")}
                 </span>
               </label>
               <Link
                 href={asRoute("/forgot-password")}
                 className="self-start text-sm text-right text-blue-600 hover:underline sm:self-auto"
               >
-                {t("auth.forgotPassword")}
+                {t("auth.login.forgotPassword")}
               </Link>
             </div>
 
@@ -203,7 +203,7 @@ export default function Login() {
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-600">
-            {t("auth.noAccount")}{" "}
+            {t("auth.login.noAccount")}{" "}
             <Link
               href="/signup"
               className="font-semibold text-blue-600 hover:underline"

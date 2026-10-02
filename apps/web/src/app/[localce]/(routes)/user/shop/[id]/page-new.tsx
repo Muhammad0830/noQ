@@ -165,7 +165,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
   };
 
   const formatPrice = (price: number) => {
-    return `${price.toLocaleString()} ${t("currency.som")}`;
+    return `${price.toLocaleString()} ${t("common.currency")}`;
   };
 
   const formatDate = (date: Date) => {
@@ -244,7 +244,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                       : "bg-red-100 text-red-600"
                   }`}
                 >
-                  {shop.isOpen ? t("shop.openNow") : t("shop.closed")}
+                  {shop.isOpen ? t("user.shop.openNow") : t("user.shop.closed")}
                 </span>
               </div>
 
@@ -272,7 +272,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
 
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <h3 className="font-bold text-gray-900 mb-2">
-                  {t("shop.about")}
+                  {t("user.shop.about")}
                 </h3>
                 <p className="text-gray-600">
                   {shop.description}
@@ -285,9 +285,9 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
               <div className="border-b border-gray-200">
                 <div className="flex overflow-x-auto">
                   {[
-                    { id: "services", label: t("shop.services") },
-                    { id: "staff", label: t("shop.staff") },
-                    { id: "reviews", label: t("shop.reviews") },
+                    { id: "services", label: t("user.shop.services") },
+                    { id: "staff", label: t("user.shop.staff") },
+                    { id: "reviews", label: t("user.shop.reviews") },
                   ].map((tab) => (
                     <button
                       key={tab.id}
@@ -325,7 +325,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                               <div className="flex items-center gap-1">
                                 <Clock className="w-4 h-4" />
                                 <span>
-                                  {service.duration} {t("services.duration")}
+                                  {service.duration} {t("user.services.duration")}
                                 </span>
                               </div>
                               <span className="font-bold text-lg text-blue-600">
@@ -337,7 +337,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                             onClick={() => handleBooking(service)}
                             className="px-6 py-2.5 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg shrink-0"
                           >
-                            {t("shop.bookNow")}
+                            {t("user.shop.bookNow")}
                           </button>
                         </div>
                       </div>
@@ -372,8 +372,8 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                                 </span>
                               </div>
                               <span className="text-gray-600">
-                                {member.experience} {t("shop.years")}{" "}
-                                {t("shop.experience")}
+                                {member.experience} {t("user.shop.years")}{" "}
+                                {t("user.shop.experience")}
                               </span>
                             </div>
                           </div>
@@ -428,7 +428,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-4">
               <h3 className="text-xl font-bold text-gray-900 mb-4">
-                {t("booking.title")}
+                {t("user.booking.title")}
               </h3>
 
               <div className="space-y-4">
@@ -437,12 +437,12 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                   className="w-full px-6 py-4 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg flex items-center justify-center gap-2"
                 >
                   <CalendarIcon className="w-5 h-5" />
-                  <span>{t("shop.bookNow")}</span>
+                  <span>{t("user.shop.bookNow")}</span>
                 </button>
 
                 <div className="pt-4 border-t border-gray-200">
                   <h4 className="font-semibold text-gray-900 mb-3">
-                    {t("shop.schedule")}
+                    {t("user.shop.schedule")}
                   </h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between text-gray-600">
@@ -465,7 +465,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
           <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between z-10">
               <h2 className="text-2xl font-bold text-gray-900">
-                {t("booking.title")}
+                {t("user.booking.title")}
               </h2>
               <button
                 onClick={() => {
@@ -485,7 +485,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
               {/* Service Selection */}
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-3">
-                  1. {t("shop.selectService")}
+                  1. {t("user.shop.selectService")}
                 </label>
                 <div className="grid grid-cols-1 gap-3">
                   {services.map((service) => (
@@ -504,7 +504,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                             {service.name}
                           </h4>
                           <p className="text-sm text-gray-600 mt-1">
-                            {service.duration} {t("services.duration")}
+                            {service.duration} {t("user.services.duration")}
                           </p>
                         </div>
                         <span className="font-bold text-blue-600">
@@ -520,7 +520,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
               {selectedService && (
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-3">
-                    2. {t("shop.selectStaff")}
+                    2. {t("user.shop.selectStaff")}
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {staff.map((member) => (
@@ -559,7 +559,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
               {selectedStaff && (
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-3">
-                    3. {t("shop.selectDate")}
+                    3. {t("user.shop.selectDate")}
                   </label>
                   <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
                     {generateDates().map((date, index) => (
@@ -590,7 +590,7 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
               {selectedDate && (
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-3">
-                    4. {t("shop.selectTime")}
+                    4. {t("user.shop.selectTime")}
                   </label>
                   <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                     {generateTimeSlots().map((time) => (
@@ -615,29 +615,29 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
                 <div className="pt-6 border-t border-gray-200">
                   <div className="space-y-3 mb-6">
                     <div className="flex justify-between text-gray-700">
-                      <span>{t("booking.service")}:</span>
+                      <span>{t("user.booking.service")}:</span>
                       <span className="font-semibold">
                         {selectedService.name}
                       </span>
                     </div>
                     <div className="flex justify-between text-gray-700">
-                      <span>{t("booking.staff")}:</span>
+                      <span>{t("user.booking.staff")}:</span>
                       <span className="font-semibold">
                         {selectedStaff.name}
                       </span>
                     </div>
                     <div className="flex justify-between text-gray-700">
-                      <span>{t("booking.date")}:</span>
+                      <span>{t("user.booking.date")}:</span>
                       <span className="font-semibold">
                         {selectedDate?.toLocaleDateString("uz-UZ")}
                       </span>
                     </div>
                     <div className="flex justify-between text-gray-700">
-                      <span>{t("booking.time")}:</span>
+                      <span>{t("user.booking.time")}:</span>
                       <span className="font-semibold">{selectedTime}</span>
                     </div>
                     <div className="flex justify-between text-lg font-bold text-gray-900 pt-3 border-t border-gray-200">
-                      <span>{t("booking.total")}:</span>
+                      <span>{t("user.booking.total")}:</span>
                       <span className="text-blue-600">
                         {formatPrice(selectedService.price)}
                       </span>
@@ -646,12 +646,12 @@ export default function ShopDetailPage({ params }: ShopDetailPageProps) {
 
                   <button
                     onClick={() => {
-                      alert(t("booking.success"));
+                      alert(t("user.booking.success"));
                       setShowBookingModal(false);
                     }}
                     className="w-full px-6 py-4 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all hover:shadow-lg"
                   >
-                    {t("booking.confirm")}
+                    {t("user.booking.confirm")}
                   </button>
                 </div>
               )}

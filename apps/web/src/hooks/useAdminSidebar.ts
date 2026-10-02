@@ -49,38 +49,38 @@ export function useAdminSidebar(activeShopId: string | null) {
 
   const adminNavItems: AdminNavItem[] = [
     {
-      title: t("admin.dashboard.panel"),
+      title: t("bottomNav.panel"),
       href: getAdminHrefWithShopId("/admin"),
       icon: BarChart3,
       exact: true,
     },
     {
-      title: t("admin.analytics.title") || "Analytics",
+      title: t("bottomNav.analytics"),
       href: getAdminHrefWithShopId("/admin/analytics"),
       icon: ClipboardList,
     },
     {
-      title: t("admin.schedule.title") || "Schedule",
+      title: t("bottomNav.schedule"),
       href: getAdminHrefWithShopId("/admin/schedule"),
       icon: CalendarDays,
     },
     {
-      title: t("services.title") || "Services",
+      title: t("bottomNav.services"),
       href: getAdminHrefWithShopId("/admin/services"),
       icon: Scissors,
     },
     {
-      title: t("admin.history.title") || "History",
+      title: t("bottomNav.history"),
       href: getAdminHrefWithShopId("/admin/history"),
       icon: History,
     },
     {
-      title: t("admin.staff.title") || "Staff",
+      title: t("bottomNav.staff"),
       href: getAdminHrefWithShopId("/admin/staff"),
       icon: Users,
     },
     {
-      title: t("nav.profile") || "Profile",
+      title: t("bottomNav.profile"),
       href: "/profile",
       icon: CircleUser,
     },

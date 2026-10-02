@@ -434,7 +434,7 @@ export default function DiscoverServices() {
             {shop.name}
           </p>
           <p className="mt-1 text-sm text-slate-500">
-            {t("discover.distanceAway", { distance: "1.5" })}
+            {t("user.discover.distanceAway", { distance: "1.5" })}
           </p>
         </div>
 
@@ -452,7 +452,7 @@ export default function DiscoverServices() {
           onValueChange={setSearch}
           onFocus={() => setIsSearchFocused(true)}
           onBlur={() => setIsSearchFocused(false)}
-          placeholder={t("hero.search.placeholder")}
+          placeholder={t("user.hero.search_placeholder")}
           showClearButton={search.length > 0}
           onClear={() => {
             setSearch("");
@@ -461,7 +461,7 @@ export default function DiscoverServices() {
           showFilterButton={search.length === 0}
           onFilterClick={openFilterModal}
           clearAriaLabel={t("common.clearSearch")}
-          filterAriaLabel={t("filter.title")}
+          filterAriaLabel={t("user.discover.filter.title")}
         />
 
         {isFilterOpen && (
@@ -474,7 +474,7 @@ export default function DiscoverServices() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-2xl font-bold">{t("filter.title")}</h3>
+                <h3 className="text-2xl font-bold">{t("user.discover.filter.title")}</h3>
                 <button
                   type="button"
                   onClick={() => setIsFilterOpen(false)}
@@ -488,10 +488,10 @@ export default function DiscoverServices() {
               <div className="mb-5">
                 <div className="mb-2 flex items-center justify-between">
                   <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500">
-                    {t("filter.category").toUpperCase()}
+                    {t("user.discover.filter.category").toUpperCase()}
                   </p>
                   <span className="text-[10px] font-bold tracking-[0.14em] text-[#F49B33]">
-                    {t("filter.multiSelect").toUpperCase()}
+                    {t("user.discover.filter.multiSelect").toUpperCase()}
                   </span>
                 </div>
 
@@ -521,10 +521,10 @@ export default function DiscoverServices() {
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div>
                     <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500">
-                      {t("filter.priceRange").toUpperCase()}
+                      {t("user.discover.filter.priceRange").toUpperCase()}
                     </p>
                     <p className="mt-1 text-sm text-slate-500">
-                      {t("filter.togglePrice")}
+                      {t("user.discover.filter.togglePrice")}
                     </p>
                   </div>
                   <button
@@ -542,7 +542,7 @@ export default function DiscoverServices() {
                     className={`relative inline-flex h-7 w-12 shrink-0 items-center overflow-hidden rounded-full p-0.5 transition ${
                       draftPriceEnabled ? "bg-green-500" : "bg-slate-300"
                     }`}
-                    aria-label={t("filter.togglePrice")}
+                    aria-label={t("user.discover.filter.togglePrice")}
                     aria-pressed={draftPriceEnabled}
                   >
                     <span
@@ -556,19 +556,19 @@ export default function DiscoverServices() {
                   <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
                   <div className="rounded-2xl border border-slate-200 bg-white px-2.5 py-2 shadow-sm">
                     <p className="text-[7px] font-semibold uppercase tracking-[0.16em] text-slate-400 sm:text-[7px]">
-                      {t("filter.priceFrom")}
+                      {t("user.discover.filter.priceFrom")}
                     </p>
                     <p className="mt-1 text-sm font-bold whitespace-nowrap text-slate-900 sm:text-xs">
-                      {formatPrice(draftMinPrice, locale)} {t("currency.som")}
+                      {formatPrice(draftMinPrice, locale)} {t("common.currency")}
                     </p>
                   </div>
 
                   <div className="rounded-2xl border border-slate-200 bg-white px-2.5 py-2 shadow-sm">
                     <p className="text-[7px] font-semibold uppercase tracking-[0.16em] text-slate-400 sm:text-[7px]">
-                      {t("filter.priceTo")}
+                      {t("user.discover.filter.priceTo")}
                     </p>
                     <p className="mt-1 text-sm font-bold whitespace-nowrap text-slate-900 sm:text-xs">
-                      {formatPrice(draftMaxPrice, locale)} {t("currency.som")}
+                      {formatPrice(draftMaxPrice, locale)} {t("common.currency")}
                     </p>
                   </div>
                 </div>
@@ -611,10 +611,10 @@ export default function DiscoverServices() {
                       style={priceTrackStyle}
                     />
                     <div className="slider-left-value">
-                      {formatPrice(DEFAULT_MIN_PRICE, locale)} {t("currency.som")}
+                      {formatPrice(DEFAULT_MIN_PRICE, locale)} {t("common.currency")}
                     </div>
                     <div className="slider-right-value">
-                      {formatPrice(DEFAULT_MAX_PRICE, locale)} {t("currency.som")}
+                      {formatPrice(DEFAULT_MAX_PRICE, locale)} {t("common.currency")}
                     </div>
                   </div>
                 </div>
@@ -625,7 +625,7 @@ export default function DiscoverServices() {
                     onClick={resetDraftFilters}
                     className="flex-1 rounded-2xl border border-[#F49B33]/25 bg-white px-4 py-3 text-sm font-semibold text-[#8a5620] shadow-sm transition hover:border-[#F49B33]/35 hover:bg-[#fff8ef]"
                   >
-                    {t("filter.reset")}
+                    {t("user.discover.filter.reset")}
                   </button>
                   <button
                     type="button"
@@ -643,7 +643,7 @@ export default function DiscoverServices() {
         {shouldShowShops && (
           <div className="mt-5">
             <p className="mb-3 text-sm font-semibold text-slate-700">
-              {t("discover.popularShops")}
+              {t("user.discover.popularShops")}
             </p>
 
             {isPopularShopsLoading ? (
@@ -710,7 +710,7 @@ export default function DiscoverServices() {
                                   ? "bg-cyan-500"
                                   : "bg-slate-300"
                               }`}
-                              aria-label={t("discover.goToCard", {
+                              aria-label={t("user.discover.goToCard", {
                                 index: i + 1,
                               })}
                             />
@@ -729,7 +729,7 @@ export default function DiscoverServices() {
               )
             ) : (
               <div className="rounded-xl border border-slate-200 bg-white px-3 py-5 text-center text-sm text-slate-500 shadow-sm">
-                {t("discover.noShopsFound")}
+                {t("user.discover.noShopsFound")}
               </div>
             )}
           </div>
@@ -738,7 +738,7 @@ export default function DiscoverServices() {
         {shouldShowServices && !shouldHideServicesSectionForEmptyCategory && (
           <div className="mt-6">
             <p className="mb-3 text-sm font-semibold text-slate-700">
-              {t("services.title")}
+              {t("user.services.title")}
             </p>
             <div className="rounded-2xl border border-slate-200 bg-white px-4 py-1 shadow-sm">
               {isPopularServicesLoading
@@ -780,8 +780,8 @@ export default function DiscoverServices() {
                                 {Number.isFinite(durationValue)
                                   ? durationValue
                                   : 0}{" "}
-                                {t("services.duration")} •{" "}
-                                {item.shop?.name ?? t("services.unknownShop")}
+                                {t("user.services.duration")} •{" "}
+                                {item.shop?.name ?? t("user.services.unknownShop")}
                               </span>
                             </p>
                           </div>
@@ -789,11 +789,11 @@ export default function DiscoverServices() {
                           <div className="shrink-0 text-right">
                               <p className="text-[18px] font-bold text-slate-800 sm:text-xl">
                               {Number.isFinite(priceValue)
-                                ? `${formatPrice(priceValue, locale)} ${t("currency.som")}`
+                                ? `${formatPrice(priceValue, locale)} ${t("common.currency")}`
                                 : "--"}
                             </p>
                             <span className="mt-1 inline-block text-[10px] font-semibold text-emerald-500">
-                              {t("shops.book").toUpperCase()}
+                              {t("user.services.book").toUpperCase()}
                             </span>
                           </div>
                         </div>
@@ -803,7 +803,7 @@ export default function DiscoverServices() {
 
               {!isPopularServicesLoading && filteredServices.length === 0 && (
                 <div className="py-5 text-center text-sm text-slate-500">
-                  {t("services.noResults")}
+                  {t("user.services.noResults")}
                 </div>
               )}
             </div>

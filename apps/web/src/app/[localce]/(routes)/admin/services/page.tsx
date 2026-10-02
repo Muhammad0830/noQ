@@ -465,20 +465,20 @@ export default function AdminServicesPage() {
                             <div className="mt-1 flex items-center gap-2 text-[11px] md:text-[12px] lg:text-[12px] text-[#8b95a1]">
                               <Clock3 className="h-3 w-3 md:h-3.5 md:w-3.5 lg:h-3.5 lg:w-3.5" />
                               <span>
-                                {service.durationMin} {t("services.duration")}
+                                {service.durationMin} {t("admin.services.duration")}
                               </span>
                               <span className="text-[#d8dbe1]">•</span>
                               <span>
                                 {toPriceLabel(
                                   service.price,
-                                  t("services.price"),
+                                  t("user.services.price"),
                                 )}
                               </span>
                             </div>
                           </div>
                           <div className="inline-flex min-h-9 md:min-h-13 lg:min-h-9 min-w-12 md:min-w-13 lg:min-w-14 items-center justify-center rounded-3xl md:rounded-3xl lg:rounded-3xl bg-[#fff2e4] px-2 md:px-3 lg:px-3 py-1.5 md:py-2 lg:py-2">
                             <p className="text-md md:text-2xl lg:text-md font-bold leading-none tracking-tight text-[#F49B33]">
-                              {toPriceLabel(service.price, t("services.price"))}
+                              {toPriceLabel(service.price, t("user.services.price"))}
                             </p>
                           </div>
                         </div>
@@ -574,11 +574,11 @@ export default function AdminServicesPage() {
                       </p>
                       <div className="mt-0.5 flex items-center gap-2 text-[10px] md:text-[11px] lg:text-[11px] text-[#98a0ab]">
                         <span>
-                          {service.durationMin} {t("services.duration")}
+                          {service.durationMin} {t("admin.services.duration")}
                         </span>
                         <span className="text-[#d8dbe1]">•</span>
                         <span>
-                          {toPriceLabel(service.price, t("services.price"))}
+                          {toPriceLabel(service.price, t("user.services.price"))}
                         </span>
                       </div>
                       <button
@@ -589,7 +589,7 @@ export default function AdminServicesPage() {
                         className="mt-1 inline-flex items-center gap-1 text-[9px] md:text-[10px] lg:text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9aa1ab] transition-colors hover:text-[#F49B33]"
                       >
                         <PenLine className="h-3 w-3 md:h-3.5 md:w-3.5 lg:h-3.5 lg:w-3.5" />
-                        {t("admin.services.edit")}
+                        {t("admin.services.edit.edit")}
                       </button>
                     </div>
 

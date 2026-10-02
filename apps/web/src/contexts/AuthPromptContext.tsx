@@ -43,9 +43,9 @@ export function AuthPromptProvider({
       {children}
       <AuthRequiredModal
         open={isAuthPromptOpen}
-        title={t("history.authRequiredTitle")}
-        message={t("history.authRequiredMessage")}
-        actionText={t("history.authRequiredAction")}
+        title={t("user.history.authRequiredTitle")}
+        message={t("user.history.authRequiredMessage")}
+        actionText={t("user.history.authRequiredAction")}
         onClose={closeAuthPrompt}
         onAction={() => {
           closeAuthPrompt();

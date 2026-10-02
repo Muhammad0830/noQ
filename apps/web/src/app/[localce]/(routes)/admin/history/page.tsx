@@ -242,12 +242,12 @@ export default function Page() {
   const canMoveForward = visibleWeekStart < todayDate;
 
   const statusLabels: Record<AdminHistoryBooking["status"], string> = {
-    PENDING: t("history.status.pending"),
-    CONFIRMED: t("history.status.confirmed"),
-    IN_PROGRESS: t("history.status.inProgress"),
-    COMPLETED: t("history.status.completed"),
-    CANCELLED: t("history.status.cancelled"),
-    NO_SHOW: t("history.status.noShow"),
+    PENDING: t("user.history.status.pending"),
+    CONFIRMED: t("user.history.status.confirmed"),
+    IN_PROGRESS: t("user.history.status.inProgress"),
+    COMPLETED: t("user.history.status.completed"),
+    CANCELLED: t("user.history.status.cancelled"),
+    NO_SHOW: t("user.history.status.noShow"),
   };
 
   const normalizedBookings = [...bookings]
@@ -257,11 +257,11 @@ export default function Page() {
     )
     .map((booking) => {
       const customerName =
-        booking.user?.name?.trim() || t("admin.history.unknownCustomer");
+        booking.user?.name?.trim() || t("admin.dashboard.unknownCustomer");
       const serviceName =
-        booking.service?.name?.trim() || t("admin.history.unknownService");
+        booking.service?.name?.trim() || t("admin.dashboard.unknownService");
       const staffName =
-        booking.staff?.user?.name?.trim() || t("admin.history.unassigned");
+        booking.staff?.user?.name?.trim() || t("admin.dashboard.notAssigned");
       const amountValue = Number(booking.service?.price ?? 0);
 
       return {

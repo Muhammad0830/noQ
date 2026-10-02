@@ -424,7 +424,7 @@ export default function Page() {
                           <div className="mt-2 md:mt-3 lg:mt-3 space-y-1.5 md:space-y-2 lg:space-y-2 text-[12px] md:text-[13px] lg:text-[13px] text-[#4d5560]">
                             <div className="flex items-center justify-between gap-3 md:gap-4 lg:gap-4">
                               <span className="font-medium text-[#8f98a4]">
-                                {t("admin.staff.role")}
+                                {t("admin.staff.role.label")}
                               </span>
                               <span className="font-semibold text-[#111111]">
                                 {roleLabel}

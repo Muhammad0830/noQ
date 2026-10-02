@@ -602,7 +602,6 @@ export default function EditServicePage() {
                       setIsBufferTimeEnabled((current) => !current)
                     }
                     className={`relative h-6 w-11 rounded-full transition-colors ${isBufferTimeEnabled ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
-                    aria-label={t("admin.services.aria.toggleBufferTime")}
                   >
                     <span
                       className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${isBufferTimeEnabled ? "left-5.75" : "left-0.75"}`}
@@ -684,7 +683,6 @@ export default function EditServicePage() {
                     }))
                   }
                   className={`relative h-6 w-11 rounded-full transition-colors ${allMembersSelected ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
-                  aria-label={t("admin.services.aria.toggleStaffAssignment")}
                 >
                   <span
                     className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${allMembersSelected ? "left-5.75" : "left-0.75"}`}

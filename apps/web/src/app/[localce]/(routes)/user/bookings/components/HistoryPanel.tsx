@@ -88,7 +88,7 @@ export default function HistoryPanel({
     <div>
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-[23px] font-semibold tracking-tight text-slate-900 sm:text-[30px]">
-          {t("history.recentHistory")}
+          {t("user.history.recentHistory")}
         </h2>
         <span className="inline-flex items-center gap-1 rounded-full border border-slate-300 bg-white px-2 py-1 text-[10px] uppercase tracking-widest text-slate-600">
           {getStatusIcon(filter)}
@@ -101,7 +101,7 @@ export default function HistoryPanel({
       {isHydrated && isError && (
         <div className="rounded-3xl border border-red-200 bg-red-50/90 p-6">
           <p className="text-sm font-semibold text-red-700">
-            {t("history.errorHistory")}
+            {t("user.history.errorHistory")}
           </p>
           <p className="mt-1 text-xs text-red-700/80">{errorMessage}</p>
           <button
@@ -119,7 +119,7 @@ export default function HistoryPanel({
           <div className="rounded-2xl border border-slate-200 bg-white/75 p-6 text-center">
             <Calendar className="mx-auto mb-3 h-8 w-8 text-slate-500" />
             <p className="text-sm text-slate-600">
-              {t("history.emptySection")}
+              {t("user.history.emptySection")}
             </p>
           </div>
         ) : isHydrated && !isLoading && !isError ? (
@@ -168,7 +168,7 @@ export default function HistoryPanel({
                   </span>
                 </div>
                 <div className="text-sm font-semibold text-slate-900">
-                  {booking.duration} • {formatPrice(booking.price, locale)} {t("currency.som")}
+                  {booking.duration} • {formatPrice(booking.price, locale)} {t("common.currency")}
                 </div>
                 <span
                   className={`absolute right-3 top-9 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] ${getStatusColor(booking.status)}`}
@@ -182,13 +182,13 @@ export default function HistoryPanel({
                 <div className="border-t border-slate-200 px-3.5 py-3">
                   <div className="flex gap-2">
                     <button className="h-9 flex-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 text-xs font-semibold text-white transition hover:bg-emerald-500/20">
-                      {t("history.rateService")}
+                      {t("user.history.rateService")}
                     </button>
                     <Link
                       href={`/user/book/${booking.id}`}
                       className="flex h-9 flex-1 items-center justify-center rounded-full border border-slate-300 bg-white text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
                     >
-                      {t("history.rebook")}
+                      {t("user.history.rebook")}
                     </Link>
                   </div>
                 </div>
@@ -198,10 +198,10 @@ export default function HistoryPanel({
                 <div className="border-t border-slate-200 px-3.5 py-3">
                   <div className="rounded-xl border border-slate-300 bg-slate-100 px-3 py-2 text-[11px] leading-relaxed text-slate-700">
                     <span className="font-semibold text-slate-500">
-                      {t("history.reason")}:
+                      {t("user.history.reason")}:
                     </span>
                     <span className="ml-1">
-                      {booking.cancelReason || t("history.noReason")}
+                      {booking.cancelReason || t("user.history.noReason")}
                     </span>
                   </div>
                 </div>

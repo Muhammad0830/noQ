@@ -92,7 +92,7 @@ export default function OngoingPanel({
     return (
       <div className="rounded-3xl border border-red-200 bg-red-50/90 p-6">
         <p className="text-sm font-semibold text-red-700">
-          {t("history.errorOngoing")}
+          {t("user.history.errorOngoing")}
         </p>
         <p className="mt-1 text-xs text-red-700/80">{errorMessage}</p>
         <button
@@ -110,7 +110,7 @@ export default function OngoingPanel({
     return (
       <div className="rounded-2xl border border-slate-200 bg-white/75 p-6 text-center">
         <Calendar className="mx-auto mb-3 h-8 w-8 text-slate-500" />
-        <p className="text-sm text-slate-600">{t("history.emptyOngoing")}</p>
+        <p className="text-sm text-slate-600">{t("user.history.emptyOngoing")}</p>
       </div>
     );
   }
@@ -120,7 +120,7 @@ export default function OngoingPanel({
       {showHeader && (
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-[23px] font-semibold tracking-tight text-[#F49B33] sm:text-[30px]">
-            {t("history.nextAppointment")}
+            {t("user.history.nextAppointment")}
           </h2>
           <span
             className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white ${getStatusColor(activeBooking.status)}`}
@@ -171,7 +171,7 @@ export default function OngoingPanel({
                     {activeBooking.remainingDays}
                   </span>
                   <span className="text-[10px] font-semibold uppercase tracking-[0.09em]">
-                    {t("history.time.days")}
+                    {t("user.history.time.days")}
                   </span>
                 </div>
               ) : (
@@ -181,7 +181,7 @@ export default function OngoingPanel({
                       {activeBooking.remainingHours}
                     </span>
                     <span className="text-[10px] font-semibold uppercase tracking-[0.09em]">
-                      {t("history.time.hour")}
+                      {t("user.history.time.hour")}
                     </span>
                   </div>
                   <div className="flex h-14 w-14 flex-col items-center justify-center rounded-2xl border border-slate-300 bg-white text-slate-900">
@@ -189,7 +189,7 @@ export default function OngoingPanel({
                       {activeBooking.remainingMinutes}
                     </span>
                     <span className="text-[10px] font-semibold uppercase tracking-[0.09em] text-slate-500">
-                      {t("history.time.min")}
+                      {t("user.history.time.min")}
                     </span>
                   </div>
                 </>
@@ -197,7 +197,7 @@ export default function OngoingPanel({
             </div>
             <div className="text-right">
               <p className="text-[11px] uppercase tracking-[0.11em] text-slate-500">
-                {t("history.startsAt")}
+                {t("user.history.startsAt")}
               </p>
               <p className="text-[20px] font-semibold tracking-tight text-slate-900 sm:text-[30px]">
                 {activeBooking.startLabel}
@@ -207,10 +207,10 @@ export default function OngoingPanel({
 
           <div className="mb-4 flex items-center justify-between rounded-2xl border border-slate-300/70 bg-white/75 px-3 py-2">
             <p className="text-xs uppercase tracking-widest text-slate-500">
-              {t("history.serviceDetails")}
+              {t("user.history.serviceDetails")}
             </p>
             <p className="text-sm font-semibold text-slate-800">
-              {activeBooking.duration} • {formatPrice(activeBooking.price, locale)} {t("currency.som")}
+              {activeBooking.duration} • {formatPrice(activeBooking.price, locale)} {t("common.currency")}
             </p>
           </div>
 
@@ -220,7 +220,7 @@ export default function OngoingPanel({
               className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[#F49B33] text-sm font-semibold text-white shadow-[0_10px_24px_rgba(244,155,51,0.35)] transition hover:bg-[#e28a20]"
             >
               <Navigation className="h-4 w-4" />
-              {t("history.getDirections")}
+              {t("user.history.getDirections")}
             </Link>
             <button
               type="button"

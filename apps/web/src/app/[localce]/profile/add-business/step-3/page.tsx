@@ -274,7 +274,6 @@ export default function AddBusinessStepThreePage() {
                     }))
                   }
                   className={`relative h-6 w-11 rounded-full transition-colors ${service.bufferTime ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
-                  aria-label={t("newShop.step3.aria.toggleBufferTime")}
                 >
                   <span
                     className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${service.bufferTime ? "left-5.75" : "left-0.75"}`}
@@ -316,7 +315,6 @@ export default function AddBusinessStepThreePage() {
                   }))
                 }
                 className={`relative h-6 w-11 rounded-full transition-colors ${service.assignToAllStaff ? "bg-[#22c55e]" : "bg-[#d7dbe3]"}`}
-                aria-label={t("newShop.step3.aria.toggleStaffAssignment")}
               >
                 <span
                   className={`absolute top-0.75 h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-all ${service.assignToAllStaff ? "left-5.75" : "left-0.75"}`}

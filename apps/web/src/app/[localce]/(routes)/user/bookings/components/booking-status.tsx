@@ -29,17 +29,17 @@ export const getStatusIcon = (status: string) => {
 export const getStatusLabel = (status: string, t: (key: string) => string) => {
   switch (status) {
     case "ongoing":
-      return t("history.status.ongoing");
+      return t("user.history.status.ongoing");
     case "completed":
-      return t("history.status.completed");
+      return t("user.history.status.completed");
     case "cancelled":
-      return t("history.status.cancelled");
+      return t("user.history.status.cancelled");
     case "PENDING":
-      return t("history.status.pending");
+      return t("user.history.status.pending");
     case "CONFIRMED":
-      return t("history.status.confirmed");
+      return t("user.history.status.confirmed");
     case "IN_PROGRESS":
-      return t("history.status.inProgress");
+      return t("user.history.status.inProgress");
     default:
       return status;
   }

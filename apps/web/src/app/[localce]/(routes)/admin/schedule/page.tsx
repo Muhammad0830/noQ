@@ -758,10 +758,6 @@ export default function AdminSchedulePage() {
                                 className={`relative h-6 w-11 rounded-full transition-colors ${
                                   item.enabled ? "bg-[#24b565]" : "bg-[#dbdde2]"
                                 }`}
-                                aria-label={t("admin.schedule.aria.toggleDay", {
-                                  day: dayLabel,
-                                })}
-                                aria-pressed={item.enabled}
                               >
                                 <span
                                   className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${
@@ -784,9 +780,6 @@ export default function AdminSchedulePage() {
                                     ? "h-9 w-9 rounded-2xl bg-[#f2f3f5] text-[#20b35f]"
                                     : "h-9 w-9 rounded-full text-[#b8bdc8] hover:bg-[#f3f4f6]"
                                 } ${!item.enabled ? "cursor-not-allowed opacity-40 hover:bg-transparent" : ""}`}
-                                aria-label={t("admin.schedule.aria.editDay", {
-                                  day: dayLabel,
-                                })}
                               >
                                 {isExpanded ? (
                                   <Check className="h-4 w-4 text-[#21b462]" />
@@ -883,9 +876,6 @@ export default function AdminSchedulePage() {
                                           removeBreak(item.id, breakIndex)
                                         }
                                         className="inline-flex h-6 w-6 items-center justify-center text-[#ff6662]"
-                                        aria-label={t(
-                                          "admin.schedule.aria.deleteBreak",
-                                        )}
                                       >
                                         <Trash2 className="h-3.5 w-3.5" />
                                       </button>
@@ -920,9 +910,6 @@ export default function AdminSchedulePage() {
                                       type="button"
                                       disabled
                                       className="inline-flex h-6 w-6 items-center justify-center text-[#ff6662]/40"
-                                      aria-label={t(
-                                        "admin.schedule.aria.deleteBreak",
-                                      )}
                                     >
                                       <Trash2 className="h-3.5 w-3.5" />
                                     </button>
@@ -979,7 +966,7 @@ export default function AdminSchedulePage() {
             >
               <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#d8dce2]" />
               <h4 className="mb-4 text-center text-[18px] font-semibold text-[#1f2530]">
-                {t("admin.schedule.timePicker.title")}
+                {t("admin.schedule.timePicker")}
               </h4>
 
               <div className="mb-5 flex items-center justify-center gap-2">

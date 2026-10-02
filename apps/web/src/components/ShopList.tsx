@@ -102,7 +102,7 @@ const ServicesList: React.FC<ServicesListProps> = ({
         {/* HEADER */}
         <div className="text-left mb-8 sm:mb-10">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
-            {t("services.homePopularPurchases")}
+            {t("user.services.homePopularPurchases")}
           </h2>
           <div className="w-20 h-1 rounded-full bg-[#F49B33]"></div>
         </div>
@@ -190,7 +190,7 @@ const ServicesList: React.FC<ServicesListProps> = ({
         ) : (
           <div className="text-center py-12">
             <Filter className="mx-auto mb-4 text-muted-foreground" />
-            <p>{isError ? t("common.error") : t("services.noResults")}</p>
+            <p>{isError ? t("common.error") : t("user.services.noResults")}</p>
           </div>
         )}
       </div>
