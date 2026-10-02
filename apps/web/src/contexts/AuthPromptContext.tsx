@@ -2,8 +2,8 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useLanguage } from "./LanguageContext";
 import AuthRequiredModal from "@/components/AuthRequiredModal";
+import { useTranslations } from "next-intl";
 
 type AuthPromptContextType = {
   openAuthPrompt: () => void;
@@ -21,7 +21,7 @@ export function AuthPromptProvider({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { t } = useLanguage();
+  const t = useTranslations();
   const [isAuthPromptOpen, setIsAuthPromptOpen] = useState(false);
 
   const isAuthPage =
@@ -31,7 +31,7 @@ export function AuthPromptProvider({
 
   useEffect(() => {
     if (isAuthPage) {
-      setIsAuthPromptOpen(false);
+      setIsAuthPromptOpen(false); // eslint-disable-line
     }
   }, [isAuthPage, pathname]);
 
@@ -43,9 +43,9 @@ export function AuthPromptProvider({
       {children}
       <AuthRequiredModal
         open={isAuthPromptOpen}
-        title={t("history.authRequiredTitle")}
-        message={t("history.authRequiredMessage")}
-        actionText={t("history.authRequiredAction")}
+        title={t("user.history.authRequiredTitle")}
+        message={t("user.history.authRequiredMessage")}
+        actionText={t("user.history.authRequiredAction")}
         onClose={closeAuthPrompt}
         onAction={() => {
           closeAuthPrompt();

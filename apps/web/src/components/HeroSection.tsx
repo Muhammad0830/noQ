@@ -3,17 +3,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useLanguage } from "@/contexts/LanguageContext";
 import AppSearchInput from "@/components/AppSearchInput";
 import barbershopBanner from "../../assets/Barbershop.png";
 import dentalClinicBanner from "../../assets/Dental clinic.png";
+import { useTranslations } from "next-intl";
 
 interface HeroSectionProps {
   onSearch?: (query: string, location: string) => void;
 }
 
 const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const router = useRouter();
   const [activeBanner, setActiveBanner] = useState(0);
   const touchStartX = useRef<number | null>(null);
@@ -22,18 +22,18 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
     {
       id: "barbershop",
       image: barbershopBanner,
-      alt: t("hero.banner.barbershop.alt"),
-      badge: t("hero.banner.barbershop.badge"),
-      title: t("hero.banner.barbershop.title"),
-      subtitle: t("hero.banner.barbershop.subtitle"),
+      alt: t("user.hero.banner.barbershop.alt"),
+      badge: t("user.hero.banner.barbershop.badge"),
+      title: t("user.hero.banner.barbershop.title"),
+      subtitle: t("user.hero.banner.barbershop.subtitle"),
     },
     {
       id: "dental-clinic",
       image: dentalClinicBanner,
-      alt: t("hero.banner.dental.alt"),
-      badge: t("hero.banner.dental.badge"),
-      title: t("hero.banner.dental.title"),
-      subtitle: t("hero.banner.dental.subtitle"),
+      alt: t("user.hero.banner.dental.alt"),
+      badge: t("user.hero.banner.dental.badge"),
+      title: t("user.hero.banner.dental.title"),
+      subtitle: t("user.hero.banner.dental.subtitle"),
     },
   ];
 
@@ -87,13 +87,13 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-2">
         <form className="w-full">
           <AppSearchInput
-            placeholder={t("hero.search.placeholder")}
+            placeholder={t("user.hero.search_placeholder")}
             readOnly
             onInputClick={openDiscover}
             onFocus={openDiscover}
             showFilterButton
             onFilterClick={openDiscover}
-            filterAriaLabel={t("filter.title")}
+            filterAriaLabel={t("user.discover.filter.title")}
           />
         </form>
 
@@ -153,7 +153,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
                   ? "w-5 bg-[#F49B33]"
                   : "w-1.5 bg-gray-300"
               }`}
-              aria-label={t("hero.goToBanner", { index: index + 1 })}
+              aria-label={t("user.hero.goToBanner", { index: index + 1 })}
             />
           ))}
         </div>

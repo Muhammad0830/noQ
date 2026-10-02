@@ -5,19 +5,19 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAuthPrompt } from "@/contexts/AuthPromptContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { useProviderMode } from "@/contexts/ProviderModeContext";
 import { User, LogIn, LogOut, Bell, Menu } from "lucide-react";
 import { getImageUrl } from "@/lib/supabaseClient";
 import LogoutConfirmModal from "@/components/LogoutConfirmModal";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "next-intl";
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const { openAuthPrompt } = useAuthPrompt();
-  const { t } = useLanguage();
+  const t = useTranslations();
   const { providerMode } = useProviderMode();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
@@ -80,7 +80,7 @@ export default function Header() {
   const avatarImageSrc = user?.avatarUrl
     ? user.avatarUrl.startsWith("http")
       ? user.avatarUrl
-      : getImageUrl(user.avatarUrl, "user_avatars")
+      : getImageUrl("user_avatars", user.avatarUrl)
     : null;
 
   const initials = (() => {
@@ -120,7 +120,6 @@ export default function Header() {
               <div className="flex items-center gap-3">
                 <button
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fff3e6] text-[#F49B33] transition-colors hover:bg-[#fce2c4] sm:h-11 sm:w-11"
-                  aria-label={t("header.notifications")}
                 >
                   <Bell className="h-5 w-5" />
                 </button>
@@ -128,7 +127,6 @@ export default function Header() {
                   <button
                     onClick={handleMenuClick}
                     className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-[#fff3e6] sm:h-11 sm:w-11"
-                    aria-label={t("header.profileMenu")}
                   >
                     {isAdmin && isOnProfilePage && providerMode ? (
                       <Menu className="w-6 h-6 text-[#F49B33]" />

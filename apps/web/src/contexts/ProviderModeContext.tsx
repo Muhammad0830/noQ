@@ -11,22 +11,19 @@ const ProviderModeContext = createContext<ProviderModeContextType | undefined>(
   undefined,
 );
 
-export function ProviderModeProvider({ children }: { children: React.ReactNode }) {
+export function ProviderModeProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [providerMode, setProviderMode] = useState<boolean>(() => {
-    try {
-      const raw = localStorage.getItem("providerMode");
-      return raw === "true";
-    } catch (e) {
-      return false;
-    }
+    const raw = localStorage.getItem("providerMode");
+    const parsed = raw ? JSON.parse(raw) : false;
+    return Boolean(parsed);
   });
 
   useEffect(() => {
-    try {
-      localStorage.setItem("providerMode", providerMode ? "true" : "false");
-    } catch (e) {
-      // ignore
-    }
+    localStorage.setItem("providerMode", providerMode ? "true" : "false");
   }, [providerMode]);
 
   return (
