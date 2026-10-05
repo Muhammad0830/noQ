@@ -16,11 +16,8 @@ export function ProviderModeProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [providerMode, setProviderMode] = useState<boolean>(() => {
-    const raw = localStorage.getItem("providerMode");
-    const parsed = raw ? JSON.parse(raw) : false;
-    return Boolean(parsed);
-  });
+  const [providerMode, setProviderMode] = useState<boolean>(typeof window !== "undefined"
+    ? JSON.parse(localStorage.getItem("selected_shop_id") ?? 'false') : false);
 
   useEffect(() => {
     localStorage.setItem("providerMode", providerMode ? "true" : "false");

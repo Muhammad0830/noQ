@@ -21,7 +21,7 @@ export type NavItem = {
 export const ADMIN_NAV_ITEMS: NavItem[] = [
   {
     href: "/admin",
-    labelKey: "bottomNav.adminDash",
+    labelKey: "bottomNav.panel",
     defaultLabel: "Dash",
     icon: LayoutDashboard,
     activePatterns: ["^/admin$"],
@@ -41,7 +41,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     },
   {
     href: "/admin/analytics",
-    labelKey: "bottomNav.adminAnalytics",
+    labelKey: "bottomNav.analytics",
     defaultLabel: "Analytics",
     icon: BarChart2,
       activePatterns: ["^/admin/analytics"],

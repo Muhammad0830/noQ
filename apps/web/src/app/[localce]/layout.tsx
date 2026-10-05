@@ -1,10 +1,4 @@
 import type { Metadata } from "next";
-import {
-  Geist,
-  Geist_Mono,
-  Noto_Sans,
-  Playfair_Display,
-} from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 
@@ -13,25 +7,7 @@ import "../toast.css";
 
 import AppProviders from "./providers";
 import AppShell from "@/components/AppShell";
-import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
-
-const playfairDisplayHeading = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-heading",
-});
-
-const notoSans = Noto_Sans({ subsets: ["latin"], variable: "--font-sans" });
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "NoQ - Navbatsiz xizmat",
@@ -54,22 +30,15 @@ export default async function RootLayout({ children, params }: Props) {
   const { locale } = await params;
   const messages = await getMessages();
 
-  const htmlLang =
-    locale === "uz-latn" ? "uz-Latn" : locale === "uz-cyrl" ? "uz-Cyrl" : "ru";
-
   return (
     <html
-      lang={htmlLang}
+      lang={locale}
       suppressHydrationWarning
-      className={cn(
-        "font-sans",
-        notoSans.variable,
-        playfairDisplayHeading.variable,
-      )}
+      className="font-sans"
     >
       <body
         suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className="antialiased font-sans"
       >
         <NextIntlClientProvider messages={messages}>
           <AppProviders>

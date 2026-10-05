@@ -52,19 +52,17 @@ type AdminShop = {
 type ShopsResponse =
   | AdminShop[]
   | {
-      shops?: AdminShop[];
-      data?: AdminShop[];
-    };
+    shops?: AdminShop[];
+    data?: AdminShop[];
+  };
 
 export default function AdminDashboard() {
   const { user } = useAuth();
   const t = useTranslations();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [persistedShopId] = useState<string | null>(() => {
-    if (typeof window === "undefined") return null;
-    return window.localStorage.getItem("selected_shop_id");
-  });
+  const [persistedShopId] = useState<string | null>(typeof window !== "undefined"
+    ? localStorage.getItem("selected_shop_id") : null);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [isSidebarClosing, setIsSidebarClosing] = useState(false);
   const sidebarCloseTimerRef = useRef<number | null>(null);
@@ -293,7 +291,7 @@ export default function AdminDashboard() {
       typeof baseInfoError.data === "object" &&
       "message" in baseInfoError.data &&
       typeof (baseInfoError.data as { message?: unknown }).message ===
-        "string" &&
+      "string" &&
       (baseInfoError.data as { message: string }).message) ||
     baseInfoError?.message ||
     t("admin.dashboard.error.baseInfoFallback");
@@ -524,7 +522,7 @@ export default function AdminDashboard() {
       typeof historyError.data === "object" &&
       "message" in historyError.data &&
       typeof (historyError.data as { message?: unknown }).message ===
-        "string" &&
+      "string" &&
       (historyError.data as { message: string }).message) ||
     historyError?.message ||
     t("admin.dashboard.error.scheduleFallback");

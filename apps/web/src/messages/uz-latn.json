@@ -9,14 +9,14 @@
     "signup": "Ro'yxatdan o'tish"
   },
   "bottomNav": {
+    "home": "Bosh sahifa",
+    "discover": "Qidiruv",
+    "history": "Tarix",
+    "profile": "Profil",
     "panel": "Admin panel",
     "analytics": "Tahlil",
     "schedule": "Jadval",
-    "home": "Bosh sahifa",
-    "discover": "Qidiruv",
     "services": "Xizmatlar",
-    "history": "Tarix",
-    "profile": "Profil",
     "staff": "Xodimlar",
     "adminDash": "Dashbord",
     "adminServices": "Xizmatlar (admin)",
@@ -318,7 +318,6 @@
       "search_placeholder": "Xizmat yoki do'kon qidiring...",
       "search": "Qidirish",
       "location_placeholder": "Manzil",
-      "goToBanner": "{{index}}-bannerga o'tish",
       "banner": {
         "barbershop": {
           "alt": "Barbershop banneri",

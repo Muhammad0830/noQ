@@ -153,7 +153,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
                   ? "w-5 bg-[#F49B33]"
                   : "w-1.5 bg-gray-300"
               }`}
-              aria-label={t("user.hero.goToBanner", { index: index + 1 })}
             />
           ))}
         </div>
