@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useProviderMode } from "@/contexts/ProviderModeContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useAuthPrompt } from "@/contexts/AuthPromptContext";
+import { useLoginDialog } from "@/contexts/LogInDialogContext";
 import UserPanelBottomNav from "./UserPanelBottomNav";
 import AdminPanelBottomNav from "./AdminPanelBottomNav";
 
@@ -12,7 +12,7 @@ export default function BottomNav() {
 
   const { user } = useAuth();
   const { providerMode } = useProviderMode();
-  const { openAuthPrompt } = useAuthPrompt();
+  const { open } = useLoginDialog();
 
   const isOnAdminRoute = pathname.startsWith("/admin");
   const isOnProfileRoute = pathname.startsWith("/profile");
@@ -31,7 +31,7 @@ export default function BottomNav() {
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 md:hidden">
       <div className="relative h-16 overflow-hidden">
         <UserPanelBottomNav
-          openAuthPrompt={openAuthPrompt}
+          open={open}
           isAdmin={isAdmin}
           isActive={isActive}
           user={user}

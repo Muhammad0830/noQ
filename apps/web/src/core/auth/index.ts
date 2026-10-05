@@ -1,2 +1,2 @@
 export * from "@/contexts/AuthContext";
-export * from "@/contexts/AuthPromptContext";
+export * from "@/contexts/LogInDialogContext";

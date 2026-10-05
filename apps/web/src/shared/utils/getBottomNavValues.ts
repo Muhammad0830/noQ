@@ -57,31 +57,31 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
 
 export const USER_NAV_ITEMS: NavItem[] = [
     {
-    href: "/user",
+    href: "/",
     labelKey: "bottomNav.home",
     defaultLabel: "Home",
     icon: Home,
-    activePatterns: ["^/user$", "^/user/home"],
+    activePatterns: ["^/$", "^/home"],
   },
       {
-    href: "/user/discover",
+    href: "/discover",
     labelKey: "bottomNav.discover",
     defaultLabel: "Home",
     icon: Search,
-    activePatterns: ["^/user/discover"],
+    activePatterns: ["^/discover"],
   },
         {
-    href: "/user/bookings",
+    href: "/bookings",
     labelKey: "bottomNav.history",
     defaultLabel: "Home",
     icon: History,
-    activePatterns: ["^/user/bookings"],
+    activePatterns: ["^/bookings"],
   },
         {
     href: "/profile",
     labelKey: "bottomNav.profile",
     defaultLabel: "Profile",
     icon: User,
-    activePatterns: ["^/profile", "^/user/settings"],
+    activePatterns: ["^/profile", "^/settings"],
   },
 ]
