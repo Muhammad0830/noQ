@@ -1,23 +1,23 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import HeroSection from "@/components/HeroSection";
+import HeroSection from "@/components/user/home/HeroSection";
 import CategoriesSection from "@/components/CategoriesSection";
 import ShopList from "@/components/user/home/ShopList";
-import {
-  API_ENDPOINTS,
-} from "@/lib/api";
+import { API_ENDPOINTS } from "@/lib/api";
 import useApiQuery from "@/hooks/useApiQuery";
 import type { Shop, ShopCategory } from "@shared/types/general_types";
 import { useLocale } from "next-intl";
+import { Route } from "next";
 
 export default function Home() {
   const router = useRouter();
   const locale = useLocale();
-  const { data: categories = [], isLoading: isCategoriesLoading } =
-    useApiQuery<ShopCategory[]>(API_ENDPOINTS.categories, {
-      key: ["home-categories", locale],
-    });
+  const { data: categories = [], isLoading: isCategoriesLoading } = useApiQuery<
+    ShopCategory[]
+  >(API_ENDPOINTS.categories, {
+    key: ["home-categories", locale],
+  });
 
   const {
     data: shops = [],
@@ -38,7 +38,7 @@ export default function Home() {
     }
 
     const query = params.toString();
-    router.push(query ? `/discover?${query}` : "/discover");
+    router.push((query ? `/discover?${query}` : "/discover") as Route);
   };
 
   return (
@@ -55,8 +55,12 @@ export default function Home() {
 
       {/* Shops Section */}
       <div id="shops">
-        <ShopList shops={shops} isLoading={isLoading} isError={isError} error={error}
-        // locationQuery={locationQuery}
+        <ShopList
+          shops={shops}
+          isLoading={isLoading}
+          isError={isError}
+          error={error}
+          // locationQuery={locationQuery}
         />
       </div>
     </div>

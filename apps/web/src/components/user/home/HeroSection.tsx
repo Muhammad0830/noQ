@@ -4,9 +4,10 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import AppSearchInput from "@/components/AppSearchInput";
-import barbershopBanner from "../../assets/Barbershop.png";
-import dentalClinicBanner from "../../assets/Dental clinic.png";
+import barbershopBanner from "../../../../assets/Barbershop.png";
+import dentalClinicBanner from "../../../../assets/Dental_clinic.png";
 import { useTranslations } from "next-intl";
+import { Route } from "next";
 
 const HeroSection: React.FC = () => {
   const t = useTranslations();
@@ -75,7 +76,7 @@ const HeroSection: React.FC = () => {
   };
 
   const openDiscover = () => {
-    router.push("/discover?focus=search");
+    router.push("/discover?focus=search" as Route);
   };
 
   return (
@@ -84,12 +85,9 @@ const HeroSection: React.FC = () => {
         <form className="w-full">
           <AppSearchInput
             placeholder={t("user.hero.search_placeholder")}
-            readOnly
             onInputClick={openDiscover}
             onFocus={openDiscover}
-            showFilterButton
             onFilterClick={openDiscover}
-            filterAriaLabel={t("user.discover.filter.title")}
           />
         </form>
 

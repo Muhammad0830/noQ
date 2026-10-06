@@ -3,45 +3,44 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ChevronRight, Clock3, X } from "lucide-react";
+import { Clock3 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import ShopCard from "@/components/ShopCard";
 import AppSearchInput from "@/components/AppSearchInput";
 import { API_ENDPOINTS } from "@/lib/api";
-import { getImageUrl } from "@/lib/supabaseClient";
 import type { Shop, ShopCategory } from "@shared/types/general_types";
 import useApiQuery from "@/hooks/useApiQuery";
-import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import PopularShopsSkeleton from "@/components/user/discover/PopularShopsSkeleton";
 import ServiceCardSkeleton from "@/components/user/discover/ServiceCardSkeleton";
 import CompactShopRowSkeleton from "@/components/user/discover/CompactShopRowSkeleton";
 import CompacyShopRowItem from "@/components/user/discover/CompactShopRowItem";
+import { Route } from "next";
+import { TrendingService } from "@/shared/types/Service";
+import FilterDialog from "@/components/user/discover/FilterDialog";
 
 const SKELETON_COUNT = 10;
 const COMPACT_SHOP_ROW_SKELETON_COUNT = 5;
 
-type TrendingService = {
-  id: string;
-  name: string;
-  shopId?: string;
-  price?: number | string | null;
-  durationMin?: number | string | null;
-  shop?: {
-    id?: string;
-    name?: string;
-    categoryId?: string;
-    category?: {
-      id?: string;
-    };
-  };
-};
-
 type ShopsListResponse =
   | Shop[]
   | {
-    shops?: Shop[];
-  };
+      shops?: Shop[];
+    };
+
+interface FilterType {
+  categories: string[];
+  priceEnabled: boolean;
+  minPrice: number;
+  maxPrice: number;
+}
+
+const defaultFilter: FilterType = {
+  categories: [],
+  priceEnabled: false,
+  minPrice: 0,
+  maxPrice: 1000000,
+};
 
 export default function Page() {
   const t = useTranslations();
@@ -54,20 +53,10 @@ export default function Page() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [appliedCategories, setAppliedCategories] = useState<string[]>([]);
-  const [draftCategories, setDraftCategories] = useState<string[]>([]);
-  const [appliedPriceEnabled, setAppliedPriceEnabled] = useState(false);
-  const [draftPriceEnabled, setDraftPriceEnabled] = useState(false);
-  const [appliedMinPrice, setAppliedMinPrice] = useState(0);
-  const [appliedMaxPrice, setAppliedMaxPrice] = useState(1000000);
-  const [draftMinPrice, setDraftMinPrice] = useState(0);
-  const [draftMaxPrice, setDraftMaxPrice] = useState(1000000);
+  const [filter, setFilter] = useState<FilterType>(defaultFilter);
   const popularScrollRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [activePopularDot, setActivePopularDot] = useState(0);
-
-  const DEFAULT_MIN_PRICE = 0;
-  const DEFAULT_MAX_PRICE = 1000000;
 
   const { data: filterCategories = [] } = useApiQuery<ShopCategory[]>(
     API_ENDPOINTS.categories,
@@ -76,11 +65,10 @@ export default function Page() {
     },
   );
 
-  const hasAppliedFilters = appliedCategories.length > 0 || appliedPriceEnabled;
+  const hasAppliedFilters = filter.categories.length > 0 || filter.priceEnabled;
 
-  const hasCategoryFilter = appliedCategories.length > 0;
-  const hasPriceFilter = appliedPriceEnabled;
-  const isPriceOnlyFilter = hasPriceFilter && !hasCategoryFilter;
+  const hasCategoryFilter = filter.categories.length > 0;
+  const isPriceOnlyFilter = filter.priceEnabled && !hasCategoryFilter;
   const isTypingSearch = search.trim() !== debouncedSearch;
 
   const searchOnlyMode = search.trim().length > 0 && !hasAppliedFilters;
@@ -89,8 +77,7 @@ export default function Page() {
     search.trim().length === 0 &&
     !hasAppliedFilters
   );
-  const shouldShowShops =
-    shouldShowContent 
+  const shouldShowShops = shouldShowContent;
   const shouldShowServices =
     shouldShowContent &&
     !isTypingSearch &&
@@ -101,51 +88,6 @@ export default function Page() {
 
   const searchTerm = debouncedSearch.toLowerCase().trim();
   const useListLayoutForShops = hasCategoryFilter || searchTerm.length > 0;
-
-  const priceTrackStyle = useMemo(() => {
-    const min = DEFAULT_MIN_PRICE;
-    const max = DEFAULT_MAX_PRICE;
-    const left = ((draftMinPrice - min) / (max - min)) * 100;
-    const right = ((draftMaxPrice - min) / (max - min)) * 100;
-
-    return {
-      left: `${Math.max(0, Math.min(left, 100))}%`,
-      width: `${Math.max(0, Math.min(right, 100) - Math.max(0, Math.min(left, 100)))}%`,
-    };
-  }, [draftMinPrice, draftMaxPrice, DEFAULT_MIN_PRICE]);
-
-  const openFilterModal = () => {
-    setDraftCategories(appliedCategories);
-    setDraftPriceEnabled(appliedPriceEnabled);
-    setDraftMinPrice(appliedMinPrice);
-    setDraftMaxPrice(appliedMaxPrice);
-    setIsFilterOpen(true);
-  };
-
-  const applyFilters = () => {
-    setAppliedCategories(draftCategories);
-    setAppliedPriceEnabled(draftPriceEnabled);
-    setAppliedMinPrice(draftMinPrice);
-    setAppliedMaxPrice(draftMaxPrice);
-    setIsFilterOpen(false);
-  };
-
-  const resetDraftFilters = () => {
-    setDraftCategories([]);
-    setDraftPriceEnabled(false);
-    setDraftMinPrice(DEFAULT_MIN_PRICE);
-    setDraftMaxPrice(DEFAULT_MAX_PRICE);
-  };
-
-  useEffect(() => {
-    if (initialCategoryId) {
-      setAppliedCategories([initialCategoryId]); // eslint-disable-line
-      setDraftCategories([initialCategoryId]);
-    } else {
-      setAppliedCategories([]);
-      setDraftCategories([]);
-    }
-  }, [initialCategoryId]);
 
   useEffect(() => {
     if (!shouldFocusSearch) return;
@@ -174,7 +116,7 @@ export default function Page() {
     : `${API_ENDPOINTS.shops_trending}?search=${encodeURIComponent(debouncedSearch)}`;
 
   const servicesUrl = shouldUseFullCatalog
-    ? `${API_ENDPOINTS.services}?limit=1000${isSearching ? `&search=${encodeURIComponent(debouncedSearch)}` : ""}${hasPriceFilter ? `&minPrice=${appliedMinPrice}&maxPrice=${appliedMaxPrice}` : ""}`
+    ? `${API_ENDPOINTS.services}?limit=1000${isSearching ? `&search=${encodeURIComponent(debouncedSearch)}` : ""}${filter.priceEnabled ? `&minPrice=${filter.minPrice}&maxPrice=${filter.maxPrice}` : ""}`
     : `${API_ENDPOINTS.services_trending}?search=${encodeURIComponent(debouncedSearch)}`;
 
   const { data: popularShopsData, isLoading: isPopularShopsLoading } =
@@ -183,10 +125,10 @@ export default function Page() {
         "discover-popular-purchases",
         shouldUseFullCatalog ? "all-shops" : "trending-shops",
         debouncedSearch,
-        appliedCategories.join(","),
-        appliedPriceEnabled ? "price-on" : "price-off",
-        appliedMinPrice,
-        appliedMaxPrice,
+        filter.categories.join(","),
+        filter.priceEnabled ? "price-on" : "price-off",
+        filter.minPrice,
+        filter.maxPrice,
       ],
     });
 
@@ -208,10 +150,10 @@ export default function Page() {
         "discover-popular-services",
         shouldUseFullCatalog ? "all-services" : "trending-services",
         debouncedSearch,
-        appliedCategories.join(","),
-        appliedPriceEnabled ? "price-on" : "price-off",
-        appliedMinPrice,
-        appliedMaxPrice,
+        filter.categories.join(","),
+        filter.priceEnabled ? "price-on" : "price-off",
+        filter.minPrice,
+        filter.maxPrice,
       ],
     });
 
@@ -225,35 +167,25 @@ export default function Page() {
         return false;
       }
 
-      if (appliedCategories.length > 0) {
+      if (filter.categories.length > 0) {
         const categoryId =
           item.shop?.category?.id ?? item.shop?.categoryId ?? "";
-        if (!appliedCategories.includes(categoryId)) {
+        if (!filter.categories.includes(categoryId)) {
           return false;
         }
       }
 
-      if (hasPriceFilter) {
+      if (filter.priceEnabled) {
         const priceValue = Number(item.price);
         if (!Number.isFinite(priceValue)) return false;
-        if (priceValue < appliedMinPrice || priceValue > appliedMaxPrice) {
+        if (priceValue < filter.minPrice || priceValue > filter.maxPrice) {
           return false;
         }
       }
 
       return true;
     });
-    // eslint-disable-next-line
-  }, [
-    popularServices,
-    searchTerm,
-    appliedMinPrice,
-    appliedCategories,
-    appliedMaxPrice,
-    DEFAULT_MIN_PRICE,
-    DEFAULT_MAX_PRICE,
-    hasPriceFilter,
-  ]);
+  }, [popularServices, searchTerm, filter]);
 
   const filteredPopularShops = useMemo(() => {
     return popularShops.filter((shop) => {
@@ -264,19 +196,19 @@ export default function Page() {
       // Agar barcha kategoriyalar tanlangan bo'lsa, filterni qo'llama
       // filterCategories.length > 0 check - data loading bo'lganida to'g'ri ishlay
       if (
-        appliedCategories.length > 0 &&
+        filter.categories.length > 0 &&
         filterCategories.length > 0 &&
-        appliedCategories.length < filterCategories.length
+        filter.categories.length < filterCategories.length
       ) {
         const categoryId = shop.category?.id ?? shop.categoryId ?? "";
-        if (!appliedCategories.includes(categoryId)) {
+        if (!filter.categories.includes(categoryId)) {
           return false;
         }
       }
 
       return true;
     });
-  }, [popularShops, searchTerm, appliedCategories, filterCategories.length]);
+  }, [popularShops, searchTerm, filter.categories, filterCategories.length]);
 
   const shouldHideServicesSectionForEmptyCategory =
     hasCategoryFilter &&
@@ -288,7 +220,7 @@ export default function Page() {
     if (popularScrollRef.current) {
       popularScrollRef.current.scrollTo({ left: 0, behavior: "auto" });
     }
-  }, [searchTerm, appliedCategories]);
+  }, [searchTerm, filter.categories]);
 
   const popularIndicatorCount = Math.max(1, filteredPopularShops.length);
 
@@ -315,14 +247,6 @@ export default function Page() {
     el.scrollTo({ left: target, behavior: "smooth" });
   };
 
-  const toggleCategory = (category: string) => {
-    setDraftCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((item) => item !== category)
-        : [...prev, category],
-    );
-  };
-
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <div className="mx-auto w-full max-w-md px-4 pb-4 pt-3">
@@ -333,189 +257,12 @@ export default function Page() {
           onFocus={() => setIsSearchFocused(true)}
           onBlur={() => setIsSearchFocused(false)}
           placeholder={t("user.hero.search_placeholder")}
-          showClearButton={search.length > 0}
           onClear={() => {
             setSearch("");
             setDebouncedSearch("");
           }}
-          showFilterButton={search.length === 0}
-          onFilterClick={openFilterModal}
-          clearAriaLabel={t("common.clearSearch")}
-          filterAriaLabel={t("user.discover.filter.title")}
+          onFilterClick={() => setIsFilterOpen(true)}
         />
-
-        {isFilterOpen && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-3"
-            onClick={() => setIsFilterOpen(false)}
-          >
-            <div
-              className="w-full max-w-md rounded-3xl border border-[#f1c894] bg-white p-4 text-slate-900 shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-2xl font-bold">{t("user.discover.filter.title")}</h3>
-                <button
-                  type="button"
-                  onClick={() => setIsFilterOpen(false)}
-                  className="rounded-full bg-[#fff3e6] p-2 text-[#8a5620] transition hover:bg-[#fce2c4]"
-                  aria-label={t("common.close")}
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              <div className="mb-5">
-                <div className="mb-2 flex items-center justify-between">
-                  <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500">
-                    {t("user.discover.filter.category").toUpperCase()}
-                  </p>
-                  <span className="text-[10px] font-bold tracking-[0.14em] text-[#F49B33]">
-                    {t("user.discover.filter.multiSelect").toUpperCase()}
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap gap-2.5">
-                  {filterCategories.map((category) => {
-                    const active = draftCategories.includes(category.id);
-
-                    return (
-                      <button
-                        key={category.id}
-                        type="button"
-                        onClick={() => toggleCategory(category.id)}
-                        className={`rounded-full px-4 py-2 text-sm font-semibold transition ${active
-                          ? "bg-[#F49B33] text-white"
-                          : "bg-[#fff3e6] text-[#8a5620]"
-                          }`}
-                      >
-                        {t(`categories.${category.name}`)}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="rounded-3xl border border-slate-200 bg-linear-to-b from-white to-slate-50 p-4 shadow-sm">
-                <div className="mb-4 flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[11px] font-bold tracking-[0.18em] text-slate-500">
-                      {t("user.discover.filter.priceRange").toUpperCase()}
-                    </p>
-                    <p className="mt-1 text-sm text-slate-500">
-                      {t("user.discover.filter.togglePrice")}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDraftPriceEnabled((prev) => {
-                        const next = !prev;
-                        if (next) {
-                          setDraftMinPrice(DEFAULT_MIN_PRICE);
-                          setDraftMaxPrice(DEFAULT_MAX_PRICE);
-                        }
-                        return next;
-                      });
-                    }}
-                    className={`relative inline-flex h-7 w-12 shrink-0 items-center overflow-hidden rounded-full p-0.5 transition ${draftPriceEnabled ? "bg-green-500" : "bg-slate-300"
-                      }`}
-                    aria-label={t("user.discover.filter.togglePrice")}
-                    aria-pressed={draftPriceEnabled}
-                  >
-                    <span
-                      className={`block h-6 w-6 rounded-full bg-white shadow transition-transform ${draftPriceEnabled ? "translate-x-5" : "translate-x-0"
-                        }`}
-                    />
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
-                  <div className="rounded-2xl border border-slate-200 bg-white px-2.5 py-2 shadow-sm">
-                    <p className="text-[7px] font-semibold uppercase tracking-[0.16em] text-slate-400 sm:text-[7px]">
-                      {t("user.discover.filter.priceFrom")}
-                    </p>
-                    <p className="mt-1 text-sm font-bold whitespace-nowrap text-slate-900 sm:text-xs">
-                      {formatPrice(draftMinPrice, locale)} {t("common.currency")}
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-slate-200 bg-white px-2.5 py-2 shadow-sm">
-                    <p className="text-[7px] font-semibold uppercase tracking-[0.16em] text-slate-400 sm:text-[7px]">
-                      {t("user.discover.filter.priceTo")}
-                    </p>
-                    <p className="mt-1 text-sm font-bold whitespace-nowrap text-slate-900 sm:text-xs">
-                      {formatPrice(draftMaxPrice, locale)} {t("common.currency")}
-                    </p>
-                  </div>
-                </div>
-
-                <div
-                  className={`rangePrice mb-8 ${draftPriceEnabled ? "" : "opacity-45"}`}
-                >
-                  <div className="slider rounded-full bg-linear-to-r from-[#fff4e7] via-[#ffe1bd] to-[#fff4e7]">
-                    <input
-                      type="range"
-                      min={DEFAULT_MIN_PRICE}
-                      max={DEFAULT_MAX_PRICE}
-                      step={1}
-                      value={draftMinPrice}
-                      disabled={!draftPriceEnabled}
-                      onChange={(e) => {
-                        const nextMin = Number(e.target.value);
-                        setDraftMinPrice(Math.min(nextMin, draftMaxPrice));
-                      }}
-                      className={`range-thumb ${draftMinPrice > DEFAULT_MAX_PRICE - 20 ? "range-thumb--zindex-5" : "range-thumb--zindex-3"}`}
-                    />
-
-                    <input
-                      type="range"
-                      min={DEFAULT_MIN_PRICE}
-                      max={DEFAULT_MAX_PRICE}
-                      step={1}
-                      value={draftMaxPrice}
-                      disabled={!draftPriceEnabled}
-                      onChange={(e) => {
-                        const nextMax = Number(e.target.value);
-                        setDraftMaxPrice(Math.max(nextMax, draftMinPrice));
-                      }}
-                      className="range-thumb range-thumb--zindex-4"
-                    />
-
-                    <div className="slider-track bg-slate-200/90" />
-                    <div
-                      className="slider-range bg-linear-to-r from-[#f49b33] via-[#f7b35c] to-[#f49b33]"
-                      style={priceTrackStyle}
-                    />
-                    <div className="slider-left-value">
-                      {formatPrice(DEFAULT_MIN_PRICE, locale)} {t("common.currency")}
-                    </div>
-                    <div className="slider-right-value">
-                      {formatPrice(DEFAULT_MAX_PRICE, locale)} {t("common.currency")}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={resetDraftFilters}
-                    className="flex-1 rounded-2xl border border-[#F49B33]/25 bg-white px-4 py-3 text-sm font-semibold text-[#8a5620] shadow-sm transition hover:border-[#F49B33]/35 hover:bg-[#fff8ef]"
-                  >
-                    {t("user.discover.filter.reset")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={applyFilters}
-                    className="flex-1 rounded-2xl bg-[#F49B33] px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#e58d26] hover:shadow-md"
-                  >
-                    {t("common.save")}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {shouldShowShops && (
           <div className="mt-5">
@@ -526,12 +273,14 @@ export default function Page() {
             {isPopularShopsLoading ? (
               useListLayoutForShops ? (
                 <div className="rounded-2xl border border-slate-200 bg-white px-2">
-                  {Array.from({ length: COMPACT_SHOP_ROW_SKELETON_COUNT }).map((_, i) => (
-                    <CompactShopRowSkeleton
-                      key={`discover-popular-list-skeleton-${i}`}
-                      isLast={i === SKELETON_COUNT - 1}
-                    />
-                  ))}
+                  {Array.from({ length: COMPACT_SHOP_ROW_SKELETON_COUNT }).map(
+                    (_, i) => (
+                      <CompactShopRowSkeleton
+                        key={`discover-popular-list-skeleton-${i}`}
+                        isLast={i === SKELETON_COUNT - 1}
+                      />
+                    ),
+                  )}
                 </div>
               ) : (
                 <div className="flex gap-4 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
@@ -582,10 +331,11 @@ export default function Page() {
                               key={`popular-dot-${i}`}
                               type="button"
                               onClick={() => scrollToPopularDot(i)}
-                              className={`h-2 w-2 rounded-full transition-colors ${i === activePopularDot
-                                ? "bg-cyan-500"
-                                : "bg-slate-300"
-                                }`}
+                              className={`h-2 w-2 rounded-full transition-colors ${
+                                i === activePopularDot
+                                  ? "bg-cyan-500"
+                                  : "bg-slate-300"
+                              }`}
                               aria-label={t("user.discover.goToCard", {
                                 index: i + 1,
                               })}
@@ -619,63 +369,64 @@ export default function Page() {
             <div className="rounded-2xl border border-slate-200 bg-white px-4 py-1 shadow-sm">
               {isPopularServicesLoading
                 ? Array.from({ length: SKELETON_COUNT }).map((_, i) => (
-                  <ServiceCardSkeleton
-                    key={`popular-service-skeleton-${i}`}
-                  />
-                ))
+                    <ServiceCardSkeleton
+                      key={`popular-service-skeleton-${i}`}
+                    />
+                  ))
                 : filteredServices.map((item) => {
-                  const priceValue =
-                    item.price === null || item.price === undefined
-                      ? Number.NaN
-                      : Number(item.price);
-                  const durationValue =
-                    item.durationMin === null ||
+                    const priceValue =
+                      item.price === null || item.price === undefined
+                        ? Number.NaN
+                        : Number(item.price);
+                    const durationValue =
+                      item.durationMin === null ||
                       item.durationMin === undefined
-                      ? 0
-                      : Number(item.durationMin);
-                  const targetShopId = item.shopId || item.shop?.id;
+                        ? 0
+                        : Number(item.durationMin);
+                    const targetShopId = item.shopId || item.shop?.id;
 
-                  return (
-                    <Link
-                      key={item.id}
-                      href={
-                        targetShopId
-                          ? `/book/${targetShopId}?service=${item.id}`
-                          : "/discover"
-                      }
-                      className="block border-b border-slate-200/70 py-4 last:border-b-0"
-                    >
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-[15px] font-semibold text-slate-900 sm:text-base">
-                            {item.name}
-                          </p>
-                          <p className="mt-1 flex items-center gap-1.5 text-[10px] tracking-wide text-slate-500">
-                            <Clock3 className="h-4 w-4" />
-                            <span className="truncate">
-                              {Number.isFinite(durationValue)
-                                ? durationValue
-                                : 0}{" "}
-                              {t("user.services.duration")} •{" "}
-                              {item.shop?.name ?? t("user.services.unknownShop")}
+                    return (
+                      <Link
+                        key={item.id}
+                        href={
+                          (targetShopId
+                            ? `/book/${targetShopId}?service=${item.id}`
+                            : "/discover") as Route
+                        }
+                        className="block border-b border-slate-200/70 py-4 last:border-b-0"
+                      >
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-[15px] font-semibold text-slate-900 sm:text-base">
+                              {item.name}
+                            </p>
+                            <p className="mt-1 flex items-center gap-1.5 text-[10px] tracking-wide text-slate-500">
+                              <Clock3 className="h-4 w-4" />
+                              <span className="truncate">
+                                {Number.isFinite(durationValue)
+                                  ? durationValue
+                                  : 0}{" "}
+                                {t("user.services.duration")} •{" "}
+                                {item.shop?.name ??
+                                  t("user.services.unknownShop")}
+                              </span>
+                            </p>
+                          </div>
+
+                          <div className="shrink-0 text-right">
+                            <p className="text-[18px] font-bold text-slate-800 sm:text-xl">
+                              {Number.isFinite(priceValue)
+                                ? `${formatPrice(priceValue, locale)} ${t("common.currency")}`
+                                : "--"}
+                            </p>
+                            <span className="mt-1 inline-block text-[10px] font-semibold text-emerald-500">
+                              {t("user.services.book").toUpperCase()}
                             </span>
-                          </p>
+                          </div>
                         </div>
-
-                        <div className="shrink-0 text-right">
-                          <p className="text-[18px] font-bold text-slate-800 sm:text-xl">
-                            {Number.isFinite(priceValue)
-                              ? `${formatPrice(priceValue, locale)} ${t("common.currency")}`
-                              : "--"}
-                          </p>
-                          <span className="mt-1 inline-block text-[10px] font-semibold text-emerald-500">
-                            {t("user.services.book").toUpperCase()}
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
+                      </Link>
+                    );
+                  })}
 
               {!isPopularServicesLoading && filteredServices.length === 0 && (
                 <div className="py-5 text-center text-sm text-slate-500">
@@ -686,6 +437,17 @@ export default function Page() {
           </div>
         )}
       </div>
+
+      <FilterDialog
+        key={isFilterOpen ? "open" : "closed"}
+        initialCategoryId={initialCategoryId}
+        categories={filterCategories}
+        isOpen={isFilterOpen}
+        filter={filter}
+        defaultFilter={defaultFilter}
+        setFilter={setFilter}
+        setIsFilterOpen={setIsFilterOpen}
+      />
     </div>
   );
 }

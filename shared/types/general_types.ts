@@ -7,7 +7,7 @@ export interface User {
   email: string;
   name: string;
   phoneNumber?: string | null;
-  role: 'USER' | 'ADMIN';
+  role: "USER" | "ADMIN";
   createdAt: string;
   avatarUrl?: string | null;
   shops?: Shop[];
@@ -40,8 +40,8 @@ export interface Shop {
   services: string[];
 }
 
-export interface ShopWithServices extends Omit<Shop, 'services'> {
-  services: Service[]
+export interface ShopWithServices extends Omit<Shop, "services"> {
+  services: Service[];
 }
 
 export interface Service {
@@ -56,15 +56,17 @@ export interface Service {
   bufferTime?: number | null;
   assignedToAllStaff?: boolean;
   assignedStaffId?: string | null;
-  assignedStaff?: {
-    id: string;
-    role?: "OWNER" | "MANAGER" | "STAFF";
-    user?: {
-      id?: string;
-      name?: string | null;
-      email?: string | null;
-      avatarUrl?: string | null;
-    } | null;
+  assignedStaff?: Staff | null;
+}
+
+export interface Staff {
+  id: string;
+  role?: "OWNER" | "MANAGER" | "STAFF";
+  user?: {
+    id?: string;
+    name?: string | null;
+    email?: string | null;
+    avatarUrl?: string | null;
   } | null;
 }
 
@@ -84,12 +86,12 @@ export interface Booking {
 }
 
 export type BookingStatus =
-  | 'PENDING'
-  | 'CONFIRMED'
-  | 'IN_PROGRESS'
-  | 'COMPLETED'
-  | 'CANCELLED'
-  | 'NO_SHOW';
+  | "PENDING"
+  | "CONFIRMED"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "NO_SHOW";
 
 // Review
 export interface Review {
@@ -118,20 +120,20 @@ export interface ApiError {
 }
 
 // Language types
-export type Language = 'uz-latn' | 'uz-cyrl' | 'ru';
+export type Language = "uz-latn" | "uz-cyrl" | "ru";
 
 export interface Translations {
-  'uz-latn': Record<string, string>;
-  'uz-cyrl': Record<string, string>;
-  'ru': Record<string, string>;
+  "uz-latn": Record<string, string>;
+  "uz-cyrl": Record<string, string>;
+  ru: Record<string, string>;
 }
 
 // backend-only types
 export interface MulterFile {
-  originalname: string
-  buffer: Buffer
-  mimetype: string
-  size: number
+  originalname: string;
+  buffer: Buffer;
+  mimetype: string;
+  size: number;
 }
 
 // Schedule types
