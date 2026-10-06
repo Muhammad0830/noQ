@@ -414,7 +414,7 @@ export default function DiscoverServices() {
         href={`/shop/${shop.id}`}
         className={`group flex items-center gap-3 px-2 py-3 ${isLast ? "" : "border-b border-slate-200/70"}`}
       >
-        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-slate-200">
+        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-slate-200">
           {imageUrl ? (
             <Image
               src={imageUrl}
@@ -434,7 +434,7 @@ export default function DiscoverServices() {
             {shop.name}
           </p>
           <p className="mt-1 text-sm text-slate-500">
-            {t("user.discover.distanceAway", { distance: "1.5" })}
+            {t("user.discover.distanceAway", { distance: "1.5", })}
           </p>
         </div>
 

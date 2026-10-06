@@ -6,7 +6,6 @@ import "../globals.css";
 import "../toast.css";
 
 import AppProviders from "./providers";
-import AppShell from "@/components/layouts/AppShell";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
@@ -42,7 +41,7 @@ export default async function RootLayout({ children, params }: Props) {
       >
         <NextIntlClientProvider messages={messages}>
           <AppProviders>
-            <AppShell>{children}</AppShell>
+            <main className="min-h-dvh">{children}</main>
             <Toaster />
           </AppProviders>
         </NextIntlClientProvider>

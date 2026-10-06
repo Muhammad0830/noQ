@@ -17,7 +17,7 @@ import AccountSettings from "@/shared/components/profile/AccountSettings";
 import Preferences from "@/shared/components/profile/Preferences";
 import { Loader2, LogOut } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { SupportedLocalesType } from "@/config/platform";
+import { ConditionalBottomNav, Header } from "@/shared/components";
 
 type ProfileField = {
   label: string;
@@ -41,9 +41,9 @@ type AdminShop = {
 type ShopsResponse =
   | AdminShop[]
   | {
-      shops?: AdminShop[];
-      data?: AdminShop[];
-    };
+    shops?: AdminShop[];
+    data?: AdminShop[];
+  };
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -139,12 +139,12 @@ export default function ProfilePage() {
 
   const memberSince = user?.createdAt
     ? `${t("profile.memberSince")} ${new Date(
-        user.createdAt,
-      ).toLocaleDateString(locale, {
-        month: "numeric",
-        year: "numeric",
-        day: "numeric",
-      })}`
+      user.createdAt,
+    ).toLocaleDateString(locale, {
+      month: "numeric",
+      year: "numeric",
+      day: "numeric",
+    })}`
     : t("profile.memberSinceUnknown");
 
   const initials = (() => {
@@ -253,111 +253,117 @@ export default function ProfilePage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
-      {isAdmin && (
-        <AdminSidebar
-          isVisible={isSidebarVisible}
-          isClosing={isSidebarClosing}
-          currentShopName={user?.name || "Profile"}
-          adminNavItems={adminNavItems}
-          onClose={closeSidebar}
-          getAdminHrefWithShopId={getAdminHrefWithShopId}
-        />
-      )}
+    <div>
+      <Header />
 
-      <div
-        className="mx-auto w-full px-3 pb-2.25 pt-8 sm:px-6"
-        style={{ maxWidth: 650 }}
-      >
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            if (e.target.files) {
-              setFile(e.target.files[0]);
-            }
-          }}
-          className="hidden"
-          id="profile-image-input"
-        />
-
-        <section className="relative mb-6 border-b border-slate-200 pb-6 text-center dark:border-white/10">
-          <ProfileAvatarSection
-            user={user}
-            preview={preview}
-            isLoading={isLoading}
-            file={file}
-            isSavingImage={isSavingImage}
-            initials={initials}
-            memberSince={memberSince}
-            providerMode={providerMode}
-            setPreview={setPreview}
-            handleSaveImage={handleSaveImage}
-            setFile={setFile}
+      <main className="min-h-screen bg-slate-50 text-slate-900">
+        {isAdmin && (
+          <AdminSidebar
+            isVisible={isSidebarVisible}
+            isClosing={isSidebarClosing}
+            currentShopName={user?.name || "Profile"}
+            adminNavItems={adminNavItems}
+            onClose={closeSidebar}
+            getAdminHrefWithShopId={getAdminHrefWithShopId}
           />
-        </section>
+        )}
 
-        <PanelChangeAccordion
-          isAdmin={isAdmin}
-          providerMode={providerMode}
-          setProviderMode={setProviderMode}
-          visibleAdminShops={visibleAdminShops}
-          isLoadingShops={isLoadingShops}
-        />
-
-        <section className="mb-6">
-          <AccountSettings setIsInfoModalOpen={setIsInfoModalOpen} />
-        </section>
-
-        <section className="mb-8">
-          <Preferences
-            setIsLanguageModalOpen={setIsLanguageModalOpen}
-          />
-        </section>
-
-        <button
-          type="button"
-          onClick={() => setIsLogoutConfirmOpen(true)}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-red-400 bg-white py-3 font-semibold text-red-400 transition hover:bg-red-50"
+        <div
+          className="mx-auto w-full px-3 pb-2.25 pt-8 sm:px-6"
+          style={{ maxWidth: 650 }}
         >
-          <LogOut className="h-4 w-4" />
-          {t("profile.logout")}
-        </button>
-      </div>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              if (e.target.files) {
+                setFile(e.target.files[0]);
+              }
+            }}
+            className="hidden"
+            id="profile-image-input"
+          />
 
-      {isInfoModalOpen && (
-        <InfoModal
-          setIsInfoModalOpen={setIsInfoModalOpen}
-          setIsEditingInfo={setIsEditingInfo}
-          setInfoSaveError={setInfoSaveError}
-          handleSavePersonalInfo={handleSavePersonalInfo}
-          setInfoForm={setInfoForm}
-          isSavingInfo={isSavingInfo}
-          user={user}
-          infoForm={infoForm}
-          isEditingInfo={isEditingInfo}
-          infoSaveError={infoSaveError}
-          profileFields={profileFields}
+          <section className="relative mb-6 border-b border-slate-200 pb-6 text-center dark:border-white/10">
+            <ProfileAvatarSection
+              user={user}
+              preview={preview}
+              isLoading={isLoading}
+              file={file}
+              isSavingImage={isSavingImage}
+              initials={initials}
+              memberSince={memberSince}
+              providerMode={providerMode}
+              setPreview={setPreview}
+              handleSaveImage={handleSaveImage}
+              setFile={setFile}
+            />
+          </section>
+
+          <PanelChangeAccordion
+            isAdmin={isAdmin}
+            providerMode={providerMode}
+            setProviderMode={setProviderMode}
+            visibleAdminShops={visibleAdminShops}
+            isLoadingShops={isLoadingShops}
+          />
+
+          <section className="mb-6">
+            <AccountSettings setIsInfoModalOpen={setIsInfoModalOpen} />
+          </section>
+
+          <section className="mb-8">
+            <Preferences
+              setIsLanguageModalOpen={setIsLanguageModalOpen}
+            />
+          </section>
+
+          <button
+            type="button"
+            onClick={() => setIsLogoutConfirmOpen(true)}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-red-400 bg-white py-3 font-semibold text-red-400 transition hover:bg-red-50"
+          >
+            <LogOut className="h-4 w-4" />
+            {t("profile.logout")}
+          </button>
+        </div>
+
+        {isInfoModalOpen && (
+          <InfoModal
+            setIsInfoModalOpen={setIsInfoModalOpen}
+            setIsEditingInfo={setIsEditingInfo}
+            setInfoSaveError={setInfoSaveError}
+            handleSavePersonalInfo={handleSavePersonalInfo}
+            setInfoForm={setInfoForm}
+            isSavingInfo={isSavingInfo}
+            user={user}
+            infoForm={infoForm}
+            isEditingInfo={isEditingInfo}
+            infoSaveError={infoSaveError}
+            profileFields={profileFields}
+          />
+        )}
+
+        {isLanguageModalOpen && (
+          <LanguageChangeModal setIsLanguageModalOpen={setIsLanguageModalOpen} />
+        )}
+
+        <LogoutConfirmModal
+          open={isLogoutConfirmOpen}
+          title={t("profile.logoutConfirmTitle")}
+          message={t("profile.logoutConfirmMessage")}
+          cancelText={t("profile.cancel")}
+          confirmText={t("profile.logout")}
+          onCancel={() => setIsLogoutConfirmOpen(false)}
+          onConfirm={() => {
+            logout();
+            setIsLogoutConfirmOpen(false);
+            router.replace("/login");
+          }}
         />
-      )}
+      </main>
 
-      {isLanguageModalOpen && (
-        <LanguageChangeModal setIsLanguageModalOpen={setIsLanguageModalOpen} />
-      )}
-
-      <LogoutConfirmModal
-        open={isLogoutConfirmOpen}
-        title={t("profile.logoutConfirmTitle")}
-        message={t("profile.logoutConfirmMessage")}
-        cancelText={t("profile.cancel")}
-        confirmText={t("profile.logout")}
-        onCancel={() => setIsLogoutConfirmOpen(false)}
-        onConfirm={() => {
-          logout();
-          setIsLogoutConfirmOpen(false);
-          router.replace("/login");
-        }}
-      />
-    </main>
+      <ConditionalBottomNav />
+    </div>
   );
 }

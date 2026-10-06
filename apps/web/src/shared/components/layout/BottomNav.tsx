@@ -1,11 +1,11 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { useProviderMode } from "@/contexts/ProviderModeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoginDialog } from "@/contexts/LogInDialogContext";
 import UserPanelBottomNav from "./UserPanelBottomNav";
 import AdminPanelBottomNav from "./AdminPanelBottomNav";
+import { usePathname } from "@/i18n/navigation";
 
 export default function BottomNav() {
   const pathname = usePathname();

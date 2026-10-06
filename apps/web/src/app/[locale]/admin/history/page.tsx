@@ -404,9 +404,9 @@ export default function Page() {
         getAdminHrefWithShopId={getAdminHrefWithShopId}
       />
 
-      <div className="mx-auto flex h-full w-full max-w-107.5 flex-col bg-white">
+      <div className="flex h-full w-full flex-col bg-white">
         <div className="sticky top-0 z-40 w-full">
-          <div className="mx-auto flex w-full max-w-107.5 items-center justify-between border-b bg-orange-50 p-3 md:bg-white md:shadow-sm">
+          <div className="mx-auto flex w-full items-center justify-between border-b bg-orange-50 p-3 md:bg-white md:shadow-sm">
             <div className="flex items-center gap-3">
               {isShopNameLoading ? (
                 <div className="h-12 w-12 animate-pulse rounded-full bg-gray-200 sm:h-10 sm:w-10" />
@@ -608,7 +608,7 @@ export default function Page() {
           </section>
 
           <footer className="fixed bottom-16 left-0 right-0 z-30 border-t border-[#d7d9dd] bg-white/95 backdrop-blur-sm md:static md:bottom-auto md:left-auto md:right-auto md:z-auto md:border-t-0 md:bg-transparent md:backdrop-blur-0">
-            <div className="mx-auto flex w-full max-w-107.5 items-end justify-between gap-4 px-4 pt-3 pb-4 md:px-0 md:pt-1 md:pb-0">
+            <div className="flex w-full items-end justify-between gap-4 px-4 pt-3 pb-4 md:px-0 md:pt-1 md:pb-0">
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#f0a339]">
                   {t("admin.history.totalRevenue")}

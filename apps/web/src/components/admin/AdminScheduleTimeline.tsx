@@ -466,7 +466,7 @@ export function AdminScheduleTimeline({
         )}
 
         <div className="relative space-y-4">
-          {isSelectedToday && nowMarkerTop !== null && (
+          {appointments.length > 0 && isSelectedToday && nowMarkerTop !== null && (
             <div
               className="pointer-events-none absolute left-0 right-0 z-20"
               style={{ top: nowMarkerTop }}

@@ -1,1 +1,1 @@
-export { default as OrdersPage } from "../../app/[locale]/(routes)/(user)/bookings/page";
+export { default as OrdersPage } from "../../app/[locale]/(user)/(main)/bookings/page";

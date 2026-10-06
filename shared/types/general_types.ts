@@ -1,34 +1,15 @@
 // auth types
 export type AuthStorageSource = "local" | "session";
 
-export interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string, remember?: boolean) => Promise<void>;
-  signup: (
-    email: string,
-    password: string,
-    name: string,
-    phone?: string,
-  ) => Promise<void>;
-  logout: () => void;
-  updateProfile: (data: {
-    name?: string;
-    phoneNumber?: string;
-    file?: File | null;
-  }) => Promise<void>;
-}
-
 // User types
 export interface User {
   id: string;
   email: string;
   name: string;
-  phoneNumber?: string;
+  phoneNumber?: string | null;
   role: 'USER' | 'ADMIN';
   createdAt: string;
-  avatarUrl?: string;
+  avatarUrl?: string | null;
   shops?: Shop[];
 }
 
@@ -57,6 +38,10 @@ export interface Shop {
   averageRating?: number;
   reviewCount?: number;
   services: string[];
+}
+
+export interface ShopWithServices extends Omit<Shop, 'services'> {
+  services: Service[]
 }
 
 export interface Service {

@@ -17,7 +17,8 @@ export function useApiMutation<TResponse = unknown, TVariables = unknown>(
   requestConfig?: RequestConfigType<TVariables>,
 ): UseMutationResult<TResponse, Error, TVariables> {
   const t = useTranslations();
-  const mutation = useMutation<TResponse, Error, TVariables>({
+
+  return useMutation<TResponse, Error, TVariables>({
     mutationFn: async (data: TVariables) => {
       const finalUrl = typeof url === "function" ? url(data) : url;
       const finalConfig =
@@ -40,6 +41,4 @@ export function useApiMutation<TResponse = unknown, TVariables = unknown>(
       return response.data;
     },
   });
-
-  return mutation;
 }

@@ -1,2 +1,2 @@
-export { default } from "../../(routes)/(user)/bookings/page";
-export * from "../../(routes)/(user)/bookings/page";
+export { default } from "../../(user)/(main)/bookings/page";
+export * from "../../(user)/(main)/bookings/page";

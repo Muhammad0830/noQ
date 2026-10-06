@@ -57,7 +57,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
 
 export const USER_NAV_ITEMS: NavItem[] = [
     {
-    href: "/",
+    href: "/home",
     labelKey: "bottomNav.home",
     defaultLabel: "Home",
     icon: Home,

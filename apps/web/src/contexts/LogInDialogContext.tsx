@@ -1,9 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState } from "react";
-import { usePathname } from "next/navigation";
 import AuthRequiredDialog from "@/components/AuthRequiredDialog";
-import { useAuth } from "./AuthContext";
 
 type LogInDialogContextType = {
   open: () => void;
@@ -17,16 +15,7 @@ const LogInDialogContext = createContext<LogInDialogContextType | undefined>(
 export function LogInDialogProvider({ children }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
-
-  const isAuthPage =
-    pathname.startsWith("/login") ||
-    pathname.startsWith("/signup") ||
-    pathname.startsWith("/forgot-password");
-
-  const shouldShowLoginDialog = isOpen && !isAuthPage && !isAuthenticated;
 
   const open = () => setIsOpen(true);
   const close = () => setIsOpen(false);
@@ -34,10 +23,10 @@ export function LogInDialogProvider({ children }: {
   return (
     <LogInDialogContext.Provider value={{ open, close }}>
       {children}
-      {shouldShowLoginDialog && <AuthRequiredDialog
+      <AuthRequiredDialog
         open={isOpen}
         onClose={close}
-      />}
+      />
     </LogInDialogContext.Provider>
   );
 }

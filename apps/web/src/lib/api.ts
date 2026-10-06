@@ -3,7 +3,7 @@ import axios from "axios";
 
 const rawApiUrl =
   process.env.NEXT_PUBLIC_API_URL || "http://no-q-back.vercel.app.com";
-const normalizedApiUrl = rawApiUrl.replace(/\/+$/, "");
+const normalizedApiUrl = rawApiUrl.replace(/\/+$/, ""); // removes unnecessary '/' symbol from url
 const API_BASE_URL = /\/api$/i.test(normalizedApiUrl)
   ? normalizedApiUrl
   : `${normalizedApiUrl}`;

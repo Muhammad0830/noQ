@@ -73,7 +73,7 @@ export default function PanelChangeAccordion({
                       type="button"
                       onClick={() => {
                         setProviderMode(false);
-                        router.push("/");
+                        router.push("/home");
                       }}
                       aria-label={t("profile.addNewShop")}
                       className="w-full relative flex items-center gap-2 py-3 rounded-lg text-left text-base"

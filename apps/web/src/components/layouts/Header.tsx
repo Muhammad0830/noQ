@@ -96,7 +96,7 @@ export default function Header() {
       >
         <div className="flex h-16 items-center justify-between gap-2 sm:gap-4">
           {/* Logo */}
-          <Link href="/" className="flex shrink-0 items-center gap-2">
+          <Link href="/home" className="flex shrink-0 items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F49B33]">
               <span className="text-white font-bold text-lg">N</span>
             </div>

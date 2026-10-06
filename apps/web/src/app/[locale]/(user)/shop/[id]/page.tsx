@@ -7,19 +7,17 @@ import {
   MapPin,
   Clock,
   Phone,
-  Heart,
-  Share2,
-  ChevronLeft,
   Map,
 } from "lucide-react";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS } from "@/lib/api";
-import type { Shop, Service, Review } from "@shared/types/general_types";
+import type { Service, Review, ShopWithServices } from "@shared/types/general_types";
 import { getImageUrl } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/utils";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
+import SecondaryHeader from "@/components/layouts/SecondaryHeader";
 
 // Helper function to truncate address
 const truncateAddress = (address: string, words: number = 4): string => {
@@ -30,11 +28,6 @@ const truncateAddress = (address: string, words: number = 4): string => {
   }
   return address;
 };
-
-interface ShopDetailResponse extends Omit<Shop, "services"> {
-  services: Service[];
-}
-
 export default function ShopProfile({
   params,
 }: {
@@ -47,38 +40,27 @@ export default function ShopProfile({
   const [isFavorite, setIsFavorite] = useState(false);
   const [imageLoadError, setImageLoadError] = useState(false);
 
-  // 🔥 FETCH SHOP DETAILS
   const {
     data: shop,
     isLoading: shopLoading,
     error: shopError,
-  } = useApiQuery<ShopDetailResponse>(API_ENDPOINTS.shopById(id), {
+  } = useApiQuery<ShopWithServices>(API_ENDPOINTS.shopById(id), {
     key: ["shop", id],
   });
 
-  // 🔥 FETCH SERVICES
   const { data: servicesData = [], isLoading: servicesLoading } = useApiQuery<
     Service[]
   >(API_ENDPOINTS.shopServices(id), {
     key: ["services", id],
   });
 
-  // 🔥 FETCH REVIEWS
   const { data: reviewsData = [], isLoading: reviewsLoading } = useApiQuery<
     Review[]
   >(API_ENDPOINTS.shopReviews(id), {
     key: ["reviews", id],
   });
 
-  const services = useMemo(() => {
-    return (servicesData?.length > 0 ? servicesData : shop?.services) || [];
-  }, [servicesData, shop?.services]);
-
-  const reviews = useMemo(() => {
-    return reviewsData || [];
-  }, [reviewsData]);
-
-  if (shopLoading && !shop) {
+  if (shopLoading) {
     return (
       <div className="bg-white transition-colors">
         <div className="max-w-3xl mx-auto px-4 pt-3 pb-2 flex items-center gap-3">
@@ -124,32 +106,21 @@ export default function ShopProfile({
     );
   }
 
-  const shopData = shop || {
-    id: id,
-    name: "Loading...",
-    description: "",
-    address: "",
-    phone: "",
-    isOpen: true,
-    averageRating: 0,
-    reviewCount: 0,
-    categoryId: "",
-    ownerId: "",
-    category: undefined,
-    backgroundImageUrl: undefined,
-    createdAt: new Date().toISOString(),
-  };
+  if(!shop){
+    // TODO: shop not found component implementation
+    return null;
+  }
 
-  const shopInitial = (shopData.name?.trim()?.charAt(0) || "S").toUpperCase();
+  const shopInitial = (shop.name?.trim()?.charAt(0) || "S").toUpperCase();
 
-  const backgroundImage = shopData.backgroundImageUrl
-    ? shopData.backgroundImageUrl.startsWith("http")
-      ? shopData.backgroundImageUrl
-      : getImageUrl("shop_images", shopData.backgroundImageUrl)
+  const backgroundImage = shop.backgroundImageUrl
+    ? shop.backgroundImageUrl.startsWith("http")
+      ? shop.backgroundImageUrl
+      : getImageUrl("shop_images", shop.backgroundImageUrl)
     : null;
   const distance = "1.2 miles";
   const hours = "9AM - 8PM";
-  const hasPhone = Boolean(shopData.phone && shopData.phone.trim().length > 0);
+  const hasPhone = Boolean(shop.phone && shop.phone.trim().length > 0);
 
   return (
     <div className="bg-white transition-colors">
@@ -165,59 +136,20 @@ export default function ShopProfile({
         </div>
       )}
 
-      {/* Top Bar */}
-      <div className="max-w-3xl mx-auto px-4 pt-3 pb-2 flex items-center gap-2 sm:gap-3">
-        <button
-          type="button"
-          onClick={() => window.history.back()}
-          className="shrink-0 p-1.5 sm:p-2 bg-white rounded-full border border-gray-200 hover:bg-gray-50 transition"
-        >
-          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
-        </button>
+      <SecondaryHeader isFavorite={isFavorite} shop={shop} onFavorite={() => setIsFavorite(!isFavorite)} />
 
-        <div className="flex-1 text-center min-w-0">
-          <h1 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">
-            {shopData.name}
-          </h1>
-          <div className="flex items-center justify-center gap-1 mt-0.5">
-            <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400" />
-            <span className="font-semibold text-xs sm:text-sm text-gray-900">
-              {shopData.averageRating?.toFixed(1) || "0.0"}
-            </span>
-            <span className="text-xs sm:text-sm text-gray-600">
-              ({shopData.reviewCount || 0} {t("common.reviews")})
-            </span>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          className="shrink-0 p-1.5 sm:p-2 bg-white rounded-full border border-gray-200 hover:bg-gray-50 transition"
-        >
-          <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
-        </button>
-        <button
-          type="button"
-          onClick={() => setIsFavorite(!isFavorite)}
-          className="shrink-0 p-1.5 sm:p-2 bg-white rounded-full border border-gray-200 hover:bg-gray-50 transition"
-        >
-          <Heart
-            className={`w-4 h-4 sm:w-5 sm:h-5 ${isFavorite ? "fill-red-500 text-red-500" : "text-gray-700"}`}
-          />
-        </button>
-      </div>
 
       {/* Hero Image Section */}
       <div className="max-w-3xl mx-auto px-4 mt-1">
         <div className="relative h-64 sm:h-80 bg-gray-300 overflow-hidden rounded-3xl">
           {shopLoading ? (
-            <Skeleton className="h-full w-full rounded-3xl" />
+            <Skeleton className="h-full w-full relative rounded-3xl" />
           ) : (
             <>
               {backgroundImage && !imageLoadError ? (
                 <Image
                   src={backgroundImage}
-                  alt={shopData.name}
+                  alt={shop.name}
                   onError={() => {
                     setImageLoadError(true);
                   }}
@@ -238,12 +170,12 @@ export default function ShopProfile({
               {/* Status + Address */}
               <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 pr-4">
                 <span
-                  className={`px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold text-white ${shopData.isOpen ? "bg-teal-500" : "bg-red-500"}`}
+                  className={`px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold text-white ${shop.isOpen ? "bg-teal-500" : "bg-red-500"}`}
                 >
-                  {shopData.isOpen ? t("user.shop.openNow") : t("user.shop.closed")}
+                  {shop.isOpen ? t("user.shop.openNow") : t("user.shop.closed")}
                 </span>
                 <p className="mt-1.5 sm:mt-2 text-white text-base sm:text-2xl font-medium leading-tight drop-shadow-md line-clamp-2">
-                  {truncateAddress(shopData.address, 4) ||
+                  {truncateAddress(shop.address, 4) ||
                     "Address not available"}
                 </p>
               </div>
@@ -281,7 +213,7 @@ export default function ShopProfile({
               </div>
               {hasPhone && (
                 <a
-                  href={`tel:${shopData.phone}`}
+                  href={`tel:${shop.phone}`}
                   className="flex flex-col items-center gap-2 rounded-2xl border border-[#f1c894] bg-white p-3 text-center transition hover:bg-white sm:p-4 sm:gap-3"
                 >
                   <Phone className="h-5 w-5 sm:h-6 sm:w-6 text-[#F49B33]" />
@@ -307,7 +239,7 @@ export default function ShopProfile({
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                {t(`shop.${tab}`)}
+                {t(`user.shop.${tab}`)}
               </button>
             ))}
           </div>
@@ -327,8 +259,8 @@ export default function ShopProfile({
                   </div>
                 </div>
               ))
-            ) : services.length > 0 ? (
-              services.map((service) => (
+            ) : servicesData.length > 0 ? (
+              servicesData.map((service) => (
                 <Link
                   key={service.id}
                   href={`/book/${id}?service=${service.id}`}
@@ -377,15 +309,15 @@ export default function ShopProfile({
 
         {/* Gallery Tab */}
         {activeTab === "gallery" && (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-4 relative">
             {backgroundImage && !imageLoadError ? (
-              <div className="col-span-3">
+              <div className="col-span-3 aspect-video relative">
                 <Image
                   src={backgroundImage}
-                  alt={shopData.name}
+                  alt={shop.name}
                   onError={() => setImageLoadError(true)}
                   fill
-                  className="w-full h-64 object-cover rounded-lg"
+                  className="w-full object-cover rounded-lg"
                 />
               </div>
             ) : (
@@ -418,8 +350,8 @@ export default function ShopProfile({
                   <Skeleton className="h-4 w-4/5" />
                 </div>
               ))
-            ) : reviews.length > 0 ? (
-              reviews.map((review) => (
+            ) : reviewsData.length > 0 ? (
+              reviewsData.map((review) => (
                 <div key={review.id} className="p-4 bg-gray-50 rounded-lg">
                   <div className="flex items-start justify-between mb-2">
                     <div>
@@ -456,7 +388,7 @@ export default function ShopProfile({
               {t("user.shop.about")}
             </h3>
             <p className="text-gray-700 text-sm">
-              {shopData.description || "No description yet"}
+              {shop.description || "No description yet"}
             </p>
           </div>
         )}

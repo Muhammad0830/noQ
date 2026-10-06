@@ -40,7 +40,7 @@ export default function Login() {
         } catch {}
         router.push("/admin");
       } else {
-        router.push("/");
+        router.push("/home");
       }
     } catch (err) {
       setError(
@@ -55,7 +55,7 @@ export default function Login() {
     <div className="flex min-h-screen w-full items-center justify-center overflow-hidden bg-white px-4 py-4">
       <div className="w-full max-w-md">
         <div className="mb-5 text-center sm:mb-8">
-          <Link href="/" className="mb-4 inline-flex items-center gap-2">
+          <Link href="/home" className="mb-4 inline-flex items-center gap-2">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-linear-to-br from-blue-600 to-purple-600 text-2xl font-bold text-white">
               N
             </div>

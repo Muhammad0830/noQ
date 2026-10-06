@@ -1,10 +1,9 @@
 export { default as AdminSidebar } from "../../components/AdminSidebar";
 export { default as AppSearchInput } from "../../components/AppSearchInput";
-export { default as AppShell } from "../../components/layouts/AppShell";
 export { default as AuthRequiredDialog } from "../../components/AuthRequiredDialog";
 export { default as CategoriesSection } from "../../components/CategoriesSection";
 export { default as ConditionalBottomNav } from "../../components/layouts/ConditionalBottomNav";
-export { default as DiscoverServices } from "../../app/[locale]/(routes)/(user)/discover/DiscoverServices";
+export { default as DiscoverServices } from "../../app/[locale]/(user)/(main)/discover/DiscoverServices";
 export { default as Header } from "../../components/layouts/Header";
 export { default as HeroSection } from "../../components/HeroSection";
 export { default as LanguageSwitcher } from "../../components/LanguageSwitcher";

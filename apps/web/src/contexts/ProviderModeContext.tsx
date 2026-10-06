@@ -16,11 +16,18 @@ export function ProviderModeProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [providerMode, setProviderMode] = useState<boolean>(typeof window !== "undefined"
-    ? JSON.parse(localStorage.getItem("selected_shop_id") ?? 'false') : false);
+  const [providerMode, setProviderMode] = useState<boolean>(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+
+    return Boolean(localStorage.getItem("selected_shop_id"));
+  });
 
   useEffect(() => {
-    localStorage.setItem("providerMode", providerMode ? "true" : "false");
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("providerMode", providerMode ? "true" : "false");
+    }
   }, [providerMode]);
 
   return (

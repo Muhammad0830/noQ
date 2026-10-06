@@ -1,3 +1,4 @@
+'use client';
 import { getImageUrl } from "@/lib/supabaseClient";
 import {
     ActiveBookingItem,
