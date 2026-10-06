@@ -26,10 +26,8 @@ export default function AddBusinessStepOnePage() {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("+998");
 
-  const categoriesUrl = `${API_ENDPOINTS.categories}?lang=${encodeURIComponent(locale)}`;
-
   const { data: categoriesResponse, isLoading: isLoadingCategories } =
-    useApiQuery<ShopCategoriesResponse>(categoriesUrl, {
+    useApiQuery<ShopCategoriesResponse>(API_ENDPOINTS.categories, {
       key: ["new-shop-categories", locale],
       staleTime: 60_000,
       refetchOnWindowFocus: false,
@@ -39,9 +37,6 @@ export default function AddBusinessStepOnePage() {
   const categories = useMemo<ShopCategory[]>(() => {
     if (!categoriesResponse) return [];
     if (Array.isArray(categoriesResponse)) return categoriesResponse;
-    if (Array.isArray(categoriesResponse.categories)) {
-      return categoriesResponse.categories;
-    }
     if (Array.isArray(categoriesResponse.data)) return categoriesResponse.data;
     return [];
   }, [categoriesResponse]);

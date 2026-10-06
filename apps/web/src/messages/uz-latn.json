@@ -694,5 +694,14 @@
     "privacyPolicy": "Maxfiylik siyosati",
     "termsOfService": "Xizmat shartlari",
     "appVersion": "Ilova versiyasi"
+  },
+  "categories": {
+    "Fitness": "Fitnes",
+    "Nail Salon": "Tirnoq saloni",
+    "Dentist": "Tish do'xtiri",
+    "Beauty Salon": "Go'zallik saloni",
+    "Spa & Massage": "Spa va massaj",
+    "Barbershop": "Sartarosh",
+    "Cafe": "Kafe"
   }
 }

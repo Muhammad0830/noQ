@@ -269,7 +269,7 @@ export default function ProfilePage() {
         )}
 
         <div
-          className="mx-auto w-full px-3 pb-2.25 pt-8 sm:px-6"
+          className="mx-auto w-full px-3 pb-4 pt-8 sm:px-6"
           style={{ maxWidth: 650 }}
         >
           <input

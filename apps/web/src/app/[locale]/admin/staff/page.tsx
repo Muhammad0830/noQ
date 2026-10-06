@@ -250,7 +250,7 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-dvh bg-[radial-gradient(circle_at_top,rgba(244,155,51,0.12),transparent_35%),linear-gradient(180deg,#fffaf4_0%,#f9fafb_45%,#f3f4f6_100%)] pb-24">
+    <div className="min-h-dvh bg-[radial-gradient(circle_at_top,rgba(244,155,51,0.12),transparent_35%),linear-gradient(180deg,#fffaf4_0%,#f9fafb_45%,#f3f4f6_100%)] pb-4">
       <div className="sticky top-0 z-20 border-b border-[#e9ebee] bg-[#f4f5f7]/95 backdrop-blur-sm">
         <div className="mx-auto w-full max-w-6xl px-4 py-4">
           <div className="relative flex min-h-10 items-center justify-center">

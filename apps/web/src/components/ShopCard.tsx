@@ -90,8 +90,6 @@ const getCategoryIcon = (iconOrName?: string) => {
 
 const ShopCard: React.FC<ShopCardProps> = ({
   shop,
-  onFavorite: _onFavorite,
-  isFavorite: _isFavorite = false,
 }) => {
   const t = useTranslations();
   const [imageLoadError, setImageLoadError] = useState(false);
@@ -116,7 +114,7 @@ const ShopCard: React.FC<ShopCardProps> = ({
   );
   const serviceNamesSource =
     (Array.isArray(shop.services) && shop.services) ||
-    (Array.isArray((rootShop as any).services) && (rootShop as any).services) ||
+    (Array.isArray((rootShop).services) && (rootShop).services) ||
     [];
 
   const serviceNames = Array.isArray(serviceNamesSource)

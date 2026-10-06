@@ -8,11 +8,7 @@ import barbershopBanner from "../../assets/Barbershop.png";
 import dentalClinicBanner from "../../assets/Dental clinic.png";
 import { useTranslations } from "next-intl";
 
-interface HeroSectionProps {
-  onSearch?: (query: string, location: string) => void;
-}
-
-const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
+const HeroSection: React.FC = () => {
   const t = useTranslations();
   const router = useRouter();
   const [activeBanner, setActiveBanner] = useState(0);

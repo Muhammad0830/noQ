@@ -528,7 +528,7 @@ export default function AdminDashboard() {
     t("admin.dashboard.error.scheduleFallback");
 
   return (
-    <div className="min-h-dvh bg-gray-50 pb-4 sm:pb-24">
+    <div className="min-h-dvh bg-gray-50 pb-4">
       <AdminDashboardHeader
         currentShopName={currentShopName}
         isShopNameLoading={isShopNameLoading}

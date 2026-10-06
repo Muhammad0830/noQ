@@ -20,14 +20,14 @@ const ToothIcon: React.FC<{ className?: string }> = ({
   </svg>
 );
 
-const categoryIcons: Record<string, React.ReactNode> = {
+export const categoryIcons: Record<string, React.ReactNode> = {
   scissors: <Scissors className="w-6 h-6" />,
   sparkles: <Sparkles className="w-6 h-6" />,
   heart: <Heart className="w-6 h-6" />,
   coffee: <Coffee className="w-6 h-6" />,
   dumbbell: <Dumbbell className="w-6 h-6" />,
   palette: <Palette className="w-6 h-6" />,
-  tooth: <ToothIcon className="w-6 h-6" />,
+  teeth: <ToothIcon className="w-6 h-6" />,
 };
 
 export const resolveCategoryIcon = (iconName?: string) => {
