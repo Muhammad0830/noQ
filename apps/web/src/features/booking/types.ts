@@ -1,4 +1,4 @@
-export type BookingFilter = "ongoing" | "completed" | "cancelled";
+export type BookingTabs = "ongoing" | "completed" | "cancelled";
 
 export type ActiveBookingStatus = "PENDING" | "CONFIRMED" | "IN_PROGRESS";
 export type HistoryBookingStatus = "COMPLETED" | "CANCELLED" | "NO_SHOW";
@@ -85,4 +85,9 @@ export interface HistoryCardData {
     address: string;
     cancelReason?: string;
     image: string | null;
+}
+
+export interface BookingTabsComponentProps {
+    tabsKey: BookingTabs;
+    onChange: (next: BookingTabs) => void;
 }

@@ -1,54 +1,42 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { LogIn, X } from "lucide-react";
 import useApiQuery from "@/hooks/useApiQuery";
 import { useApiMutation } from "@/hooks/useApiMutation";
-import { API_ENDPOINTS, getStoredAuth } from "@/lib/api";
-import { useAuth } from "@/contexts/AuthContext";
-import BookingFilterTabs from "./components/BookingFilterTabs";
-import HistoryPanel from "./components/HistoryPanel";
-import OngoingPanel from "./components/OngoingPanel";
-import { buildHistoryCard, buildOngoingCard } from "./bookings.utils";
+import { API_ENDPOINTS } from "@/lib/api";
+import BookingTabs from "@/features/booking/components/BookingTabs";
+import HistoryPanel from "@/features/booking/components/HistoryPanel";
+import OngoingPanel from "@/features/booking/components/OngoingPanel";
+import { buildHistoryCard, buildOngoingCard } from "@/features/booking/utils";
 import {
   ActiveBookingsResponse,
-  BookingFilter,
+  BookingTabs as BookingTabsType,
   HistoryBookingsResponse,
-} from "./bookings.types";
+} from "@/features/booking/types";
 import { useTranslations } from "next-intl";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function MyBookings() {
-  const router = useRouter();
   const t = useTranslations();
-  const { isAuthenticated, isLoading: isAuthLoading, logout } = useAuth();
-  const [filter, setFilter] = useState<BookingFilter>("ongoing");
-  const [isHydrated, setIsHydrated] = useState(false);
-  const [isAuthPromptOpen, setIsAuthPromptOpen] = useState(false);
+  const { isAuthenticated } = useAuth()
+  const router = useRouter()
+  const [selectedTab, setSelectedTab] = useState<BookingTabsType>("ongoing");
 
   useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  const hasToken = isAuthenticated || Boolean(getStoredAuth()?.token);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    setIsAuthPromptOpen(!hasToken && !isAuthLoading);
-  }, [hasToken, isAuthLoading, isHydrated]);
+    if(!isAuthenticated) {
+      router.replace('/home');
+    }
+  }, [isAuthenticated, router])
 
   const {
     data: activeBookingsData,
     isLoading: isActiveLoading,
     isError: isActiveError,
     error: activeError,
-    refetch: refetchActive,
   } = useApiQuery<ActiveBookingsResponse>(API_ENDPOINTS.bookingsByUser.active, {
     key: ["bookings", "users", "active"],
-    enabled: isHydrated && !isAuthLoading && filter === "ongoing" && hasToken,
-    staleTime: 0,
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
+    staleTime: 1 * 60 * 1000 // 1 minute,
   });
 
   const {
@@ -60,43 +48,11 @@ export default function MyBookings() {
   } = useApiQuery<HistoryBookingsResponse>(
     API_ENDPOINTS.bookingsByUser.history,
     {
-      key: ["bookings", "users", "history"],
-      enabled: isHydrated && !isAuthLoading && filter !== "ongoing" && hasToken,
-      staleTime: 0,
-      refetchOnMount: "always",
-      refetchOnWindowFocus: true,
+      key: ["bookings", "history"],
+      enabled: selectedTab !== "ongoing",
+      staleTime: 1 * 60 * 1000 // 1 minute,
     },
   );
-
-  useEffect(() => {
-    if (!isHydrated) return;
-
-    const unauthorized =
-      activeError?.status === 401 || historyError?.status === 401;
-
-    if (unauthorized) {
-      logout();
-      setIsAuthPromptOpen(true);
-    }
-  }, [activeError?.status, historyError?.status, isHydrated, logout]);
-
-  const handleRetryActive = () => {
-    if (!hasToken) {
-      setIsAuthPromptOpen(true);
-      return;
-    }
-
-    refetchActive();
-  };
-
-  const handleRetryHistory = () => {
-    if (!hasToken) {
-      setIsAuthPromptOpen(true);
-      return;
-    }
-
-    refetchHistory();
-  };
 
   const { mutateAsync: cancelBooking, isPending: isCancellingBooking } =
     useApiMutation<unknown, { bookingId: string }>(
@@ -118,7 +74,7 @@ export default function MyBookings() {
 
     try {
       await cancelBooking({ bookingId });
-      await Promise.all([refetchActive(), refetchHistory()]);
+      await Promise.all([refetchHistory()]);
     } catch (cancelError) {
       console.error("Cancel booking failed", cancelError);
       alert(
@@ -149,9 +105,9 @@ export default function MyBookings() {
   );
 
   const filteredHistory =
-    filter === "completed"
+    selectedTab === "completed"
       ? completedHistory
-      : filter === "cancelled"
+      : selectedTab === "cancelled"
         ? cancelledHistory
         : [];
 
@@ -162,27 +118,24 @@ export default function MyBookings() {
   return (
     <div className="min-h-screen bg-[#eef3f8] px-4 py-5 text-slate-900 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-7xl">
-        <BookingFilterTabs filter={filter} onChange={setFilter} t={t} />
+        <BookingTabs tabsKey={selectedTab} onChange={setSelectedTab} />
 
         <div
-          className={`grid grid-cols-1 ${
-            filter === "ongoing"
-              ? "xl:grid-cols-1"
-              : "xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]"
-          }`}
+          className={`grid grid-cols-1 ${selectedTab === "ongoing"
+            ? "xl:grid-cols-1"
+            : "xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]"
+            }`}
         >
           <div className="space-y-4">
             {ongoingCardsToRender.map((b, index) => (
               <div key={index}>
                 <OngoingPanel
-                  filter={filter}
+                  filter={selectedTab}
                   showHeader={index === 0}
-                  isHydrated={isHydrated}
                   isLoading={isActiveLoading}
                   isError={isActiveError}
                   errorMessage={activeErrorMessage}
                   activeBooking={b}
-                  onRetry={handleRetryActive}
                   onCancelBooking={handleCancelBooking}
                   isCancellingBooking={isCancellingBooking}
                   t={t}
@@ -192,48 +145,15 @@ export default function MyBookings() {
           </div>
 
           <HistoryPanel
-            filter={filter}
-            isHydrated={isHydrated}
+            filter={selectedTab}
             isLoading={isHistoryLoading}
             isError={isHistoryError}
             errorMessage={historyErrorMessage}
             bookings={filteredHistory}
-            onRetry={handleRetryHistory}
             t={t}
           />
         </div>
       </div>
-
-      {isHydrated && !hasToken && isAuthPromptOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4">
-          <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl sm:p-6">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100"
-              aria-label="Close"
-            >
-              <X className="h-4 w-4" />
-            </button>
-
-            <h3 className="pr-8 text-lg font-semibold text-slate-900 sm:text-xl">
-              {t("user.history.authRequiredTitle")}
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600">
-              {t("user.history.authRequiredMessage")}
-            </p>
-
-            <button
-              type="button"
-              onClick={() => router.push("/login")}
-              className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-purple-600 px-4 text-sm font-semibold text-white transition hover:brightness-105"
-            >
-              <LogIn className="h-4 w-4" />
-              {t("user.history.authRequiredAction")}
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

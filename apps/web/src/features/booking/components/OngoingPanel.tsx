@@ -2,19 +2,17 @@ import Link from "next/link";
 import { Calendar, Navigation, Scissors, XCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/utils";
-import { OngoingBookingCardData } from "../bookings.types";
+import { OngoingBookingCardData } from "../types";
 import { getStatusColor, getStatusLabel } from "./booking-status";
 import { useLocale } from "next-intl";
 
 type Props = {
   filter: "ongoing" | "completed" | "cancelled";
   showHeader?: boolean;
-  isHydrated: boolean;
   isLoading: boolean;
   isError: boolean;
   errorMessage?: string;
   activeBooking: OngoingBookingCardData | null;
-  onRetry: () => void;
   onCancelBooking: (bookingId?: string) => void;
   isCancellingBooking?: boolean;
   t: (key: string) => string;
@@ -69,12 +67,10 @@ const ongoingSkeleton = (
 export default function OngoingPanel({
   filter,
   showHeader = true,
-  isHydrated,
   isLoading,
   isError,
   errorMessage,
   activeBooking,
-  onRetry,
   onCancelBooking,
   isCancellingBooking,
   t,
@@ -84,7 +80,7 @@ export default function OngoingPanel({
     return null;
   }
 
-  if (!isHydrated || isLoading) {
+  if (isLoading) {
     return ongoingSkeleton;
   }
 
@@ -95,13 +91,6 @@ export default function OngoingPanel({
           {t("user.history.errorOngoing")}
         </p>
         <p className="mt-1 text-xs text-red-700/80">{errorMessage}</p>
-        <button
-          type="button"
-          onClick={onRetry}
-          className="mt-3 rounded-full border border-red-300 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100"
-        >
-          {t("common.retry")}
-        </button>
       </div>
     );
   }
@@ -126,7 +115,7 @@ export default function OngoingPanel({
             className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white ${getStatusColor(activeBooking.status)}`}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-white/85" />
-            {getStatusLabel(activeBooking.subtitle, t)}
+            {t(getStatusLabel(activeBooking.subtitle))}
           </span>
         </div>
       )}

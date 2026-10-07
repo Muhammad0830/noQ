@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Calendar } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/utils";
-import { HistoryCardData } from "../bookings.types";
+import { HistoryCardData } from "../types";
 import {
   getStatusColor,
   getStatusIcon,
@@ -12,12 +12,10 @@ import { useLocale } from "next-intl";
 
 type Props = {
   filter: "ongoing" | "completed" | "cancelled";
-  isHydrated: boolean;
   isLoading: boolean;
   isError: boolean;
   errorMessage?: string;
   bookings: HistoryCardData[];
-  onRetry: () => void;
   t: (key: string) => string;
 };
 
@@ -68,12 +66,10 @@ const historySkeleton = (
 
 export default function HistoryPanel({
   filter,
-  isHydrated,
   isLoading,
   isError,
   errorMessage,
   bookings,
-  onRetry,
   t,
 }: Props) {
   const locale = useLocale();
@@ -92,37 +88,30 @@ export default function HistoryPanel({
         </h2>
         <span className="inline-flex items-center gap-1 rounded-full border border-slate-300 bg-white px-2 py-1 text-[10px] uppercase tracking-widest text-slate-600">
           {getStatusIcon(filter)}
-          {getStatusLabel(filter, t)}
+          {t(getStatusLabel(filter))}
         </span>
       </div>
 
-      {(!isHydrated || isLoading) && historySkeleton}
+      {(isLoading) && historySkeleton}
 
-      {isHydrated && isError && (
+      {isError && (
         <div className="rounded-3xl border border-red-200 bg-red-50/90 p-6">
           <p className="text-sm font-semibold text-red-700">
             {t("user.history.errorHistory")}
           </p>
           <p className="mt-1 text-xs text-red-700/80">{errorMessage}</p>
-          <button
-            type="button"
-            onClick={onRetry}
-            className="mt-3 rounded-full border border-red-300 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100"
-          >
-            {t("common.retry")}
-          </button>
         </div>
       )}
 
       <div className="space-y-3">
-        {isHydrated && !isLoading && !isError && bookings.length === 0 ? (
+        {!isLoading && !isError && bookings.length === 0 ? (
           <div className="rounded-2xl border border-slate-200 bg-white/75 p-6 text-center">
             <Calendar className="mx-auto mb-3 h-8 w-8 text-slate-500" />
             <p className="text-sm text-slate-600">
               {t("user.history.emptySection")}
             </p>
           </div>
-        ) : isHydrated && !isLoading && !isError ? (
+        ) : !isLoading && !isError ? (
           bookings.map((booking) => (
             <div
               key={booking.id}
@@ -173,7 +162,7 @@ export default function HistoryPanel({
                 <span
                   className={`absolute right-3 top-9 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] ${getStatusColor(booking.status)}`}
                 >
-                  {getStatusLabel(booking.status, t)}
+                  {t(getStatusLabel(booking.status))}
                 </span>
               </div>
 

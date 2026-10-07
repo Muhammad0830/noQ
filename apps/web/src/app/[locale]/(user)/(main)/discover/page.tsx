@@ -36,8 +36,8 @@ export default function Page() {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filter, setFilter] = useState<FilterType>(defaultFilter(initialCategoryId));
-  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [activeDot, setActiveDot] = useState(0);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (isSearchFocusedQuery) {
@@ -69,7 +69,7 @@ export default function Page() {
       search.trim().length > 0 ||
       hasAppliedFilters) &&
     search.trim() === searchTerm;
-    
+
   const shopsUrl = getShopsUrl({ isSearching, searchTerm, filter });
 
   const { data: filterCategories = [] } =

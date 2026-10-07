@@ -1,11 +1,13 @@
 'use client';
+
 import { getImageUrl } from "@/lib/supabaseClient";
 import {
     ActiveBookingItem,
+    BookingTabs,
     HistoryBookingItem,
     HistoryCardData,
     OngoingBookingCardData,
-} from "./bookings.types";
+} from "./types";
 
 const resolveShopImage = (rawImage?: string | null) => {
     if (!rawImage) return null;
@@ -86,3 +88,9 @@ export const buildHistoryCard = (
         image: resolveShopImage(booking.shop?.backgroundImageUrl),
     };
 };
+
+export const tabs: Array<{ key: BookingTabs; label: string }> = [
+    { key: "ongoing", label: "user.history.tab.ongoing" },
+    { key: "completed", label: "user.history.tab.completed" },
+    { key: "cancelled", label: "user.history.tab.cancelled" },
+];
