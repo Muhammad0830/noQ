@@ -11,7 +11,7 @@ const shopRouter = Router();
 shopRouter.get("/", async (req, res) => {
   try {
     const {
-      categoryId = "",
+      categoryIds = "",
       open = "true",
       search = "",
       minPrice,
@@ -19,7 +19,15 @@ shopRouter.get("/", async (req, res) => {
     } = req.query as any;
     const { shopCursor, serviceCursor, limit = 10 } = getPaginationParams(req);
 
-    if (search && (categoryId || minPrice || maxPrice)) {
+    const categories = categoryIds
+      ? String(categoryIds).split(",").filter(Boolean)
+      : [];
+
+
+    const hasPriceFilter = minPrice !== undefined && maxPrice !== undefined;
+    const hasCategoryFilter = categories.length > 0;
+
+    if (search && (hasCategoryFilter || hasPriceFilter)) {
       return res.status(400).json({
         message: "Cannot combine search with filters",
       });
@@ -40,20 +48,12 @@ shopRouter.get("/", async (req, res) => {
         orderBy: { createdAt: "desc" },
       });
 
-      let nextCursor = null;
+      let nextShopCursor = null;
       if (shops.length > limit) {
         const next = shops.pop();
-        nextCursor = next?.id;
+        nextShopCursor = next?.id;
       }
 
-      return res.json({
-        type: "search",
-        shops,
-        nextShopCursor: nextCursor,
-      });
-    }
-
-    if (!categoryId && (minPrice || maxPrice)) {
       const services = await prisma.service.findMany({
         take: Number(limit) + 1,
         skip: serviceCursor ? 1 : 0,
@@ -62,101 +62,116 @@ shopRouter.get("/", async (req, res) => {
           isActive: true,
           shop: {
             isOpen: true,
+            name: { contains: search, mode: "insensitive" }
           },
-          price: {
-            ...(minPrice && { gte: Number(minPrice) }),
-            ...(maxPrice && { lte: Number(maxPrice) }),
-          },
-        },
-        orderBy: { id: "desc" },
-      });
-
-      let nextCursor = null;
-      if (services.length > limit) {
-        const next = services.pop();
-        nextCursor = next?.id;
-      }
-
-      return res.json({
-        type: "price-only",
-        services,
-        nextServiceCursor: nextCursor,
-      });
-    }
-
-    if (categoryId) {
-      const shops = await prisma.shop.findMany({
-        take: Number(limit) + 1,
-        skip: shopCursor ? 1 : 0,
-        ...(shopCursor && { cursor: { id: shopCursor } }),
-        where: {
-          isOpen: true,
-          categoryId,
-          ...(open === "true" && { isOpen: true }),
         },
         include: {
-          category: true,
+          shop: true,
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: {
+          id: "desc",
+        },
       });
 
-      let nextShopCursor = null;
-      if (shops.length > limit) {
-        const next = shops.pop();
-        nextShopCursor = next?.id;
-      }
-
-      let services: any[] = [];
-
-      if (minPrice || maxPrice) {
-        services = await prisma.service.findMany({
-          where: {
-            isActive: true,
-            shop: { categoryId },
-            price: {
-              ...(minPrice && { gte: Number(minPrice) }),
-              ...(maxPrice && { lte: Number(maxPrice) }),
-            },
-          },
-          include: {
-            shop: true,
-          },
-        });
+      let nextServiceCursor = null;
+      if (services.length > limit) {
+        const next = services.pop();
+        nextServiceCursor = next?.id;
       }
 
       return res.json({
-        type: "filter",
+        type: "search",
         shops,
         services,
         nextShopCursor,
+        nextServiceCursor,
       });
     }
 
     const shops = await prisma.shop.findMany({
       take: Number(limit) + 1,
       skip: shopCursor ? 1 : 0,
-      ...(shopCursor && { cursor: { id: shopCursor } }),
+      ...(shopCursor && {
+        cursor: {
+          id: shopCursor,
+        },
+      }),
       where: {
-        isOpen: true,
-        ...(categoryId && { categoryId }),
-        ...(open === "true" && { isOpen: true }),
+        ...(open === "true" && {
+          isOpen: true
+        }),
+        ...(hasCategoryFilter && {
+          categoryId: {
+            in: categories
+          }
+        })
       },
       include: {
         category: true,
       },
-      orderBy: { createdAt: "desc" },
-    });
+      orderBy: {
+        createdAt: 'desc',
+      },
+    })
 
     let nextShopCursor = null;
+
     if (shops.length > limit) {
       const next = shops.pop();
       nextShopCursor = next?.id;
     }
 
+    const services = await prisma.service.findMany({
+      take: Number(limit) + 1,
+      skip: serviceCursor ? 1 : 0,
+      ...(serviceCursor && {
+        cursor: {
+          id: serviceCursor,
+        },
+      }),
+      where: {
+        isActive: true,
+        ...(open === "true" && {
+          shop: {
+            isOpen: true,
+            categoryId: { in: categories }
+          },
+        }),
+        ...(hasPriceFilter && {
+          price: {
+            gte: Number(minPrice),
+            lte: Number(maxPrice),
+          },
+        }),
+        ...(hasCategoryFilter && {
+          shop: {
+            categoryId: {
+              in: categories,
+            },
+          },
+        })
+      },
+      include: {
+        shop: true,
+      },
+      orderBy: {
+        id: "desc",
+      },
+    });
+
+    let nextServiceCursor = null;
+
+    if (services.length > limit) {
+      const next = services.pop();
+      nextServiceCursor = next?.id;
+    }
+
     return res.json({
-      type: "no-filter",
+      type: "filter",
       shops,
+      services,
       nextShopCursor,
+      nextServiceCursor,
     });
   } catch (error) {
     console.error(error);
@@ -187,7 +202,7 @@ shopRouter.get("/:id", async (req: any, res: any) => {
         },
         include: {
           _count: {
-                        select: {
+            select: {
               reviews: true,
             },
           },
@@ -462,7 +477,7 @@ shopRouter.get("/trending/7days", async (req, res) => {
       })
       .filter(Boolean);
 
-    return res.status(200).json(result);
+    return res.status(200).json({ shops: result });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }

@@ -2,12 +2,9 @@
 
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
-import { getStoredAuth } from "@/lib/api";
-
-interface ApiError extends Error {
-  status?: number;
-  data?: any; // eslint-disable-line
-}
+import api from "@/lib/api";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
 
 type UseApiQueryOptions<T> = {
   key: string | readonly (string | number)[];
@@ -18,12 +15,12 @@ type UseApiQueryOptions<T> = {
   headers?: HeadersInit;
 
   queryOptions?: Omit<
-    UseQueryOptions<T, ApiError, T, readonly unknown[]>,
+    UseQueryOptions<T, AxiosError, T, readonly unknown[]>,
     "queryKey" | "queryFn"
   >;
 };
 
-const useApiQuery = <T,>(
+export default function useApiQuery<T,>(
   url: string | null,
   {
     key,
@@ -31,40 +28,20 @@ const useApiQuery = <T,>(
     staleTime = 0,
     refetchOnMount = "always",
     refetchOnWindowFocus = true,
-    headers,
     queryOptions,
   }: UseApiQueryOptions<T>,
-) => {
+) {
   const hasShownError = useRef(false);
 
-  const { data, error, isLoading, refetch, isError } = useQuery<T, ApiError>({
+  const { data, error, isLoading, refetch, isError } = useQuery<T, AxiosError>({
     queryKey: Array.isArray(key) ? key : [key],
 
     queryFn: async () => {
       if (!url) throw new Error("No URL provided");
 
-      const token = getStoredAuth()?.token;
+      const res = await api.get(url);
 
-      const res = await fetch(url, {
-        method: "GET",
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          ...(headers || {}),
-          "Content-Type": "application/json",
-        },
-        cache: "no-store",
-      });
-
-      const json = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        const err: ApiError = new Error("Request failed");
-        err.status = res.status;
-        err.data = json;
-        throw err;
-      }
-
-      return json as T;
+      return res.data as T;
     },
 
     retry: 1,
@@ -75,32 +52,14 @@ const useApiQuery = <T,>(
     ...queryOptions,
   });
 
-  // loading toast (optional)
-  const loading = useRef(false);
-
-  useEffect(() => {
-    if (isLoading) {
-      const t = setTimeout(() => {
-        if (!loading.current) {
-          loading.current = true;
-          // showLoadingToast()
-        }
-      }, 300);
-
-      return () => clearTimeout(t);
-    } else {
-      loading.current = false;
-      // hideLoadingToast()
-    }
-  }, [isLoading]);
-
   // error handling
   useEffect(() => {
     if (error && !hasShownError.current) {
       if (error.status !== 401) {
-        console.error("API Error:", error.data || error.message);
+        console.error("API Error:", error.response?.data || error.message);
       }
       hasShownError.current = true;
+      toast.error('Failed to load data');
     }
 
     if (data && hasShownError.current) {
@@ -110,5 +69,3 @@ const useApiQuery = <T,>(
 
   return { data, error, isLoading, refetch, isError };
 };
-
-export default useApiQuery;

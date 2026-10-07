@@ -10,7 +10,7 @@ interface Props {
     isLast?: boolean;
 }
 
-export default function CompacyShopRowItem({ shop, isLast = false }: Props) {
+export default function CompactShopRowItem({ shop, isLast = false }: Props) {
     const t = useTranslations();
 
     const imageUrl = shop.backgroundImageUrl

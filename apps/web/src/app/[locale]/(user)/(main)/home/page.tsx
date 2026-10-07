@@ -20,11 +20,11 @@ export default function Home() {
   });
 
   const {
-    data: shops = [],
+    data: shopsData,
     isLoading,
     isError,
     error,
-  } = useApiQuery<Shop[]>(API_ENDPOINTS.shops_trending, {
+  } = useApiQuery<{ shops: Shop[] }>(API_ENDPOINTS.shops_trending, {
     key: ["shops"],
   });
 
@@ -56,11 +56,11 @@ export default function Home() {
       {/* Shops Section */}
       <div id="shops">
         <ShopList
-          shops={shops}
+          shops={shopsData?.shops ?? []}
           isLoading={isLoading}
           isError={isError}
           error={error}
-          // locationQuery={locationQuery}
+        // locationQuery={locationQuery}
         />
       </div>
     </div>

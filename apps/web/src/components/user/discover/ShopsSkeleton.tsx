@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function PopularShopsSkeleton() {
+export default function ShopsSkeleton() {
     return (
         <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
             <div className="relative h-52 overflow-hidden">

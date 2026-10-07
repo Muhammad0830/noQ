@@ -1,9 +1,9 @@
 "use client";
 
-import React, { ReactNode, useRef } from "react";
+import React, { useRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ShopCategory } from "@shared/types/general_types";
-import { categoryIcons, resolveCategoryIcon } from "@/lib/getCategoryIcon";
+import { categoryIcons } from "@/lib/getCategoryIcon";
 import { useTranslations } from "next-intl";
 import { Scissors } from "lucide-react";
 
@@ -66,7 +66,7 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                       <span
                         className="text-xs sm:text-sm font-semibold text-center leading-tight text-slate-700"
                       >
-                        {category.name}
+                        {t(`categories.${category.name}`)}
                       </span>
                     </div>
                   </button>

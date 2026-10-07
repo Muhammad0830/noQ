@@ -351,7 +351,7 @@
       "book": "Band qilish"
     },
     "discover": {
-      "popularShops": "Mashxur do'konlar",
+      "shops": "Mashxur do'konlar",
       "noShopsFound": "Do'kon topilmadi",
       "goToCard": "{index}-kartaga o'tish",
       "distanceAway": "{distance} km uzoqda",

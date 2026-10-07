@@ -50,8 +50,6 @@ const ShopList = ({
     el.scrollTo({ left: target, behavior: "smooth" });
   };
 
-  const onFavorite = (_id: string) => { };
-
   if (error) {
     return (
       <div className="w-full text-center">

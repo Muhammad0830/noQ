@@ -10,24 +10,17 @@ import {
 } from "react";
 import FilterDialogCategories from "./FilterDialogCategories";
 import FilterDialogPrice from "./FilterDialogPrice";
+import { FilterType } from "@/features/discovery/types";
 
 const DEFAULT_MIN_PRICE = 0;
 const DEFAULT_MAX_PRICE = 1000000;
 
-interface FilterType {
-  categories: string[];
-  priceEnabled: boolean;
-  minPrice: number;
-  maxPrice: number;
-}
-
 interface Props {
-  initialCategoryId: string | null;
   categories: ShopCategory[];
   isOpen: boolean;
   filter: FilterType;
-  defaultFilter: FilterType;
-  setFilter: Dispatch<SetStateAction<FilterType>>;
+  applyFilters: (draftFilter: FilterType) => void;
+  clearFilters: () => void;
   setIsFilterOpen: Dispatch<SetStateAction<boolean>>;
 }
 
@@ -35,8 +28,8 @@ export default function FilterDialog({
   categories,
   isOpen,
   filter,
-  defaultFilter,
-  setFilter,
+  applyFilters,
+  clearFilters,
   setIsFilterOpen,
 }: Props) {
   const t = useTranslations();
@@ -80,16 +73,6 @@ export default function FilterDialog({
     }
   };
 
-  const applyFilters = () => {
-    setFilter(draftFilter);
-    setIsFilterOpen(false);
-  };
-
-  const clearFilters = () => {
-    setIsFilterOpen(false);
-    setFilter(defaultFilter);
-  };
-
   const onChangeMinPrice = (event: ChangeEvent<HTMLInputElement>) => {
     const value = Number(event.target.value);
 
@@ -127,9 +110,24 @@ export default function FilterDialog({
           priceTrackStyle={priceTrackStyle}
           defaultMinPrice={DEFAULT_MIN_PRICE}
           defaultMaxPrice={DEFAULT_MAX_PRICE}
-          applyFilters={applyFilters}
-          clearFilters={clearFilters}
         />
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="flex-1 rounded-2xl border border-[#F49B33]/25 bg-white px-4 py-3 text-sm font-semibold text-[#8a5620] shadow-sm transition hover:border-[#F49B33]/35 hover:bg-[#fff8ef]"
+          >
+            {t("user.discover.filter.reset")}
+          </button>
+          <button
+            type="button"
+            onClick={() => applyFilters(draftFilter)}
+            className="flex-1 rounded-2xl bg-[#F49B33] px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#e58d26] hover:shadow-md"
+          >
+            {t("common.save")}
+          </button>
+        </div>
       </DialogContent>
     </Dialog>
   );
