@@ -2,11 +2,10 @@
 
 import { getImageUrl } from "@/lib/supabaseClient";
 import {
-    ActiveBookingItem,
+    BookingItem,
     BookingTabs,
-    HistoryBookingItem,
     HistoryCardData,
-    OngoingBookingCardData,
+    InProgressBookingCardData,
 } from "./types";
 
 const resolveShopImage = (rawImage?: string | null) => {
@@ -19,38 +18,46 @@ const resolveShopImage = (rawImage?: string | null) => {
         : getImageUrl("shop_images", trimmedImage);
 };
 
-export const buildOngoingCard = (
-    booking: ActiveBookingItem,
-): OngoingBookingCardData => {
+const buildCommonBookingCard = (booking: BookingItem) => {
+    return {
+        id: booking.id,
+        shopName: booking.shop.name,
+        serviceName: booking.service.name,
+        duration: `${booking.service.durationMin} min`,
+        price: Number(booking.service.price),
+        address: booking.shop.address,
+        image: resolveShopImage(booking.shop.backgroundImageUrl),
+        status: booking.status,
+    };
+};
+
+export const buildInProgressCard = (
+    booking: BookingItem,
+): InProgressBookingCardData => {
     const startDate = new Date(booking.startTime);
+
     const diffMs = startDate.getTime() - Date.now();
-    const clampedDiffMs = Number.isFinite(diffMs) ? Math.max(diffMs, 0) : 0;
+    const clampedDiffMs = Number.isFinite(diffMs)
+        ? Math.max(diffMs, 0)
+        : 0;
+
     const totalMinutes = Math.floor(clampedDiffMs / 60000);
     const totalHours = Math.floor(totalMinutes / 60);
     const showDays = totalHours > 24;
 
-    const remainingDays = showDays ? Math.floor(totalHours / 24) : null;
-    const remainingHours = showDays ? 0 : totalHours;
+    const totalDays = showDays
+        ? Math.floor(totalHours / 24)
+        : null;
+
+    const totalRemainingHours = showDays ? 0 : totalHours;
     const remainingMinutes = showDays ? 0 : totalMinutes % 60;
 
-    const addressParts = booking.shop.address
-        ?.split(",")
-        .map((part) => part.trim())
-        .filter(Boolean);
-    const city = addressParts?.[1] || addressParts?.[0] || "Location";
-
     return {
-        id: booking.id,
-        shopName: booking.shop.name,
-        service: booking.service.name,
-        duration: `${booking.service.durationMin} min`,
-        price: Number(booking.service.price),
-        status: "ongoing",
-        address: booking.shop.address,
-        city,
-        subtitle: booking.status,
-        remainingDays,
-        remainingHours,
+        ...buildCommonBookingCard(booking),
+
+        city: booking.shop.address,
+        remainingDays: totalDays,
+        remainingHours: totalRemainingHours,
         remainingMinutes,
         startLabel: startDate.toLocaleString("en-US", {
             month: "short",
@@ -58,20 +65,17 @@ export const buildOngoingCard = (
             hour: "numeric",
             minute: "2-digit",
         }),
-        image: resolveShopImage(booking.shop.backgroundImageUrl),
     };
 };
 
 export const buildHistoryCard = (
-    booking: HistoryBookingItem,
-    status: "completed" | "cancelled",
+    booking: BookingItem,
 ): HistoryCardData => {
     const startDate = new Date(booking.startTime);
 
     return {
-        id: booking.id,
-        shopName: booking.shop?.name || "Unknown Shop",
-        service: booking.service?.name || "Unknown Service",
+        ...buildCommonBookingCard(booking),
+
         date: startDate.toLocaleDateString("en-US", {
             month: "short",
             day: "2-digit",
@@ -80,17 +84,11 @@ export const buildHistoryCard = (
             hour: "numeric",
             minute: "2-digit",
         }),
-        duration: `${booking.service?.durationMin ?? 0} min`,
-        price: Number(booking.service?.price ?? 0),
-        status,
-        address: booking.shop?.address || "Address unavailable",
-        cancelReason: booking.cancelReason || booking.reason || undefined,
-        image: resolveShopImage(booking.shop?.backgroundImageUrl),
     };
 };
 
 export const tabs: Array<{ key: BookingTabs; label: string }> = [
-    { key: "ongoing", label: "user.history.tab.ongoing" },
-    { key: "completed", label: "user.history.tab.completed" },
-    { key: "cancelled", label: "user.history.tab.cancelled" },
+    { key: BookingTabs.IN_PROGRESS, label: "user.history.tab.in_progress" },
+    { key: BookingTabs.COMPLETED, label: "user.history.tab.completed" },
+    { key: BookingTabs.CANCELLED, label: "user.history.tab.cancelled" },
 ];

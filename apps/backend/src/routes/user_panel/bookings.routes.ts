@@ -3,6 +3,8 @@ import prisma from "../../db/prisma.js";
 import { authMiddleware } from "../../middlewares/auth.middleware.js";
 import type { StatusProps } from "../../../../../shared/types/bookings.js";
 import { bookingScheduleValidate } from "../validateFunctions/bookingScheduleValidate.js";
+import { bookingResource } from "@/resources/bookingResource.js";
+import type { Booking } from "@shared/types/general_types.js";
 
 const bookingRouter = Router();
 
@@ -223,12 +225,12 @@ bookingRouter.get("/users/history", authMiddleware, async (req: any, res) => {
 
     const completedBookings = bookings.filter((b) => b.status === "COMPLETED");
 
-    const nowShowBookings = bookings.filter((b) => b.status === "NO_SHOW");
+    const noShowBookings = bookings.filter((b) => b.status === "NO_SHOW");
 
     res.status(200).json({
       cancelled: cancelledBookings,
       completed: completedBookings,
-      nowShow: nowShowBookings,
+      noShow: noShowBookings,
     });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
@@ -252,20 +254,20 @@ bookingRouter.get(
         futureOnly: true,
       });
 
-      const pendingBookings = bookings.filter((b) => b.status === "PENDING");
+      const pending = bookings.filter((b) => b.status === "PENDING");
 
-      const confirmedBookings = bookings.filter(
+      const confirmed = bookings.filter(
         (b) => b.status === "CONFIRMED",
       );
 
-      const inProgressBookings = bookings.filter(
+      const inProgress = bookings.filter(
         (b) => b.status === "IN_PROGRESS",
       );
 
       res.status(200).json({
-        pending: pendingBookings,
-        confirmed: confirmedBookings,
-        inProgress: inProgressBookings,
+        pending: pending,
+        confirmed: confirmed,
+        inProgress: inProgress,
       });
     } catch (error) {
       console.error("error", error);
@@ -298,12 +300,12 @@ bookingRouter.get(
         (b) => b.status === "COMPLETED",
       );
 
-      const nowShowBookings = bookings.filter((b) => b.status === "NO_SHOW");
+      const noShowBookings = bookings.filter((b) => b.status === "NO_SHOW");
 
       res.status(200).json({
         cancelled: cancelledBookings,
         completed: completedBookings,
-        nowShow: nowShowBookings,
+        noShow: noShowBookings,
       });
     } catch (error) {
       console.error("error", error);
@@ -351,13 +353,21 @@ bookingRouter.put("/:bookingId/cancel", authMiddleware, async (req: any, res) =>
         status: "CANCELLED",
       },
       include: {
-        shop: true,
-        service: true,
-        user: true,
+        shop: {
+          select: { name: true }
+        },
+        service: {
+          select: { name: true }
+        },
       },
     });
 
-    return res.status(200).json(updatedBooking);
+    return res.status(200).json({
+      id: updatedBooking.id,
+      serviceName: updatedBooking.service.name,
+      shopName: updatedBooking.shop.name,
+      message: 'booking cancelled successfully'
+    });
   } catch (error) {
     console.error("Error cancelling booking:", error);
     return res.status(500).json({ message: "Internal server error" });

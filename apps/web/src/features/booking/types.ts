@@ -1,11 +1,24 @@
-export type BookingTabs = "ongoing" | "completed" | "cancelled";
+export enum BookingTabs {
+    IN_PROGRESS = "IN_PROGRESS",
+    COMPLETED = "COMPLETED",
+    CANCELLED = "CANCELLED",
+}
 
-export type ActiveBookingStatus = "PENDING" | "CONFIRMED" | "IN_PROGRESS";
-export type HistoryBookingStatus = "COMPLETED" | "CANCELLED" | "NO_SHOW";
+export enum BookingStatus {
+    PENDING = 'PENDING',
+    CONFIRMED = 'CONFIRMED',
+    COMPLETED = 'COMPLETED',
+    IN_PROGRESS = 'IN_PROGRESS',
+    CANCELLED = 'CANCELLED',
+    NO_SHOW = 'NO_SHOW',
+}
 
-export interface ActiveBookingItem {
+export type ActiveBookingStatus = Extract<BookingStatus, "PENDING" | "CONFIRMED" | "IN_PROGRESS">;
+export type HistoryBookingStatus = Extract<BookingStatus, "COMPLETED" | "CANCELLED" | "NO_SHOW">;
+
+export interface BookingItem {
     id: string;
-    status: ActiveBookingStatus;
+    status: BookingStatus;
     startTime: string;
     endTime: string;
     shop: {
@@ -23,49 +36,26 @@ export interface ActiveBookingItem {
 }
 
 export interface ActiveBookingsResponse {
-    pending: ActiveBookingItem[];
-    confirmed: ActiveBookingItem[];
-    inProgress: ActiveBookingItem[];
-}
-
-export interface HistoryBookingItem {
-    id: string;
-    status: HistoryBookingStatus;
-    startTime: string;
-    endTime: string;
-    cancelReason?: string | null;
-    reason?: string | null;
-    shop: {
-        id: string;
-        name: string;
-        address: string;
-        backgroundImageUrl: string | null;
-    };
-    service: {
-        id: string;
-        name: string;
-        price: string;
-        durationMin: number;
-    };
+    pending: BookingItem[];
+    confirmed: BookingItem[];
+    inProgress: BookingItem[];
 }
 
 export interface HistoryBookingsResponse {
-    cancelled: HistoryBookingItem[];
-    completed: HistoryBookingItem[];
-    noShow?: HistoryBookingItem[];
-    nowShow?: HistoryBookingItem[];
+    cancelled: BookingItem[];
+    completed: BookingItem[];
+    noShow: BookingItem[];
 }
 
-export interface OngoingBookingCardData {
+export interface InProgressBookingCardData {
     id: string;
     shopName: string;
-    service: string;
+    serviceName: string;
     duration: string;
     price: number;
-    status: "ongoing";
+    status: BookingStatus;
     address: string;
     city: string;
-    subtitle: ActiveBookingStatus;
     remainingDays: number | null;
     remainingHours: number;
     remainingMinutes: number;
@@ -76,14 +66,13 @@ export interface OngoingBookingCardData {
 export interface HistoryCardData {
     id: string;
     shopName: string;
-    service: string;
+    serviceName: string;
     date: string;
     time: string;
     duration: string;
     price: number;
-    status: "completed" | "cancelled";
+    status: BookingStatus;
     address: string;
-    cancelReason?: string;
     image: string | null;
 }
 

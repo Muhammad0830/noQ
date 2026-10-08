@@ -11,18 +11,11 @@ import {
   X,
 } from "lucide-react";
 import { useLocale } from "next-intl";
-
-export type AdminDashboardBookingStatus =
-  | "PENDING"
-  | "CONFIRMED"
-  | "IN_PROGRESS"
-  | "COMPLETED"
-  | "CANCELLED"
-  | "NO_SHOW";
+import { BookingStatus } from "@/features/booking/types";
 
 export type AdminDashboardBooking = {
   id: string;
-  status: AdminDashboardBookingStatus;
+  status: BookingStatus;
   startTime: string;
   endTime: string;
   user?: { name?: string | null } | null;
@@ -42,7 +35,7 @@ export type TimelineAppointment = {
   service: string;
   duration: string;
   stylist: string;
-  status: AdminDashboardBookingStatus;
+  status: BookingStatus;
 };
 
 type AdminScheduleTimelineProps = {
@@ -123,7 +116,7 @@ const weekdayShort: Record<string, string[]> = {
   ru: ["ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"],
 };
 
-const statusLabels: Record<AdminDashboardBookingStatus, string> = {
+const statusLabels: Record<BookingStatus, string> = {
   PENDING: "Pending",
   CONFIRMED: "Confirmed",
   IN_PROGRESS: "In progress",

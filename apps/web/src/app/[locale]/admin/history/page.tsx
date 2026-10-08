@@ -19,18 +19,13 @@ import { formatPrice } from "@/lib/utils";
 import AdminSidebar from "@/components/AdminSidebar";
 import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 import { useLocale, useTranslations } from "next-intl";
+import { BookingStatus } from "@/features/booking/types";
 
 type AdminHistoryBooking = {
   id: string;
   startTime: string;
   endTime: string;
-  status:
-    | "COMPLETED"
-    | "CANCELLED"
-    | "NO_SHOW"
-    | "PENDING"
-    | "CONFIRMED"
-    | "IN_PROGRESS";
+  status: BookingStatus
   createdAt?: string;
   staffId?: string | null;
   user?: {
@@ -547,7 +542,7 @@ export default function Page() {
 
               {isError && !isLoading && (
                 <div className="rounded-2xl border border-[#f2dddd] bg-[#fff7f7] px-4 py-6 text-center text-sm text-[#c56b6b]">
-                  {error?.data?.message ||
+                  {error?.response?.data?.message ||
                     error?.message ||
                     t("admin.history.loadingError")}
                 </div>

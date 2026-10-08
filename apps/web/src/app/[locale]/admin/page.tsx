@@ -287,12 +287,12 @@ export default function AdminDashboard() {
   );
 
   const baseInfoErrorMessage =
-    (baseInfoError?.data &&
-      typeof baseInfoError.data === "object" &&
-      "message" in baseInfoError.data &&
-      typeof (baseInfoError.data as { message?: unknown }).message ===
+    (baseInfoError?.response?.data &&
+      typeof baseInfoError.response?.data === "object" &&
+      "message" in baseInfoError.response?.data &&
+      typeof (baseInfoError.response?.data as { message?: unknown }).message ===
       "string" &&
-      (baseInfoError.data as { message: string }).message) ||
+      (baseInfoError.response?.data as { message: string }).message) ||
     baseInfoError?.message ||
     t("admin.dashboard.error.baseInfoFallback");
 
@@ -518,12 +518,12 @@ export default function AdminDashboard() {
   };
 
   const historyErrorMessage =
-    (historyError?.data &&
-      typeof historyError.data === "object" &&
-      "message" in historyError.data &&
-      typeof (historyError.data as { message?: unknown }).message ===
+    (historyError?.response?.data &&
+      typeof historyError.response?.data === "object" &&
+      "message" in historyError.response?.data &&
+      typeof (historyError.response?.data as { message?: unknown }).message ===
       "string" &&
-      (historyError.data as { message: string }).message) ||
+      (historyError.response?.data as { message: string }).message) ||
     historyError?.message ||
     t("admin.dashboard.error.scheduleFallback");
 

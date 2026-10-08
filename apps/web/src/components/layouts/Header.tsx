@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
@@ -87,6 +87,12 @@ export default function Header() {
     if (parts.length === 1) return parts[0][0]?.toUpperCase() || "U";
     return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
   })();
+
+  const onConfirm = () => {
+    logout();
+    router.replace("/login");
+    setIsLogoutConfirmOpen(false);
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#f1c894] bg-white/88 backdrop-blur-md">
@@ -189,11 +195,7 @@ export default function Header() {
         cancelText={t("profile.cancel")}
         confirmText={t("profile.logout")}
         onCancel={() => setIsLogoutConfirmOpen(false)}
-        onConfirm={() => {
-          logout();
-          setIsLogoutConfirmOpen(false);
-          router.replace("/login");
-        }}
+        onConfirm={onConfirm}
       />
     </header>
   );

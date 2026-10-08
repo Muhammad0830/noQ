@@ -410,6 +410,7 @@
       "time": "Vaqt",
       "price": "Narx",
       "total": "Jami",
+      "close": "Yopish",
       "confirm": "Tasdiqlash",
       "cancel": "Bekor qilish",
       "success": "Bandlov muvaffaqiyatli amalga oshirildi!",
@@ -428,12 +429,15 @@
       "selected": "tanlangan",
       "break": "tanaffus",
       "defaultShop": "Noma'lum do'kon",
-      "cancel_confirm": "Bookingni bekor qilasizmi?",
+      "cancel_confirm": {
+        "title": "Bandlovni bekor qilasizmi?",
+        "description": "Bandlovni bekor qilsangiz, bu harakatni qaytarish imkoni yo'q. Shunda ham davom etasizmi?"
+      },
       "cancel_error": "Bookingni bekor qilishda xatolik yuz berdi"
     },
     "history": {
       "tab": {
-        "ongoing": "Jarayonda",
+        "in_progress": "Jarayonda",
         "completed": "Tugallangan",
         "cancelled": "Bekor qilingan"
       },
@@ -442,9 +446,9 @@
       "startsAt": "Boshlanish vaqti",
       "serviceDetails": "Xizmat tafsilotlari",
       "getDirections": "Yo'nalish olish",
-      "emptyOngoing": "Sizda hozircha jarayondagi bandlov mavjud emas.",
+      "emptyInProgress": "Sizda hozircha jarayondagi bandlov mavjud emas.",
       "emptySection": "Tanlangan bo'limda bandlov topilmadi.",
-      "errorOngoing": "Jarayondagi bandlovni yuklashda xatolik yuz berdi.",
+      "errorInProgress": "Jarayondagi bandlovni yuklashda xatolik yuz berdi.",
       "errorHistory": "Tarix bandlovlarini yuklashda xatolik yuz berdi.",
       "authRequiredTitle": "Siz login qilmagansiz",
       "authRequiredMessage": "Bu sahifani ochish uchun login yoki register qilishingiz kerak.",
@@ -460,13 +464,18 @@
         "min": "Min"
       },
       "status": {
-        "ongoing": "Jarayonda",
         "completed": "Tugallangan",
+        "COMPLETED": "Tugallangan",
         "cancelled": "Bekor qilingan",
+        "CANCELLED": "Bekor qilingan",
         "pending": "Kutilmoqda",
+        "PENDING": "Kutilmoqda",
         "confirmed": "Tasdiqlangan",
-        "inProgress": "Jarayonda",
-        "noShow": "Kelmagan"
+        "CONFIRMED": "Tasdiqlangan",
+        "in_progress": "Jarayonda",
+        "IN_PROGRESS": "Jarayonda",
+        "noShow": "Kelmagan",
+        "NO_SHOW": "Kelmagan"
       }
     }
   },

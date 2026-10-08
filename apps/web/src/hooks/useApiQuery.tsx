@@ -6,6 +6,10 @@ import api from "@/lib/api";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 
+interface ApiErrorResponse {
+  message: string;
+}
+
 type UseApiQueryOptions<T> = {
   key: string | readonly (string | number)[];
   enabled?: boolean;
@@ -15,7 +19,7 @@ type UseApiQueryOptions<T> = {
   headers?: HeadersInit;
 
   queryOptions?: Omit<
-    UseQueryOptions<T, AxiosError, T, readonly unknown[]>,
+    UseQueryOptions<T, AxiosError<ApiErrorResponse>, T, readonly unknown[]>,
     "queryKey" | "queryFn"
   >;
 };
@@ -33,7 +37,7 @@ export default function useApiQuery<T,>(
 ) {
   const hasShownError = useRef(false);
 
-  const { data, error, isLoading, refetch, isError } = useQuery<T, AxiosError>({
+  const { data, error, isLoading, refetch, isError } = useQuery<T, AxiosError<ApiErrorResponse>>({
     queryKey: Array.isArray(key) ? key : [key],
 
     queryFn: async () => {
