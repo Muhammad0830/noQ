@@ -11,8 +11,7 @@ interface Props {
   memberSince: string;
   providerMode: boolean;
   user: User | null;
-  file: File | null;
-  isSavingImage: boolean;
+  isImageUpdating: boolean;
   isLoading: boolean;
   handleSaveImage: () => void;
   setPreview: React.Dispatch<React.SetStateAction<string | null>>;
@@ -25,8 +24,7 @@ export default function ProfileAvatarSection({
   memberSince,
   providerMode,
   user,
-  file,
-  isSavingImage,
+  isImageUpdating,
   isLoading,
   handleSaveImage,
   setPreview,
@@ -72,15 +70,15 @@ export default function ProfileAvatarSection({
         </button>
       </div>
 
-      {file && user && (
+      {preview && user && (
         <div className="mb-4 flex items-center justify-center gap-2">
           <button
             type="button"
             onClick={handleSaveImage}
-            disabled={isSavingImage}
+            disabled={isImageUpdating || isLoading}
             className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-teal-700"
           >
-            {isSavingImage ? t("common.saving") : t("common.save")}
+            {isImageUpdating ? t("common.saving") : t("common.save")}
           </button>
           <button
             type="button"
@@ -88,7 +86,7 @@ export default function ProfileAvatarSection({
               setFile(null);
               setPreview(null);
             }}
-            disabled={isSavingImage}
+            disabled={isImageUpdating || isLoading}
             className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
           >
             {t("common.cancel")}

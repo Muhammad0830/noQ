@@ -41,7 +41,7 @@ export default async function RootLayout({ children, params }: Props) {
       >
         <NextIntlClientProvider messages={messages}>
           <AppProviders>
-            <main className="min-h-dvh">{children}</main>
+            <main className="min-h-dvh flex flex-col">{children}</main>
             <Toaster />
           </AppProviders>
         </NextIntlClientProvider>

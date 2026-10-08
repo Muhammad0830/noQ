@@ -1,28 +1,33 @@
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { ChevronRight } from 'lucide-react';
 import React from 'react'
 
-export default function ProfileRow({
-  icon,
-  title,
-  subtitle,
-  onClick,
-  trailing,
-  bordered = false,
-}: {
+interface Props {
   icon: React.ReactNode;
   title: React.ReactNode;
   subtitle: string;
-  onClick: () => void;
-  trailing?: React.ReactNode;
   bordered?: boolean;
-}) {
+  trailing?: React.ReactNode;
+  onClick?: () => void;
+}
+
+export default function ProfileRowButton({
+  icon,
+  title,
+  subtitle,
+  bordered = false,
+  trailing,
+  onClick,
+}: Props) {
   return (
-    <button
-      type="button"
+    <Button
       onClick={onClick}
-      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-[#fff3e6] ${
-        bordered ? "border-t border-[#f1c894]" : ""
-      }`}
+      type="button"
+      className={cn(
+        "flex w-full items-center gap-3 min-h-16 text-left transition bg-transparent hover:bg-[#fff3e6]",
+        bordered && "border-t border-[#f1c894]"
+      )}
     >
       <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33]">
         {icon}
@@ -32,12 +37,12 @@ export default function ProfileRow({
         <span className="block truncate text-sm font-medium text-slate-900">
           {title}
         </span>
-        <span className="block truncate text-xs text-slate-500">
+        <span className="block truncate font-medium text-xs text-slate-500">
           {subtitle}
         </span>
       </span>
 
       {trailing || <ChevronRight className="h-4 w-4 shrink-0 text-[#F49B33]" />}
-    </button>
+    </Button>
   );
 }

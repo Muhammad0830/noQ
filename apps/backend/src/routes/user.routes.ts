@@ -21,6 +21,26 @@ router.get("/", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
+router.get('/shops', authMiddleware, async (req: any, res) => {
+  try {
+    const userId = req.user.id;
+
+    const shops = await prisma.shop.findMany({
+      where: {
+        ownerId: userId,
+      },
+      select: {
+        id: true,
+        name: true,
+      }
+    });
+
+    return res.status(200).json(shops)
+  } catch (err) {
+    return res.status(500).json({ error: "Internal server error" })
+  }
+})
+
 router.put(
   "/profile",
   authMiddleware,

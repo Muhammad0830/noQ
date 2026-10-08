@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProviderMode } from "@/contexts/ProviderModeContext";
 import { User, LogIn, LogOut, Bell, Menu } from "lucide-react";
@@ -14,7 +14,6 @@ import { useLoginDialog } from "@/contexts/LogInDialogContext";
 
 export default function Header() {
   const pathname = usePathname();
-  const router = useRouter();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const { open } = useLoginDialog();
   const t = useTranslations();
@@ -90,7 +89,6 @@ export default function Header() {
 
   const onConfirm = () => {
     logout();
-    router.replace("/login");
     setIsLogoutConfirmOpen(false);
   }
 
@@ -189,12 +187,8 @@ export default function Header() {
       </div>
 
       <LogoutConfirmModal
-        open={isLogoutConfirmOpen}
-        title={t("profile.logoutConfirmTitle")}
-        message={t("profile.logoutConfirmMessage")}
-        cancelText={t("profile.cancel")}
-        confirmText={t("profile.logout")}
-        onCancel={() => setIsLogoutConfirmOpen(false)}
+        isOpen={isLogoutConfirmOpen}
+        setIsOpen={setIsLogoutConfirmOpen}
         onConfirm={onConfirm}
       />
     </header>

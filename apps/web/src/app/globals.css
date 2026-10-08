@@ -232,15 +232,18 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }
 }
 
 @layer base {
+
   /* Global palette harmonization for legacy utility classes across pages. */
   [class*="bg-blue-"],
   [class*="bg-cyan-"],
@@ -309,12 +312,10 @@
 
   [data-slot="skeleton"] {
     background-color: rgba(244, 155, 51, 0.12) !important;
-    background-image: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(255, 248, 241, 0.32) 50%,
-      rgba(255, 255, 255, 0.08) 100%
-    ) !important;
+    background-image: linear-gradient(90deg,
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 248, 241, 0.32) 50%,
+        rgba(255, 255, 255, 0.08) 100%) !important;
   }
 
   .rangePrice {
@@ -388,12 +389,10 @@
   }
 
   .range-thumb::-webkit-slider-thumb {
-    background: radial-gradient(
-      circle at 30% 30%,
-      #ffffff 0%,
-      #fff3e6 48%,
-      #fde3c2 100%
-    );
+    background: radial-gradient(circle at 30% 30%,
+        #ffffff 0%,
+        #fff3e6 48%,
+        #fde3c2 100%);
     border: 2px solid #f49b33;
     border-radius: 50%;
     box-shadow:
@@ -415,12 +414,10 @@
   }
 
   .range-thumb::-moz-range-thumb {
-    background: radial-gradient(
-      circle at 30% 30%,
-      #ffffff 0%,
-      #fff3e6 48%,
-      #fde3c2 100%
-    );
+    background: radial-gradient(circle at 30% 30%,
+        #ffffff 0%,
+        #fff3e6 48%,
+        #fde3c2 100%);
     border: 2px solid #f49b33;
     border-radius: 50%;
     box-shadow:

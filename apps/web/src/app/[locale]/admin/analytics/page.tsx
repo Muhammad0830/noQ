@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { useSearchParams } from "next/navigation";
 import { Bell, CalendarDays, Star, Menu } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import useApiQuery from "@/hooks/useApiQuery";
@@ -124,7 +123,7 @@ function AnalyticsRevenueChart({
         chartPoints.length === 1
           ? width / 2
           : paddingX +
-            (index * (width - paddingX * 2)) / (chartPoints.length - 1);
+          (index * (width - paddingX * 2)) / (chartPoints.length - 1);
       const y =
         height -
         paddingY -
@@ -256,12 +255,10 @@ export default function ShopAnalytics() {
   const { user } = useAuth();
   const t = useTranslations();
   const locale = useLocale()
-  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState(0);
-  const [persistedShopId, setPersistedShopId] = useState<string | null>(null);
+  const [persistedShopId, setPersistedShopId] = useState<string | null>(
+    () => typeof window !== "undefined" ? localStorage.getItem("selected_shop_id") : null);
   const [hasLoadedPersistedShop, setHasLoadedPersistedShop] = useState(false);
-
-  const shopId = searchParams.get("shopId");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -277,7 +274,6 @@ export default function ShopAnalytics() {
 
     const userShops = user?.shops || [];
 
-    if (shopId && userShops.some((shop) => shop.id === shopId)) return shopId;
     if (
       persistedShopId &&
       userShops.some((shop) => shop.id === persistedShopId)
@@ -286,7 +282,7 @@ export default function ShopAnalytics() {
     }
 
     return userShops[0]?.id || null;
-  }, [hasLoadedPersistedShop, persistedShopId, shopId, user?.shops]);
+  }, [hasLoadedPersistedShop, persistedShopId, user?.shops]);
 
   const {
     isSidebarVisible,
@@ -343,7 +339,7 @@ export default function ShopAnalytics() {
     error: summaryError,
   } = useApiQuery<AnalyticsSummaryResponse>(
     activeShopId
-      ? `${API_ENDPOINTS.admin.analytics}?type=${selectedType}`
+      ? `${API_ENDPOINTS.admin.analytics}?type=${selectedType}&shopId=${encodeURIComponent(activeShopId)}`
       : null,
     {
       key: ["admin-analytics-summary", activeShopId || "none", selectedType],
@@ -361,7 +357,7 @@ export default function ShopAnalytics() {
     error: diagramError,
   } = useApiQuery<DiagramInfoResponse>(
     activeShopId
-      ? `${API_ENDPOINTS.admin.analyticsDiagramInfo}?type=${selectedType}`
+      ? `${API_ENDPOINTS.admin.analyticsDiagramInfo}?type=${selectedType}&shopId=${encodeURIComponent(activeShopId)}`
       : null,
     {
       key: ["admin-analytics-diagram", activeShopId || "none", selectedType],
@@ -379,7 +375,7 @@ export default function ShopAnalytics() {
     error: servicesError,
   } = useApiQuery<FamousServicesResponse>(
     activeShopId
-      ? `${API_ENDPOINTS.admin.analyticsFamousServices}?type=${selectedType}`
+      ? `${API_ENDPOINTS.admin.analyticsFamousServices}?type=${selectedType}&shopId=${encodeURIComponent(activeShopId)}`
       : null,
     {
       key: ["admin-analytics-services", activeShopId || "none", selectedType],
@@ -397,7 +393,7 @@ export default function ShopAnalytics() {
     error: peakHoursError,
   } = useApiQuery<PeakHoursResponse>(
     activeShopId
-      ? `${API_ENDPOINTS.admin.analyticsPeakHours}?type=${selectedType}`
+      ? `${API_ENDPOINTS.admin.analyticsPeakHours}?type=${selectedType}&shopId=${encodeURIComponent(activeShopId)}`
       : null,
     {
       key: ["admin-analytics-peak-hours", activeShopId || "none", selectedType],
@@ -413,7 +409,7 @@ export default function ShopAnalytics() {
       typeof summaryError.data === "object" &&
       "message" in summaryError.data &&
       typeof (summaryError.data as { message?: unknown }).message ===
-        "string" &&
+      "string" &&
       (summaryError.data as { message: string }).message) ||
     summaryError?.message ||
     t("admin.analytics.error.summaryFallback");
@@ -423,7 +419,7 @@ export default function ShopAnalytics() {
       typeof diagramError.data === "object" &&
       "message" in diagramError.data &&
       typeof (diagramError.data as { message?: unknown }).message ===
-        "string" &&
+      "string" &&
       (diagramError.data as { message: string }).message) ||
     diagramError?.message ||
     t("admin.analytics.error.diagramFallback");
@@ -433,7 +429,7 @@ export default function ShopAnalytics() {
       typeof servicesError.data === "object" &&
       "message" in servicesError.data &&
       typeof (servicesError.data as { message?: unknown }).message ===
-        "string" &&
+      "string" &&
       (servicesError.data as { message: string }).message) ||
     servicesError?.message ||
     t("admin.analytics.error.servicesFallback");
@@ -443,7 +439,7 @@ export default function ShopAnalytics() {
       typeof peakHoursError.data === "object" &&
       "message" in peakHoursError.data &&
       typeof (peakHoursError.data as { message?: unknown }).message ===
-        "string" &&
+      "string" &&
       (peakHoursError.data as { message: string }).message) ||
     peakHoursError?.message ||
     t("admin.analytics.error.peakHoursFallback");
@@ -550,11 +546,10 @@ export default function ShopAnalytics() {
               key={tab.type}
               type="button"
               onClick={() => setActiveTab(index)}
-              className={`w-full rounded-full px-2 py-2 md:py-2.5 lg:py-2.5 text-[9px] md:text-[10px] lg:text-[10px] font-semibold transition ${
-                activeTab === index
-                  ? "bg-[#f39c33] text-white shadow-[0_10px_24px_rgba(243,156,51,0.32)]"
-                  : "bg-white text-[#7b7b7b] shadow-[0_10px_24px_rgba(15,17,21,0.05)]"
-              }`}
+              className={`w-full rounded-full px-2 py-2 md:py-2.5 lg:py-2.5 text-[9px] md:text-[10px] lg:text-[10px] font-semibold transition ${activeTab === index
+                ? "bg-[#f39c33] text-white shadow-[0_10px_24px_rgba(243,156,51,0.32)]"
+                : "bg-white text-[#7b7b7b] shadow-[0_10px_24px_rgba(15,17,21,0.05)]"
+                }`}
             >
               {tab.label}
             </button>
@@ -576,11 +571,10 @@ export default function ShopAnalytics() {
               <span className="h-6 w-14 md:w-16 lg:w-16 animate-pulse rounded-full bg-gray-200" />
             ) : (
               <span
-                className={`rounded-full px-2 md:px-2.5 lg:px-2.5 py-0.5 md:py-1 lg:py-1 text-[9px] md:text-[10px] lg:text-[10px] font-semibold ${
-                  revenueChange >= 0
-                    ? "bg-[#fff1df] text-[#f39c33]"
-                    : "bg-red-50 text-red-600"
-                }`}
+                className={`rounded-full px-2 md:px-2.5 lg:px-2.5 py-0.5 md:py-1 lg:py-1 text-[9px] md:text-[10px] lg:text-[10px] font-semibold ${revenueChange >= 0
+                  ? "bg-[#fff1df] text-[#f39c33]"
+                  : "bg-red-50 text-red-600"
+                  }`}
               >
                 {revenueChange >= 0 ? "+" : ""}
                 {revenueChange.toFixed(1)}%

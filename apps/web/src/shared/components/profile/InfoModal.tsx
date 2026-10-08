@@ -1,22 +1,21 @@
-import React from "react";
-import ModalShell from "./ModalShell";
+import { Dispatch, SetStateAction } from "react";
 import { User } from "@shared/types/general_types";
 import { Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-type InfoFormState = {
-  name: string;
-  phoneNumber: string;
-};
+import DialogShell from "./DialogShell";
+import { InfoFormState } from "@/features/profile/types";
+import EditProfileDialogContent from "./EditProfileDialogContent";
+import ViewProfileDialogContent from "./ViewProfileDialogContent";
 
 interface Props {
-  setIsInfoModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsEditingInfo: React.Dispatch<React.SetStateAction<boolean>>;
-  setInfoSaveError: React.Dispatch<React.SetStateAction<string>>;
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
+  setIsEditingInfo: Dispatch<SetStateAction<boolean>>;
+  setInfoSaveError: Dispatch<SetStateAction<string>>;
   handleSavePersonalInfo: () => void;
-  setInfoForm: React.Dispatch<React.SetStateAction<InfoFormState>>;
+  setInfoForm: Dispatch<SetStateAction<InfoFormState>>;
+  isOpen: boolean;
   isSavingInfo: boolean;
-  user: User | null;
+  user: User;
   infoForm: InfoFormState;
   isEditingInfo: boolean;
   infoSaveError: string;
@@ -24,11 +23,12 @@ interface Props {
 }
 
 export default function InfoModal({
-  setIsInfoModalOpen,
+  setIsOpen,
   setIsEditingInfo,
   setInfoSaveError,
   handleSavePersonalInfo,
   setInfoForm,
+  isOpen,
   isSavingInfo,
   user,
   infoForm,
@@ -38,18 +38,40 @@ export default function InfoModal({
 }: Props) {
   const t = useTranslations();
 
+  const handleCancel = () => {
+    if (!user) return;
+
+    setInfoForm({
+      name: user.name || "",
+      phoneNumber: user.phoneNumber || "",
+    });
+
+    setInfoSaveError("");
+    setIsEditingInfo(false);
+  }
+
+  const handleToggleEditingInfo = () => {
+    if (!isEditingInfo) {
+      setInfoForm({
+        name: user.name || "",
+        phoneNumber: user.phoneNumber || "",
+      });
+    }
+
+    setIsEditingInfo((prev) => !prev);
+    setInfoSaveError("");
+  }
+
   return (
-    <ModalShell
+    <DialogShell
       title={t("profile.personalInfoModalTitle")}
       closeLabel={t("profile.closeModal")}
-      onClose={() => setIsInfoModalOpen(false)}
+      setIsOpen={setIsOpen}
+      isOpen={isOpen}
       headerAction={
         <button
           type="button"
-          onClick={() => {
-            setIsEditingInfo((prev) => !prev);
-            setInfoSaveError("");
-          }}
+          onClick={handleToggleEditingInfo}
           className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100"
           aria-label="Shaxsiy ma'lumotlarni tahrirlash"
           title="Tahrirlash"
@@ -58,117 +80,20 @@ export default function InfoModal({
         </button>
       }
     >
-      {isEditingInfo ? (
-        <div className="space-y-3">
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-            <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
-              {t("profile.field.name")}
-            </p>
-            <input
-              type="text"
-              value={infoForm.name}
-              onChange={(event) =>
-                setInfoForm((prev: InfoFormState) => ({
-                  ...prev,
-                  name: event.target.value,
-                }))
-              }
-              className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-teal-500"
-            />
-          </div>
+      {
+        isEditingInfo
+          ? <EditProfileDialogContent
+            infoForm={infoForm}
+            infoSaveError={infoSaveError}
+            isSaving={isSavingInfo}
+            setInfoForm={setInfoForm}
+            handleSavePersonalInfo={handleSavePersonalInfo}
+            handleCancel={handleCancel} />
 
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-            <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
-              {t("profile.field.phone")}
-            </p>
-            <input
-              type="tel"
-              value={infoForm.phoneNumber}
-              onChange={(event) =>
-                setInfoForm((prev) => ({
-                  ...prev,
-                  phoneNumber: event.target.value,
-                }))
-              }
-              className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-teal-500"
-            />
-          </div>
-
-          {infoSaveError && (
-            <p className="text-sm text-red-500">{infoSaveError}</p>
-          )}
-
-          <div className="grid grid-cols-2 gap-3 pt-2">
-            <button
-              type="button"
-              onClick={() => {
-                if (!user) return;
-                setInfoForm({
-                  name: user.name || "",
-                  phoneNumber: user.phoneNumber || "",
-                });
-                setIsEditingInfo(false);
-                setInfoSaveError("");
-              }}
-              disabled={isSavingInfo}
-              className="flex h-12 w-full items-center justify-center rounded-xl border border-slate-300 px-4 text-base font-semibold text-slate-600 transition hover:bg-slate-100 disabled:opacity-60"
-            >
-              Bekor qilish
-            </button>
-            <button
-              type="button"
-              onClick={handleSavePersonalInfo}
-              disabled={isSavingInfo}
-              className="flex h-12 w-full items-center justify-center rounded-xl bg-teal-600 px-4 text-base font-semibold text-white transition hover:bg-teal-700 disabled:opacity-60"
-            >
-              {isSavingInfo ? "Saqlanmoqda..." : "Saqlash"}
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-            <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
-              {t("profile.field.name")}
-            </p>
-            <p className="mt-1 break-all text-sm text-slate-800">
-              {user?.name || "-"}
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-            <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
-              {t("profile.field.email")}
-            </p>
-            <p className="mt-1 break-all text-sm text-slate-800">
-              {user?.email || "-"}
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-            <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
-              {t("profile.field.phone")}
-            </p>
-            <p className="mt-1 break-all text-sm text-slate-800">
-              {user?.phoneNumber || "-"}
-            </p>
-          </div>
-
-          {profileFields.map((item) => (
-            <div
-              key={item.label}
-              className="rounded-xl border border-slate-200 bg-slate-50 p-3"
-            >
-              <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
-                {item.label}
-              </p>
-              <p className="mt-1 break-all text-sm text-slate-800">
-                {item.value}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
-    </ModalShell>
+          : <ViewProfileDialogContent
+            user={user}
+            profileFields={profileFields} />
+      }
+    </DialogShell>
   );
 }

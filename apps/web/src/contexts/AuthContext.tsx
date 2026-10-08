@@ -17,6 +17,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isProfileUpdating: boolean
   login: (email: string, password: string, remember?: boolean) => Promise<void>;
   signup: (
     email: string,
@@ -89,6 +90,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isProfileUpdating, setIsProfileUpdating] = useState(false);
   const t = useTranslations();
 
   useEffect(() => {
@@ -244,7 +246,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error("User not authenticated");
     }
 
-    setIsLoading(true);
+    setIsProfileUpdating(true);
 
     const toastId = toast.loading(t("common.loading"));
 
@@ -286,7 +288,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       toast.error(t("common.error"), { id: toastId });
       throw error;
     } finally {
-      setIsLoading(false);
+      setIsProfileUpdating(false);
     }
   };
 
@@ -302,6 +304,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         isAuthenticated: !!user,
         isLoading,
+        isProfileUpdating,
         login,
         signup,
         logout,
