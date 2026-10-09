@@ -31,7 +31,7 @@ export default function AccountSettings({
           title={t("profile.security")}
           subtitle={t("profile.securitySubtitle")}
           href="/profile/security"
-          bordered
+          border_top
         />
 
         <ProfileRowLink
@@ -39,7 +39,7 @@ export default function AccountSettings({
           title={t("profile.paymentMethods")}
           subtitle={t("profile.paymentMethodsSubtitle")}
           href="/profile/payments"
-          bordered
+          border_top
         />
       </div>
     </>

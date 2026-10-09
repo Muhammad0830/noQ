@@ -5,6 +5,7 @@ import {
   Palette,
   Scissors,
   Sparkles,
+  Store,
 } from "lucide-react";
 
 const ToothIcon: React.FC<{ className?: string }> = ({
@@ -28,6 +29,7 @@ export const categoryIcons: Record<string, React.ReactNode> = {
   dumbbell: <Dumbbell className="w-6 h-6" />,
   palette: <Palette className="w-6 h-6" />,
   teeth: <ToothIcon className="w-6 h-6" />,
+  store: <Store className="w-6 h-6" />
 };
 
 export const resolveCategoryIcon = (iconName?: string) => {

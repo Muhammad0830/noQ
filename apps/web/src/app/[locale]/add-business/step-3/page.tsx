@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Check,
-  ChevronLeft,
   Clock3,
   DollarSign,
   Info,
@@ -39,7 +38,7 @@ export default function AddBusinessStepThreePage() {
     if (typeof window === "undefined") return;
     const createdShopId = window.sessionStorage.getItem("new_shop_id");
     if (!createdShopId) {
-      router.replace("/profile/add-business");
+      router.replace("/add-business");
       return;
     }
     setShopId(createdShopId);
@@ -124,41 +123,6 @@ export default function AddBusinessStepThreePage() {
   return (
     <main className="min-h-dvh bg-[#f5f6f8] pb-8 text-[#111827]">
       <div className="mx-auto max-w-3xl px-4 pt-5">
-        <header className="relative mb-6 flex items-center justify-center">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            aria-label={t("common.back")}
-            className="absolute left-0 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-
-          <h1 className="text-lg font-semibold">{t("newShop.step3.pageTitle")}</h1>
-        </header>
-
-        <div className="mb-5 flex items-center justify-center gap-2">
-          {[1, 2, 3].map((step) => {
-            const isActive = step === 3;
-            const isDone = step < 3;
-
-            return (
-              <div key={step} className="flex items-center gap-2">
-                <span
-                  className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
-                    isActive || isDone
-                      ? "bg-[#F49B33] text-white"
-                      : "bg-slate-200 text-slate-500"
-                  }`}
-                >
-                  {isDone ? <Check className="h-4 w-4" /> : step}
-                </span>
-                {step < 3 && <span className="h-px w-12 bg-slate-300" />}
-              </div>
-            );
-          })}
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-4 pb-4">
           {submitError && (
             <div className="rounded-[18px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

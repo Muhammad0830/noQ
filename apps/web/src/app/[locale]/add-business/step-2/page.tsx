@@ -7,7 +7,6 @@ import {
   CalendarClock,
   Check,
   CheckCircle2,
-  ChevronLeft,
   Clock3,
   Coffee,
   Pencil,
@@ -353,7 +352,7 @@ export default function AddBusinessStepTwoPage() {
 
     const rawDraft = window.sessionStorage.getItem("new_shop_step_1");
     if (!rawDraft) {
-      router.replace("/profile/add-business");
+      router.replace("/add-business");
       return;
     }
 
@@ -669,7 +668,7 @@ export default function AddBusinessStepTwoPage() {
     if (!ok) return;
 
     setToast({ message: t("admin.schedule.saveSuccess"), kind: "success" });
-    router.push("/profile/add-business/step-3");
+    router.push("/add-business/step-3");
   };
 
   const getDayLabel = (dayId: string) => t(`admin.schedule.day.${dayId}`);
@@ -697,42 +696,6 @@ export default function AddBusinessStepTwoPage() {
       )}
 
       <div className="mx-auto w-full" style={{ maxWidth: 540 }}>
-        <header className="relative mb-6 flex items-center justify-center">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            aria-label={t("common.back")}
-            className="absolute left-0 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <h1 className="text-lg font-semibold">
-            {t("newShop.step2.pageTitle")}
-          </h1>
-        </header>
-
-        <div className="mb-5 flex items-center justify-center gap-2">
-          {[1, 2, 3].map((step) => {
-            const isActive = step === 2;
-            const isDone = step < 2;
-
-            return (
-              <div key={step} className="flex items-center gap-2">
-                <span
-                  className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
-                    isActive || isDone
-                      ? "bg-[#F49B33] text-white"
-                      : "bg-slate-200 text-slate-500"
-                  }`}
-                >
-                  {isDone ? <Check className="h-4 w-4" /> : step}
-                </span>
-                {step < 3 && <span className="h-px w-12 bg-slate-300" />}
-              </div>
-            );
-          })}
-        </div>
-
         <section className="mb-3 grid grid-cols-2 gap-2">
           <button
             type="button"

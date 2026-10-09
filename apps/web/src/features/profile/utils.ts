@@ -4,3 +4,11 @@ export const initials = (userName: string): string => {
 
     return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
 };
+
+export const addBusinessStepOneFormDefault = {
+    name: '',
+    description: undefined,
+    categoryId: '',
+    address: '',
+    phone: '',
+}

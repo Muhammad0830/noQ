@@ -25,7 +25,7 @@ export default function Preferences({
           title={t("profile.settings")}
           subtitle={t("profile.settingsSubtitle")}
           href={"/settings"}
-          bordered
+          border_top
         />
 
         <ProfileRowButton
@@ -40,7 +40,7 @@ export default function Preferences({
             </span>
           }
           onClick={() => setIsLanguageModalOpen(true)}
-          bordered
+          border_top
         />
 
         <ProfileRowLink
@@ -48,7 +48,7 @@ export default function Preferences({
           title={t("profile.helpSupport")}
           subtitle={t("profile.helpSupportSubtitle")}
           href="/profile/support"
-          bordered
+          border_top
         />
       </div>
     </>

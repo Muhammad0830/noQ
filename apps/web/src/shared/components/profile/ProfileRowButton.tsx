@@ -7,7 +7,7 @@ interface Props {
   icon: React.ReactNode;
   title: React.ReactNode;
   subtitle: string;
-  bordered?: boolean;
+  border_top?: boolean;
   trailing?: React.ReactNode;
   onClick?: () => void;
 }
@@ -16,7 +16,7 @@ export default function ProfileRowButton({
   icon,
   title,
   subtitle,
-  bordered = false,
+  border_top = false,
   trailing,
   onClick,
 }: Props) {
@@ -25,8 +25,8 @@ export default function ProfileRowButton({
       onClick={onClick}
       type="button"
       className={cn(
-        "flex w-full items-center gap-3 min-h-16 text-left transition bg-transparent hover:bg-[#fff3e6]",
-        bordered && "border-t border-[#f1c894]"
+        "border-x-0 border-b-0 border-t flex w-full items-center gap-3 min-h-16 text-left transition bg-transparent hover:bg-[#fff3e6]",
+        border_top && "border-t border-[#f1c894]"
       )}
     >
       <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33]">

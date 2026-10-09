@@ -1,3 +1,4 @@
+import { cn } from 'cn';
 import { ChevronRight } from 'lucide-react';
 import { Route } from 'next';
 import Link from 'next/link';
@@ -8,7 +9,7 @@ interface Props {
   title: React.ReactNode;
   subtitle: string;
   href: Route;
-  bordered?: boolean;
+  border_top?: boolean;
 }
 
 export default function ProfileRowLink({
@@ -16,14 +17,16 @@ export default function ProfileRowLink({
   title,
   subtitle,
   href,
-  bordered = false,
+  border_top = false,
 }: Props) {
   return (
     <Link
       href={href}
       type="button"
-      className={`flex w-full items-center gap-3 min-h-16 px-6 text-left transition hover:bg-[#fff3e6] ${bordered ? "border-t border-[#f1c894]" : ""
-        }`}
+      className={
+        cn("flex w-full items-center gap-3 min-h-16 px-6 text-left transition hover:bg-[#fff3e6]",
+          border_top && "border-t border-[#f1c894]",
+        )}
     >
       <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33]">
         {icon}
