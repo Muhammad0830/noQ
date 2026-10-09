@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { User } from "@shared/types/general_types";
 import { Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -6,37 +6,28 @@ import DialogShell from "./DialogShell";
 import { InfoFormState } from "@/features/profile/types";
 import EditProfileDialogContent from "./EditProfileDialogContent";
 import ViewProfileDialogContent from "./ViewProfileDialogContent";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Props {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
-  setIsEditingInfo: Dispatch<SetStateAction<boolean>>;
-  setInfoSaveError: Dispatch<SetStateAction<string>>;
-  handleSavePersonalInfo: () => void;
-  setInfoForm: Dispatch<SetStateAction<InfoFormState>>;
   isOpen: boolean;
-  isSavingInfo: boolean;
   user: User;
-  infoForm: InfoFormState;
-  isEditingInfo: boolean;
-  infoSaveError: string;
-  profileFields: { label: string; value: string }[];
 }
 
 export default function InfoModal({
   setIsOpen,
-  setIsEditingInfo,
-  setInfoSaveError,
-  handleSavePersonalInfo,
-  setInfoForm,
   isOpen,
-  isSavingInfo,
   user,
-  infoForm,
-  isEditingInfo,
-  infoSaveError,
-  profileFields,
 }: Props) {
   const t = useTranslations();
+  const { updateProfile, isLoading, isProfileUpdating } = useAuth();
+  const [isInfoEditing, setIsInfoEditing] = useState(false);
+  const [infoSaveError, setInfoSaveError] = useState<string>('');
+
+  const [infoForm, setInfoForm] = useState<InfoFormState>({
+    name: "",
+    phoneNumber: "",
+  });
 
   const handleCancel = () => {
     if (!user) return;
@@ -47,20 +38,38 @@ export default function InfoModal({
     });
 
     setInfoSaveError("");
-    setIsEditingInfo(false);
   }
 
   const handleToggleEditingInfo = () => {
-    if (!isEditingInfo) {
+    if (!isInfoEditing) {
       setInfoForm({
         name: user.name || "",
         phoneNumber: user.phoneNumber || "",
       });
     }
 
-    setIsEditingInfo((prev) => !prev);
+    setIsInfoEditing((prev) => !prev);
     setInfoSaveError("");
   }
+
+  const handleSavePersonalInfo = async () => {
+    if (!user || isProfileUpdating || isLoading) return;
+
+    setInfoSaveError("");
+
+    try {
+      await updateProfile({
+        name: infoForm.name.trim(),
+        phoneNumber: infoForm.phoneNumber.trim(),
+      });
+    } catch (error) {
+      setInfoSaveError(
+        error instanceof Error
+          ? error.message
+          : "Ma'lumotlarni saqlashda xatolik yuz berdi",
+      );
+    }
+  };
 
   return (
     <DialogShell
@@ -81,18 +90,16 @@ export default function InfoModal({
       }
     >
       {
-        isEditingInfo
+        isInfoEditing
           ? <EditProfileDialogContent
             infoForm={infoForm}
             infoSaveError={infoSaveError}
-            isSaving={isSavingInfo}
+            isSaving={isProfileUpdating}
             setInfoForm={setInfoForm}
             handleSavePersonalInfo={handleSavePersonalInfo}
             handleCancel={handleCancel} />
 
-          : <ViewProfileDialogContent
-            user={user}
-            profileFields={profileFields} />
+          : <ViewProfileDialogContent user={user} />
       }
     </DialogShell>
   );

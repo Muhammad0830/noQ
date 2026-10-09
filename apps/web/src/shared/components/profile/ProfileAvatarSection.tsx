@@ -1,38 +1,65 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/contexts/AuthContext";
+import { initials } from "@/features/profile/utils";
 import { getImageUrl } from "@/lib/supabaseClient";
 import { User } from "@shared/types/general_types";
 import { Camera } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 
 interface Props {
   preview: string | null;
-  initials: string;
-  memberSince: string;
   providerMode: boolean;
-  user: User | null;
-  isImageUpdating: boolean;
-  isLoading: boolean;
-  handleSaveImage: () => void;
+  user: User;
+  file: File | null;
   setPreview: React.Dispatch<React.SetStateAction<string | null>>;
   setFile: React.Dispatch<React.SetStateAction<File | null>>;
+  handleChangeFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export default function ProfileAvatarSection({
   preview,
-  initials,
-  memberSince,
   providerMode,
   user,
-  isImageUpdating,
-  isLoading,
-  handleSaveImage,
+  file,
   setPreview,
   setFile,
+  handleChangeFile,
 }: Props) {
   const t = useTranslations();
+  const locale = useLocale();
+
+  const { isProfileUpdating, isLoading, updateProfile } = useAuth();
+
+  const memberSince = user?.createdAt
+    ? `${t("profile.memberSince")} ${new Date(
+      user.createdAt,
+    ).toLocaleDateString(locale, {
+      month: "numeric",
+      year: "numeric",
+      day: "numeric",
+    })}`
+    : t("profile.memberSinceUnknown");
+
+  const handleSaveImage = async () => {
+    if (!file || isLoading || isProfileUpdating) return;
+
+    await updateProfile({ file });
+
+    setFile(null);
+    setPreview(null);
+  };
+
   return (
     <>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleChangeFile}
+        className="hidden"
+        id="profile-image-input"
+      />
+
       <div className="relative mx-auto mb-4 inline-block">
         <div className="relative h-24 w-24 rounded-full p-0.5 ring-1 ring-[#F49B33]/60">
           {preview ? (
@@ -53,7 +80,7 @@ export default function ProfileAvatarSection({
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center rounded-full bg-slate-200 text-2xl font-bold text-slate-700">
-              {initials}
+              {initials(user.name)}
             </div>
           )}
         </div>
@@ -75,10 +102,10 @@ export default function ProfileAvatarSection({
           <button
             type="button"
             onClick={handleSaveImage}
-            disabled={isImageUpdating || isLoading}
+            disabled={isProfileUpdating || isLoading}
             className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-teal-700"
           >
-            {isImageUpdating ? t("common.saving") : t("common.save")}
+            {isProfileUpdating ? t("common.saving") : t("common.save")}
           </button>
           <button
             type="button"
@@ -86,7 +113,7 @@ export default function ProfileAvatarSection({
               setFile(null);
               setPreview(null);
             }}
-            disabled={isImageUpdating || isLoading}
+            disabled={isProfileUpdating || isLoading}
             className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
           >
             {t("common.cancel")}

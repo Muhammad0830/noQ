@@ -493,7 +493,9 @@
     "reviews": "sharhlar",
     "saving": "Saqlanmoqda...",
     "success": "Muvaffaqiyatli!",
-    "currency": "so'm"
+    "currency": "so'm",
+    "userNotFound": "Foydalanuvchi ma'lumotlari topilmadi.",
+    "tryAgain": "Yana urinib ko'ring"
   },
   "profile": {
     "title": "Profil",
