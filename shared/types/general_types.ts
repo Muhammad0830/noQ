@@ -86,12 +86,12 @@ export interface Booking {
 }
 
 export enum BookingStatus {
-    PENDING = 'PENDING',
-    CONFIRMED = 'CONFIRMED',
-    COMPLETED = 'COMPLETED',
-    IN_PROGRESS = 'IN_PROGRESS',
-    CANCELLED = 'CANCELLED',
-    NO_SHOW = 'NO_SHOW',
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  COMPLETED = 'COMPLETED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  CANCELLED = 'CANCELLED',
+  NO_SHOW = 'NO_SHOW',
 }
 
 // Review
@@ -166,8 +166,7 @@ export type TimePickerState = {
   mode: "add" | "edit";
   breakIndex: number | null;
   field: "startTime" | "endTime";
-  hour: number;
-  minute: number;
+  time: string;
 };
 
 export type DaySchedule = {

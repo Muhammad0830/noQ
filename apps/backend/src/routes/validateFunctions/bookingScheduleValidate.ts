@@ -85,7 +85,6 @@ export const schedulePostValidate = (schedule: any) => {
       return { status: 400, json: { message: "Slots must be an array" } };
     }
 
-    // ✅ sort slots to safely validate overlaps
     const sortedSlots = [...day.slots].sort((a, b) =>
       a.startTime.localeCompare(b.startTime),
     );
@@ -93,7 +92,6 @@ export const schedulePostValidate = (schedule: any) => {
     for (let i = 0; i < sortedSlots.length; i++) {
       const slot = sortedSlots[i];
 
-      // time format check
       if (
         slot.startTime < "00:00" ||
         slot.startTime > "23:59" ||
@@ -107,7 +105,6 @@ export const schedulePostValidate = (schedule: any) => {
         return { status: 400, json: { message: "Invalid time range" } };
       }
 
-      // 🔴 overlap check
       if (i > 0) {
         const prev = sortedSlots[i - 1];
         if (prev.endTime > slot.startTime) {

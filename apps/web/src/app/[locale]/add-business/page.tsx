@@ -33,7 +33,7 @@ export default function AddBusinessStepOnePage() {
 
     if (typeof window !== "undefined") {
       window.sessionStorage.setItem(
-        "new_shop_step_1",
+        "new_shop_details",
         JSON.stringify({
           businessName: form.name.trim(),
           categoryId: form.categoryId,
@@ -42,7 +42,6 @@ export default function AddBusinessStepOnePage() {
           phone: form.phone.trim(),
         }),
       );
-      window.sessionStorage.removeItem("new_shop_id");
     }
 
     router.push("/add-business/step-2");

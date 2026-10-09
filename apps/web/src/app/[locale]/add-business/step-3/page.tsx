@@ -102,7 +102,7 @@ export default function AddBusinessStepThreePage() {
       }
 
       if (typeof window !== "undefined") {
-        window.sessionStorage.removeItem("new_shop_step_1");
+        window.sessionStorage.removeItem("new_shop_details");
         window.sessionStorage.removeItem("new_shop_id");
         window.localStorage.setItem("selected_shop_id", shopId);
         window.localStorage.setItem("providerMode", "true");

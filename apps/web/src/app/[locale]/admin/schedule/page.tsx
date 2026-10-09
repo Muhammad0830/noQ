@@ -23,6 +23,7 @@ import type {
   TimePickerState,
 } from "@shared/types/general_types";
 import { useTranslations } from "next-intl";
+import { getDefaultDays } from "@/features/addBusiness/utils";
 
 const dayMeta = [
   {
@@ -196,17 +197,6 @@ const buildNonOverlappingDaySlots = (day: DaySchedule) => {
 
   return slots;
 };
-
-const getDefaultDays = (): DaySchedule[] =>
-  dayMeta.map((meta) => ({
-    id: meta.id,
-    day: meta.day,
-    dayOfWeek: meta.dayOfWeek,
-    openStart: meta.defaultStart,
-    openEnd: meta.defaultEnd,
-    breaks: [],
-    enabled: meta.id !== "sunday",
-  }));
 
 const mapBackendToDays = (
   response?: BackendWeeklyScheduleResponse,
