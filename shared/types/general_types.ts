@@ -1,34 +1,15 @@
 // auth types
 export type AuthStorageSource = "local" | "session";
 
-export interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string, remember?: boolean) => Promise<void>;
-  signup: (
-    email: string,
-    password: string,
-    name: string,
-    phone?: string,
-  ) => Promise<void>;
-  logout: () => void;
-  updateProfile: (data: {
-    name?: string;
-    phoneNumber?: string;
-    file?: File | null;
-  }) => Promise<void>;
-}
-
 // User types
 export interface User {
   id: string;
   email: string;
   name: string;
-  phoneNumber?: string;
-  role: 'USER' | 'ADMIN';
+  phoneNumber?: string | null;
+  role: "USER" | "ADMIN";
   createdAt: string;
-  avatarUrl?: string;
+  avatarUrl?: string | null;
   shops?: Shop[];
 }
 
@@ -59,6 +40,10 @@ export interface Shop {
   services: string[];
 }
 
+export interface ShopWithServices extends Omit<Shop, "services"> {
+  services: Service[];
+}
+
 export interface Service {
   id: string;
   name: string;
@@ -71,15 +56,17 @@ export interface Service {
   bufferTime?: number | null;
   assignedToAllStaff?: boolean;
   assignedStaffId?: string | null;
-  assignedStaff?: {
-    id: string;
-    role?: "OWNER" | "MANAGER" | "STAFF";
-    user?: {
-      id?: string;
-      name?: string | null;
-      email?: string | null;
-      avatarUrl?: string | null;
-    } | null;
+  assignedStaff?: Staff | null;
+}
+
+export interface Staff {
+  id: string;
+  role?: "OWNER" | "MANAGER" | "STAFF";
+  user?: {
+    id?: string;
+    name?: string | null;
+    email?: string | null;
+    avatarUrl?: string | null;
   } | null;
 }
 
@@ -98,13 +85,14 @@ export interface Booking {
   createdAt: string;
 }
 
-export type BookingStatus =
-  | 'PENDING'
-  | 'CONFIRMED'
-  | 'IN_PROGRESS'
-  | 'COMPLETED'
-  | 'CANCELLED'
-  | 'NO_SHOW';
+export enum BookingStatus {
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  COMPLETED = 'COMPLETED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  CANCELLED = 'CANCELLED',
+  NO_SHOW = 'NO_SHOW',
+}
 
 // Review
 export interface Review {
@@ -133,20 +121,20 @@ export interface ApiError {
 }
 
 // Language types
-export type Language = 'uz-latn' | 'uz-cyrl' | 'ru';
+export type Language = "uz-latn" | "uz-cyrl" | "ru";
 
 export interface Translations {
-  'uz-latn': Record<string, string>;
-  'uz-cyrl': Record<string, string>;
-  'ru': Record<string, string>;
+  "uz-latn": Record<string, string>;
+  "uz-cyrl": Record<string, string>;
+  ru: Record<string, string>;
 }
 
 // backend-only types
 export interface MulterFile {
-  originalname: string
-  buffer: Buffer
-  mimetype: string
-  size: number
+  originalname: string;
+  buffer: Buffer;
+  mimetype: string;
+  size: number;
 }
 
 // Schedule types
@@ -178,8 +166,7 @@ export type TimePickerState = {
   mode: "add" | "edit";
   breakIndex: number | null;
   field: "startTime" | "endTime";
-  hour: number;
-  minute: number;
+  time: string;
 };
 
 export type DaySchedule = {

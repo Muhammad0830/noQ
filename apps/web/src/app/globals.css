@@ -171,77 +171,24 @@
   --sidebar-accent-foreground: oklch(0.986 0.002 67.8);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.547 0.021 43.1);
-  --brand: #f49b33;
-  --brand-soft: #3a2415;
-  --surface: #2b170b;
-  --surface-muted: #382214;
-  --text-main: #fff4e8;
-  --text-muted: #d6b89a;
-  --color-blue-50: #f49b33;
-  --color-blue-100: #f49b33;
-  --color-blue-200: #f49b33;
-  --color-blue-300: #f49b33;
-  --color-blue-400: #f49b33;
-  --color-blue-500: #f49b33;
-  --color-blue-600: #f49b33;
-  --color-blue-700: #f49b33;
-  --color-blue-800: #f49b33;
-  --color-blue-900: #f49b33;
-  --color-cyan-50: #f49b33;
-  --color-cyan-100: #f49b33;
-  --color-cyan-200: #f49b33;
-  --color-cyan-300: #f49b33;
-  --color-cyan-400: #f49b33;
-  --color-cyan-500: #f49b33;
-  --color-cyan-600: #f49b33;
-  --color-cyan-700: #f49b33;
-  --color-cyan-800: #f49b33;
-  --color-cyan-900: #f49b33;
-  --color-teal-50: #f49b33;
-  --color-teal-100: #f49b33;
-  --color-teal-200: #f49b33;
-  --color-teal-300: #f49b33;
-  --color-teal-400: #f49b33;
-  --color-teal-500: #f49b33;
-  --color-teal-600: #f49b33;
-  --color-teal-700: #f49b33;
-  --color-teal-800: #f49b33;
-  --color-teal-900: #f49b33;
-  --color-emerald-50: #f49b33;
-  --color-emerald-100: #f49b33;
-  --color-emerald-200: #f49b33;
-  --color-emerald-300: #f49b33;
-  --color-emerald-400: #f49b33;
-  --color-emerald-500: #f49b33;
-  --color-emerald-600: #f49b33;
-  --color-emerald-700: #f49b33;
-  --color-emerald-800: #f49b33;
-  --color-emerald-900: #f49b33;
-  --color-purple-50: #f49b33;
-  --color-purple-100: #f49b33;
-  --color-purple-200: #f49b33;
-  --color-purple-300: #f49b33;
-  --color-purple-400: #f49b33;
-  --color-purple-500: #f49b33;
-  --color-purple-600: #f49b33;
-  --color-purple-700: #f49b33;
-  --color-purple-800: #f49b33;
-  --color-purple-900: #f49b33;
 } */
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }
 }
 
 @layer base {
+
   /* Global palette harmonization for legacy utility classes across pages. */
   [class*="bg-blue-"],
   [class*="bg-cyan-"],
@@ -310,12 +257,10 @@
 
   [data-slot="skeleton"] {
     background-color: rgba(244, 155, 51, 0.12) !important;
-    background-image: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(255, 248, 241, 0.32) 50%,
-      rgba(255, 255, 255, 0.08) 100%
-    ) !important;
+    background-image: linear-gradient(90deg,
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 248, 241, 0.32) 50%,
+        rgba(255, 255, 255, 0.08) 100%) !important;
   }
 
   .rangePrice {
@@ -389,12 +334,10 @@
   }
 
   .range-thumb::-webkit-slider-thumb {
-    background: radial-gradient(
-      circle at 30% 30%,
-      #ffffff 0%,
-      #fff3e6 48%,
-      #fde3c2 100%
-    );
+    background: radial-gradient(circle at 30% 30%,
+        #ffffff 0%,
+        #fff3e6 48%,
+        #fde3c2 100%);
     border: 2px solid #f49b33;
     border-radius: 50%;
     box-shadow:
@@ -416,12 +359,10 @@
   }
 
   .range-thumb::-moz-range-thumb {
-    background: radial-gradient(
-      circle at 30% 30%,
-      #ffffff 0%,
-      #fff3e6 48%,
-      #fde3c2 100%
-    );
+    background: radial-gradient(circle at 30% 30%,
+        #ffffff 0%,
+        #fff3e6 48%,
+        #fde3c2 100%);
     border: 2px solid #f49b33;
     border-radius: 50%;
     box-shadow:

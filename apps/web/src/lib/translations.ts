@@ -13,7 +13,7 @@ export const translations: Translations = {
 
     // Bottom Navigation
     "bottomNav.home": "Bosh sahifa",
-    "bottomNav.search": "Qidiruv",
+    "bottomNav.discover": "Qidiruv",
     "bottomNav.services": "Xizmatlar",
     "bottomNav.history": "Tarix",
     "bottomNav.profile": "Profil",
@@ -494,7 +494,7 @@ export const translations: Translations = {
     "profile.languageModalTitle": "Tilni tanlang",
     "profile.field.id": "ID",
     "profile.field.name": "Ism",
-    "profile.field.email": "Email",
+    "profile.field.email": " Elektron pochta",
     "profile.field.role": "Rol",
     "profile.field.createdAt": "Ro'yxatdan o'tgan sana",
     "profile.field.phone": "Telefon",
@@ -679,7 +679,7 @@ export const translations: Translations = {
 
     // Bottom Navigation
     "bottomNav.home": "Бош саҳифа",
-    "bottomNav.search": "Қидирув",
+    "bottomNav.discover": "Қидирув",
     "bottomNav.services": "Хизматлар",
     "bottomNav.history": "Тарих",
     "bottomNav.profile": "Профил",
@@ -1157,7 +1157,7 @@ export const translations: Translations = {
     "profile.languageModalTitle": "Тилни танланг",
     "profile.field.id": "ID",
     "profile.field.name": "Исм",
-    "profile.field.email": "Email",
+    "profile.field.email": "Электрон почта",
     "profile.field.role": "Рол",
     "profile.field.createdAt": "Рўйхатдан ўтган сана",
     "profile.field.phone": "Телефон",
@@ -1337,7 +1337,7 @@ export const translations: Translations = {
 
     // Bottom Navigation
     "bottomNav.home": "Главная",
-    "bottomNav.search": "Поиск",
+    "bottomNav.discover": "Поиск",
     "bottomNav.services": "Услуги",
     "bottomNav.history": "История",
     "bottomNav.profile": "Профиль",
@@ -1814,7 +1814,7 @@ export const translations: Translations = {
     "profile.languageModalTitle": "Выберите язык",
     "profile.field.id": "ID",
     "profile.field.name": "Имя",
-    "profile.field.email": "Email",
+    "profile.field.email": "Электрон почта",
     "profile.field.role": "Роль",
     "profile.field.createdAt": "Дата регистрации",
     "profile.field.phone": "Телефон",
