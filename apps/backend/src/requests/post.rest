@@ -100,7 +100,7 @@ Authorization: Bearer {{bearer_token}}
 POST http://localhost:3001/admin/services
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
-x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
+x-shop-id: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 {
   "shopId": "4c953f8f-f7c8-4860-962d-21a2f06bcb89",
@@ -113,7 +113,7 @@ x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 POST http://localhost:3001/admin/schedule
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
-x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
+x-shop-id: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 {
   "schedule": [
@@ -168,7 +168,7 @@ x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 POST http://localhost:3001/admin/schedule/block
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
-x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
+x-shop-id: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 {
   "startTime": "2023-03-01T08:00:00Z",

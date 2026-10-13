@@ -305,7 +305,7 @@ export default function ShopAnalytics() {
   const selectedType = tabs[activeTab]?.type || "week";
 
   const analyticsHeaders = activeShopId
-    ? { "x-shopid": activeShopId, "x-shop-id": activeShopId }
+    ? { "x-shop-id": activeShopId }
     : undefined;
 
   useEffect(() => {

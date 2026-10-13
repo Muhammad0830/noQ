@@ -161,7 +161,6 @@ export default function EditServicePage() {
     activeShopId
       ? {
           headers: {
-            "x-shopid": activeShopId,
             "x-shop-id": activeShopId,
           },
         }
@@ -188,7 +187,6 @@ export default function EditServicePage() {
     () => ({
       headers: activeShopId
         ? {
-            "x-shopid": activeShopId,
             "x-shop-id": activeShopId,
           }
         : {},
@@ -269,7 +267,6 @@ export default function EditServicePage() {
             method: "GET",
             headers: {
               ...(token ? { Authorization: `Bearer ${token}` } : {}),
-              "x-shopid": activeShopId,
               "x-shop-id": activeShopId,
             },
             signal: controller.signal,

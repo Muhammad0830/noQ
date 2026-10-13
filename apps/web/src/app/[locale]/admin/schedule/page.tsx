@@ -322,7 +322,7 @@ export default function AdminSchedulePage() {
         refetchOnMount: false,
         refetchOnWindowFocus: false,
         headers: activeShopId
-          ? { "x-shopid": activeShopId, "x-shop-id": activeShopId }
+          ? { "x-shop-id": activeShopId }
           : undefined,
       },
     );
@@ -587,7 +587,6 @@ export default function AdminSchedulePage() {
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          "x-shopid": activeShopId,
           "x-shop-id": activeShopId,
         },
         body: JSON.stringify(payload),
@@ -621,8 +620,8 @@ export default function AdminSchedulePage() {
         <div className="fixed left-1/2 top-4 z-60 w-[92%] max-w-sm -translate-x-1/2">
           <div
             className={`flex items-start gap-2 rounded-xl border px-4 py-3 text-sm font-semibold shadow-xl ${toast.kind === "error"
-                ? "border-red-700 bg-red-600 text-white"
-                : "border-emerald-700 bg-emerald-600 text-white"
+              ? "border-red-700 bg-red-600 text-white"
+              : "border-emerald-700 bg-emerald-600 text-white"
               }`}
           >
             {toast.kind === "success" ? (
@@ -649,8 +648,8 @@ export default function AdminSchedulePage() {
               type="button"
               onClick={() => setActiveTab("schedule")}
               className={`inline-flex items-center justify-center gap-2 rounded-2xl border py-2 md:py-2.5 lg:py-2.5 px-3 md:px-3 lg:px-3 text-[10px] md:text-[10px] lg:text-[11px] font-semibold uppercase tracking-[0.15em] transition-colors ${activeTab === "schedule"
-                  ? "border-[#f09a35] bg-[#f09a35] text-white"
-                  : "border-[#d9dbe0] bg-white text-[#97a0ab]"
+                ? "border-[#f09a35] bg-[#f09a35] text-white"
+                : "border-[#d9dbe0] bg-white text-[#97a0ab]"
                 }`}
             >
               <CalendarClock className="h-3.5 w-3.5 md:h-4 md:w-4 lg:h-4 lg:w-4" />
@@ -660,8 +659,8 @@ export default function AdminSchedulePage() {
               type="button"
               onClick={() => setActiveTab("exceptions")}
               className={`inline-flex items-center justify-center gap-2 rounded-2xl border py-2 md:py-2.5 lg:py-2.5 px-3 md:px-3 lg:px-3 text-[10px] md:text-[10px] lg:text-[11px] font-semibold uppercase tracking-[0.15em] transition-colors ${activeTab === "exceptions"
-                  ? "border-[#f09a35] bg-[#f09a35] text-white"
-                  : "border-[#d9dbe0] bg-white text-[#97a0ab]"
+                ? "border-[#f09a35] bg-[#f09a35] text-white"
+                : "border-[#d9dbe0] bg-white text-[#97a0ab]"
                 }`}
             >
               <CalendarClock className="h-3.5 w-3.5 md:h-4 md:w-4 lg:h-4 lg:w-4" />
@@ -760,8 +759,8 @@ export default function AdminSchedulePage() {
                                 )
                               }
                               className={`inline-flex items-center justify-center transition-colors ${isExpanded
-                                  ? "h-9 w-9 rounded-2xl bg-[#f2f3f5] text-[#20b35f]"
-                                  : "h-9 w-9 rounded-full text-[#b8bdc8] hover:bg-[#f3f4f6]"
+                                ? "h-9 w-9 rounded-2xl bg-[#f2f3f5] text-[#20b35f]"
+                                : "h-9 w-9 rounded-full text-[#b8bdc8] hover:bg-[#f3f4f6]"
                                 } ${!item.enabled ? "cursor-not-allowed opacity-40 hover:bg-transparent" : ""}`}
                             >
                               {isExpanded ? (

@@ -41,8 +41,8 @@ export default function AppSettings() {
                   <p className="text-sm text-gray-600">{t('settings.emailNotificationsDesc')}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={settings.emailNotifications}
                     onChange={() => toggleSetting('emailNotifications')}
                     className="sr-only peer"
@@ -57,8 +57,8 @@ export default function AppSettings() {
                   <p className="text-sm text-gray-600">{t('settings.pushNotificationsDesc')}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={settings.pushNotifications}
                     onChange={() => toggleSetting('pushNotifications')}
                     className="sr-only peer"
@@ -73,8 +73,8 @@ export default function AppSettings() {
                   <p className="text-sm text-gray-600">{t('settings.smsNotificationsDesc')}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={settings.smsNotifications}
                     onChange={() => toggleSetting('smsNotifications')}
                     className="sr-only peer"
@@ -89,8 +89,8 @@ export default function AppSettings() {
                   <p className="text-sm text-gray-600">{t('settings.bookingRemindersDesc')}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={settings.bookingReminders}
                     onChange={() => toggleSetting('bookingReminders')}
                     className="sr-only peer"
@@ -105,8 +105,8 @@ export default function AppSettings() {
                   <p className="text-sm text-gray-600">{t('settings.promotionalEmailsDesc')}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={settings.promotionalEmails}
                     onChange={() => toggleSetting('promotionalEmails')}
                     className="sr-only peer"
@@ -129,8 +129,8 @@ export default function AppSettings() {
                 <p className="text-sm text-gray-600">{t('settings.darkModeDesc')}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={settings.darkMode}
                   onChange={() => toggleSetting('darkMode')}
                   className="sr-only peer"
@@ -149,9 +149,9 @@ export default function AppSettings() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">{t('settings.language')}</label>
-                <select 
+                <select
                   value={settings.language}
-                  onChange={(e) => setSettings({...settings, language: e.target.value})}
+                  onChange={(e) => setSettings({ ...settings, language: e.target.value })}
                   className="w-full border rounded-lg px-4 py-2"
                 >
                   <option value="en">English</option>
@@ -162,9 +162,9 @@ export default function AppSettings() {
 
               <div>
                 <label className="block text-sm font-medium mb-2">{t('settings.currency')}</label>
-                <select 
+                <select
                   value={settings.currency}
-                  onChange={(e) => setSettings({...settings, currency: e.target.value})}
+                  onChange={(e) => setSettings({ ...settings, currency: e.target.value })}
                   className="w-full border rounded-lg px-4 py-2"
                 >
                   <option value="UZS">UZS (Uzbek Som)</option>
@@ -187,8 +187,8 @@ export default function AppSettings() {
                 <p className="text-sm text-gray-600">{t('settings.autoLocationDesc')}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={settings.autoLocation}
                   onChange={() => toggleSetting('autoLocation')}
                   className="sr-only peer"

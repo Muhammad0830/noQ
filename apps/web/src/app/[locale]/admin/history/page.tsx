@@ -197,7 +197,7 @@ export default function Page() {
     queryOptions: {
       refetchInterval: 15_000,
     },
-    headers: shopId ? { "x-shopid": shopId, "x-shop-id": shopId } : undefined,
+    headers: shopId ? { "x-shop-id": shopId } : undefined,
   });
 
   const handleDateChange = (date: string) => {

@@ -141,7 +141,7 @@ export default function Page() {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     headers: activeShopId
-      ? { "x-shopid": activeShopId, "x-shop-id": activeShopId }
+      ? { "x-shop-id": activeShopId }
       : undefined,
   });
 
@@ -229,11 +229,11 @@ export default function Page() {
   };
 
   const staffErrorMessage =
-    (staffError?.data &&
-      typeof staffError.data === "object" &&
-      "message" in staffError.data &&
-      typeof (staffError.data as { message?: unknown }).message === "string" &&
-      (staffError.data as { message: string }).message) ||
+    (staffError?.response?.data &&
+      typeof staffError.response?.data === "object" &&
+      "message" in staffError.response?.data &&
+      typeof (staffError.response?.data as { message?: unknown }).message === "string" &&
+      (staffError.response?.data as { message: string }).message) ||
     staffError?.message ||
     t("admin.staff.error.loadFailed");
 
@@ -348,9 +348,8 @@ export default function Page() {
               return (
                 <article
                   key={member.id}
-                  className={`rounded-[22px] md:rounded-[23px] lg:rounded-[24px] bg-white p-3 md:p-4 lg:p-5 shadow-[0_10px_28px_rgba(17,24,39,0.05)] ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-0.5 ${
-                    isActive ? "ring-[#f49b33]/25" : ""
-                  }`}
+                  className={`rounded-[22px] md:rounded-[23px] lg:rounded-[24px] bg-white p-3 md:p-4 lg:p-5 shadow-[0_10px_28px_rgba(17,24,39,0.05)] ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-0.5 ${isActive ? "ring-[#f49b33]/25" : ""
+                    }`}
                 >
                   <div className="flex items-start gap-3 md:gap-3.5 lg:gap-4">
                     <div className="relative shrink-0">
@@ -363,11 +362,10 @@ export default function Page() {
                         </span>
                       </div>
                       <span
-                        className={`absolute bottom-0 right-0 h-2.5 w-2.5 md:h-3 md:w-3 lg:h-3 lg:w-3 rounded-full border-2 border-white ${
-                          member.role === "OWNER"
+                        className={`absolute bottom-0 right-0 h-2.5 w-2.5 md:h-3 md:w-3 lg:h-3 lg:w-3 rounded-full border-2 border-white ${member.role === "OWNER"
                             ? "bg-[#f49b33]"
                             : "bg-[#c8c8c8]"
-                        }`}
+                          }`}
                       />
                     </div>
 

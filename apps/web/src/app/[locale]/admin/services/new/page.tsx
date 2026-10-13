@@ -98,7 +98,6 @@ export default function AddNewService() {
       activeShopId
         ? {
             headers: {
-              "x-shopid": activeShopId,
               "x-shop-id": activeShopId,
             },
           }

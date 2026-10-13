@@ -4,10 +4,10 @@
 PUT http://localhost:3001/admin/bookings/901020df-7378-49a9-bb61-b2fd44ab3641/cancel
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
-x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
+x-shop-id: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
 PUT http://localhost:3001/admin/bookings/901020df-7378-49a9-bb61-b2fd44ab3641/complete
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
-x-shopId: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
+x-shop-id: 4c953f8f-f7c8-4860-962d-21a2f06bcb89

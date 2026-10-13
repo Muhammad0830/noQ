@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import type {
-  TimePickerState,
-} from "@shared/types/general_types";
+import type { TimePickerState } from "@shared/types/general_types";
 import { useTranslations } from "next-intl";
 import { defaultTimePicker, getDefaultDays, getToday } from "@/features/addBusiness/utils";
 import { buildNonOverlappingDaySlots } from "@/shared/utils/schedule";
@@ -20,7 +18,6 @@ export default function AddBusinessStepTwoPage() {
   const [activeTab, setActiveTab] = useState<SchedulePanelTabs>("schedule");
   const [expandedDay, setExpandedDay] = useState<ExpandedDay>(getToday());
   const [days, setDays] = useState<DaySchedule[]>(getDefaultDays());
-
   const [timePicker, setTimePicker] = useState<TimePickerState>(defaultTimePicker);
   const [newShopDetails] = useState(() => typeof window !== 'undefined'
     ? sessionStorage.getItem("shop_details") : null)

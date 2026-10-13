@@ -281,7 +281,7 @@ export default function AdminDashboard() {
       refetchOnMount: false,
       refetchOnWindowFocus: false,
       headers: activeShopId
-        ? { "x-shopid": activeShopId, "x-shop-id": activeShopId }
+        ? { "x-shop-id": activeShopId }
         : undefined,
     },
   );
@@ -347,7 +347,7 @@ export default function AdminDashboard() {
       refetchOnMount: false,
       refetchOnWindowFocus: false,
       headers: activeShopId
-        ? { "x-shopid": activeShopId, "x-shop-id": activeShopId }
+        ? { "x-shop-id": activeShopId }
         : undefined,
     },
   );
@@ -468,7 +468,7 @@ export default function AdminDashboard() {
       "put",
       () => ({
         headers: activeShopId
-          ? { "x-shopid": activeShopId, "x-shop-id": activeShopId }
+          ? { "x-shop-id": activeShopId }
           : undefined,
       }),
     );
@@ -479,7 +479,7 @@ export default function AdminDashboard() {
       "put",
       () => ({
         headers: activeShopId
-          ? { "x-shopid": activeShopId, "x-shop-id": activeShopId }
+          ? { "x-shop-id": activeShopId }
           : undefined,
       }),
     );

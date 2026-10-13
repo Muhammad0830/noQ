@@ -103,3 +103,17 @@ export const getToday = () => {
         dayMeta.find((meta) => meta.dayOfWeek === todayDayOfWeek)?.day || "Monday"
     );
 };
+
+export const mockStaffMembers = [
+    { id: "alex", name: "Alex Johnson" },
+    { id: "sarah", name: "Sarah Miller" },
+];
+
+export const defaultServiceValues = {
+    name: "",
+    duration: "00:00",
+    bufferTime: 0,
+    price: 0,
+    assignedToAllStaffs: false,
+    selectedStaffs: [],
+}

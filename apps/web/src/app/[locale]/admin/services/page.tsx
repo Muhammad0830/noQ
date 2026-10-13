@@ -42,7 +42,6 @@ const EMPTY_PENDING_IDS: string[] = [];
 const asRoute = (href: string) => href as Route;
 
 const headersByShop = (shopId: string) => ({
-  "x-shopid": shopId,
   "x-shop-id": shopId,
 });
 
@@ -399,12 +398,12 @@ export default function AdminServicesPage() {
 
           {isError && (
             <div className="mt-4 rounded-[18px] border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {(error?.data &&
-                typeof error.data === "object" &&
-                "message" in error.data &&
-                typeof (error.data as { message?: unknown }).message ===
+              {(error?.response?.data &&
+                typeof error.response?.data === "object" &&
+                "message" in error.response?.data &&
+                typeof (error.response?.data as { message?: unknown }).message ===
                   "string" &&
-                (error.data as { message: string }).message) ||
+                (error.response?.data as { message: string }).message) ||
                 error?.message ||
                 t("admin.services.error.loadFailed")}
             </div>
