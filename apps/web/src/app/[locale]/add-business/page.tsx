@@ -33,7 +33,7 @@ export default function AddBusinessStepOnePage() {
 
     if (typeof window !== "undefined") {
       window.sessionStorage.setItem(
-        "new_shop_details",
+        "shop_details",
         JSON.stringify({
           businessName: form.name.trim(),
           categoryId: form.categoryId,

@@ -155,11 +155,6 @@ export type BackendWeeklyScheduleResponse = {
   >;
 };
 
-export type BreakRange = {
-  startTime: string;
-  endTime: string;
-};
-
 export type TimePickerState = {
   isOpen: boolean;
   dayId: string | null;
@@ -167,14 +162,4 @@ export type TimePickerState = {
   breakIndex: number | null;
   field: "startTime" | "endTime";
   time: string;
-};
-
-export type DaySchedule = {
-  id: string;
-  day: string;
-  dayOfWeek: number;
-  openStart: string;
-  openEnd: string;
-  breaks: BreakRange[];
-  enabled: boolean;
 };

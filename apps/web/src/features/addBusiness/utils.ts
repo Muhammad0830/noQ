@@ -1,4 +1,5 @@
-import { DaySchedule, TimePickerState } from "@shared/types/general_types";
+import { TimePickerState } from "@shared/types/general_types";
+import { DaySchedule } from "./types";
 
 export const parseTime = (v: string | undefined, step: number = 5): { h: number; m: number } => {
     const m = v?.match(/^(\d{1,2}):(\d{2})$/);
