@@ -20,6 +20,8 @@ import AdminSidebar from "@/components/AdminSidebar";
 import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 import { useLocale, useTranslations } from "next-intl";
 import { BookingStatus } from "@/features/booking/types";
+import { formatDate, formatTime } from "@/lib/datetime/format";
+import { timeZone } from "@noq/shared";
 
 type AdminHistoryBooking = {
   id: string;
@@ -47,13 +49,6 @@ type AdminHistoryBooking = {
   } | null;
 };
 
-const formatDateQuery = (date: Date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
-
 const normalizeDate = (date: Date) => {
   const normalized = new Date(date);
   normalized.setHours(0, 0, 0, 0);
@@ -71,20 +66,6 @@ const parseDateQuery = (value: string | null) => {
 
 const formatCurrency = (value: number, locale?: string) =>
   formatPrice(Number.isFinite(value) ? value : 0, locale || "uz-UZ");
-
-const formatTime = (value: string) => {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "--:--";
-  }
-
-  return date.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-};
 
 const formatDuration = (startTime: string, endTime: string) => {
   const start = new Date(startTime);
@@ -116,7 +97,7 @@ const buildWeekDays = (referenceDate: Date) => {
     date.setDate(referenceDate.getDate() - 4 + index);
 
     return {
-      id: formatDateQuery(date),
+      id: formatDate(date, timeZone),
       day: date.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase(),
       date: date.getDate(),
     };
@@ -142,7 +123,7 @@ export default function Page() {
     getAdminHrefWithShopId,
   } = useAdminSidebar(shopId);
   const todayDate = useMemo(() => normalizeDate(new Date()), []);
-  const todayQuery = useMemo(() => formatDateQuery(todayDate), [todayDate]);
+  const todayQuery = useMemo(() => formatDate(todayDate, timeZone), [todayDate]);
   // `visibleWeekStart` is actually used as the reference (week end) for building
   // the 7-day window in `buildWeekDays`. Initialize it to `todayDate` so the
   // visible week includes today by default.
@@ -170,7 +151,7 @@ export default function Page() {
     return parsedDate > todayDate ? new Date(todayDate) : parsedDate;
   }, [searchParams, todayDate]);
   const selectedDateQuery = useMemo(
-    () => formatDateQuery(selectedDate),
+    () => formatDate(selectedDate, timeZone),
     [selectedDate],
   );
 
@@ -228,7 +209,7 @@ export default function Page() {
     setVisibleWeekStart(nextWeekStart);
 
     handleDateChange(
-      formatDateQuery(nextDate > todayDate ? todayDate : nextDate),
+      formatDate(nextDate > todayDate ? todayDate : nextDate, timeZone),
     );
   };
 
@@ -239,7 +220,7 @@ export default function Page() {
   const statusLabels: Record<AdminHistoryBooking["status"], string> = {
     PENDING: t("user.history.status.pending"),
     CONFIRMED: t("user.history.status.confirmed"),
-    IN_PROGRESS: t("user.history.status.inProgress"),
+    IN_PROGRESS: t("user.history.status.in_progress"),
     COMPLETED: t("user.history.status.completed"),
     CANCELLED: t("user.history.status.cancelled"),
     NO_SHOW: t("user.history.status.noShow"),
@@ -264,7 +245,7 @@ export default function Page() {
         customerName,
         serviceName,
         staffName,
-        time: formatTime(booking.startTime),
+        time: formatTime(booking.startTime, timeZone),
         duration: formatDuration(booking.startTime, booking.endTime),
         amount: formatCurrency(amountValue, locale),
         status: booking.status,
@@ -493,11 +474,10 @@ export default function Page() {
                   key={day.id}
                   type="button"
                   onClick={() => handleDateChange(day.id)}
-                  className={`flex h-14.5 w-full min-w-0 flex-col items-center justify-center rounded-[10px] border px-1 text-center leading-tight transition-all duration-200 ${
-                    day.id === selectedDateQuery
+                  className={`flex h-14.5 w-full min-w-0 flex-col items-center justify-center rounded-[10px] border px-1 text-center leading-tight transition-all duration-200 ${day.id === selectedDateQuery
                       ? "border-[#F49B33] bg-[#F49B33] text-white shadow-[0_12px_22px_rgba(244,155,51,0.24)]"
                       : "border-slate-200 bg-white text-[#1f2a36] hover:border-[#F49B33] hover:bg-[#fff8ee]"
-                  } active:scale-95`}
+                    } active:scale-95`}
                 >
                   <p className="text-[10px] font-semibold uppercase leading-none tracking-[0.12em] sm:text-[9px]">
                     {day.day}

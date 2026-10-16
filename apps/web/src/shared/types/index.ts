@@ -1,1 +1,6 @@
-export type * from "@shared/types/general_types";
+export type * from "@noq/shared";
+
+export interface ApiError {
+    message: string;
+    code?: string;
+}

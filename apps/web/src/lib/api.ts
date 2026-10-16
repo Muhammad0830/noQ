@@ -1,5 +1,7 @@
-import { AuthStorageSource, User } from "@shared/types/general_types";
+import { User } from "@/shared/types/user";
 import axios from "axios";
+
+type AuthStorageSource = "local" | "session";
 
 const rawApiUrl =
   process.env.NEXT_PUBLIC_API_URL || "http://no-q-back.vercel.app.com";

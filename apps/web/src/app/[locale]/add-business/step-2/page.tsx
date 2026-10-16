@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { TimePickerState } from "@shared/types/general_types";
 import { useTranslations } from "next-intl";
 import { defaultTimePicker, getDefaultDays, getToday } from "@/features/addBusiness/utils";
 import { buildNonOverlappingDaySlots } from "@/shared/utils/schedule";
@@ -11,6 +10,7 @@ import { DaySchedule, ExpandedDay, SchedulePanelTabs } from "@/features/addBusin
 import ScheduleTabs from "@/features/addBusiness/components/ScheduleTabs";
 import SchedulePanel from "@/features/addBusiness/components/SchedulePanel";
 import ExceptionsPanel from "@/features/addBusiness/components/ExceptionsPanel";
+import { TimePickerState } from "@/features/scheduling/types";
 
 export default function AddBusinessStepTwoPage() {
   const router = useRouter();

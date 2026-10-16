@@ -1,0 +1,8 @@
+{
+  "name": "noq",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "apps/*"
+  ]
+}

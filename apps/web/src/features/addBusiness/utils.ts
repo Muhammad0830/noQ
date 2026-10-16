@@ -1,4 +1,5 @@
-import { TimePickerState } from "@shared/types/general_types";
+import { timeZone } from "@noq/shared";
+import { TimePickerState } from "../scheduling/types";
 import { DaySchedule } from "./types";
 
 export const parseTime = (v: string | undefined, step: number = 5): { h: number; m: number } => {
@@ -94,7 +95,7 @@ export const dayByName: Record<string, number> = {
 export const getToday = () => {
     const weekdayName = new Intl.DateTimeFormat("en-US", {
         weekday: "long",
-        timeZone: "Asia/Tashkent",
+        timeZone,
     }).format(new Date());
 
     const todayDayOfWeek = dayByName[weekdayName] ?? new Date().getDay();

@@ -1,9 +1,9 @@
 import { TimePicker } from "@/components/paragon/ui/time-picker";
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
-import { TimePickerState } from "@shared/types/general_types";
 import { useTranslations } from "next-intl";
 import { Dispatch, FC, SetStateAction } from "react";
 import { defaultTimePicker } from "../utils";
+import { TimePickerState } from "@/features/scheduling/types";
 
 interface TimePickerDrawerProps {
     timePicker: TimePickerState;

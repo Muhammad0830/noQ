@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppSearchInput from "@/components/AppSearchInput";
 import { API_ENDPOINTS } from "@/lib/api";
-import type { Service, Shop, ShopCategory } from "@shared/types/general_types";
 import useApiQuery from "@/hooks/useApiQuery";
 import { useTranslations } from "next-intl";
 import FilterDialog from "@/components/user/discover/FilterDialog";
@@ -12,6 +11,8 @@ import { FilterType, ShopsResponse } from "@/features/discovery/types";
 import { getShopsUrl } from "@/features/discovery/utils/get-shops-url";
 import ShopList from "@/components/user/discover/ShopList";
 import ServiceList from "@/components/user/discover/ServiceList";
+import { Shop, ShopCategory } from "@/shared/types/shop";
+import { Service } from "@/shared/types/service";
 
 const SKELETON_COUNT = 10;
 const COMPACT_SHOP_ROW_SKELETON_COUNT = 5;

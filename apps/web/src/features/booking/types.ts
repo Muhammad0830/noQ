@@ -1,16 +1,12 @@
+import { BookingStatus } from "@noq/shared"
+import type { Booking } from "@noq/shared"
+
+export { BookingStatus, Booking };
+
 export enum BookingTabs {
     IN_PROGRESS = "IN_PROGRESS",
     COMPLETED = "COMPLETED",
     CANCELLED = "CANCELLED",
-}
-
-export enum BookingStatus {
-    PENDING = 'PENDING',
-    CONFIRMED = 'CONFIRMED',
-    COMPLETED = 'COMPLETED',
-    IN_PROGRESS = 'IN_PROGRESS',
-    CANCELLED = 'CANCELLED',
-    NO_SHOW = 'NO_SHOW',
 }
 
 export type ActiveBookingStatus = Extract<BookingStatus, "PENDING" | "CONFIRMED" | "IN_PROGRESS">;
@@ -79,4 +75,37 @@ export interface HistoryCardData {
 export interface BookingTabsComponentProps {
     tabsKey: BookingTabs;
     onChange: (next: BookingTabs) => void;
+}
+
+export interface Staff {
+    id: string;
+    name: string;
+    avatarUrl?: string | null;
+}
+
+export interface TimeSlot {
+    id: string;
+    time: string;
+    type: 'available' | 'break' | 'booked';
+}
+
+export interface ScheduleSlot extends TimeSlot {
+    startMin: number;
+}
+
+export interface TimelineRange {
+    start: string;
+    end: string;
+}
+
+export interface DayTimelineResponse {
+    open: string | null;
+    close: string | null;
+    disabled: TimelineRange[];
+    busy: TimelineRange[];
+}
+
+export interface SelectedDateType {
+    date: string;
+    time: string | null;
 }

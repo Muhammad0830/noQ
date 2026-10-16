@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import type { Shop, User } from "@shared/types/general_types";
 import api, {
   API_ENDPOINTS,
   clearPersistedAuth,
@@ -12,6 +11,8 @@ import { useApiMutation } from "@/hooks/useApiMutation";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { User } from "@/shared/types/user";
+import { Shop } from "@/shared/types/shop";
 
 interface AuthContextType {
   user: User | null;

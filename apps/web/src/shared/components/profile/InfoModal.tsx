@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction, useState } from "react";
-import { User } from "@shared/types/general_types";
 import { Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import DialogShell from "./DialogShell";
@@ -7,6 +6,7 @@ import { InfoFormState } from "@/features/profile/types";
 import EditProfileDialogContent from "./EditProfileDialogContent";
 import ViewProfileDialogContent from "./ViewProfileDialogContent";
 import { useAuth } from "@/contexts/AuthContext";
+import { User } from "@/shared/types/user";
 
 interface Props {
   setIsOpen: Dispatch<SetStateAction<boolean>>;

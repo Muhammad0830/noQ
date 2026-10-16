@@ -5,7 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { categoryIcons } from "@/lib/getCategoryIcon";
-import { Shop } from "@shared/types/general_types";
+import { Shop } from "@/shared/types/shop";
 import { Plus, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";

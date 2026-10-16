@@ -2,7 +2,6 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { ShopCategory } from "@shared/types/general_types";
 import { API_ENDPOINTS } from "@/lib/api";
 import useApiQuery from "@/hooks/useApiQuery";
 import { useTranslations } from "next-intl";
@@ -10,6 +9,7 @@ import { AddBusinessStepOneForm } from "@/features/profile/types";
 import { addBusinessStepOneFormDefault } from "@/features/profile/utils";
 import InputField from "@/shared/components/InputField";
 import SelectField from "@/shared/components/SelectField";
+import { ShopCategory } from "@/shared/types/shop";
 
 export default function AddBusinessStepOnePage() {
   const router = useRouter();

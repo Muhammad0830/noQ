@@ -10,11 +10,11 @@ import {
   Dumbbell,
   Palette,
 } from "lucide-react";
-import type { Shop } from "@shared/types/general_types";
 import Link from "next/link";
 import { getImageUrl } from "@/lib/supabaseClient";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { Shop } from "@/shared/types/shop";
 
 interface ShopCardProps {
   shop: Shop;

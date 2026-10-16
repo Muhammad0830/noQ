@@ -1,4 +1,4 @@
-import { User } from "@shared/types/general_types";
+import { User } from "@/shared/types/user";
 import { useTranslations } from "next-intl";
 import { FC } from "react";
 

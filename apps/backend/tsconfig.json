@@ -43,7 +43,7 @@
 
     "paths": {
       "@/*": ["./src/*"],
-      "@shared/*": ["../../shared/*"]
+      "@noq/shared/*": ["../../shared/*"]
     }
   }
 }

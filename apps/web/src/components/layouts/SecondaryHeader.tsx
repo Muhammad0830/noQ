@@ -1,4 +1,4 @@
-import { ShopWithServices } from "@shared/types/general_types";
+import { ShopWithServices } from "@/shared/types/shop";
 import { ChevronLeft, Heart, Share2, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 
