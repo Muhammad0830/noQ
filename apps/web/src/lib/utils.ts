@@ -21,3 +21,16 @@ export function formatPrice(
     .format(numericValue)
     .replace(/[\u00A0\u202F]/g, " ")
 }
+
+export function getInitials(name?: string | null) {
+  if (!name) {
+    return '';
+  }
+
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}
