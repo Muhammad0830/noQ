@@ -63,64 +63,66 @@ const ScheduleDatePicker: FC<ScheduleDatePickerProps> = ({
     })
 
     return (
-        <div className="flex flex-col items-center gap-2">
-            <div className="w-full flex items-center justify-between mb-3">
-                <h3 className="flex gap-1 text-sm font-semibold">
-                    <span>{yearLabel}</span>
-                    <span>{t(`months.${monthLabel.toLowerCase()}`)}</span>
-                </h3>
-                <div className="flex gap-2">
-                    <button
-                        onClick={showPreviousDates}
-                        className={cn(
-                            "h-7 w-7 rounded-full border border-slate-300 flex items-center justify-center text-slate-500",
-                            !canGoPrevious && "opacity-50"
-                        )}
-                        disabled={!canGoPrevious}
-                    >
-                        <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={showNextDates}
-                        className={cn(
-                            "h-7 w-7 rounded-full border border-slate-300 flex items-center justify-center text-slate-500",
-                            !canGoNext && "opacity-50"
-                        )}
-                        disabled={!canGoNext}
-                    >
-                        <ChevronRight className="w-4 h-4" />
-                    </button>
+        <section className="mb-6">
+            <div className="flex flex-col items-center gap-2">
+                <div className="w-full flex items-center justify-between mb-3">
+                    <h3 className="flex gap-1 text-sm font-semibold">
+                        <span>{yearLabel}</span>
+                        <span>{t(`months.${monthLabel.toLowerCase()}`)}</span>
+                    </h3>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={showPreviousDates}
+                            className={cn(
+                                "h-7 w-7 rounded-full border border-slate-300 flex items-center justify-center text-slate-500",
+                                !canGoPrevious && "opacity-50"
+                            )}
+                            disabled={!canGoPrevious}
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={showNextDates}
+                            className={cn(
+                                "h-7 w-7 rounded-full border border-slate-300 flex items-center justify-center text-slate-500",
+                                !canGoNext && "opacity-50"
+                            )}
+                            disabled={!canGoNext}
+                        >
+                            <ChevronRight className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+
+                <div className="w-full grid grid-cols-5 gap-2">
+                    {visibleDates.map((date) => {
+                        const isSelected =
+                            selectedDate.date === getStringTimeFromDate(date);
+
+                        return (
+                            <button
+                                key={date.toISOString()}
+                                type="button"
+                                onClick={() => setSelectedDate({ time: null, date: getStringTimeFromDate(date) })}
+                                className={cn(
+                                    "rounded-xl py-2 text-center border",
+                                    isSelected ? "bg-[#F49B33] text-white border-[#F49B33]" : "bg-white border-[#ead8c3] text-slate-700"
+                                )}
+                                aria-pressed={isSelected}
+                            >
+                                <p className="text-[10px] uppercase">
+                                    {t(`weekdays.${shortWeekDayLabel(date)}`)}
+                                </p>
+
+                                <p className="text-lg font-semibold leading-5 mt-1">
+                                    {date.getDate()}
+                                </p>
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
-
-            <div className="w-full grid grid-cols-5 gap-2">
-                {visibleDates.map((date) => {
-                    const isSelected =
-                        selectedDate.date === getStringTimeFromDate(date);
-
-                    return (
-                        <button
-                            key={date.toISOString()}
-                            type="button"
-                            onClick={() => setSelectedDate({ time: null, date: getStringTimeFromDate(date) })}
-                            className={cn(
-                                "rounded-xl py-2 text-center border",
-                                isSelected ? "bg-[#F49B33] text-white border-[#F49B33]" : "bg-white border-[#ead8c3] text-slate-700"
-                            )}
-                            aria-pressed={isSelected}
-                        >
-                            <p className="text-[10px] uppercase">
-                                {t(`weekdays.${shortWeekDayLabel(date)}`)}
-                            </p>
-
-                            <p className="text-lg font-semibold leading-5 mt-1">
-                                {date.getDate()}
-                            </p>
-                        </button>
-                    );
-                })}
-            </div>
-        </div>
+        </section>
     );
 }
 

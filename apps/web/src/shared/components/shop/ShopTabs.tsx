@@ -1,5 +1,5 @@
 import { Dispatch, FC, SetStateAction, useState } from "react";
-import ShopDetailsSection from "./ShopDetailsSection";
+import ShopDetailsSection from "./ShopDetailsScreen";
 import ServiceTabSkeleton from "./ServiceTabSkeleton";
 import ServiceTab from "./ServiceTab";
 import GalleryTab from "./GalleryTab";
@@ -37,15 +37,9 @@ const ShopTabs: FC<ShopTabsProps> = ({
 
     const [activeTab, setActiveTab] = useState("services");
 
-    const distance = "1.2 miles";
-    const hours = "9AM - 8PM";
-
     return (
         <div className="max-w-3xl mx-auto px-4 pt-6">
-            <ShopDetailsSection
-                distance={distance}
-                hours={hours}
-                phone={shop.phone} />
+            <ShopDetailsSection phone={shop.phone} />
 
             {/* Tabs */}
             <div className="border-b border-gray-200 mb-6">
@@ -74,14 +68,11 @@ const ShopTabs: FC<ShopTabsProps> = ({
             )}
 
             {activeTab === "gallery" && (
-                <div className="grid grid-cols-3 gap-4 relative">
-                    {backgroundImage && !imageLoadError && (
-                        <GalleryTab
-                            backgroundImage={backgroundImage}
-                            shopName={shop.name}
-                            setImageLoadError={setImageLoadError} />
-                    )}
-                </div>
+                <GalleryTab
+                    backgroundImage={backgroundImage}
+                    imageLoadError={imageLoadError}
+                    shopName={shop.name}
+                    setImageLoadError={setImageLoadError} />
             )}
 
             {/* Reviews Tab */}

@@ -1,4 +1,5 @@
 import type { User } from "@/types/user.js";
+import type { Staff } from "@/types/staff.js";
 
 export interface ShopCategory {
     id: string;
@@ -23,4 +24,5 @@ export interface Shop {
     averageRating?: number;
     reviewCount?: number;
     services: string[];
+    staff: Staff[];
 }
