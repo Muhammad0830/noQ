@@ -3,7 +3,7 @@ import axios from "axios";
 
 const rawApiUrl =
   process.env.NEXT_PUBLIC_API_URL || "http://no-q-back.vercel.app.com";
-const normalizedApiUrl = rawApiUrl.replace(/\/+$/, "");
+const normalizedApiUrl = rawApiUrl.replace(/\/+$/, ""); // removes unnecessary '/' symbol from url
 const API_BASE_URL = /\/api$/i.test(normalizedApiUrl)
   ? normalizedApiUrl
   : `${normalizedApiUrl}`;
@@ -125,6 +125,7 @@ export const API_ENDPOINTS = {
 
   // Shops
   shops: `${API_BASE_URL}/shops`,
+  user_shops: `${API_BASE_URL}/users/shops`,
   shops_trending: `${API_BASE_URL}/shops/trending/7days`,
   shopById: (id: string) => `${API_BASE_URL}/shops/${id}`,
   shopServices: (id: string) => `${API_BASE_URL}/shops/${id}/services`,

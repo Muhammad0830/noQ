@@ -1,83 +1,55 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import { LogOut } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
+import { Dispatch, SetStateAction } from "react";
+import { useTranslations } from "next-intl";
 
 type LogoutConfirmModalProps = {
-  open: boolean;
-  title: string;
-  message: string;
-  cancelText: string;
-  confirmText: string;
-  onCancel: () => void;
+  isOpen: boolean;
   onConfirm: () => void;
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export default function LogoutConfirmModal({
-  open,
-  title,
-  message,
-  cancelText,
-  confirmText,
-  onCancel,
+  isOpen,
   onConfirm,
+  setIsOpen,
 }: LogoutConfirmModalProps) {
-  const [isClient, setIsClient] = useState(false);
+  const t = useTranslations()
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient || !open) {
-    return null;
-  }
-
-  return createPortal(
-    <div
-      className="fixed inset-0 z-100 flex items-center justify-center bg-black/45 p-4"
-      onClick={onCancel}
-      role="presentation"
-    >
-      <div
-        className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl"
-        onClick={(event) => event.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-      >
-        <div className="mb-4 flex items-center justify-center">
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent className="gap-6">
+        <div className="flex items-center justify-center">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
             <LogOut className="h-6 w-6 text-red-600" />
           </div>
         </div>
 
-        <h3 className="mb-2 text-center text-lg font-semibold text-slate-900">
-          {title}
-        </h3>
+        <DialogTitle className="text-center">{t("profile.logoutConfirmTitle")}</DialogTitle>
 
-        <p className="mb-6 text-center text-sm text-slate-600">
-          {message}
+        <p className="text-center text-sm text-slate-600">
+          {t("profile.logoutConfirmMessage")}
         </p>
 
         <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
-            onClick={onCancel}
+            onClick={() => setIsOpen(false)}
             className="flex h-12 w-full items-center justify-center rounded-xl border border-slate-300 px-4 font-semibold text-slate-600 transition hover:bg-slate-100"
           >
-            {cancelText}
+            {t("profile.cancel")}
           </button>
           <button
             type="button"
             onClick={onConfirm}
             className="flex h-12 w-full items-center justify-center rounded-xl bg-red-600 px-4 font-semibold text-white transition hover:bg-red-700"
           >
-            {confirmText}
+            {t("profile.logout")}
           </button>
         </div>
-      </div>
-    </div>,
-    document.body,
+      </DialogContent>
+    </Dialog>
   );
 }

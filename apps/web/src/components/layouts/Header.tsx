@@ -1,0 +1,196 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProviderMode } from "@/contexts/ProviderModeContext";
+import { User, LogIn, LogOut, Bell, Menu } from "lucide-react";
+import { getImageUrl } from "@/lib/supabaseClient";
+import LogoutConfirmModal from "@/components/LogoutConfirmModal";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "next-intl";
+import { useLoginDialog } from "@/contexts/LogInDialogContext";
+
+export default function Header() {
+  const pathname = usePathname();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const { open } = useLoginDialog();
+  const t = useTranslations();
+  const { providerMode } = useProviderMode();
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement | null>(null);
+
+  const isAdmin = user?.role === "ADMIN";
+  const isOnProfilePage = pathname === "/profile" || pathname.startsWith("/profile?");
+
+  const handleMenuClick = () => {
+    if (isAdmin && isOnProfilePage && providerMode) {
+      // On profile page in admin mode - trigger sidebar toggle
+      window.dispatchEvent(new CustomEvent("toggleAdminSidebar"));
+    } else {
+      // Regular dropdown
+      setProfileMenuOpen(!profileMenuOpen);
+    }
+  };
+
+  useEffect(() => {
+    if (!profileMenuOpen) return;
+
+    const handleOutsideClick = (event: MouseEvent | TouchEvent) => {
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(event.target as Node)
+      ) {
+        setProfileMenuOpen(false);
+      }
+    };
+
+    const handleScrollClose = () => {
+      setProfileMenuOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
+    window.addEventListener("scroll", handleScrollClose, true);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+      window.removeEventListener("scroll", handleScrollClose, true);
+    };
+  }, [profileMenuOpen]);
+
+  const hideHeaderOnPages =
+    pathname.startsWith("/book/") ||
+    pathname.startsWith("/shop/") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/forgot-password");
+
+  if (hideHeaderOnPages) {
+    return null;
+  }
+
+  const avatarImageSrc = user?.avatarUrl
+    ? user.avatarUrl.startsWith("http")
+      ? user.avatarUrl
+      : getImageUrl("user_avatars", user.avatarUrl)
+    : null;
+
+  const initials = (() => {
+    if (!user?.name) return "U";
+    const parts = user.name.split(" ").filter(Boolean);
+    if (parts.length === 1) return parts[0][0]?.toUpperCase() || "U";
+    return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
+  })();
+
+  const onConfirm = () => {
+    logout();
+    setIsLogoutConfirmOpen(false);
+  }
+
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-[#f1c894] bg-white/88 backdrop-blur-md">
+      <div
+        className={`mx-auto w-full px-4 sm:px-6 lg:px-8 ${pathname.startsWith("/profile") ? "max-w-4xl" : "max-w-6xl"
+          }`}
+      >
+        <div className="flex h-16 items-center justify-between gap-2 sm:gap-4">
+          {/* Logo */}
+          <Link href="/home" className="flex shrink-0 items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F49B33]">
+              <span className="text-white font-bold text-lg">N</span>
+            </div>
+            <span className="text-lg font-bold text-gray-900 sm:text-xl">
+              NoQ
+            </span>
+          </Link>
+
+          {/* Right Side Actions */}
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            {/* Auth Buttons / Profile */}
+            {isLoading ? (
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-10 rounded-full sm:h-11 sm:w-11" />
+                <Skeleton className="h-10 w-10 rounded-full sm:h-11 sm:w-11" />
+              </div>
+            ) : isAuthenticated ? (
+              <div className="flex items-center gap-3">
+                <button
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fff3e6] text-[#F49B33] transition-colors hover:bg-[#fce2c4] sm:h-11 sm:w-11"
+                >
+                  <Bell className="h-5 w-5" />
+                </button>
+                <div className="relative" ref={profileMenuRef}>
+                  <button
+                    onClick={handleMenuClick}
+                    className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-[#fff3e6] sm:h-11 sm:w-11"
+                  >
+                    {isAdmin && isOnProfilePage && providerMode ? (
+                      <Menu className="w-6 h-6 text-[#F49B33]" />
+                    ) : avatarImageSrc ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={avatarImageSrc}
+                        alt={user?.name || "Profile"}
+                        className="h-10 w-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-2xl font-bold text-slate-700">
+                        {initials}
+                      </div>
+                    )}
+                  </button>
+
+                  {profileMenuOpen && !(isAdmin && isOnProfilePage && providerMode) && (
+                    <div className="absolute right-0 z-20 mt-2 w-48 rounded-lg border border-[#f1c894] bg-white py-2 shadow-lg">
+                      <Link
+                        href="/profile"
+                        onClick={() => setProfileMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2 text-sm text-[#8a5620] hover:bg-[#fff3e6] transition-colors"
+                      >
+                        <User className="w-4 h-4" />
+                        <span>{t("nav.profile")}</span>
+                      </Link>
+
+                      <div className="border-t border-[#f1c894] mt-2 pt-2">
+                        <button
+                          onClick={() => {
+                            setProfileMenuOpen(false);
+                            setIsLogoutConfirmOpen(true);
+                          }}
+                          className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-[#fff3e6] transition-colors w-full"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span>{t("profile.logout")}</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={open}
+                className="flex items-center space-x-2 rounded-lg bg-[#F49B33] px-3 py-2 text-sm font-medium text-white transition-shadow hover:shadow-lg sm:px-4 sm:text-base"
+              >
+                <LogIn className="w-4 h-4" />
+                <span>{t("nav.signin")}</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <LogoutConfirmModal
+        isOpen={isLogoutConfirmOpen}
+        setIsOpen={setIsLogoutConfirmOpen}
+        onConfirm={onConfirm}
+      />
+    </header>
+  );
+}

@@ -2,7 +2,7 @@ import prisma from "../db/prisma.js";
 
 export async function shopValidateMiddleware(req: any, res: any, next: any) {
   try {
-    const headerShopId = req.headers["x-shopid"] ?? req.headers["x-shop-id"];
+    const headerShopId = req.headers["x-shop-id"];
     const rawShopId = Array.isArray(headerShopId)
       ? headerShopId[0]
       : headerShopId ?? req.query?.shopId;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Star,
   Scissors,
@@ -10,10 +10,11 @@ import {
   Dumbbell,
   Palette,
 } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
 import type { Shop } from "@shared/types/general_types";
 import Link from "next/link";
 import { getImageUrl } from "@/lib/supabaseClient";
+import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 interface ShopCardProps {
   shop: Shop;
@@ -87,12 +88,10 @@ const getCategoryIcon = (iconOrName?: string) => {
   return <Sparkles className="w-5 h-5" />;
 };
 
-const shopCard: React.FC<ShopCardProps> = ({
+const ShopCard: React.FC<ShopCardProps> = ({
   shop,
-  onFavorite: _onFavorite,
-  isFavorite: _isFavorite = false,
 }) => {
-  const { t } = useLanguage();
+  const t = useTranslations();
   const [imageLoadError, setImageLoadError] = useState(false);
   const rootShop = shop as Partial<Shop> & {
     id?: string;
@@ -105,8 +104,8 @@ const shopCard: React.FC<ShopCardProps> = ({
   const rating =
     typeof backendRating === "number" ? backendRating.toFixed(1) : "0.0";
   const distance = "0.8 km";
-  const driveTime = `12 ${t("shopCard.minDrive")}`;
-  const nextSlot = `2:00 PM ${t("shopCard.today")}`;
+  const driveTime = `12 ${t("user.discover.shopCard.minDrive")}`;
+  const nextSlot = `2:00 PM ${t("user.discover.shopCard.today")}`;
   const title = shop.name;
   const shopInitial = (title?.trim()?.charAt(0) || "S").toUpperCase();
   const shopId = shop.id || rootShop.id || "";
@@ -115,7 +114,7 @@ const shopCard: React.FC<ShopCardProps> = ({
   );
   const serviceNamesSource =
     (Array.isArray(shop.services) && shop.services) ||
-    (Array.isArray((rootShop as any).services) && (rootShop as any).services) ||
+    (Array.isArray((rootShop).services) && (rootShop).services) ||
     [];
 
   const serviceNames = Array.isArray(serviceNamesSource)
@@ -128,17 +127,18 @@ const shopCard: React.FC<ShopCardProps> = ({
   const imageUrl = rawImage
     ? rawImage.startsWith("http")
       ? rawImage
-      : getImageUrl(rawImage, "shop_images")
+      : getImageUrl("shop_images", rawImage)
     : null;
   return (
-    <Link href={`/user/shop/${shopId}`} className="block">
+    <Link href={`/shop/${shopId}`} className="block">
       <div className="group overflow-hidden rounded-3xl border border-[#f1c894] bg-linear-to-br from-[#fff8f0] via-white to-[#f6e4cd] shadow-sm transition-all duration-300 hover:shadow-[0_18px_36px_rgba(244,155,51,0.18)]">
         {/* Image Section */}
         <div className="relative h-52 overflow-hidden">
           {imageUrl && !imageLoadError ? (
-            <img
+            <Image
               src={imageUrl}
               alt={title}
+              fill
               onError={() => setImageLoadError(true)}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
@@ -165,8 +165,8 @@ const shopCard: React.FC<ShopCardProps> = ({
             }`}
           >
             {isCurrentlyOpen
-              ? t("shopCard.availableNow")
-              : t("shopCard.closedNow")}
+              ? t("user.discover.shopCard.availableNow")
+              : t("user.discover.shopCard.closedNow")}
           </div>
         </div>
 
@@ -196,7 +196,7 @@ const shopCard: React.FC<ShopCardProps> = ({
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                {t("shopCard.nextSlot")}
+                {t("user.discover.shopCard.nextSlot")}
               </p>
               <p className="mt-1 text-sm font-bold text-slate-800 sm:text-base">
                 {nextSlot}
@@ -204,7 +204,7 @@ const shopCard: React.FC<ShopCardProps> = ({
             </div>
 
             <button className="rounded-full bg-[#F49B33] px-5 py-2 text-xs font-semibold text-white shadow-[0_10px_18px_rgba(244,155,51,0.24)] transition hover:bg-[#e28a20] sm:text-sm">
-              {t("shops.book")}
+              {t("user.services.book")}
             </button>
           </div>
         </div>
@@ -213,4 +213,4 @@ const shopCard: React.FC<ShopCardProps> = ({
   );
 };
 
-export default shopCard;
+export default ShopCard;

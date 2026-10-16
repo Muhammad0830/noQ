@@ -22,16 +22,12 @@ scheduleRouter.get(
 
       const shopId = req.shop.id;
 
-      // =========================
-      // 🔵 WEEKLY SCHEDULE
-      // =========================
       if (date === "all") {
         const weeklySchedule = await prisma.shopSchedule.findMany({
           where: { shopId },
           orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
         });
 
-        // ✅ group in ONE pass (O(n))
         const schedule: Record<string, { opens: any[]; blocks: any[] }> = {};
 
         const weekMap = [
@@ -65,15 +61,10 @@ scheduleRouter.get(
         return res.status(200).json({ schedule });
       }
 
-      // =========================
-      // 🔵 DAY VIEW
-      // =========================
-
       const startOfDay = new Date(`${date}T00:00:00`);
       const endOfDay = new Date(`${date}T23:59:59`);
       const dayOfWeek = startOfDay.getDay();
 
-      // ✅ run queries in parallel (FASTER)
       const [bookings, blocks, recurringBlocks] = await Promise.all([
         prisma.booking.findMany({
           where: {
@@ -126,7 +117,6 @@ scheduleRouter.get(
         }),
       ]);
 
-      // ✅ format recurring blocks
       const formattedRecurringBlocks = recurringBlocks.map((b) => ({
         id: b.id,
         startTime: new Date(`${date}T${b.startTime}:00`),
@@ -168,30 +158,26 @@ scheduleRouter.post(
         return res.status(404).json({ message: "Shop not found" });
       }
 
-      // 🔥 validate schedule
       const { status, json } = schedulePostValidate(schedule) ?? {};
 
       if (status && json) {
         return res.status(status).json(json);
       }
 
-      // 🔥 remove old schedule
       await prisma.shopSchedule.deleteMany({
         where: { shopId: req.shop.id },
       });
 
-      // ✅ transform data
       const data = schedule.flatMap((day: any) =>
         day.slots.map((slot: any) => ({
           shopId: req.shop.id,
           dayOfWeek: day.dayOfWeek,
           startTime: slot.startTime,
           endTime: slot.endTime,
-          type: slot.block ? "BLOCK" : "OPEN", // 🔥 KEY PART
+          type: slot.block ? "BLOCK" : "OPEN",
         })),
       );
 
-      // 🔥 insert new schedule
       await prisma.shopSchedule.createMany({
         data,
       });

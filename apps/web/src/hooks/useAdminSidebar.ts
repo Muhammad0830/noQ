@@ -1,6 +1,14 @@
-import { useRef, useState, useMemo } from "react";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { BarChart3, CalendarDays, ClipboardList, CircleUser, History, Scissors, Users } from "lucide-react";
+import { useRef, useState } from "react";
+import {
+  BarChart3,
+  CalendarDays,
+  ClipboardList,
+  CircleUser,
+  History,
+  Scissors,
+  Users,
+} from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type AdminNavItem = {
   title: string;
@@ -13,7 +21,7 @@ export function useAdminSidebar(activeShopId: string | null) {
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [isSidebarClosing, setIsSidebarClosing] = useState(false);
   const sidebarCloseTimerRef = useRef<number | null>(null);
-  const { t } = useLanguage();
+  const t = useTranslations();
 
   const getAdminHrefWithShopId = (path: string) => {
     if (!activeShopId) return path;
@@ -39,47 +47,44 @@ export function useAdminSidebar(activeShopId: string | null) {
     }, 280);
   };
 
-  const adminNavItems = useMemo<AdminNavItem[]>(
-    () => [
-      {
-        title: t("admin.dashboard.panel"),
-        href: getAdminHrefWithShopId("/admin"),
-        icon: BarChart3,
-        exact: true,
-      },
-      {
-        title: t("admin.analytics.title") || "Analytics",
-        href: getAdminHrefWithShopId("/admin/analytics"),
-        icon: ClipboardList,
-      },
-      {
-        title: t("admin.schedule.title") || "Schedule",
-        href: getAdminHrefWithShopId("/admin/schedule"),
-        icon: CalendarDays,
-      },
-      {
-        title: t("services.title") || "Services",
-        href: getAdminHrefWithShopId("/admin/services"),
-        icon: Scissors,
-      },
-      {
-        title: t("admin.history.title") || "History",
-        href: getAdminHrefWithShopId("/admin/history"),
-        icon: History,
-      },
-      {
-        title: t("admin.staff.title") || "Staff",
-        href: getAdminHrefWithShopId("/admin/staff"),
-        icon: Users,
-      },
-      {
-        title: t("nav.profile") || "Profile",
-        href: "/profile",
-        icon: CircleUser,
-      },
-    ],
-    [activeShopId, t],
-  );
+  const adminNavItems: AdminNavItem[] = [
+    {
+      title: t("bottomNav.panel"),
+      href: getAdminHrefWithShopId("/admin"),
+      icon: BarChart3,
+      exact: true,
+    },
+    {
+      title: t("bottomNav.analytics"),
+      href: getAdminHrefWithShopId("/admin/analytics"),
+      icon: ClipboardList,
+    },
+    {
+      title: t("bottomNav.schedule"),
+      href: getAdminHrefWithShopId("/admin/schedule"),
+      icon: CalendarDays,
+    },
+    {
+      title: t("bottomNav.services"),
+      href: getAdminHrefWithShopId("/admin/services"),
+      icon: Scissors,
+    },
+    {
+      title: t("bottomNav.history"),
+      href: getAdminHrefWithShopId("/admin/history"),
+      icon: History,
+    },
+    {
+      title: t("bottomNav.staff"),
+      href: getAdminHrefWithShopId("/admin/staff"),
+      icon: Users,
+    },
+    {
+      title: t("bottomNav.profile"),
+      href: "/profile",
+      icon: CircleUser,
+    },
+  ];
 
   return {
     isSidebarVisible,

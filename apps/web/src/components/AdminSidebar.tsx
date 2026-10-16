@@ -1,21 +1,19 @@
 "use client";
 
 import { useRef, useEffect } from "react";
+import type { Route } from "next";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   BarChart3,
   Users,
   PlusCircle,
-  CircleUser,
   SquareArrowOutUpRight,
-  CalendarDays,
-  ClipboardList,
-  Scissors,
-  History,
   X,
 } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslations } from "next-intl";
+
+const asRoute = (href: string) => href as Route;
 
 type AdminNavItem = {
   title: string;
@@ -42,7 +40,7 @@ export default function AdminSidebar({
   getAdminHrefWithShopId,
 }: AdminSidebarProps) {
   const pathname = usePathname();
-  const { t } = useLanguage();
+  const t = useTranslations();
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -52,7 +50,7 @@ export default function AdminSidebar({
         !isClosing &&
         sidebarRef.current &&
         !sidebarRef.current.contains(e.target as Node) &&
-        (e.target as Element)?.closest('.fixed.inset-0.z-50')
+        (e.target as Element)?.closest(".fixed.inset-0.z-50")
       ) {
         onClose();
       }
@@ -117,7 +115,6 @@ export default function AdminSidebar({
           </div>
 
           <div className="flex-1 px-3 py-4 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-
             <div className="space-y-1">
               {adminNavItems.map((item) => {
                 const Icon = item.icon;
@@ -128,7 +125,7 @@ export default function AdminSidebar({
                 return (
                   <Link
                     key={item.href}
-                    href={item.href}
+                    href={asRoute(item.href)}
                     onClick={onClose}
                     className={`flex items-center justify-between rounded-2xl px-4 py-2.5 transition ${
                       isActive
@@ -166,7 +163,7 @@ export default function AdminSidebar({
               </div>
               <div className="mt-2 space-y-2">
                 <Link
-                  href={getAdminHrefWithShopId("/admin/bookings/new")}
+                  href={asRoute(getAdminHrefWithShopId("/admin/bookings/new"))}
                   onClick={onClose}
                   className="flex items-center gap-3 rounded-2xl bg-orange-400 px-4 py-2.5 text-white font-semibold"
                 >
@@ -174,7 +171,7 @@ export default function AdminSidebar({
                   {t("admin.dashboard.newAppointment")}
                 </Link>
                 <Link
-                  href={getAdminHrefWithShopId("/admin/staff")}
+                  href={asRoute(getAdminHrefWithShopId("/admin/staff"))}
                   onClick={onClose}
                   className="flex items-center gap-3 rounded-2xl bg-gray-50 px-4 py-2.5 text-gray-700 font-semibold"
                 >

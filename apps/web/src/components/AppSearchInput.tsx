@@ -7,43 +7,34 @@ type AppSearchInputProps = {
   placeholder: string;
   value?: string;
   inputRef?: RefObject<HTMLInputElement | null>;
-  readOnly?: boolean;
   onValueChange?: (value: string) => void;
   onInputClick?: () => void;
   onFocus?: () => void;
   onBlur?: () => void;
-  showClearButton?: boolean;
   onClear?: () => void;
-  showFilterButton?: boolean;
   onFilterClick?: () => void;
-  clearAriaLabel?: string;
-  filterAriaLabel: string;
 };
 
 export default function AppSearchInput({
   placeholder,
   value,
   inputRef,
-  readOnly = false,
   onValueChange,
   onInputClick,
   onFocus,
   onBlur,
-  showClearButton = false,
   onClear,
-  showFilterButton = true,
   onFilterClick,
-  clearAriaLabel,
-  filterAriaLabel,
 }: AppSearchInputProps) {
+  const showFilterButton = value?.length === 0;
+  const showClearButton = value ? value.length > 0 : false;
+
   return (
     <div className="flex items-center gap-2 rounded-2xl border border-[#f1c894] bg-white px-3 py-2.5 shadow-sm">
       <Search className="h-5 w-5 text-[#F49B33]" />
       <input
         ref={inputRef}
-        type="text"
         value={value}
-        readOnly={readOnly}
         placeholder={placeholder}
         onClick={onInputClick}
         onFocus={onFocus}
@@ -58,7 +49,6 @@ export default function AppSearchInput({
           onMouseDown={(event) => event.preventDefault()}
           onClick={onClear}
           className="rounded-lg bg-[#fff3e6] p-2 text-[#F49B33] transition hover:bg-[#fce2c4]"
-          aria-label={clearAriaLabel}
         >
           <X className="h-4 w-4" />
         </button>
@@ -69,7 +59,6 @@ export default function AppSearchInput({
           type="button"
           onClick={onFilterClick}
           className="rounded-lg bg-[#fff3e6] p-2 text-[#F49B33] transition hover:bg-[#fce2c4]"
-          aria-label={filterAriaLabel}
         >
           <SlidersHorizontal className="h-4 w-4" />
         </button>
