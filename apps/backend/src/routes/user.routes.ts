@@ -1,9 +1,9 @@
-import prisma from "../db/prisma.js";
+import prisma from "@/db/prisma.js";
 import express from "express";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
-import { adminOnly } from "../middlewares/admin.middleware.js";
-import { uploadImage } from "../utils/handleImage.js";
-import { upload } from "../middlewares/upload.js";
+import { authMiddleware } from "@/http/middlewares/auth.middleware.js";
+import { adminOnly } from "@/http/middlewares/admin.middleware.js";
+import { uploadImage } from "@/utils/handleImage.js";
+import { upload } from "@/http/middlewares/upload.js";
 
 const router = express.Router();
 

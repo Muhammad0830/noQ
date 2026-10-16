@@ -1,10 +1,8 @@
 import { Router } from "express";
-import prisma from "../../db/prisma.js";
-import { authMiddleware } from "../../middlewares/auth.middleware.js";
-import type { StatusProps } from "../../../../../shared/types/bookings.js";
-import { bookingScheduleValidate } from "../validateFunctions/bookingScheduleValidate.js";
-import { bookingResource } from "@/resources/bookingResource.js";
-import type { Booking } from "@shared/types/general_types.js";
+import prisma from "@/db/prisma.js";
+import { authMiddleware } from "@/http/middlewares/auth.middleware.js";
+import { bookingScheduleValidate } from "@/routes/validateFunctions/bookingScheduleValidate.js";
+import { BookingStatus } from "@noq/shared";
 
 const bookingRouter = Router();
 
@@ -17,7 +15,7 @@ function getBookings({
 }: {
   userId?: string;
   shopId?: string;
-  status: StatusProps[];
+  status: BookingStatus[];
   futureOnly?: boolean;
   inProgressOnly?: boolean;
 }) {
@@ -190,13 +188,21 @@ bookingRouter.get("/users/active", authMiddleware, async (req: any, res) => {
   try {
     const bookings = await getBookings({
       userId: req.user.id,
-      status: ["PENDING", "CONFIRMED", "IN_PROGRESS"],
+      status: [
+        BookingStatus.PENDING,
+        BookingStatus.CONFIRMED,
+        BookingStatus.IN_PROGRESS
+      ],
       futureOnly: true,
     });
 
     const inProgressBookings = await getBookings({
       userId: req.user.id,
-      status: ["PENDING", "CONFIRMED", "IN_PROGRESS"],
+      status: [
+        BookingStatus.PENDING,
+        BookingStatus.CONFIRMED,
+        BookingStatus.IN_PROGRESS
+      ],
       inProgressOnly: true,
     });
 
@@ -218,7 +224,11 @@ bookingRouter.get("/users/history", authMiddleware, async (req: any, res) => {
   try {
     const bookings = await getBookings({
       userId: req.user.id,
-      status: ["COMPLETED", "CANCELLED", "NO_SHOW"],
+      status: [
+        BookingStatus.COMPLETED,
+        BookingStatus.CANCELLED,
+        BookingStatus.NO_SHOW
+      ],
     });
 
     const cancelledBookings = bookings.filter((b) => b.status === "CANCELLED");
@@ -250,7 +260,11 @@ bookingRouter.get(
 
       const bookings = await getBookings({
         shopId,
-        status: ["PENDING", "CONFIRMED", "IN_PROGRESS"],
+        status: [
+          BookingStatus.PENDING,
+          BookingStatus.CONFIRMED,
+          BookingStatus.IN_PROGRESS
+        ],
         futureOnly: true,
       });
 
@@ -289,7 +303,11 @@ bookingRouter.get(
 
       const bookings = await getBookings({
         shopId,
-        status: ["COMPLETED", "CANCELLED", "NO_SHOW"],
+        status: [
+          BookingStatus.COMPLETED,
+          BookingStatus.CANCELLED,
+          BookingStatus.NO_SHOW
+        ],
       });
 
       const cancelledBookings = bookings.filter(
@@ -433,8 +451,8 @@ bookingRouter.post("/", authMiddleware, async (req: any, res) => {
     if (staffId) {
       const staff = await prisma.staff.findFirst({
         where: {
-          id: staffId,
-          shopId,
+          userId: staffId,
+          shopId: shopId,
         },
       });
 
@@ -450,6 +468,7 @@ bookingRouter.post("/", authMiddleware, async (req: any, res) => {
     }
 
     const end = new Date(start);
+
     end.setMinutes(
       end.getMinutes() + service.durationMin + (service.bufferTime ?? 0),
     );
@@ -493,11 +512,11 @@ bookingRouter.post("/", authMiddleware, async (req: any, res) => {
         serviceId,
         startTime: start,
         endTime: end,
-        staffId,
+        // staffId,
       },
     });
 
-    res.status(200).json(booking);
+    res.status(200).json({ message: 'success' });
   } catch {
     res.status(500).json({ message: "Internal server error" });
   }

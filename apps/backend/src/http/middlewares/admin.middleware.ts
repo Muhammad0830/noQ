@@ -1,4 +1,4 @@
-import prisma from "../db/prisma.js";
+import prisma from "@/db/prisma.js";
 
 export async function adminOnly(req: any, res: any, next: any) {
   const user = await prisma.user.findUnique({

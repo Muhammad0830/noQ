@@ -1,7 +1,7 @@
 import { Router } from "express";
-import prisma from "../../db/prisma.js";
-import { upload } from "../../middlewares/upload.js";
-import { uploadImage } from "../../utils/handleImage.js";
+import prisma from "@/db/prisma.js";
+import { upload } from "@/http/middlewares/upload.js";
+import { uploadImage } from "@/utils/handleImage.js";
 
 const shopRouter = Router();
 

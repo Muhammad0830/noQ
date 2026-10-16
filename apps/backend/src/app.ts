@@ -2,9 +2,9 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { userRoutes, adminRoutes, generalRoutes } from "./routes/index.js";
-import { shopValidateMiddleware } from "./middlewares/shopValidate.middleware.js";
-import { adminOnly } from "./middlewares/admin.middleware.js";
-import { authMiddleware } from "./middlewares/auth.middleware.js";
+import { shopValidateMiddleware } from "@/http/middlewares/shopValidate.middleware.js";
+import { adminOnly } from "@/http/middlewares/admin.middleware.js";
+import { authMiddleware } from "@/http/middlewares/auth.middleware.js";
 
 const app = express();
 

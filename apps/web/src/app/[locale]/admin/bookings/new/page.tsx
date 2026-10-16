@@ -19,8 +19,8 @@ import useApiQuery from "@/hooks/useApiQuery";
 import { useApiMutation } from "@/hooks/useApiMutation";
 import { API_ENDPOINTS } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
-import type { Service } from "@shared/types/general_types";
 import { useLocale, useTranslations } from "next-intl";
+import { Service } from "@/shared/types/service";
 
 const asRoute = (href: string) => href as Route;
 
@@ -463,8 +463,8 @@ export default function AdminNewBookingPage() {
         <div className="fixed left-1/2 top-4 z-80 w-[92%] max-w-sm -translate-x-1/2">
           <div
             className={`flex items-start gap-2.5 rounded-2xl border px-4 py-3 text-sm shadow-xl ${toast.kind === "success"
-                ? "border-emerald-500 bg-emerald-500 text-white"
-                : "border-red-500 bg-red-500 text-white"
+              ? "border-emerald-500 bg-emerald-500 text-white"
+              : "border-red-500 bg-red-500 text-white"
               }`}
           >
             <div
@@ -569,8 +569,8 @@ export default function AdminNewBookingPage() {
                   setShowServices(false);
                 }}
                 className={`w-full text-left rounded-xl p-3 border ${selectedService?.id === service.id
-                    ? "border-[#F49B33] bg-orange-50 shadow-sm"
-                    : "border-slate-200 bg-white"
+                  ? "border-[#F49B33] bg-orange-50 shadow-sm"
+                  : "border-slate-200 bg-white"
                   }`}
               >
                 <p className="text-sm font-medium text-slate-900">
@@ -684,8 +684,8 @@ export default function AdminNewBookingPage() {
                               setIsCustomerPickerOpen(false);
                             }}
                             className={`flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left ${active
-                                ? "border-orange-300 bg-orange-50"
-                                : "border-gray-200 bg-white"
+                              ? "border-orange-300 bg-orange-50"
+                              : "border-gray-200 bg-white"
                               }`}
                           >
                             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100">
@@ -800,8 +800,8 @@ export default function AdminNewBookingPage() {
                         setSelectedTime(null);
                       }}
                       className={`rounded-xl py-2 text-center border ${isActive
-                          ? "bg-[#F49B33] text-white border-[#F49B33] shadow-[0_8px_18px_rgba(244,155,51,0.24)]"
-                          : "bg-white border-slate-200 text-slate-700"
+                        ? "bg-[#F49B33] text-white border-[#F49B33] shadow-[0_8px_18px_rgba(244,155,51,0.24)]"
+                        : "bg-white border-slate-200 text-slate-700"
                         }`}
                     >
                       <p className="text-[10px] uppercase">
@@ -874,10 +874,10 @@ export default function AdminNewBookingPage() {
                             }
                             disabled={!canSelect}
                             className={`rounded-3xl min-h-18 border px-3 py-2 text-center transition-all ${status === "selected"
-                                ? "border-[#F49B33] bg-[#F49B33] text-white shadow-[0_0_0_1px_rgba(244,155,51,0.45),0_6px_14px_rgba(244,155,51,0.22)]"
-                                : status === "available"
-                                  ? "border-slate-200 bg-white text-slate-700 hover:border-[#F49B33] hover:text-[#F49B33]"
-                                  : "border-slate-200 bg-slate-100/90 text-slate-500 cursor-not-allowed"
+                              ? "border-[#F49B33] bg-[#F49B33] text-white shadow-[0_0_0_1px_rgba(244,155,51,0.45),0_6px_14px_rgba(244,155,51,0.22)]"
+                              : status === "available"
+                                ? "border-slate-200 bg-white text-slate-700 hover:border-[#F49B33] hover:text-[#F49B33]"
+                                : "border-slate-200 bg-slate-100/90 text-slate-500 cursor-not-allowed"
                               }`}
                           >
                             <p className="text-[14px] leading-none font-bold tracking-tight">

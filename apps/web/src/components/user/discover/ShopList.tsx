@@ -1,10 +1,10 @@
 import { Dispatch, FC, SetStateAction, useRef } from "react";
 import ShopsSkeleton from "./ShopsSkeleton";
-import { Shop } from "@shared/types/general_types";
 import CompactShopRowItem from "./CompactShopRowItem";
 import ShopCard from "@/components/ShopCard";
 import { useTranslations } from "next-intl";
 import CompactShopRowSkeleton from "./CompactShopRowSkeleton";
+import { Shop } from "@/shared/types/shop";
 
 interface ShopListProps {
     isLoading: boolean;

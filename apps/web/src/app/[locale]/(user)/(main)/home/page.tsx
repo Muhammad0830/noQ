@@ -6,9 +6,9 @@ import CategoriesSection from "@/components/CategoriesSection";
 import ShopList from "@/components/user/home/ShopList";
 import { API_ENDPOINTS } from "@/lib/api";
 import useApiQuery from "@/hooks/useApiQuery";
-import type { Shop, ShopCategory } from "@shared/types/general_types";
 import { useLocale } from "next-intl";
 import { Route } from "next";
+import { Shop, ShopCategory } from "@/shared/types/shop";
 
 export default function Home() {
   const router = useRouter();

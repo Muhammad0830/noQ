@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
+import { User } from "@/shared/types/user";
 import { NavItem, USER_NAV_ITEMS } from "@/shared/utils/navigation";
-import { User } from "@shared/types/general_types";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 

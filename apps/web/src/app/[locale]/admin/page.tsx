@@ -28,8 +28,10 @@ import {
   type AdminDashboardBooking,
   type TimelineAppointment,
 } from "@/components/admin/AdminScheduleTimeline";
-import { Shop } from "@shared/types/general_types";
 import { useTranslations } from "next-intl";
+import { Shop } from "@/shared/types/shop";
+import { formatTime } from "@/lib/datetime/format";
+import { timeZone } from "@noq/shared";
 
 const asRoute = (href: string) => href as Route;
 
@@ -374,19 +376,6 @@ export default function AdminDashboard() {
     );
   };
 
-  const formatTime = (value: string) => {
-    const date = parseBackendWallClockDate(value);
-    if (Number.isNaN(date.getTime())) {
-      return "--:--";
-    }
-
-    return date.toLocaleTimeString(undefined, {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-  };
-
   const toDurationLabel = (startTime: string, endTime: string) => {
     const start = parseBackendWallClockDate(startTime);
     const end = parseBackendWallClockDate(endTime);
@@ -447,8 +436,8 @@ export default function AdminDashboard() {
         startTime: booking.startTime,
         endTime: booking.endTime,
         durationMin: booking.service?.durationMin ?? null,
-        time: formatTime(booking.startTime),
-        timeRange: `${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}`,
+        time: formatTime(booking.startTime, timeZone),
+        timeRange: `${formatTime(booking.startTime, timeZone)} - ${formatTime(booking.endTime, timeZone)}`,
         timeMinutes: formatMinutesLabel(
           booking.startTime,
           booking.endTime,

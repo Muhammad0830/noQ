@@ -1,7 +1,7 @@
 import { Router } from "express";
-import prisma from "../../db/prisma.js";
-import { authMiddleware } from "../../middlewares/auth.middleware.js";
-import { adminOnly } from "../../middlewares/admin.middleware.js";
+import prisma from "@/db/prisma.js";
+import { authMiddleware } from "@/http/middlewares/auth.middleware.js";
+import { adminOnly } from "@/http/middlewares/admin.middleware.js";
 const categoryRouter = Router();
 
 categoryRouter.get("/", async (req, res) => {

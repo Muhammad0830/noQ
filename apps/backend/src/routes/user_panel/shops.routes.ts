@@ -1,10 +1,11 @@
 import { Router } from "express";
-import prisma from "../../db/prisma.js";
-import { authMiddleware } from "../../middlewares/auth.middleware.js";
-import { getPaginationParams } from "../../utils/pagination.js";
-import { upload } from "../../middlewares/upload.js";
-import { supabaseServer } from "../../services/supabaseServer.js";
-import { uploadImage } from "../../utils/handleImage.js";
+import prisma from "@/db/prisma.js";
+import { authMiddleware } from "@/http/middlewares/auth.middleware.js";
+import { getPaginationParams } from "@/utils/pagination.js";
+import { upload } from "@/http/middlewares/upload.js";
+import { supabaseServer } from "@/services/supabaseServer.js";
+import { uploadImage } from "@/utils/handleImage.js";
+import { addMinutes, getOneDayAfter, timeToMinutes } from "@noq/shared/dist/index.js";
 
 const shopRouter = Router();
 
@@ -308,39 +309,42 @@ shopRouter.get("/:id/reviews", async (req: any, res: any) => {
   }
 });
 
-// GET /shops/:id/day-timeline?date=2026-01-20
+// GET /shops/:id/day-timeline?date=2026-01-20T15:00:00Z
 shopRouter.get("/:id/day-timeline", async (req, res) => {
   try {
     const { id } = req.params;
-    const { date } = req.query;
+    const { date }: { date?: string } = req.query;
 
     if (!date) {
       return res.status(400).json({ message: "date is required" });
     }
 
-    const day = new Date(date as string).getDay();
+    const day = new Date(date).getDay();
 
-    const schedules = await prisma.$queryRaw<
-      {
-        id: string;
-        shopId: string;
-        dayOfWeek: number;
-        startTime: string;
-        endTime: string;
-      }[]
-    >`
-      SELECT "id", "shopId", "dayOfWeek", "startTime", "endTime"
-      FROM "ShopSchedule"
-      WHERE "shopId" = ${id} AND "dayOfWeek" = ${day}
-      ORDER BY "startTime" ASC
-    `;
+    const schedules = await prisma.shopSchedule.findMany({
+      where: {
+        shopId: id,
+        dayOfWeek: day,
+      },
+      select: {
+        id: true,
+        shopId: true,
+        dayOfWeek: true,
+        startTime: true,
+        endTime: true,
+        type: true,
+      },
+      orderBy: {
+        startTime: "asc",
+      },
+    });
 
     if (!schedules.length) {
       return res.json({ open: null, close: null, disabled: [], busy: [] });
     }
 
-    const startDay = new Date(`${date}T00:00:00`);
-    const endDay = new Date(`${date}T23:59:59`);
+    const startDay = new Date(date);
+    const endDay = getOneDayAfter(date);
 
     const bookings = await prisma.booking.findMany({
       where: {
@@ -375,13 +379,15 @@ shopRouter.get("/:id/day-timeline", async (req, res) => {
 
     const disabled: { start: string; end: string }[] = [];
 
-    for (let i = 0; i < schedules.length - 1; i++) {
-      const gapStart = schedules[i]?.endTime ?? "";
-      const gapEnd = schedules[i + 1]?.startTime ?? "";
+    const regularBlocks = schedules.filter(s => s.type === 'BLOCK');
+
+    for (let i = 0; i < regularBlocks.length; i++) {
+      const gapStart = regularBlocks[i]?.startTime ?? "";
+      const gapEnd = regularBlocks[i]?.endTime ?? "";
 
       disabled.push({
-        start: new Date(`${date}T${gapStart}:00`).toISOString(),
-        end: new Date(`${date}T${gapEnd}:00`).toISOString(),
+        start: addMinutes(date, timeToMinutes(gapStart)).toISOString(),
+        end: addMinutes(date, timeToMinutes(gapEnd)).toISOString(),
       });
     }
 

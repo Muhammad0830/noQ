@@ -1,7 +1,7 @@
 import express from "express";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
-import prisma from "../db/prisma.js";
-import { supabase } from "../config/supabase.js";
+import { authMiddleware } from "@/http/middlewares/auth.middleware.js";
+import prisma from "@/db/prisma.js";
+import { supabase } from "@/config/supabase.js";
 
 const router = express.Router();
 

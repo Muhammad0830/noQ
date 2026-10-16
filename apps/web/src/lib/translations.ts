@@ -1,6 +1,4 @@
-import type { Translations } from "@shared/types/general_types";
-
-export const translations: Translations = {
+export const translations = {
   "uz-latn": {
     // Navbar
     "nav.home": "Bosh sahifa",

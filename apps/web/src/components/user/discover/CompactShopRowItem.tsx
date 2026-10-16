@@ -1,6 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import { getImageUrl } from "@/lib/supabaseClient";
-import { Shop } from "@shared/types/general_types";
+import { Shop } from "@/shared/types/shop";
 import { ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";

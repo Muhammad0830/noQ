@@ -17,13 +17,11 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS, getStoredAuth } from "@/lib/api";
-import type {
-  BackendWeeklyScheduleResponse,
-  DaySchedule,
-  TimePickerState,
-} from "@shared/types/general_types";
 import { useTranslations } from "next-intl";
 import { getDefaultDays } from "@/features/addBusiness/utils";
+import { DaySchedule } from "@/features/addBusiness/types";
+import { BackendWeeklyScheduleResponse, TimePickerState } from "@/features/scheduling/types";
+import { timeZone } from "@noq/shared";
 
 const dayMeta = [
   {
@@ -82,7 +80,7 @@ type ExpandedDay = (typeof dayMeta)[number]["id"] | "";
 const getTodayDayId = () => {
   const weekdayName = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
-    timeZone: "Asia/Tashkent",
+    timeZone,
   }).format(new Date());
 
   const dayByName: Record<string, number> = {

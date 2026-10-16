@@ -1,10 +1,12 @@
 "use client";
 
+import { useAuth } from "@/contexts/AuthContext";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { ChevronLeft } from "lucide-react";
+import { Route } from "next";
 import { useTranslations } from "next-intl";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 
 export default function Layout({
     children
@@ -12,6 +14,13 @@ export default function Layout({
     const t = useTranslations();
     const router = useRouter();
     const pathname = usePathname();
+    const { isAuthenticated, isLoading } = useAuth()
+
+    useEffect(() => {
+        if (!isLoading && !isAuthenticated) {
+            router.push('/login' as Route);
+        }
+    })
 
     const isStepTwo = pathname === '/add-business/step-2';
     const isStepThree = pathname === '/add-business/step-3';

@@ -117,13 +117,15 @@ export default function MyBookings() {
                 labelText={STATUS_LABELS[BookingStatus.IN_PROGRESS]}
                 labelClassName="border-[#f49b33]/50 bg-[#f49b33]/20 text-[#f49b33]" />
 
-              <InProgressPanel
-                isLoading={isActiveLoading}
-                isError={isActiveError}
-                errorMessage={activeError?.response?.data?.message || activeError?.message}
-                bookings={activeBookings}
-                onCancelBooking={openConfirmDialog}
-                isCancellingBooking={isCancellingBooking} />
+              <div className="space-y-4">
+                <InProgressPanel
+                  isLoading={isActiveLoading}
+                  isError={isActiveError}
+                  errorMessage={activeError?.response?.data?.message || activeError?.message}
+                  bookings={activeBookings}
+                  onCancelBooking={openConfirmDialog}
+                  isCancellingBooking={isCancellingBooking} />
+              </div>
             </>
             :
             <>
@@ -135,12 +137,14 @@ export default function MyBookings() {
                   ? "border-green-600/50 bg-green-600/10 text-green-600"
                   : "border-red-600/50 bg-red-600/10 text-red-600"} />
 
-              <HistoryPanel
-                isLoading={isHistoryLoading}
-                isError={isHistoryError}
-                errorMessage={historyError?.response?.data?.message || historyError?.message}
-                bookings={selectedTab === BookingTabsType.COMPLETED
-                  ? completedHistory : cancelledHistory} />
+              <div className="space-y-4">
+                <HistoryPanel
+                  isLoading={isHistoryLoading}
+                  isError={isHistoryError}
+                  errorMessage={historyError?.response?.data?.message || historyError?.message}
+                  bookings={selectedTab === BookingTabsType.COMPLETED
+                    ? completedHistory : cancelledHistory} />
+              </div>
             </>
           }
         </div>

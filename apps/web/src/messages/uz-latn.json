@@ -719,5 +719,28 @@
     "Spa & Massage": "Spa va massaj",
     "Barbershop": "Sartarosh",
     "Cafe": "Kafe"
+  },
+  "months": {
+    "january": "Yanvar",
+    "february": "Fevral",
+    "march": "Mart",
+    "april": "Aprel",
+    "may": "May",
+    "june": "Iyun",
+    "july": "Iyul",
+    "august": "Avgust",
+    "september": "Sentabr",
+    "october": "Oktabr",
+    "november": "Noyabr",
+    "december": "Dekabr"
+  },
+  "weekdays": {
+    "Mon": "Du",
+    "Tue": "Se",
+    "Wed": "Chor",
+    "Thu": "Pay",
+    "Fri": "Ju",
+    "Sat": "Sha",
+    "Sun": "Yak"
   }
 }

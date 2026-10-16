@@ -1,6 +1,6 @@
 import { Router } from "express";
-import prisma from "../../db/prisma.js";
-import { getPaginationParams } from "../../utils/pagination.js";
+import prisma from "@/db/prisma.js";
+import { getPaginationParams } from "@/utils/pagination.js";
 
 const serviceRouter = Router();
 

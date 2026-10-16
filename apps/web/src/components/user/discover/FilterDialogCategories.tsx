@@ -1,4 +1,4 @@
-import { ShopCategory } from "@shared/types/general_types";
+import { ShopCategory } from "@/shared/types/shop";
 import { useTranslations } from "next-intl";
 
 interface Props {

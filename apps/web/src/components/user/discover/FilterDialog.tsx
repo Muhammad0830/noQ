@@ -1,5 +1,4 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { ShopCategory } from "@shared/types/general_types";
 import { useTranslations } from "next-intl";
 import {
   ChangeEvent,
@@ -10,6 +9,7 @@ import {
 } from "react";
 import FilterDialogCategories from "./FilterDialogCategories";
 import FilterDialogPrice from "./FilterDialogPrice";
+import { ShopCategory } from "@/shared/types/shop";
 import { FilterType } from "@/features/discovery/types";
 
 const DEFAULT_MIN_PRICE = 0;

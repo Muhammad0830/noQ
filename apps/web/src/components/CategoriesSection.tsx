@@ -2,10 +2,10 @@
 
 import React, { useRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { ShopCategory } from "@shared/types/general_types";
 import { categoryIcons } from "@/lib/getCategoryIcon";
 import { useTranslations } from "next-intl";
 import { Scissors } from "lucide-react";
+import { ShopCategory } from "@/shared/types/shop";
 
 interface CategoriesSectionProps {
   categories?: ShopCategory[];

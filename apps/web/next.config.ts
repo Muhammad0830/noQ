@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  transpilePackages: ["@noq/shared"],
   reactCompiler: true,
 };
 

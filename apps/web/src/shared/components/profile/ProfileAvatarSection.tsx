@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { initials } from "@/features/profile/utils";
 import { getImageUrl } from "@/lib/supabaseClient";
-import { User } from "@shared/types/general_types";
+import { User } from "@/shared/types/user";
 import { Camera } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";

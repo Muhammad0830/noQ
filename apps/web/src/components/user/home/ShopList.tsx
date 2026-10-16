@@ -3,9 +3,10 @@
 import React, { useRef, useState } from "react";
 import { Filter } from "lucide-react";
 import ShopCard from "../../ShopCard";
-import type { ApiError, Shop } from "@shared/types/general_types";
 import { useTranslations } from "next-intl";
 import ShopListSkeleton from "./ShopListSkeleton";
+import { Shop } from "@/shared/types/shop";
+import { ApiError } from "@/shared/types";
 
 const SKELETON_MOBILE_COUNT = 3;
 const SKELETON_DESKTOP_COUNT = 8;
