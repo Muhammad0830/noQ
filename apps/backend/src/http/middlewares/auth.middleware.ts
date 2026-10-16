@@ -1,4 +1,4 @@
-import { supabase } from "../config/supabase.js";
+import { supabase } from "@/config/supabase.js";
 
 export async function authMiddleware(req: any, res: any, next: any) {
   try {

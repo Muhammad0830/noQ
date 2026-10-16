@@ -1,4 +1,4 @@
-import type { Booking } from "@shared/types/general_types.js";
+import type { Booking } from "@noq/shared";
 
 export const bookingResource = (booking: Booking) => ({
     id: booking.id,

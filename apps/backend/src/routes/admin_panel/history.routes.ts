@@ -1,5 +1,5 @@
 import { Router } from "express";
-import prisma from "../../db/prisma.js";
+import prisma from "@/db/prisma.js";
 
 const historyRouter = Router();
 

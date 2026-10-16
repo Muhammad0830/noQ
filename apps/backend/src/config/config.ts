@@ -5,4 +5,5 @@ export const env = {
   DATABASE_URL: process.env.DATABASE_URL!,
   SUPABASE_URL: process.env.SUPABASE_URL!,
   SUPABASE_SERVICE_KEY: process.env.SUPABASE_SERVICE_KEY!,
+  TZ: process.env.TZ!,
 };

@@ -1,5 +1,4 @@
-import type { StatusProps } from "../../../../../shared/types/bookings.js";
-import prisma from "../../db/prisma.js";
+import prisma from "@/db/prisma.js";
 import { Router } from "express";
 
 const bookingRouter = Router();
