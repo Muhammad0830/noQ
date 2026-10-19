@@ -81,8 +81,6 @@ export default function AddBusinessStepTwoPage() {
   };
 
   const confirmTimePicker = () => {
-    console.log('timePicker', timePicker)
-
     const { dayId, mode, time, breakIndex, field } = timePicker;
 
     if (!dayId) return;
