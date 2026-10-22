@@ -13,9 +13,10 @@ model User {
   email            String            @unique
   name             String
   avatarUrl        String?
-  createdAt        DateTime          @default(now())
   role             Role              @default(USER)
   phoneNumber      String?
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @default(now()) @map("updated_at")
   bookings         Booking[]         @relation("UserBookings")
   favoriteServices FavoriteService[] @relation("UserFavoriteServices")
   favoriteShops    FavoriteShop[]    @relation("UserFavoriteShops")
@@ -25,10 +26,12 @@ model User {
 }
 
 model ShopCategory {
-  id    String  @id @default(uuid())
-  name  String  @unique
-  icon  String?
-  shops Shop[]
+  id        String   @id @default(uuid())
+  name      String   @unique
+  icon      String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+  shops     Shop[]
 }
 
 model Shop {
@@ -41,8 +44,10 @@ model Shop {
   categoryId         String
   ownerId            String
   isOpen             Boolean        @default(true)
-  createdAt          DateTime       @default(now())
   backgroundImageUrl String?
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @default(now()) @map("updated_at")
+  timezone           String         @default("Asia/Tashkent")
   bookings           Booking[]
   favoriteShops      FavoriteShop[]
   reviews            Review[]
@@ -66,6 +71,8 @@ model Service {
   isActive    Boolean           @default(true)
   shopId      String
   bufferTime  Int?
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @default(now()) @map("updated_at")
   bookings    Booking[]
   favorites   FavoriteService[]
   reviews     Review[]
@@ -75,19 +82,22 @@ model Service {
 }
 
 model Booking {
-  id        String        @id @default(uuid())
-  userId    String
-  shopId    String
-  serviceId String
-  startTime DateTime
-  endTime   DateTime
-  status    BookingStatus @default(PENDING)
-  createdAt DateTime      @default(now())
-  staffId   String?
-  service   Service       @relation(fields: [serviceId], references: [id])
-  shop      Shop          @relation(fields: [shopId], references: [id])
-  staff     Staff?        @relation("StaffBookings", fields: [staffId], references: [id])
-  user      User          @relation("UserBookings", fields: [userId], references: [id])
+  id                 String        @id @default(uuid())
+  userId             String
+  shopId             String
+  serviceId          String
+  startTime          DateTime
+  endTime            DateTime
+  status             BookingStatus @default(PENDING)
+  staffId            String?
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @default(now()) @map("updated_at")
+  cancellationReason String?
+  cancelledAt        DateTime?
+  service            Service       @relation(fields: [serviceId], references: [id])
+  shop               Shop          @relation(fields: [shopId], references: [id])
+  staff              Staff?        @relation("StaffBookings", fields: [staffId], references: [id])
+  user               User          @relation("UserBookings", fields: [userId], references: [id])
 
   @@index([userId])
   @@index([shopId, startTime])
@@ -103,7 +113,8 @@ model Review {
   userId    String
   shopId    String?
   serviceId String?
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
   service   Service? @relation(fields: [serviceId], references: [id])
   shop      Shop?    @relation(fields: [shopId], references: [id])
   user      User     @relation("UserReviews", fields: [userId], references: [id])
@@ -114,11 +125,13 @@ model Review {
 }
 
 model FavoriteShop {
-  id     String @id @default(uuid())
-  userId String
-  shopId String
-  shop   Shop   @relation(fields: [shopId], references: [id])
-  user   User   @relation("UserFavoriteShops", fields: [userId], references: [id])
+  id        String   @id @default(uuid())
+  userId    String
+  shopId    String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+  shop      Shop     @relation(fields: [shopId], references: [id])
+  user      User     @relation("UserFavoriteShops", fields: [userId], references: [id])
 
   @@unique([userId, shopId])
   @@index([userId])
@@ -126,11 +139,13 @@ model FavoriteShop {
 }
 
 model FavoriteService {
-  id        String  @id @default(uuid())
+  id        String   @id @default(uuid())
   userId    String
   serviceId String
-  service   Service @relation(fields: [serviceId], references: [id])
-  user      User    @relation("UserFavoriteServices", fields: [userId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+  service   Service  @relation(fields: [serviceId], references: [id])
+  user      User     @relation("UserFavoriteServices", fields: [userId], references: [id])
 
   @@unique([userId, serviceId])
   @@index([userId])
@@ -144,6 +159,8 @@ model ShopSchedule {
   startTime String
   endTime   String
   type      ScheduleType @default(OPEN)
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @default(now()) @map("updated_at")
   shop      Shop         @relation(fields: [shopId], references: [id])
 
   @@index([shopId])
@@ -155,7 +172,8 @@ model ShopBlock {
   startTime DateTime
   endTime   DateTime
   reason    String?
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
   shop      Shop     @relation(fields: [shopId], references: [id])
 
   @@index([shopId])
@@ -166,7 +184,8 @@ model Staff {
   userId    String
   shopId    String
   role      StaffRole @default(STAFF)
-  createdAt DateTime  @default(now())
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @map("updated_at")
   bookings  Booking[] @relation("StaffBookings")
   shop      Shop      @relation("ShopStaffs", fields: [shopId], references: [id])
   user      User      @relation("UserStaffs", fields: [userId], references: [id])

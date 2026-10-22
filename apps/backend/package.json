@@ -4,7 +4,8 @@
   "main": "index.ts",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
     "build": "tsc",
@@ -28,7 +29,8 @@
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.5"
   },
   "dependencies": {
     "@noq/shared": "*",
@@ -44,6 +46,7 @@
     "multer": "^2.1.1",
     "mysql2": "^3.16.1",
     "serverless-http": "^4.0.0",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "zod": "^4.6.7"
   }
 }
