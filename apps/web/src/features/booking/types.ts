@@ -1,7 +1,7 @@
 import { BookingStatus } from "@noq/shared"
-import type { Booking } from "@noq/shared"
+import type { Booking, BookingItem } from "@noq/shared"
 
-export { BookingStatus, Booking };
+export { BookingStatus, Booking, BookingItem };
 
 export enum BookingTabs {
     IN_PROGRESS = "IN_PROGRESS",
@@ -11,37 +11,6 @@ export enum BookingTabs {
 
 export type ActiveBookingStatus = Extract<BookingStatus, "PENDING" | "CONFIRMED" | "IN_PROGRESS">;
 export type HistoryBookingStatus = Extract<BookingStatus, "COMPLETED" | "CANCELLED" | "NO_SHOW">;
-
-export interface BookingItem {
-    id: string;
-    status: BookingStatus;
-    startTime: string;
-    endTime: string;
-    shop: {
-        id: string;
-        name: string;
-        address: string;
-        backgroundImageUrl: string | null;
-    };
-    service: {
-        id: string;
-        name: string;
-        price: string;
-        durationMin: number;
-    };
-}
-
-export interface ActiveBookingsResponse {
-    pending: BookingItem[];
-    confirmed: BookingItem[];
-    inProgress: BookingItem[];
-}
-
-export interface HistoryBookingsResponse {
-    cancelled: BookingItem[];
-    completed: BookingItem[];
-    noShow: BookingItem[];
-}
 
 export interface InProgressBookingCardData {
     id: string;

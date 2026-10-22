@@ -1,25 +1,37 @@
+import type { Service } from "@/domain/service/entities/Service.js";
 import { BookingStatus } from "../value-objects/BookingStatus.js";
-import { Service } from "../value-objects/Service.js";
+import type { BookingId } from "../value-objects/BookingId.js";
+import type { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
+import type { CustomerId } from "@/domain/customer/value-objects/CustomerId.js";
+import type { ShopId } from "@/domain/shop/value-objects/ShopId.js";
+import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 
 export interface BookingProps {
-    id: string;
-    customerId: string;
-    shopId: string;
+    id: BookingId;
+    customerId: CustomerId;
+    serviceId: ServiceId,
+    shopId: ShopId;
     service: Service;
-    scheduledAt: Date;
+    startTime: DateTime;
     status: BookingStatus;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: DateTime;
+    updatedAt: DateTime;
     cancellationReason?: string;
-    cancelledAt?: Date;
+    cancelledAt?: DateTime;
 }
 
 export interface CreateBookingProps {
-    id: string;
-    customerId: string;
-    shopId: string;
+    id: BookingId;
+    customerId: CustomerId;
+    serviceId: ServiceId;
+    shopId: ShopId;
     service: Service;
-    scheduledAt: Date;
+    startTime: DateTime;
+    status?: BookingStatus;
+    createdAt?: DateTime;
+    updatedAt?: DateTime;
+    cancellationReason?: string;
+    cancelledAt?: DateTime;
 }
 
 export class Booking {
@@ -28,15 +40,15 @@ export class Booking {
     ) { }
 
     static create(props: CreateBookingProps): Booking {
-        if (!props.id.trim()) {
+        if (!props.id.toString().trim()) {
             throw new Error("Booking ID is required");
         }
 
-        if (!props.customerId.trim()) {
+        if (!props.customerId.toString().trim()) {
             throw new Error("Customer ID is required");
         }
 
-        if (!props.shopId.trim()) {
+        if (!props.shopId.toString().trim()) {
             throw new Error("Shop ID is required");
         }
 
@@ -44,60 +56,58 @@ export class Booking {
             throw new Error("A booking must contain at least one item");
         }
 
-        if (
-            Number.isNaN(props.scheduledAt.getTime()) ||
-            props.scheduledAt.getTime() <= Date.now()
-        ) {
-            throw new Error("Booking time must be in the future");
-        }
-
-        const now = new Date();
-
         return new Booking({
             ...props,
-            service: props.service,
-            status: BookingStatus.PENDING,
-            createdAt: now,
-            updatedAt: now,
+            status: props.status ?? BookingStatus.PENDING,
+            createdAt: props.createdAt ?? DateTime.now(),
+            updatedAt: props.updatedAt ?? DateTime.now(),
         });
     }
 
-    getId(): string {
+    getId(): BookingId {
         return this.props.id;
     }
 
-    getCustomerId(): string {
-        return this.props.customerId;
+    getShopId(): ShopId {
+        return this.props.shopId;
     }
 
-    getShopId(): string {
-        return this.props.shopId;
+    getServiceId(): ServiceId {
+        return this.props.serviceId;
+    }
+
+    getCustomerId(): CustomerId {
+        return this.props.customerId;
     }
 
     getStatus(): BookingStatus {
         return this.props.status;
     }
 
-    getScheduledAt(): Date {
-        return new Date(this.props.scheduledAt);
+    getStartTime(): DateTime {
+        return this.props.startTime;
     }
 
-    getCreatedAt(): Date {
-        return new Date(this.props.createdAt);
+    getEndTime(): DateTime {
+        return this.props.startTime.addMinutes(
+            this.props.service.getTotalDuration()
+        );
     }
 
-    getUpdatedAt(): Date {
-        return new Date(this.props.updatedAt);
+    getCreatedAt(): DateTime {
+        return this.props.createdAt;
     }
 
-    getCancelledAt(): Date | undefined {
-        return this.props.cancelledAt
-            ? new Date(this.props.cancelledAt)
-            : undefined;
+    getUpdatedAt(): DateTime {
+        return this.props.updatedAt;
     }
 
-    getCancellationReason(): string | undefined {
-        return this.props.cancellationReason;
+    getCancelledAt(): DateTime | null {
+        return this.props.cancelledAt ?? null;
+    }
+
+    getCancellationReason(): string | null {
+        return this.props.cancellationReason ?? null;
     }
 
     getService(): Service {
@@ -105,20 +115,17 @@ export class Booking {
     }
 
     getDuration(): number {
-        return this.props.service.durationMinutes;
+        return this.props.service.getDuration();
     }
 
-    reschedule(newScheduledAt: Date): void {
+    reschedule(newStartTime: DateTime): void {
         this.ensureEditable();
 
-        if (
-            Number.isNaN(newScheduledAt.getTime()) ||
-            newScheduledAt.getTime() <= Date.now()
-        ) {
+        if (newStartTime.isPast() || newStartTime.equals(DateTime.now())) {
             throw new Error("New booking time must be in the future");
         }
 
-        this.props.scheduledAt = new Date(newScheduledAt);
+        this.props.startTime = newStartTime;
         this.touch();
     }
 
@@ -145,8 +152,12 @@ export class Booking {
 
         this.transitionTo(BookingStatus.CANCELLED);
         this.props.cancellationReason = reason.trim();
-        this.props.cancelledAt = new Date();
+        this.props.cancelledAt = DateTime.now();
         this.touch();
+    }
+
+    hasCancellationReason(): boolean {
+        return !!this.props.cancellationReason?.trim();
     }
 
     isEditable(): boolean {
@@ -164,8 +175,8 @@ export class Booking {
     private transitionTo(next: BookingStatus): void {
         if (!this.props.status.canTransitionTo(next)) {
             throw new Error(
-                `Cannot transition booking from ${this.props.status.value
-                } to ${next.value}`,
+                `Cannot transition booking from ${this.props.status.getValue()
+                } to ${next.getValue()}`,
             );
         }
 
@@ -182,6 +193,6 @@ export class Booking {
     }
 
     private touch(): void {
-        this.props.updatedAt = new Date();
+        this.props.updatedAt = DateTime.now();
     }
 }

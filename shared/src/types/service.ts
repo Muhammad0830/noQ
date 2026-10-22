@@ -14,3 +14,10 @@ export interface Service {
     assignedStaffId?: string | null;
     assignedStaff?: Staff | null;
 }
+
+export type ServiceInBookingData = Pick<Service,
+    'id' |
+    'name' |
+    'price' |
+    'durationMin'
+>

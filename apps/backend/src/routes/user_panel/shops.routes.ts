@@ -5,7 +5,7 @@ import { getPaginationParams } from "@/utils/pagination.js";
 import { upload } from "@/http/middlewares/upload.js";
 import { supabaseServer } from "@/services/supabaseServer.js";
 import { uploadImage } from "@/utils/handleImage.js";
-import { addMinutes, getOneDayAfter, timeToMinutes } from "@noq/shared/dist/index.js";
+import { addMinutes, getOneDayAfter, timeToMinutes } from "@noq/shared";
 
 const shopRouter = Router();
 

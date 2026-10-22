@@ -4,6 +4,7 @@ import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { AxiosRequestConfig } from "axios";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { ApiResponse } from "@noq/shared"
 
 type UrlType<TVariables> = string | ((variables: TVariables) => string);
 
@@ -11,14 +12,14 @@ type RequestConfigType<TVariables> =
   | AxiosRequestConfig<TVariables>
   | ((variables: TVariables) => AxiosRequestConfig<TVariables>);
 
-export function useApiMutation<TResponse = unknown, TVariables = unknown>(
+export function useApiMutation<TData, TVariables = unknown>(
   url: UrlType<TVariables>,
   method: "post" | "put" | "delete" = "post",
   requestConfig?: RequestConfigType<TVariables>,
-): UseMutationResult<TResponse, Error, TVariables> {
+): UseMutationResult<ApiResponse<TData>, Error, TVariables> {
   const t = useTranslations();
 
-  return useMutation<TResponse, Error, TVariables>({
+  return useMutation<ApiResponse<TData>, Error, TVariables>({
     mutationFn: async (data: TVariables) => {
       const finalUrl = typeof url === "function" ? url(data) : url;
       const finalConfig =
@@ -28,8 +29,8 @@ export function useApiMutation<TResponse = unknown, TVariables = unknown>(
 
       const promise =
         method === "delete"
-          ? api.delete<TResponse>(finalUrl, finalConfig)
-          : api[method]<TResponse>(finalUrl, data, finalConfig);
+          ? api.delete<ApiResponse<TData>>(finalUrl, finalConfig)
+          : api[method]<ApiResponse<TData>>(finalUrl, data, finalConfig);
 
       toast.promise(promise, {
         loading: t("common.loading"),

@@ -3,9 +3,11 @@ import { Header } from "@/shared/components";
 export default function Layout({ children }: {
     children: React.ReactNode
 }) {
-    return <>
-        <Header />
+    return (
+        <div className="flex-1 flex flex-col">
+            <Header />
 
-        <div>{children}</div>
-    </>
+            <div className="flex-1 flex flex-col">{children}</div>
+        </div>
+    )
 }

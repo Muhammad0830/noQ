@@ -1,24 +1,18 @@
-export type BookingStatusValue =
-    | "PENDING"
-    | "CONFIRMED"
-    | "IN_PROGRESS"
-    | "COMPLETED"
-    | "CANCELLED"
-    | "NO_SHOW";
+import { BookingStatus as BookingStatusEnum } from "@noq/shared";
 
 export class BookingStatus {
     private constructor(
-        public readonly value: BookingStatusValue
+        private readonly value: BookingStatusEnum
     ) { }
 
-    static readonly PENDING = new BookingStatus('PENDING');
-    static readonly CONFIRMED = new BookingStatus('CONFIRMED');
-    static readonly IN_PROGRESS = new BookingStatus('IN_PROGRESS');
-    static readonly COMPLETED = new BookingStatus('COMPLETED');
-    static readonly CANCELLED = new BookingStatus('CANCELLED');
-    static readonly NO_SHOW = new BookingStatus('NO_SHOW');
+    static readonly PENDING = new BookingStatus(BookingStatusEnum.PENDING);
+    static readonly CONFIRMED = new BookingStatus(BookingStatusEnum.CONFIRMED);
+    static readonly IN_PROGRESS = new BookingStatus(BookingStatusEnum.IN_PROGRESS);
+    static readonly COMPLETED = new BookingStatus(BookingStatusEnum.COMPLETED);
+    static readonly CANCELLED = new BookingStatus(BookingStatusEnum.CANCELLED);
+    static readonly NO_SHOW = new BookingStatus(BookingStatusEnum.NO_SHOW);
 
-    static from(value: BookingStatusValue): BookingStatus {
+    static from(value: BookingStatusEnum | string): BookingStatus {
         switch (value) {
             case 'PENDING': return BookingStatus.PENDING;
             case 'CONFIRMED': return BookingStatus.CONFIRMED;
@@ -27,16 +21,28 @@ export class BookingStatus {
             case 'CANCELLED': return BookingStatus.CANCELLED;
             case 'NO_SHOW': return BookingStatus.NO_SHOW;
         }
+        throw new Error("Invalid Booking Status");
+    }
+
+    getValue(): BookingStatusEnum {
+        return this.value;
     }
 
     canTransitionTo(next: BookingStatus): boolean {
         const transitions: Record<
-            BookingStatusValue,
-            BookingStatusValue[]
+            BookingStatusEnum,
+            BookingStatusEnum[]
         > = {
-            PENDING: ['CONFIRMED', 'CANCELLED'],
-            CONFIRMED: ['IN_PROGRESS', 'CANCELLED', 'NO_SHOW'],
-            IN_PROGRESS: ['COMPLETED'],
+            PENDING: [
+                BookingStatusEnum.CONFIRMED,
+                BookingStatusEnum.CANCELLED
+            ],
+            CONFIRMED: [
+                BookingStatusEnum.IN_PROGRESS,
+                BookingStatusEnum.CANCELLED,
+                BookingStatusEnum.NO_SHOW
+            ],
+            IN_PROGRESS: [BookingStatusEnum.COMPLETED],
             COMPLETED: [],
             CANCELLED: [],
             NO_SHOW: [],

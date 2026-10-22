@@ -1,4 +1,4 @@
-import { dayByName, dayMeta } from "./utils";
+import { dayMeta } from "./utils";
 
 export interface ScheduleSlot {
     startTime: string;
