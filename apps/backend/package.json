@@ -8,7 +8,7 @@
     "test:watch": "vitest",
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
-    "build": "tsc",
+    "build": "tsc && tsc-alias -p tsconfig.json",
     "postinstall": "prisma generate",
     "seed": "tsx prisma/seed.ts"
   },
@@ -28,6 +28,7 @@
     "prisma": "6.19.3",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
+    "tsc-alias": "^1.9.9",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^5.0.5"
