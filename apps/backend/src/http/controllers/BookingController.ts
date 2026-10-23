@@ -87,7 +87,6 @@ export class BookingController {
     availableSlots: RequestHandler = async (req, res, next) => {
         try {
             const query = res.locals.validatedQuery as GetAvailableSlotsUseCaseInput;
-            console.log('query', query)
 
             const availableSlots = await this.getAvailableSlotsUseCase.execute(query);
 

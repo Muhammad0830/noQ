@@ -94,3 +94,12 @@ app.use(
 );
 
 export default app;
+
+// {
+//   "rewrites": [
+//     {
+//       "source": "/(.*)",
+//       "destination": "/api"
+//     }
+//   ]
+// }
