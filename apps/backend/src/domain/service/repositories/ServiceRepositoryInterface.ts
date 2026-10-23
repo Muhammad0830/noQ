@@ -4,7 +4,7 @@ import type { ServiceId } from "../value-objects/ServiceId.js";
 export interface ServiceRepositoryInterface {
     save(service: Service): Promise<void>;
 
-    findById(id: ServiceId): Promise<Service | null>;
+    findById(id: ServiceId): Promise<Service>;
 
     nextIdentity(): ServiceId;
 }

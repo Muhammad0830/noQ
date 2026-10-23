@@ -5,6 +5,6 @@ export class TimeSlotAvailabilityService {
         requested: TimeSlot,
         existingList: TimeSlot[],
     ) {
-        return !existingList.some(existing => requested.overlaps(existing));
+        return !existingList.some(existing => existing.overlaps(requested));
     }
 }

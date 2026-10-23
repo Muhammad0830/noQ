@@ -10,7 +10,7 @@ import type { ServiceRepositoryInterface } from
 import type { CustomerRepositoryInterface } from
     "@/domain/customer/repositories/CustomerRepositoryInterface.js";
 import type { BookingAvailabilityCheckerQueryInterface } from
-    "@/domain/booking/repositories/BookingAvailabilityCheckerQueryInterface.js";
+    "@/application/booking/read-queries/BookingAvailabilityCheckerQueryInterface.js";
 import { Booking } from "@/domain/booking/entities/Booking.js";
 import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
 import { CustomerId } from "@/domain/customer/value-objects/CustomerId.js";
@@ -19,6 +19,7 @@ import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 import { DayOfWeek } from "@/domain/shop-schedule/value-objects/DayOfWeek.js";
 import { createDateTime } from "@noq/shared";
 import type { ScheduleValidator } from "../validators/ScheduleValidator.js";
+import type { ShopScheduleRepositoryInterface } from "@/domain/shop-schedule/repositories/ShopScheduleRepositoryInterface.js";
 
 export class CreateBookingUseCase implements CreateBookingUseCaseInterface {
     public constructor(
@@ -26,6 +27,7 @@ export class CreateBookingUseCase implements CreateBookingUseCaseInterface {
         private readonly serviceRepository: ServiceRepositoryInterface,
         private readonly customerRepository: CustomerRepositoryInterface,
         private readonly availabilityCheckerQuery: BookingAvailabilityCheckerQueryInterface,
+        private readonly scheduleRepository: ShopScheduleRepositoryInterface,
         private readonly scheduleValidator: ScheduleValidator,
     ) { }
 
@@ -38,19 +40,11 @@ export class CreateBookingUseCase implements CreateBookingUseCaseInterface {
 
         const service = await this.serviceRepository.findById(serviceId);
 
-        if (!service) {
-            throw new Error("Service not found");
-        }
-
         if (!shopId.equals(service.getShopId())) {
             throw new Error("Selected service does not belong to selected Shop");
         }
 
-        const customer = await this.customerRepository.findById(customerId);
-
-        if (!customer) {
-            throw new Error("Customer not found");
-        }
+        await this.customerRepository.findById(customerId);
 
         const startTime = DateTime.from(
             createDateTime(input.date, input.startTime)
@@ -66,11 +60,13 @@ export class CreateBookingUseCase implements CreateBookingUseCaseInterface {
             service: service,
         });
 
+        const schedules = await this.scheduleRepository
+            .getByShopId(shopId, DayOfWeek.fromDate(startTime));
+
         await this.scheduleValidator.validate({
+            schedules: schedules,
             startTime: input.startTime,
             endTime: booking.getEndTime().toTimeString(),
-            dayOfWeek: DayOfWeek.fromDate(startTime),
-            shopId,
         })
 
         const hasConflictWithBookingTime = await this.availabilityCheckerQuery.hasConflict({

@@ -1,7 +1,7 @@
 import type {
     GetBookedSlotListByDateQueryInput,
     GetBookedSlotListByDateQueryInterface
-} from "@/domain/booking/repositories/GetBookedSlotListByDateQueryInterface.js";
+} from "@/application/booking/read-queries/GetBookedSlotListByDateQueryInterface.js";
 import type { PrismaClient } from "@prisma/client";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 import { TimeSlot } from "@/domain/shared/value-objects/TimeSlot.js";

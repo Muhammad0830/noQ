@@ -1,6 +1,7 @@
 import type {
     GetAvailableSlotsUseCaseInput,
     GetAvailableSlotsUseCaseInterface,
+    GetSlotListInput,
     GetSlotStatusInput,
     VisibleSlots,
 } from "../interfaces/GetAvailableSlotsUseCaseInterface.js";
@@ -12,11 +13,11 @@ import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
 import { ShopScheduleType } from "@/domain/shop-schedule/value-objects/ShopScheduleType.js";
 import type { ServiceRepositoryInterface } from "@/domain/service/repositories/ServiceRepositoryInterface.js";
-import type { GetBookedSlotListByDateQueryInterface } from "@/domain/booking/repositories/GetBookedSlotListByDateQueryInterface.js";
-import type { GetBlockSlotListQueryInterface } from "@/domain/shop-blocks/repositories/GetBlockSlotListQueryInterface.js";
+import type { GetBlockSlotListQueryInterface } from "@/application/booking/read-queries/GetBlockSlotListQueryInterface.js";
+import type { GetBookedSlotListByDateQueryInterface } from "@/application/booking/read-queries/GetBookedSlotListByDateQueryInterface.js";
 import { createDateTime, minutesToTimeString, SlotStatus, timeToMinutes } from "@noq/shared";
 import { TimeSlot } from "@/domain/shared/value-objects/TimeSlot.js";
-import { TimeSlotAvailabilityService } from "@/domain/shop-schedule/services/TimeSlotAvailabilityService.js";
+import type { SlotAvailabilityValidator } from "../validators/SlotAvailabilityValidator.js";
 
 export class GetAvailableSlotsUseCase implements GetAvailableSlotsUseCaseInterface {
     constructor(
@@ -24,9 +25,8 @@ export class GetAvailableSlotsUseCase implements GetAvailableSlotsUseCaseInterfa
         private readonly scheduleRepository: ShopScheduleRepositoryInterface,
         private readonly serviceRepository: ServiceRepositoryInterface,
         private readonly getBlockSlotListQuery: GetBlockSlotListQueryInterface,
+        private readonly slotAvailabilityValidator: SlotAvailabilityValidator,
     ) { }
-
-    private readonly timeSlotAvailabilityService = new TimeSlotAvailabilityService();
 
     async execute(input: GetAvailableSlotsUseCaseInput): Promise<VisibleSlots[]> {
         const shopId = ShopId.create(input.shopId);
@@ -42,9 +42,6 @@ export class GetAvailableSlotsUseCase implements GetAvailableSlotsUseCaseInterfa
         const openSchedules = schedules.filter(schedule =>
             schedule.getType().equals(ShopScheduleType.OPEN)
         );
-        const blockSchedules = schedules.filter(schedule =>
-            schedule.getType().equals(ShopScheduleType.BLOCK)
-        );
 
         if (openSchedules.length === 0) {
             throw new Error("Open Scheduled not found");
@@ -52,33 +49,46 @@ export class GetAvailableSlotsUseCase implements GetAvailableSlotsUseCaseInterfa
 
         const service = await this.serviceRepository.findById(serviceId);
 
-        if (!service) {
-            throw new Error("Service not found");
-        }
-
         if (!service.isActive()) {
             throw new Error("Service is inactive");
         }
 
-        const dayTimeEnd = selectedDate.addDays(1);
-
         const bookedSlots = await this.getBookedTimesQuery.execute({
             shopId: shopId,
             startTime: selectedDate,
-            endTime: dayTimeEnd,
+            endTime: selectedDate.addDays(1),
         })
 
         const emergencyBlockSlots = await this.getBlockSlotListQuery.execute({
             shopId: shopId,
             startTime: selectedDate,
-            endTime: dayTimeEnd,
+            endTime: selectedDate.addDays(1),
         })
 
+        return this.generateSlots({
+            shopId: shopId,
+            service: service,
+            schedules: schedules,
+            emergencyBlockSlots: emergencyBlockSlots,
+            bookedSlots: bookedSlots,
+            selectedDate: selectedDate,
+        });
+    }
+
+    private generateSlots(input: GetSlotListInput): VisibleSlots[] {
+        const openSchedules = input.schedules.filter(schedule =>
+            schedule.getType().equals(ShopScheduleType.OPEN)
+        );
+
+        const blockSchedules = input.schedules.filter(schedule =>
+            schedule.getType().equals(ShopScheduleType.BLOCK)
+        );
+
+        const selectedDateString = input.selectedDate.toDateString();
+
         const regularBlockSlots = blockSchedules.map(schedule => TimeSlot.create({
-            start: DateTime.from(createDateTime(
-                selectedDate.toDateString(), schedule.getStartTime())),
-            end: DateTime.from(createDateTime(
-                selectedDate.toDateString(), schedule.getEndTime())),
+            start: DateTime.from(createDateTime(selectedDateString, schedule.getStartTime())),
+            end: DateTime.from(createDateTime(selectedDateString, schedule.getEndTime())),
         }));
 
         const slots: VisibleSlots[] = [];
@@ -87,62 +97,31 @@ export class GetAvailableSlotsUseCase implements GetAvailableSlotsUseCaseInterfa
             let cursor = timeToMinutes(schedule.getStartTime());
             const close = timeToMinutes(schedule.getEndTime());
 
-            while (cursor + service.getTotalDuration() <= close) {
+            while (cursor + input.service.getTotalDuration() <= close) {
                 const startTime = minutesToTimeString(cursor);
-                const endTime = minutesToTimeString(cursor + service.getTotalDuration());
+                const endTime = minutesToTimeString(cursor + input.service.getTotalDuration());
 
-                console.log("working");
-                const slotStatus = this.getSlotStatus({
-                    regularBlockSlots,
-                    emergencyBlockSlots,
-                    bookedSlots,
-                    startTime,
-                    endTime,
-                    selectedDate
+                const slotStatus = this.slotAvailabilityValidator.validate({
+                    regularBlockSlots: regularBlockSlots,
+                    emergencyBlockSlots: input.emergencyBlockSlots,
+                    bookedSlots: input.bookedSlots,
+                    startTime: startTime,
+                    endTime: endTime,
+                    selectedDate: input.selectedDate,
                 })
 
                 slots.push({
-                    id: `${shopId}-${selectedDate}-${startTime} `,
+                    id: `${input.shopId}-${input.selectedDate}-${startTime} `,
                     time: startTime,
-                    duration: service.getDuration(),
-                    bufferTime: service.getBufferTime() ?? 0,
+                    duration: input.service.getDuration(),
+                    bufferTime: input.service.getBufferTime() ?? 0,
                     status: slotStatus,
                 });
 
-                cursor += service.getTotalDuration();
+                cursor += input.service.getTotalDuration();
             }
-        })
-
-        return slots;
-    }
-
-    private getSlotStatus(input: GetSlotStatusInput): SlotStatus {
-        const slotStart = createDateTime(input.selectedDate.toDateString(), input.startTime);
-        const slotEnd = createDateTime(input.selectedDate.toDateString(), input.endTime);
-
-        const timeSlot = TimeSlot.create({
-            start: DateTime.from(slotStart),
-            end: DateTime.from(slotEnd)
         });
 
-        const isRegularBlockConflict = input.regularBlockSlots.some(busySlot => busySlot.overlaps(timeSlot));
-
-        if (isRegularBlockConflict) {
-            return SlotStatus.BREAK;
-        }
-
-        const isEmergencyBlockConflict = input.emergencyBlockSlots.some(busySlot => busySlot.overlaps(timeSlot));
-
-        if (isEmergencyBlockConflict) {
-            return SlotStatus.EMERGENCY;
-        }
-
-        const isBookedConflict = input.bookedSlots.some(busySlot => busySlot.overlaps(timeSlot));
-
-        if (isBookedConflict) {
-            return SlotStatus.BOOKED;
-        }
-
-        return SlotStatus.AVAILABLE;
+        return slots;
     }
 }

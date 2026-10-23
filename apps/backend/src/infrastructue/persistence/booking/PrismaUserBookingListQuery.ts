@@ -1,8 +1,10 @@
-import type { BookingListView, UserBookingListDTO } from "@/application/booking/dtos/UserBookingListDTO.js";
-import type { UserBookingListQueryInterface } from "@/application/booking/read-queries/UserBookingListQueryInterface.js";
 import { BookingStatus } from "@/domain/booking/value-objects/BookingStatus.js";
-import type { CustomerId } from "@/domain/customer/value-objects/CustomerId.js";
 import { BookingStatus as BookingStatusEnum } from "@noq/shared";
+import type { BookingListView, UserBookingListDTO } from
+    "@/application/booking/dtos/UserBookingListDTO.js";
+import type { UserBookingListQueryInterface } from
+    "@/application/booking/read-queries/UserBookingListQueryInterface.js";
+import type { CustomerId } from "@/domain/customer/value-objects/CustomerId.js";
 import type { PrismaClient } from "@prisma/client";
 
 export class PrismaUserBookingListQuery implements UserBookingListQueryInterface {

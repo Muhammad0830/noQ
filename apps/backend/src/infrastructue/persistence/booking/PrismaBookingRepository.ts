@@ -45,6 +45,8 @@ export class PrismaBookingRepository implements BookingRepositoryInterface {
     }
 
     async save(booking: Booking): Promise<void> {
+        const cancelledAt = booking.getCancelledAt();
+
         await this.prisma.booking.update({
             where: {
                 id: booking.getId().toString(),
@@ -55,7 +57,7 @@ export class PrismaBookingRepository implements BookingRepositoryInterface {
                 endTime: booking.getEndTime().getValue(),
                 updatedAt: booking.getUpdatedAt().getValue(),
                 cancellationReason: booking.getCancellationReason(),
-                cancelledAt: booking.getCancelledAt(),
+                ...(cancelledAt && { cancelledAt: cancelledAt.getValue() }),
             },
         })
     }
@@ -65,25 +67,15 @@ export class PrismaBookingRepository implements BookingRepositoryInterface {
         statusList: BookingStatus[],
         futureOnly: boolean,
     ): Promise<Booking[]> {
-        const now = new Date();
-
         const statusValusList = statusList.map(status => status.getValue());
 
         const bookingList = await this.prisma.booking.findMany({
             where: {
                 userId: customerId.toString(),
-                status: {
-                    in: statusValusList,
-                },
-                ...(futureOnly && {
-                    startTime: {
-                        gt: now,
-                    }
-                })
+                status: { in: statusValusList },
+                ...(futureOnly && { startTime: { gt: DateTime.now().getValue(), } })
             },
-            include: {
-                service: true,
-            },
+            include: { service: true },
         })
 
         return bookingList.map(booking => this.toEntity(booking));

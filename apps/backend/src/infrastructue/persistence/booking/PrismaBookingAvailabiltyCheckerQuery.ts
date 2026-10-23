@@ -1,4 +1,4 @@
-import type { BookingAvailabilityCheckerInput, BookingAvailabilityCheckerQueryInterface } from "@/domain/booking/repositories/BookingAvailabilityCheckerQueryInterface.js";
+import type { BookingAvailabilityCheckerInput, BookingAvailabilityCheckerQueryInterface } from "@/application/booking/read-queries/BookingAvailabilityCheckerQueryInterface.js";
 import type { PrismaClient } from "@prisma/client";
 
 export class PrismaBookingAvailabilityCheckerQuery implements BookingAvailabilityCheckerQueryInterface {

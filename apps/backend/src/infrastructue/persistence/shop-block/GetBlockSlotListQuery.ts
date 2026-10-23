@@ -1,5 +1,5 @@
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
-import type { GetBlockSlotListQueryInput, GetBlockSlotListQueryInterface } from "@/domain/shop-blocks/repositories/GetBlockSlotListQueryInterface.js";
+import type { GetBlockSlotListQueryInput, GetBlockSlotListQueryInterface } from "@/application/booking/read-queries/GetBlockSlotListQueryInterface.js";
 import { TimeSlot } from "@/domain/shared/value-objects/TimeSlot.js";
 import type { PrismaClient } from "@prisma/client";
 

@@ -5,7 +5,6 @@ import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 import { Money } from "@/domain/shared/value-objects/Money.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 import type { PrismaClient, Service as ServiceModel } from "@prisma/client";
-import { v4 as uuidv4 } from "uuid";
 
 export class PrismaServiceRepository implements ServiceRepositoryInterface {
     constructor(
@@ -27,7 +26,7 @@ export class PrismaServiceRepository implements ServiceRepositoryInterface {
         })
     }
 
-    async findById(id: ServiceId): Promise<Service | null> {
+    async findById(id: ServiceId): Promise<Service> {
         const serviceModel = await this.prisma.service.findUnique({
             where: {
                 id: id.toString(),
@@ -42,7 +41,7 @@ export class PrismaServiceRepository implements ServiceRepositoryInterface {
     }
 
     nextIdentity(value?: string): ServiceId {
-        return ServiceId.create(value ?? uuidv4())
+        return ServiceId.create(value)
     }
 
     private toEntity(service: ServiceModel): Service {
