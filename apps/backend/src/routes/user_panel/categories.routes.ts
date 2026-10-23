@@ -2,19 +2,10 @@ import { Router } from "express";
 import prisma from "@/db/prisma.js";
 import { authMiddleware } from "@/http/middlewares/auth.middleware.js";
 import { adminOnly } from "@/http/middlewares/admin.middleware.js";
+import { shopCategoryController } from "@/composition/shop-category.js";
 const categoryRouter = Router();
 
-categoryRouter.get("/", async (req, res) => {
-  const categories = await prisma.shopCategory.findMany({
-    include: {
-      _count: {
-        select: { shops: true },
-      },
-    },
-  });
-
-  res.status(200).json(categories);
-});
+categoryRouter.get("/", shopCategoryController.all)
 
 categoryRouter.post(
   "/",
