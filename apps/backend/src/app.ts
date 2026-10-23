@@ -8,9 +8,14 @@ import { authMiddleware } from "@/http/middlewares/auth.middleware.js";
 
 const app = express();
 
+const allowedOrigins = [
+  "https://no-q-bay.vercel.app",
+  "http://localhost:3000"
+];
+
 app.use(
   cors({
-    origin: true,
+    origin: allowedOrigins,
     credentials: true,
   }),
 );
