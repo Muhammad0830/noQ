@@ -143,11 +143,10 @@ export const API_ENDPOINTS = {
   // Bookings
   bookings: `${API_BASE_URL}/bookings`,
   bookingsAvailableSlots: `${API_BASE_URL}/bookings/available-slots`,
-  activeBookings: `${API_BASE_URL}/bookings/active`,
-  bookingHistory: `${API_BASE_URL}/bookings/history`,
   bookingsByUser: {
-    active: `${API_BASE_URL}/bookings/users/active`,
-    history: `${API_BASE_URL}/bookings/users/history`,
+    active: `${API_BASE_URL}/bookings/users?view=ongoing`,
+    completed: `${API_BASE_URL}/bookings/users?view=completed`,
+    cancelled: `${API_BASE_URL}/bookings/users?view=cancelled`,
   },
   bookingCancel: (bookingId: string) =>
     `${API_BASE_URL}/bookings/${bookingId}/cancel`,

@@ -1,6 +1,6 @@
 import type { User } from "@/types/user.js"
-import type { Shop } from "@/types/shop.js";
-import type { Service } from "@/types/service.js";
+import type { Shop, ShopInBookingData } from "@/types/shop.js";
+import type { Service, ServiceInBookingData } from "@/types/service.js";
 
 export enum BookingStatus {
   PENDING = 'PENDING',
@@ -16,11 +16,22 @@ export interface Booking {
   userId: string;
   shopId: string;
   serviceId: string;
-  startTime: string;
-  endTime: string;
+  startTime: Date;
+  endTime: Date;
   status: BookingStatus;
-  createdAt: string;
+  createdAt: Date;
   user?: User;
   shop?: Shop;
   service?: Service;
+}
+
+export interface BookingItem extends Omit<Booking, 'service' | 'shop' | 'user'> {
+  service: ServiceInBookingData,
+  shop: ShopInBookingData,
+}
+
+export interface CancelBookingRequestBody {
+  id: string;
+  userId: string;
+  reason?: string;
 }

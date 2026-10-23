@@ -79,7 +79,8 @@ export default function BookingPage({
       shopId,
       serviceId: selectedService.id,
       staffId: shop?.staffs[0].user?.id || undefined,
-      startTime: `${selectedDate.date}T${selectedDate.time}:00`,
+      date: selectedDate.date,
+      startTime: selectedDate.time,
     });
 
     if (response.message === 'success') {

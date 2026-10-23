@@ -9,10 +9,9 @@ import HistoryPanel from "@/features/booking/components/HistoryPanel";
 import InProgressPanel from "@/features/booking/components/InProgressPanel";
 import { buildHistoryCard, buildInProgressCard } from "@/features/booking/utils";
 import {
-  ActiveBookingsResponse,
+  BookingItem,
   BookingStatus,
   BookingTabs as BookingTabsType,
-  HistoryBookingsResponse,
 } from "@/features/booking/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
@@ -20,9 +19,10 @@ import { cn } from "@/lib/utils";
 import BookingCancelConfirmDialog from "@/features/booking/components/BookingCancelConfirmDialog";
 import BookingPanelTitle from "@/features/booking/components/BookingPanelTitle";
 import { STATUS_ICONS, STATUS_LABELS } from "@/features/booking/components/booking-status";
+import { CancelBookingRequestBody } from "@noq/shared";
 
 export default function MyBookings() {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading, user } = useAuth()
   const router = useRouter()
 
   const [selectedTab, setSelectedTab] = useState<BookingTabsType>(BookingTabsType.IN_PROGRESS);
@@ -36,47 +36,52 @@ export default function MyBookings() {
   }, [isAuthenticated, isLoading, router])
 
   const {
-    data: activeBookingsData = { pending: [], confirmed: [], inProgress: [] },
+    data: activeBookingsData = [],
     isLoading: isActiveLoading,
     isError: isActiveError,
     error: activeError,
-  } = useApiQuery<ActiveBookingsResponse>(API_ENDPOINTS.bookingsByUser.active, {
+    refetch: refetchActive
+  } = useApiQuery<BookingItem[]>(API_ENDPOINTS.bookingsByUser.active, {
     key: ["bookings", "users", "active"],
     staleTime: 1 * 60 * 1000 // 1 minute,
   });
 
   const {
-    data: historyBookingsData = { completed: [], cancelled: [] },
-    isLoading: isHistoryLoading,
-    isError: isHistoryError,
-    error: historyError,
-    refetch: refetchHistory,
-  } = useApiQuery<HistoryBookingsResponse>(
-    API_ENDPOINTS.bookingsByUser.history,
-    {
-      key: ["bookings", "history"],
-      enabled: selectedTab !== BookingTabsType.IN_PROGRESS,
-      staleTime: 1 * 60 * 1000 // 1 minute,
-    },
+    data: completedData = [],
+    isLoading: isCompletedLoading,
+    isError: isCompletedError,
+    error: completedError,
+  } = useApiQuery<BookingItem[]>(
+    API_ENDPOINTS.bookingsByUser.completed,
+    { key: ["bookings", "completed"], staleTime: 1 * 60 * 1000 }, // 1 minute
+  );
+
+  const {
+    data: cancelledData = [],
+    isLoading: isCancelledLoading,
+    isError: isCancelledError,
+    error: cancelledError,
+    refetch: refetchCancelled,
+  } = useApiQuery<BookingItem[]>(
+    API_ENDPOINTS.bookingsByUser.cancelled,
+    { key: ["bookings", "cancelled"], staleTime: 1 * 60 * 1000 }, // 1 minute
   );
 
   const { mutateAsync: cancelBooking, isPending: isCancellingBooking } =
-    useApiMutation<unknown, { bookingId: string }>(
-      ({ bookingId }) => API_ENDPOINTS.bookingCancel(bookingId),
-      "put",
+    useApiMutation<null, CancelBookingRequestBody>(
+      (body) => API_ENDPOINTS.bookingCancel(body.id), "put"
     );
 
   const handleCancelBooking = async () => {
-    if (!selectedBookingId) {
+    if (!selectedBookingId || !user) {
       return;
     }
 
     try {
-      await cancelBooking({ bookingId: selectedBookingId });
-    } catch (cancelError) {
-      console.error("Cancel booking failed", cancelError);
+      await cancelBooking({ id: selectedBookingId, userId: user.id });
     } finally {
-      await refetchHistory()
+      await refetchCancelled();
+      await refetchActive();
     }
   };
 
@@ -85,23 +90,19 @@ export default function MyBookings() {
     setIsOpen(true);
   }
 
-  const activeBookings = [
-    ...activeBookingsData.pending,
-    ...activeBookingsData.confirmed,
-    ...activeBookingsData.inProgress,
-  ].sort(
+  const activeBookings = activeBookingsData.sort(
     (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
   ).map((b) => buildInProgressCard(b));
 
-  const completedHistory = historyBookingsData.completed.map((item) =>
+  const completedHistory = completedData.map((item) =>
     buildHistoryCard(item),
   );
-  const cancelledHistory = historyBookingsData.cancelled.map((item) =>
+  const cancelledHistory = cancelledData.map((item) =>
     buildHistoryCard(item),
   );
 
   return (
-    <div className="min-h-screen bg-[#eef3f8] px-4 py-5 text-slate-900 sm:px-6 lg:px-8">
+    <div className="flex-1 bg-[#eef3f8] px-4 py-5 text-slate-900 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-7xl">
         <BookingTabs tabsKey={selectedTab} onChange={setSelectedTab} />
 
@@ -139,11 +140,15 @@ export default function MyBookings() {
 
               <div className="space-y-4">
                 <HistoryPanel
-                  isLoading={isHistoryLoading}
-                  isError={isHistoryError}
-                  errorMessage={historyError?.response?.data?.message || historyError?.message}
+                  isLoading={isCancelledLoading || isCompletedLoading}
+                  isCancelledError={isCancelledError}
+                  isCompletedError={isCompletedError}
+                  cancelledDataErrorMessage={cancelledError?.response?.data?.message}
+                  completedDataErrorMessage={completedError?.response?.data?.message}
                   bookings={selectedTab === BookingTabsType.COMPLETED
-                    ? completedHistory : cancelledHistory} />
+                    ? completedHistory : cancelledHistory}
+                  selectedTab={selectedTab}
+                />
               </div>
             </>
           }

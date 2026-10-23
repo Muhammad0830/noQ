@@ -7,6 +7,17 @@ export {
 
 export { getUtcDayRange } from "./range.js"
 
-export { getOneDayAfter } from "./date.js"
+export {
+    getOneDayAfter,
+    addDays,
+    createDateTime,
+    formatToDateString
+} from "./date.js"
 
-export { addMinutes, timeToMinutes } from "./time.js"
+export {
+    addMinutes,
+    timeToMinutes,
+    isTimeBetween,
+    formatToTimeString,
+    minutesToTimeString,
+} from "./time.js"

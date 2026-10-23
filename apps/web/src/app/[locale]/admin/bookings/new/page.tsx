@@ -852,7 +852,7 @@ export default function AdminNewBookingPage() {
                         const canSelect = !isBooked;
                         const endTime = addMinutes(
                           slot.time,
-                          slot.duration || selectedDuration,
+                          ((slot.duration || selectedDuration) + slot.bufferTime),
                         );
                         const status = isSelected
                           ? "selected"

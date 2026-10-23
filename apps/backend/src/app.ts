@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { userRoutes, adminRoutes, generalRoutes } from "./routes/index.js";
-import { shopValidateMiddleware } from "@/http/middlewares/shopValidate.middleware.js";
+import { validateShop } from "@/http/middlewares/validate.middleware.js";
 import { adminOnly } from "@/http/middlewares/admin.middleware.js";
 import { authMiddleware } from "@/http/middlewares/auth.middleware.js";
 
@@ -34,56 +34,56 @@ app.get("/test", (req, res) => {
 app.use(
   "/admin/dashboard",
   authMiddleware,
-  shopValidateMiddleware,
+  validateShop,
   adminOnly,
   adminRoutes.dashboardRouter,
 );
 app.use(
   "/admin/analytics",
   authMiddleware,
-  shopValidateMiddleware,
+  validateShop,
   adminOnly,
   adminRoutes.analyticsRouter,
 );
 app.use(
   "/admin/history",
   authMiddleware,
-  shopValidateMiddleware,
+  validateShop,
   adminOnly,
   adminRoutes.historyRouter,
 );
 app.use(
   "/admin/services",
   authMiddleware,
-  shopValidateMiddleware,
+  validateShop,
   adminOnly,
   adminRoutes.adminServicePanel,
 );
 app.use(
   "/admin/staffs",
   authMiddleware,
-  shopValidateMiddleware,
+  validateShop,
   adminOnly,
   adminRoutes.staffRouter,
 );
 app.use(
   "/admin/schedule",
   authMiddleware,
-  shopValidateMiddleware,
+  validateShop,
   adminOnly,
   adminRoutes.scheduleRouter,
 );
 app.use(
   "/admin/bookings",
   authMiddleware,
-  shopValidateMiddleware,
+  validateShop,
   adminOnly,
   adminRoutes.bookingAdminRouter,
 );
 app.use(
   "/admin/shops",
   authMiddleware,
-  shopValidateMiddleware,
+  validateShop,
   adminOnly,
   adminRoutes.adminShopRouter,
 );

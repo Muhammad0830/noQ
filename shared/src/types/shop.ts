@@ -26,3 +26,10 @@ export interface Shop {
     services: string[];
     staff: Staff[];
 }
+
+export type ShopInBookingData = Pick<Shop,
+    'id' |
+    'name' |
+    'address' |
+    'backgroundImageUrl'
+>

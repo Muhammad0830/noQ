@@ -2,7 +2,7 @@ import { Router } from "express";
 import prisma from "@/db/prisma.js";
 import { authMiddleware } from "@/http/middlewares/auth.middleware.js";
 import { adminOnly } from "@/http/middlewares/admin.middleware.js";
-import { shopValidateMiddleware } from "@/http/middlewares/shopValidate.middleware.js";
+import { validateShop } from "@/http/middlewares/validate.middleware.js";
 import { schedulePostValidate } from "@/routes/validateFunctions/bookingScheduleValidate.js";
 
 const scheduleRouter = Router();
@@ -11,7 +11,7 @@ scheduleRouter.get(
   "/",
   authMiddleware,
   adminOnly,
-  shopValidateMiddleware,
+  validateShop,
   async (req: any, res) => {
     try {
       const { date } = req.query as { date?: string };
@@ -141,7 +141,7 @@ scheduleRouter.post(
   "/",
   authMiddleware,
   adminOnly,
-  shopValidateMiddleware,
+  validateShop,
   async (req: any, res) => {
     try {
       const { schedule } = req.body;
@@ -194,7 +194,7 @@ scheduleRouter.post(
   "/block",
   authMiddleware,
   adminOnly,
-  shopValidateMiddleware,
+  validateShop,
   async (req: any, res: any) => {
     try {
       const { startTime, endTime, reason } = req.body;
