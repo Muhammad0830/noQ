@@ -1,3 +1,6 @@
+.env
 node_modules
 /shared/dist
-.env
+apps/backend/dist/
+apps/backend/**/*.tsbuildinfo
+.DS_Store

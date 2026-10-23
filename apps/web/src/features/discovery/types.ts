@@ -1,5 +1,5 @@
-import { Service } from "@/shared/types/service";
 import { Shop } from "@/shared/types/shop";
+import { Service } from "@noq/shared";
 
 export interface GetShopsParams {
     isSearching: boolean;

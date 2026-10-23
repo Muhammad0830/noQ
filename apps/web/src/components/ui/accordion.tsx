@@ -3,7 +3,7 @@
 import * as React from "react"
 import { cn } from "cn"
 import { Accordion as AccordionPrimitive } from "radix-ui"
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react"
+import { ChevronDownIcon } from "lucide-react"
 
 function Accordion({
   className,
@@ -31,14 +31,21 @@ function AccordionItem({
   )
 }
 
+type AccordionTriggerProps =
+  React.ComponentProps<typeof AccordionPrimitive.Trigger> & {
+    icon_center?: boolean;
+    icon_className?: string;
+    color?: string;
+  };
+
 function AccordionTrigger({
   className,
   children,
   icon_center,
   icon_className = "",
-  color="",
+  color = "",
   ...props
-}: React.ComponentProps<typeof AccordionPrimitive.Trigger>) {
+}: AccordionTriggerProps) {
   return (
     <AccordionPrimitive.Header className="flex">
       <AccordionPrimitive.Trigger

@@ -268,8 +268,7 @@ export default function AdminSchedulePage() {
     mode: "add",
     breakIndex: null,
     field: "startTime",
-    hour: 13,
-    minute: 0,
+    time: '13:00',
   });
   const [touchStartY, setTouchStartY] = useState<number | null>(null);
   const [currentSwipeTarget, setCurrentSwipeTarget] = useState<
@@ -380,8 +379,7 @@ export default function AdminSchedulePage() {
       mode: "add",
       breakIndex: null,
       field: "startTime",
-      hour: initial.hour,
-      minute: Math.round(initial.minute / 5) * 5,
+      time: `${initial.hour}:${initial.minute}`,
     });
   };
 
@@ -404,8 +402,7 @@ export default function AdminSchedulePage() {
       mode: "edit",
       breakIndex,
       field,
-      hour: initial.hour,
-      minute: Math.round(initial.minute / 5) * 5,
+      time: `${initial.hour}:${initial.minute}`,
     });
   };
 
@@ -426,8 +423,7 @@ export default function AdminSchedulePage() {
       mode: "edit",
       breakIndex: null,
       field,
-      hour: initial.hour,
-      minute: Math.round(initial.minute / 5) * 5,
+      time: `${initial.hour}:${initial.minute}`,
     });
   };
 
@@ -442,75 +438,73 @@ export default function AdminSchedulePage() {
     }));
   };
 
-  const shiftHour = (delta: number) => {
-    setTimePicker((prev) => ({
-      ...prev,
-      hour: (prev.hour + delta + 24) % 24,
-    }));
-  };
+  // const shiftHour = (delta: number) => {
+  //   setTimePicker((prev) => ({
+  //     ...prev,
+  //     hour: (prev.hour + delta + 24) % 24,
+  //   }));
+  // };
 
-  const shiftMinute = (delta: number) => {
-    setTimePicker((prev) => {
-      const next = prev.minute + delta;
-      if (next >= 60) {
-        return {
-          ...prev,
-          minute: 0,
-          hour: (prev.hour + 1) % 24,
-        };
-      }
-      if (next < 0) {
-        return {
-          ...prev,
-          minute: 55,
-          hour: (prev.hour + 23) % 24,
-        };
-      }
-      return { ...prev, minute: next };
-    });
-  };
+  // const shiftMinute = (delta: number) => {
+  //   setTimePicker((prev) => {
+  //     const next = prev.minute + delta;
+  //     if (next >= 60) {
+  //       return {
+  //         ...prev,
+  //         minute: 0,
+  //         hour: (prev.hour + 1) % 24,
+  //       };
+  //     }
+  //     if (next < 0) {
+  //       return {
+  //         ...prev,
+  //         minute: 55,
+  //         hour: (prev.hour + 23) % 24,
+  //       };
+  //     }
+  //     return { ...prev, minute: next };
+  //   });
+  // };
 
-  const handleSwipeStart = (e: React.TouchEvent, target: "hour" | "minute") => {
-    e.preventDefault();
-    setTouchStartY(e.touches[0].clientY);
-    setCurrentSwipeTarget(target);
-  };
+  // const handleSwipeStart = (e: React.TouchEvent, target: "hour" | "minute") => {
+  //   e.preventDefault();
+  //   setTouchStartY(e.touches[0].clientY);
+  //   setCurrentSwipeTarget(target);
+  // };
 
-  const handleSwipeEnd = (e: React.TouchEvent) => {
-    e.preventDefault();
-    if (touchStartY === null || currentSwipeTarget === null) return;
+  // const handleSwipeEnd = (e: React.TouchEvent) => {
+  //   e.preventDefault();
+  //   if (touchStartY === null || currentSwipeTarget === null) return;
 
-    const touchEndY = e.changedTouches[0]?.clientY;
-    if (touchEndY === undefined) return;
+  //   const touchEndY = e.changedTouches[0]?.clientY;
+  //   if (touchEndY === undefined) return;
 
-    const deltaY = touchStartY - touchEndY;
-    const threshold = 10;
+  //   const deltaY = touchStartY - touchEndY;
+  //   const threshold = 10;
 
-    if (Math.abs(deltaY) > threshold) {
-      if (currentSwipeTarget === "hour") {
-        shiftHour(deltaY > 0 ? 1 : -1);
-      } else {
-        shiftMinute(deltaY > 0 ? 5 : -5);
-      }
-    }
+  //   if (Math.abs(deltaY) > threshold) {
+  //     if (currentSwipeTarget === "hour") {
+  //       shiftHour(deltaY > 0 ? 1 : -1);
+  //     } else {
+  //       shiftMinute(deltaY > 0 ? 5 : -5);
+  //     }
+  //   }
 
-    setTouchStartY(null);
-    setCurrentSwipeTarget(null);
-  };
+  //   setTouchStartY(null);
+  //   setCurrentSwipeTarget(null);
+  // };
 
   const confirmTimePicker = () => {
     if (!timePicker.dayId) return;
 
-    const selectedTime = toTimeString(timePicker.hour, timePicker.minute);
-
     if (timePicker.mode === "add") {
-      const endTime = addMinutes(selectedTime, 60);
+      const endTime = addMinutes(timePicker.time, 60);
       setDays((prev) =>
         prev.map((item) =>
           item.id === timePicker.dayId
             ? {
               ...item,
-              breaks: [...item.breaks, { startTime: selectedTime, endTime }],
+              breaks: [...item.breaks, { startTime: timePicker.time, endTime }],
             }
             : item,
         ),
@@ -527,7 +521,7 @@ export default function AdminSchedulePage() {
                 idx === timePicker.breakIndex
                   ? {
                     ...breakItem,
-                    [timePicker.field]: selectedTime,
+                    [timePicker.field]: timePicker.time,
                   }
                   : breakItem,
               ),
@@ -537,7 +531,7 @@ export default function AdminSchedulePage() {
           return {
             ...item,
             [timePicker.field === "startTime" ? "openStart" : "openEnd"]:
-              selectedTime,
+              timePicker.time,
           };
         }),
       );
@@ -949,7 +943,7 @@ export default function AdminSchedulePage() {
                 {t("admin.schedule.timePicker")}
               </h4>
 
-              <div className="mb-5 flex items-center justify-center gap-2">
+              {/* <div className="mb-5 flex items-center justify-center gap-2">
                 <div
                   className="flex flex-col items-center gap-1 select-none"
                   onTouchStart={(e) => handleSwipeStart(e, "hour")}
@@ -1011,7 +1005,7 @@ export default function AdminSchedulePage() {
                     {String((timePicker.minute + 5) % 60).padStart(2, "0")}
                   </button>
                 </div>
-              </div>
+              </div> */}
 
               <div className="grid grid-cols-2 gap-2">
                 <button

@@ -24,8 +24,8 @@ describe("BookingPriceCalculationService", () => {
             price: Money.fromAmount(80_000, "UZS"),
             durationMin: 30,
             isActive: true,
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
         });
 
         const startTime = DateTime.now().addDays(1);

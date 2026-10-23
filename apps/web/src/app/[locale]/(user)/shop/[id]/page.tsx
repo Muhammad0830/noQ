@@ -9,8 +9,8 @@ import ShopPageSkeleton from "@/shared/components/shop/ShopPageSkeleton";
 import ImageSection from "@/shared/components/shop/ImageSection";
 import ShopTabs from "@/shared/components/shop/ShopTabs";
 import { ShopWithServices } from "@/shared/types/shop";
-import { Service } from "@/shared/types/service";
 import { Review } from "@/features/reviews/types";
+import { Service } from "@noq/shared";
 
 export default function ShopProfile({ params }: {
   params: Promise<{ id: string }>;

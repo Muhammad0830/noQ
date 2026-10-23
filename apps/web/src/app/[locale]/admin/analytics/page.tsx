@@ -405,42 +405,42 @@ export default function ShopAnalytics() {
   );
 
   const summaryErrorMessage =
-    (summaryError?.data &&
-      typeof summaryError.data === "object" &&
-      "message" in summaryError.data &&
-      typeof (summaryError.data as { message?: unknown }).message ===
+    (summaryError?.response?.data &&
+      typeof summaryError.response?.data === "object" &&
+      "message" in summaryError.response?.data &&
+      typeof (summaryError.response?.data as { message?: unknown }).message ===
       "string" &&
-      (summaryError.data as { message: string }).message) ||
+      (summaryError.response?.data as { message: string }).message) ||
     summaryError?.message ||
     t("admin.analytics.error.summaryFallback");
 
   const diagramErrorMessage =
-    (diagramError?.data &&
-      typeof diagramError.data === "object" &&
-      "message" in diagramError.data &&
-      typeof (diagramError.data as { message?: unknown }).message ===
+    (diagramError?.response?.data &&
+      typeof diagramError.response?.data === "object" &&
+      "message" in diagramError.response?.data &&
+      typeof (diagramError.response?.data as { message?: unknown }).message ===
       "string" &&
-      (diagramError.data as { message: string }).message) ||
+      (diagramError.response?.data as { message: string }).message) ||
     diagramError?.message ||
     t("admin.analytics.error.diagramFallback");
 
   const servicesErrorMessage =
-    (servicesError?.data &&
-      typeof servicesError.data === "object" &&
-      "message" in servicesError.data &&
-      typeof (servicesError.data as { message?: unknown }).message ===
+    (servicesError?.response?.data &&
+      typeof servicesError.response?.data === "object" &&
+      "message" in servicesError.response?.data &&
+      typeof (servicesError.response?.data as { message?: unknown }).message ===
       "string" &&
-      (servicesError.data as { message: string }).message) ||
+      (servicesError.response?.data as { message: string }).message) ||
     servicesError?.message ||
     t("admin.analytics.error.servicesFallback");
 
   const peakHoursErrorMessage =
-    (peakHoursError?.data &&
-      typeof peakHoursError.data === "object" &&
-      "message" in peakHoursError.data &&
-      typeof (peakHoursError.data as { message?: unknown }).message ===
+    (peakHoursError?.response?.data &&
+      typeof peakHoursError.response?.data === "object" &&
+      "message" in peakHoursError.response?.data &&
+      typeof (peakHoursError.response?.data as { message?: unknown }).message ===
       "string" &&
-      (peakHoursError.data as { message: string }).message) ||
+      (peakHoursError.response?.data as { message: string }).message) ||
     peakHoursError?.message ||
     t("admin.analytics.error.peakHoursFallback");
 

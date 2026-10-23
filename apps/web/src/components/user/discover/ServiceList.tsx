@@ -5,7 +5,7 @@ import { Route } from "next";
 import { Clock3 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { useLocale, useTranslations } from "next-intl";
-import { Service } from "@/shared/types/service";
+import { Service } from "@noq/shared";
 
 interface ServiceListProps {
     isLoading: boolean;

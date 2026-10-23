@@ -12,7 +12,7 @@ import { getShopsUrl } from "@/features/discovery/utils/get-shops-url";
 import ShopList from "@/components/user/discover/ShopList";
 import ServiceList from "@/components/user/discover/ServiceList";
 import { Shop, ShopCategory } from "@/shared/types/shop";
-import { Service } from "@/shared/types/service";
+import { Service } from "@noq/shared";
 
 const SKELETON_COUNT = 10;
 const COMPACT_SHOP_ROW_SKELETON_COUNT = 5;

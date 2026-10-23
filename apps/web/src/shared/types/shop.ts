@@ -1,6 +1,5 @@
-import type { Service } from "@/shared/types/service";
 import type { Staff } from "@/shared/types/staff";
-import type { ShopCategory, Shop } from "@noq/shared"
+import type { ShopCategory, Shop, Service } from "@noq/shared"
 
 export type { ShopCategory, Shop };
 

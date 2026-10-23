@@ -154,7 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const data = await signInAsync({ email, password });
+      const { data } = await signInAsync({ email, password });
 
       if (!data.access_token || !data.user) {
         throw new Error("Invalid login response");
