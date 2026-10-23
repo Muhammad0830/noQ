@@ -2,3 +2,5 @@
 node_modules
 /src/generated/prisma
 dist
+.DS_Store
+

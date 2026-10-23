@@ -21,7 +21,7 @@ export class PrismaServiceRepository implements ServiceRepositoryInterface {
                 price: service.getPrice().amount,
                 durationMin: service.getDuration(),
                 bufferTime: service.getBufferTime(),
-                updated: service.getUpdatedAt(),
+                updatedAt: service.getUpdatedAt().getValue(),
             }
         })
     }
