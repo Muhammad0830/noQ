@@ -112,11 +112,20 @@ router.post("/signin", async (req, res) => {
   });
 
   if (error) {
-    return res.status(401).json({ error: error.message });
+    return res.status(401).json({
+      success: false,
+      error: error.message,
+      data: null,
+    });
   }
 
   if (!data.session || !data.user) {
-    return res.status(500).json({ error: "Login failed" });
+    return res.status(500).json(
+      {
+        success: false,
+        error: "Login failed",
+        data: null,
+      });
   }
 
   const userMetadataName =
@@ -165,9 +174,12 @@ router.post("/signin", async (req, res) => {
   }
 
   res.json({
-    access_token: data.session.access_token,
-    refresh_token: data.session.refresh_token,
-    user: userData,
+    success: true,
+    data: {
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+      user: userData,
+    }
   });
 });
 

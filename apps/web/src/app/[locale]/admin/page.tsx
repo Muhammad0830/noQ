@@ -464,7 +464,7 @@ export default function AdminDashboard() {
 
   const { mutateAsync: cancelBooking, isPending: isCancellingBooking } =
     useApiMutation<unknown, { bookingId: string }>(
-      (body) => API_ENDPOINTS.admin.bookingCancel(bookingId),
+      (body) => API_ENDPOINTS.admin.bookingCancel(body.bookingId),
       "put",
       () => ({
         headers: activeShopId

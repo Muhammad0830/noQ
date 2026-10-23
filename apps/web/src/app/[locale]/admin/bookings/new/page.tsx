@@ -20,7 +20,7 @@ import { useApiMutation } from "@/hooks/useApiMutation";
 import { API_ENDPOINTS } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import { useLocale, useTranslations } from "next-intl";
-import { Service } from "@/shared/types/service";
+import { Service } from "@noq/shared";
 
 const asRoute = (href: string) => href as Route;
 

@@ -7,8 +7,8 @@ import ReviewsTabSkeleton from "./ReviewsTabSkeleton";
 import ReviewsTab from "./ReviewsTab";
 import { useTranslations } from "next-intl";
 import { ShopWithServices } from "@/shared/types/shop";
-import { Service } from "@/shared/types/service";
 import { Review } from "@/features/reviews/types";
+import { Service } from "@noq/shared";
 
 interface ShopTabsProps {
     imageLoadError: boolean;

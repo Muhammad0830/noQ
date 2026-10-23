@@ -1,6 +1,6 @@
-import { Service } from "@/shared/types/service";
 import { Shop } from "@/shared/types/shop";
 import { User } from "@/shared/types/user";
+import { Service } from "@noq/shared";
 
 export interface Review {
     id: string;

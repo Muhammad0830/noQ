@@ -1,5 +1,5 @@
 import { formatPrice } from "@/lib/utils";
-import { Service } from "@/shared/types/service";
+import { Service } from "@noq/shared";
 import { Clock } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
