@@ -1,17 +1,20 @@
+import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 import type { ShopCategoryId } from "../value-objects/ShopCategoryId.js";
 
 interface Props {
     id: ShopCategoryId,
     name: string,
-    icon?: string,
-    createdAt: Date,
-    updatedAt: Date,
+    icon?: string | null,
+    createdAt: DateTime,
+    updatedAt: DateTime,
 }
 
 interface CreateProps {
     id: ShopCategoryId,
     name: string,
-    icon?: string,
+    icon?: string | null,
+    createdAt?: DateTime,
+    updatedAt?: DateTime,
 }
 
 export class ShopCategory {
@@ -28,12 +31,12 @@ export class ShopCategory {
             throw new Error("Category name is required");
         }
 
-        const now = new Date();
-
         return new ShopCategory({
-            ...props,
-            createdAt: now,
-            updatedAt: now,
+            id: props.id,
+            name: props.name,
+            icon: props.icon,
+            createdAt: props.createdAt ?? DateTime.now(),
+            updatedAt: props.updatedAt ?? DateTime.now(),
         });
     }
 
@@ -49,7 +52,16 @@ export class ShopCategory {
         return this.props.icon ?? null;
     }
 
-    hasIcon(): boolean {
-        return !!this.props.icon;
+    getCreatedAt(): DateTime {
+        return this.props.createdAt
+    }
+
+    getUpdatedAt(): DateTime {
+        return this.props.updatedAt
+    }
+
+    sameAsOther(other: ShopCategory): boolean {
+        return this.props.name === other.getName() &&
+            this.getIcon() === other.getIcon();
     }
 }
