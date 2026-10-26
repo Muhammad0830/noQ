@@ -30,8 +30,7 @@ import {
 } from "@/components/admin/AdminScheduleTimeline";
 import { useTranslations } from "next-intl";
 import { Shop } from "@/shared/types/shop";
-import { formatTime } from "@/lib/datetime/format";
-import { DiscoveryShopsResponse, timeZone } from "@noq/shared";
+import { DiscoveryShopsResponse, formatToTimeString } from "@noq/shared";
 
 const asRoute = (href: string) => href as Route;
 
@@ -407,8 +406,8 @@ export default function AdminDashboard() {
         startTime: booking.startTime,
         endTime: booking.endTime,
         durationMin: booking.service?.durationMin ?? null,
-        time: formatTime(booking.startTime, timeZone),
-        timeRange: `${formatTime(booking.startTime, timeZone)} - ${formatTime(booking.endTime, timeZone)}`,
+        time: formatToTimeString(booking.startTime),
+        timeRange: `${formatToTimeString(booking.startTime)} - ${formatToTimeString(booking.endTime)}`,
         timeMinutes: formatMinutesLabel(
           booking.startTime,
           booking.endTime,

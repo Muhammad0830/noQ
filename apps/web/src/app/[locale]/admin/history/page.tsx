@@ -20,8 +20,7 @@ import AdminSidebar from "@/components/AdminSidebar";
 import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 import { useLocale, useTranslations } from "next-intl";
 import { BookingStatus } from "@/features/booking/types";
-import { formatDate, formatTime } from "@/lib/datetime/format";
-import { timeZone } from "@noq/shared";
+import { formatToDateString } from "@noq/shared";
 
 type AdminHistoryBooking = {
   id: string;
@@ -97,7 +96,7 @@ const buildWeekDays = (referenceDate: Date) => {
     date.setDate(referenceDate.getDate() - 4 + index);
 
     return {
-      id: formatDate(date, timeZone),
+      id: formatToDateString(date),
       day: date.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase(),
       date: date.getDate(),
     };
@@ -123,7 +122,7 @@ export default function Page() {
     getAdminHrefWithShopId,
   } = useAdminSidebar(shopId);
   const todayDate = useMemo(() => normalizeDate(new Date()), []);
-  const todayQuery = useMemo(() => formatDate(todayDate, timeZone), [todayDate]);
+  const todayQuery = useMemo(() => formatToDateString(todayDate), [todayDate]);
   // `visibleWeekStart` is actually used as the reference (week end) for building
   // the 7-day window in `buildWeekDays`. Initialize it to `todayDate` so the
   // visible week includes today by default.
@@ -151,7 +150,7 @@ export default function Page() {
     return parsedDate > todayDate ? new Date(todayDate) : parsedDate;
   }, [searchParams, todayDate]);
   const selectedDateQuery = useMemo(
-    () => formatDate(selectedDate, timeZone),
+    () => formatToDateString(selectedDate),
     [selectedDate],
   );
 
@@ -209,7 +208,7 @@ export default function Page() {
     setVisibleWeekStart(nextWeekStart);
 
     handleDateChange(
-      formatDate(nextDate > todayDate ? todayDate : nextDate, timeZone),
+      formatToDateString(nextDate > todayDate ? todayDate : nextDate),
     );
   };
 
@@ -245,7 +244,7 @@ export default function Page() {
         customerName,
         serviceName,
         staffName,
-        time: formatTime(booking.startTime, timeZone),
+        time: formatToDateString(booking.startTime),
         duration: formatDuration(booking.startTime, booking.endTime),
         amount: formatCurrency(amountValue, locale),
         status: booking.status,
@@ -475,8 +474,8 @@ export default function Page() {
                   type="button"
                   onClick={() => handleDateChange(day.id)}
                   className={`flex h-14.5 w-full min-w-0 flex-col items-center justify-center rounded-[10px] border px-1 text-center leading-tight transition-all duration-200 ${day.id === selectedDateQuery
-                      ? "border-[#F49B33] bg-[#F49B33] text-white shadow-[0_12px_22px_rgba(244,155,51,0.24)]"
-                      : "border-slate-200 bg-white text-[#1f2a36] hover:border-[#F49B33] hover:bg-[#fff8ee]"
+                    ? "border-[#F49B33] bg-[#F49B33] text-white shadow-[0_12px_22px_rgba(244,155,51,0.24)]"
+                    : "border-slate-200 bg-white text-[#1f2a36] hover:border-[#F49B33] hover:bg-[#fff8ee]"
                     } active:scale-95`}
                 >
                   <p className="text-[10px] font-semibold uppercase leading-none tracking-[0.12em] sm:text-[9px]">

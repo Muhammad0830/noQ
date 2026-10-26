@@ -21,7 +21,6 @@ import { useTranslations } from "next-intl";
 import { getDefaultDays } from "@/features/addBusiness/utils";
 import { DaySchedule } from "@/features/addBusiness/types";
 import { BackendWeeklyScheduleResponse, TimePickerState } from "@/features/scheduling/types";
-import { timeZone } from "@noq/shared";
 
 const dayMeta = [
   {
@@ -80,7 +79,6 @@ type ExpandedDay = (typeof dayMeta)[number]["id"] | "";
 const getTodayDayId = () => {
   const weekdayName = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
-    timeZone,
   }).format(new Date());
 
   const dayByName: Record<string, number> = {
