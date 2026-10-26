@@ -4,7 +4,9 @@ import type { Staff } from "@/types/staff.js";
 export interface ShopCategory {
     id: string;
     name: string;
-    icon?: string;
+    icon?: string | null;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface Shop {

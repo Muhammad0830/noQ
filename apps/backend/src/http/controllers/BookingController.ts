@@ -13,6 +13,7 @@ import type { RequestWithUser } from "@/types.js";
 import type { AuthenticatedUser } from "@/types/auth.js";
 import { toCreateBookingResource } from "@/http/resources/booking/CreateBookingResource.js";
 import { toBookingResource, } from "@/http/resources/booking/UserBookingsResource.js";
+import { checkUserAuthenticated } from "../validators/auth/CheckUserAuthenticated.js";
 
 export class BookingController {
     constructor(
@@ -24,7 +25,7 @@ export class BookingController {
 
     create: RequestHandler = async (req, res, next): Promise<void> => {
         try {
-            const user = this.checkUserAuthorized(req as RequestWithUser, res as Response);
+            const user = checkUserAuthenticated(req as RequestWithUser, res as Response);
 
             if (!user) {
                 return;
@@ -44,7 +45,7 @@ export class BookingController {
 
     listForUsers: RequestHandler = async (req, res, next): Promise<void> => {
         try {
-            const user = this.checkUserAuthorized(req as RequestWithUser, res as Response);
+            const user = checkUserAuthenticated(req as RequestWithUser, res as Response);
 
             if (!user) {
                 return;
@@ -67,7 +68,7 @@ export class BookingController {
 
     cancel: RequestHandler = async (req, res, next): Promise<void> => {
         try {
-            if (!this.checkUserAuthorized(req as RequestWithUser, res as Response)) {
+            if (!checkUserAuthenticated(req as RequestWithUser, res as Response)) {
                 return;
             }
 
@@ -94,17 +95,5 @@ export class BookingController {
         } catch (error) {
             next(error);
         }
-    }
-
-    private checkUserAuthorized(req: RequestWithUser, res: Response): AuthenticatedUser | null {
-        if (!req.user) {
-            res.status(401).json({
-                message: "Unauthorized",
-            });
-
-            return null;
-        }
-
-        return req.user;
     }
 }
