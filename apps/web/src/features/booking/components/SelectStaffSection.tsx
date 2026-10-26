@@ -36,13 +36,13 @@ const SelectStaffSection: FC<SelectStaffSectionProps> = ({
                                     index === 0 ? "bg-[#ff951d]" : "bg-[#ff961dc0]"
                                 )}>
                                     <span className="text-white text-sm font-bold tracking-wide">
-                                        {getInitials(member.user?.name)}
+                                        {getInitials(member.name)}
                                     </span>
                                 </div>
                             </div>
 
                             <p className={`mt-2 w-full px-1 text-[11px] leading-[1.2] min-h-[2.4rem] whitespace-normal wrap-break-word ${index === 0 ? "text-black" : "text-slate-500"}`}>
-                                {member.user?.name}
+                                {member.name}
                             </p>
                         </button>
                     );
