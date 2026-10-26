@@ -1,8 +1,9 @@
 import { Router } from "express";
-import prisma from "@/db/prisma.js";
 import { authMiddleware } from "@/http/middlewares/auth.middleware.js";
 import { adminOnly } from "@/http/middlewares/admin.middleware.js";
 import { shopCategoryController } from "@/composition/shop-category.js";
+import { validateBody } from "@/http/middlewares/validate.middleware.js";
+import { createShopCategorySchema } from "@/http/validators/shop-category/CreateShopCategorySchema.js";
 const categoryRouter = Router();
 
 categoryRouter.get("/", shopCategoryController.all)
@@ -11,15 +12,8 @@ categoryRouter.post(
   "/",
   authMiddleware,
   adminOnly,
-  async (req: any, res: any) => {
-    const { name, icon } = req.body;
-
-    const category = await prisma.shopCategory.create({
-      data: { name, icon },
-    });
-
-    res.status(200).json(category);
-  },
+  validateBody(createShopCategorySchema),
+  shopCategoryController.create
 );
 
 export default categoryRouter;

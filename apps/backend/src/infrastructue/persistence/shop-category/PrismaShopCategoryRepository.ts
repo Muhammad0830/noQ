@@ -32,7 +32,7 @@ export class PrismaShopCategoryRepository implements ShopCategoryRepositoryInter
     async add(shopCategory: ShopCategory): Promise<void> {
         await this.prisma.shopCategory.create({
             data: {
-                id: shopCategory.getId.toString(),
+                id: shopCategory.getId().toString(),
                 name: shopCategory.getName(),
                 icon: shopCategory.getIcon(),
                 createdAt: shopCategory.getCreatedAt().getValue(),
@@ -52,6 +52,10 @@ export class PrismaShopCategoryRepository implements ShopCategoryRepositoryInter
                 updatedAt: shopCategory.getUpdatedAt().getValue(),
             }
         });
+    }
+
+    nextIdentity(): ShopCategoryId {
+        return ShopCategoryId.create();
     }
 
     private toEntity(model: ShopCategoryModel): ShopCategory {

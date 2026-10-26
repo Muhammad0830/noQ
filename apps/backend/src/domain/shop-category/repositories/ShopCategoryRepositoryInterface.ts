@@ -1,4 +1,5 @@
 import { ShopCategory } from "@/domain/shop-category/entities/ShopCategory.js";
+import { ShopCategoryId } from "../value-objects/ShopCategoryId.js";
 
 export interface ShopCategoryRepositoryInterface {
     findById(shopCategory: ShopCategory): Promise<ShopCategory>;
@@ -8,4 +9,6 @@ export interface ShopCategoryRepositoryInterface {
     add(shopCategory: ShopCategory): Promise<void>;
 
     save(shopCategory: ShopCategory): Promise<void>;
+
+    nextIdentity(): ShopCategoryId;
 }
