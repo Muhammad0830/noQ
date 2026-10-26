@@ -4,13 +4,13 @@ import { Service } from "@noq/shared";
 
 export interface Review {
     id: string;
-    rating: number;
-    comment?: string;
     userId: string;
-    user?: User;
-    shopId?: string;
-    shop?: Shop;
-    serviceId?: string;
-    service?: Service;
+    rating: number;
     createdAt: string;
+    serviceId?: string;
+    shopId?: string;
+    comment?: string | null;
+    user?: User;
+    shop?: Shop;
+    service?: Service;
 }

@@ -384,7 +384,7 @@
       "about": "Haqida",
       "openNow": "Hozir ochiq",
       "closed": "Yopiq",
-      "phone": "Telefon",
+      "phoneNumber": "Tel. Raqam",
       "address": "Manzil",
       "website": "Veb-sayt",
       "schedule": "Ish vaqti",
@@ -393,14 +393,16 @@
       "selectDate": "Sanani tanlang",
       "selectTime": "Vaqtni tanlang",
       "bookNow": "Band qilish",
-      "viewDetails": "Xaritada ko'rish",
+      "viewDetails": "Batafsil",
+      "call": "Qo'ng'iroq",
       "writeReview": "Sharh yozish",
       "allReviews": "Barcha sharhlar",
       "noServices": "Xizmatlar topilmadi",
       "noStaff": "Xodimlar topilmadi",
       "noReviews": "Hali sharhlar yo'q",
       "experience": "Tajriba",
-      "years": "yil"
+      "years": "yil",
+      "closedToday": "Bugun yopiq"
     },
     "booking": {
       "title": "Bandlov",

@@ -1,5 +1,5 @@
 import { Service } from "@/domain/service/entities/Service.js";
-import type { ServiceRepositoryInterface } from "@/domain/service/repositories/ServiceRepositoryInterface.js";
+import type { ServiceFindManyInput, ServiceRepositoryInterface } from "@/domain/service/repositories/ServiceRepositoryInterface.js";
 import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 import { Money } from "@/domain/shared/value-objects/Money.js";
@@ -38,6 +38,38 @@ export class PrismaServiceRepository implements ServiceRepositoryInterface {
         }
 
         return this.toEntity(serviceModel)
+    }
+
+    async findMany(input: ServiceFindManyInput): Promise<Service[]> {
+        const serviceList = await this.prisma.service.findMany({
+            where: {
+                isActive: true,
+                ...(input.searchByShopName && {
+                    shop: {
+                        name: {
+                            contains: input.searchByShopName,
+                            mode: "insensitive",
+                        },
+                    },
+                }),
+                ...(input.categoryIdList && input.categoryIdList.length > 0 && {
+                    shop: {
+                        categoryId: {
+                            in: input.categoryIdList.map(id => id.toString()),
+                        },
+                    },
+                }),
+                ...(input.minPrice && input.maxPrice && {
+                    price: {
+                        gt: input.minPrice,
+                        lt: input.maxPrice,
+                    },
+                }),
+            },
+            take: input.limit,
+        });
+
+        return serviceList.map(service => this.toEntity(service));
     }
 
     nextIdentity(value?: string): ServiceId {

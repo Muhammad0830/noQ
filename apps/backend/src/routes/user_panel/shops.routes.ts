@@ -6,238 +6,77 @@ import { upload } from "@/http/middlewares/upload.js";
 import { supabaseServer } from "@/services/supabaseServer.js";
 import { uploadImage } from "@/utils/handleImage.js";
 import { addMinutes, getOneDayAfter, timeToMinutes } from "@noq/shared";
+import { shopController } from "@/composition/shop.js";
+import { validateQuery } from "@/http/middlewares/validate.middleware.js";
+import { getShopListSchema } from "@/http/validators/shop/GetShopListSchema.js";
 
 const shopRouter = Router();
 
-shopRouter.get("/", async (req, res) => {
-  try {
-    const {
-      categoryIds = "",
-      open = "true",
-      search = "",
-      minPrice,
-      maxPrice,
-    } = req.query as any;
-    const { shopCursor, serviceCursor, limit = 10 } = getPaginationParams(req);
+shopRouter.get(
+  "/",
+  validateQuery(getShopListSchema),
+  shopController.list
+);
 
-    const categories = categoryIds
-      ? String(categoryIds).split(",").filter(Boolean)
-      : [];
+shopRouter.get("/:id", shopController.getShopData)
+// async (req: any, res: any) => {
+//   try {
+//     const { id } = req.params;
 
+//     const [shop, services, reviewStats] = await prisma.$transaction([
+//       prisma.shop.findUnique({
+//         where: { id },
+//         include: {
+//           category: true,
+//           staffs: {
+//             select: {
+//               user: true
+//             }
+//           }
+//         },
+//       }),
+//       prisma.service.findMany({
+//         where: {
+//           shopId: id,
+//           isActive: true,
+//         },
+//         include: {
+//           _count: {
+//             select: {
+//               reviews: true,
+//             },
+//           },
+//         },
+//       }),
+//       prisma.review.aggregate({
+//         where: { shopId: id },
+//         _avg: { rating: true },
+//         _count: { id: true },
+//       }),
+//     ]);
 
-    const hasPriceFilter = minPrice !== undefined && maxPrice !== undefined;
-    const hasCategoryFilter = categories.length > 0;
+//     if (!shop) {
+//       return res.status(404).json({ message: "Shop not found" });
+//     }
 
-    if (search && (hasCategoryFilter || hasPriceFilter)) {
-      return res.status(400).json({
-        message: "Cannot combine search with filters",
-      });
-    }
+//     const averageRating = reviewStats._avg.rating ?? 0;
 
-    if (search) {
-      const shops = await prisma.shop.findMany({
-        take: Number(limit) + 1,
-        skip: shopCursor ? 1 : 0,
-        ...(shopCursor && { cursor: { id: shopCursor } }),
-        where: {
-          isOpen: true,
-          name: { contains: search, mode: "insensitive" },
-        },
-        include: {
-          category: true,
-        },
-        orderBy: { createdAt: "desc" },
-      });
+//     const response = {
+//       ...shop,
+//       services,
+//       averageRating: parseFloat(averageRating.toFixed(1)),
+//       reviewCount: reviewStats._count.id,
+//     };
 
-      let nextShopCursor = null;
-      if (shops.length > limit) {
-        const next = shops.pop();
-        nextShopCursor = next?.id;
-      }
-
-      const services = await prisma.service.findMany({
-        take: Number(limit) + 1,
-        skip: serviceCursor ? 1 : 0,
-        ...(serviceCursor && { cursor: { id: serviceCursor } }),
-        where: {
-          isActive: true,
-          shop: {
-            isOpen: true,
-            name: { contains: search, mode: "insensitive" }
-          },
-        },
-        include: {
-          shop: true,
-        },
-        orderBy: {
-          id: "desc",
-        },
-      });
-
-      let nextServiceCursor = null;
-      if (services.length > limit) {
-        const next = services.pop();
-        nextServiceCursor = next?.id;
-      }
-
-      return res.json({
-        type: "search",
-        shops,
-        services,
-        nextShopCursor,
-        nextServiceCursor,
-      });
-    }
-
-    const shops = await prisma.shop.findMany({
-      take: Number(limit) + 1,
-      skip: shopCursor ? 1 : 0,
-      ...(shopCursor && {
-        cursor: {
-          id: shopCursor,
-        },
-      }),
-      where: {
-        ...(open === "true" && {
-          isOpen: true
-        }),
-        ...(hasCategoryFilter && {
-          categoryId: {
-            in: categories
-          }
-        })
-      },
-      include: {
-        category: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    })
-
-    let nextShopCursor = null;
-
-    if (shops.length > limit) {
-      const next = shops.pop();
-      nextShopCursor = next?.id;
-    }
-
-    const services = await prisma.service.findMany({
-      take: Number(limit) + 1,
-      skip: serviceCursor ? 1 : 0,
-      ...(serviceCursor && {
-        cursor: {
-          id: serviceCursor,
-        },
-      }),
-      where: {
-        isActive: true,
-        ...(open === "true" && {
-          shop: {
-            isOpen: true,
-            categoryId: { in: categories }
-          },
-        }),
-        ...(hasPriceFilter && {
-          price: {
-            gte: Number(minPrice),
-            lte: Number(maxPrice),
-          },
-        }),
-        ...(hasCategoryFilter && {
-          shop: {
-            categoryId: {
-              in: categories,
-            },
-          },
-        })
-      },
-      include: {
-        shop: true,
-      },
-      orderBy: {
-        id: "desc",
-      },
-    });
-
-    let nextServiceCursor = null;
-
-    if (services.length > limit) {
-      const next = services.pop();
-      nextServiceCursor = next?.id;
-    }
-
-    return res.json({
-      type: "filter",
-      shops,
-      services,
-      nextShopCursor,
-      nextServiceCursor,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-shopRouter.get("/:id", async (req: any, res: any) => {
-  try {
-    const { id } = req.params;
-
-    const [shop, services, reviewStats] = await prisma.$transaction([
-      prisma.shop.findUnique({
-        where: { id },
-        include: {
-          category: true,
-          staffs: {
-            select: {
-              user: true
-            }
-          }
-        },
-      }),
-      prisma.service.findMany({
-        where: {
-          shopId: id,
-          isActive: true,
-        },
-        include: {
-          _count: {
-            select: {
-              reviews: true,
-            },
-          },
-        },
-      }),
-      prisma.review.aggregate({
-        where: { shopId: id },
-        _avg: { rating: true },
-        _count: { id: true },
-      }),
-    ]);
-
-    if (!shop) {
-      return res.status(404).json({ message: "Shop not found" });
-    }
-
-    const averageRating = reviewStats._avg.rating ?? 0;
-
-    const response = {
-      ...shop,
-      services,
-      averageRating: parseFloat(averageRating.toFixed(1)),
-      reviewCount: reviewStats._count.id,
-    };
-
-    res.status(200).json(response);
-  } catch (error) {
-    console.error("Error fetching shop:", error);
-    res.status(500).json({
-      message: "Internal server error",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
-  }
-});
+//     res.status(200).json(response);
+//   } catch (error) {
+//     console.error("Error fetching shop:", error);
+//     res.status(500).json({
+//       message: "Internal server error",
+//       error: error instanceof Error ? error.message : "Unknown error",
+//     });
+//   }
+// });
 
 shopRouter.get("/:id/services", async (req: any, res: any) => {
   try {

@@ -31,7 +31,7 @@ import {
 import { useTranslations } from "next-intl";
 import { Shop } from "@/shared/types/shop";
 import { formatTime } from "@/lib/datetime/format";
-import { timeZone } from "@noq/shared";
+import { DiscoveryShopsResponse, timeZone } from "@noq/shared";
 
 const asRoute = (href: string) => href as Route;
 
@@ -44,19 +44,6 @@ type DashboardBaseInfoResponse = {
   prevRevenue: number;
   revenueChange: number;
 };
-
-type AdminShop = {
-  id: string;
-  name: string;
-  ownerId?: string;
-};
-
-type ShopsResponse =
-  | AdminShop[]
-  | {
-    shops?: AdminShop[];
-    data?: AdminShop[];
-  };
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -83,8 +70,8 @@ export default function AdminDashboard() {
   const selectedShopHint = shopId || persistedShopId;
 
   const isAdmin = user?.role === "ADMIN";
-  const { data: shopsResponse, isLoading: isLoadingShopsFallback } =
-    useApiQuery<ShopsResponse>(isAdmin ? API_ENDPOINTS.shops : null, {
+  const { data: shopsData, isLoading: isLoadingShopsFallback } =
+    useApiQuery<DiscoveryShopsResponse>(isAdmin ? API_ENDPOINTS.shops : null, {
       key: ["admin-shops-fallback", user?.id || "guest"],
       enabled: Boolean(
         isAdmin &&
@@ -100,35 +87,19 @@ export default function AdminDashboard() {
       refetchOnWindowFocus: false,
     });
 
-  const adminShops = useMemo<AdminShop[]>(() => {
-    if (!user?.id) return [];
+  const adminShops = useMemo<Shop[]>(() => {
+    if (!user || !shopsData || isLoadingShopsFallback) return user?.shops ?? [];
 
-    const userShops = (user.shops || []).map((shop) => ({
-      id: shop.id,
-      name: shop.name,
-      ownerId: shop.ownerId,
-    }));
+    const fallbackShops = shopsData.shops.filter((shop) => shop.ownerId === user.id);
 
-    if (!shopsResponse) return userShops;
+    if (fallbackShops.length === 0) return user?.shops ?? [];
+    if (!user.shops || user.shops?.length === 0) return fallbackShops;
 
-    const shops = Array.isArray(shopsResponse)
-      ? shopsResponse
-      : Array.isArray(shopsResponse.shops)
-        ? shopsResponse.shops
-        : Array.isArray(shopsResponse.data)
-          ? shopsResponse.data
-          : [];
-
-    const fallbackShops = shops.filter((shop) => shop.ownerId === user.id);
-
-    if (fallbackShops.length === 0) return userShops;
-    if (userShops.length === 0) return fallbackShops;
-
-    const merged = new Map<string, AdminShop>();
-    userShops.forEach((shop) => merged.set(shop.id, shop));
+    const merged = new Map<string, Shop>();
+    user.shops.forEach((shop) => merged.set(shop.id, shop));
     fallbackShops.forEach((shop) => merged.set(shop.id, shop));
     return Array.from(merged.values());
-  }, [shopsResponse, user]);
+  }, [shopsData, user, isLoadingShopsFallback]);
 
   const activeShopId = useMemo(() => {
     if (shopId) return shopId;

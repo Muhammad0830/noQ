@@ -7,12 +7,12 @@ import { API_ENDPOINTS } from "@/lib/api";
 import useApiQuery from "@/hooks/useApiQuery";
 import { useTranslations } from "next-intl";
 import FilterDialog from "@/components/user/discover/FilterDialog";
-import { FilterType, ShopsResponse } from "@/features/discovery/types";
+import { FilterType } from "@/features/discovery/types";
 import { getShopsUrl } from "@/features/discovery/utils/get-shops-url";
 import ShopList from "@/components/user/discover/ShopList";
 import ServiceList from "@/components/user/discover/ServiceList";
 import { Shop, ShopCategory } from "@/shared/types/shop";
-import { Service } from "@noq/shared";
+import { DiscoveryShopsResponse, Service } from "@noq/shared";
 
 const SKELETON_COUNT = 10;
 const COMPACT_SHOP_ROW_SKELETON_COUNT = 5;
@@ -77,7 +77,7 @@ export default function Page() {
     useApiQuery<ShopCategory[]>(API_ENDPOINTS.categories, { key: ["discover-filter-categories"] });
 
   const { data: shopsData = { shops: [], services: [] }, isLoading: isShopsLoading } =
-    useApiQuery<ShopsResponse>(shopsUrl, { key: [shopsUrl] });
+    useApiQuery<DiscoveryShopsResponse>(shopsUrl, { key: [shopsUrl] });
 
   const { data: trendingShops = { shops: [] }, isLoading: isTrendingShopsLoading } =
     useApiQuery<{ shops: Shop[] }>(API_ENDPOINTS.shops_trending, { key: ['trending_shops'] });

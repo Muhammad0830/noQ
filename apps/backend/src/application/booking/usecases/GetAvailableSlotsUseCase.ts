@@ -2,7 +2,6 @@ import type {
     GetAvailableSlotsUseCaseInput,
     GetAvailableSlotsUseCaseInterface,
     GetSlotListInput,
-    GetSlotStatusInput,
     VisibleSlots,
 } from "../interfaces/GetAvailableSlotsUseCaseInterface.js";
 import type { ShopScheduleRepositoryInterface } from
@@ -15,7 +14,7 @@ import { ShopScheduleType } from "@/domain/shop-schedule/value-objects/ShopSched
 import type { ServiceRepositoryInterface } from "@/domain/service/repositories/ServiceRepositoryInterface.js";
 import type { GetBlockSlotListQueryInterface } from "@/application/booking/read-queries/GetBlockSlotListQueryInterface.js";
 import type { GetBookedSlotListByDateQueryInterface } from "@/application/booking/read-queries/GetBookedSlotListByDateQueryInterface.js";
-import { createDateTime, minutesToTimeString, SlotStatus, timeToMinutes } from "@noq/shared";
+import { createDateTime, minutesToTimeString, timeToMinutes } from "@noq/shared";
 import { TimeSlot } from "@/domain/shared/value-objects/TimeSlot.js";
 import type { SlotAvailabilityValidator } from "../validators/SlotAvailabilityValidator.js";
 

@@ -10,7 +10,6 @@ import type { CancelBookingUseCaseInterface } from
 import type { GetAvailableSlotsUseCaseInput, GetAvailableSlotsUseCaseInterface } from
     "@/application/booking/interfaces/GetAvailableSlotsUseCaseInterface.js";
 import type { RequestWithUser } from "@/types.js";
-import type { AuthenticatedUser } from "@/types/auth.js";
 import { toCreateBookingResource } from "@/http/resources/booking/CreateBookingResource.js";
 import { toBookingResource, } from "@/http/resources/booking/UserBookingsResource.js";
 import { checkUserAuthenticated } from "../validators/auth/CheckUserAuthenticated.js";

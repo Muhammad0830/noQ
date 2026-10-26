@@ -1,23 +1,27 @@
-import type { ShopCategoryId } from "@/domain/shop-category/value-objects/ShopCategoryId.js";
 import type { ShopId } from "../value-objects/ShopId.js";
 import type { OwnerId } from "@/domain/owner/value-objects/OwnerId.js";
+import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
+import { ShopCategory } from "@/domain/shop-category/entities/ShopCategory.js";
 
 interface Props {
     id: ShopId,
     ownerId: OwnerId,
     name: string,
-    categoryId: ShopCategoryId,
     isOpen: boolean,
-    createdAt: Date,
-    updatedAt: Date,
+    address: string,
+    category: ShopCategory,
+    createdAt: DateTime,
+    updatedAt: DateTime,
     description?: string,
     logoUrl?: string,
-    address?: string,
-    phone?: string,
+    phone: string,
     backgroundImageUrl?: string,
 }
 
-type CreateProps = Omit<Props, 'createdAt' | 'updatedAt'>;
+interface CreateProps extends Omit<Props, 'createdAt' | 'updatedAt'> {
+    createdAt?: DateTime,
+    updatedAt?: DateTime,
+}
 
 export class Shop {
     constructor(
@@ -33,20 +37,18 @@ export class Shop {
             throw new Error("Owner ID is required");
         }
 
-        if (!props.categoryId.toString().trim()) {
-            throw new Error("Category ID is required");
+        if (!props.category) {
+            throw new Error("Category is required");
         }
 
         if (!props.name.trim()) {
             throw new Error("Shop name is required");
         }
 
-        const now = new Date();
-
         return new Shop({
             ...props,
-            createdAt: now,
-            updatedAt: now,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
         });
     }
 
@@ -62,12 +64,24 @@ export class Shop {
         return this.props.ownerId;
     }
 
-    getCategoryId(): ShopCategoryId {
-        return this.props.categoryId;
+    getCategory(): ShopCategory {
+        return this.props.category;
     }
 
     getName(): string {
         return this.props.name;
+    }
+
+    getAddress(): string {
+        return this.props.address;
+    }
+
+    getCreatedAt(): DateTime {
+        return this.props.createdAt;
+    }
+
+    getUpdatedAt(): DateTime {
+        return this.props.updatedAt;
     }
 
     getDescription(): string | null {
@@ -78,12 +92,8 @@ export class Shop {
         return this.props.logoUrl ?? null;
     }
 
-    getAddress(): string | null {
-        return this.props.address ?? null;
-    }
-
-    getPhoneNumber(): string | null {
-        return this.props.phone ?? null;
+    getPhoneNumber(): string {
+        return this.props.phone;
     }
 
     getBackgroundImageUrl(): string | null {

@@ -1,5 +1,4 @@
-import type { User } from "@/types/user.js";
-import type { Staff } from "@/types/staff.js";
+import type { User, Staff, Service } from "@/index.js";
 
 export interface ShopCategory {
     id: string;
@@ -16,10 +15,13 @@ export interface Shop {
     logoUrl?: string;
     backgroundImageUrl?: string;
     address: string;
-    phone?: string;
+    phoneNumber: string;
     categoryId: string;
+    openTime: string | null;
+    closeTime: string | null;
     category?: ShopCategory;
     ownerId: string;
+    timeZone: string;
     owner?: User;
     isOpen: boolean;
     createdAt: string;
@@ -35,3 +37,10 @@ export type ShopInBookingData = Pick<Shop,
     'address' |
     'backgroundImageUrl'
 >
+
+export interface DiscoveryShopsResponse {
+    shops: Shop[];
+    services: Service[];
+    nextServiceCursor?: string;
+    nextShopCursor?: string;
+}

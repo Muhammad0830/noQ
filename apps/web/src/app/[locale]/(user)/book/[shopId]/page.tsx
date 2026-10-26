@@ -15,7 +15,6 @@ import ScheduleDatePicker from "@/features/booking/components/ScheduleDatePicker
 import { generateTimeSlots } from "@/features/booking/generate-time-slots";
 import { TimeSlotPicker } from "@/features/booking/components/TimeSlotPicker";
 import { ShopWithStaffs } from "@/shared/types/shop";
-import { dateToUtc, timeZone } from "@noq/shared";
 import Header from "@/features/booking/components/Header";
 import SelectedServiceCard from "@/features/booking/components/SelectedServiceCard";
 import SelectStaffSection from "@/features/booking/components/SelectStaffSection";
@@ -45,8 +44,8 @@ export default function BookingPage({
   );
 
   const { data: timelineData, isLoading: isTimelineLoading } = useApiQuery<DayTimelineResponse>(
-    `${API_ENDPOINTS.shopTimeline(shopId)}?date=${dateToUtc(selectedDate.date, timeZone)}`,
-    { key: ["timeline", shopId, `${selectedDate.date}`] },
+    `${API_ENDPOINTS.shopTimeline(shopId)}?date=${selectedDate.date}`,
+    { key: ["timeline", shopId, `${selectedDate.date}`], enabled: !!shop },
   );
 
   const { mutateAsync: bookingMutation, isPending } = useApiMutation<{ message: string }>(
@@ -60,12 +59,13 @@ export default function BookingPage({
     ? addMinutes(selectedDate.time, selectedService?.durationMin ?? 0)
     : null;
 
-  const timelineSlots = generateTimeSlots({
+  const timelineSlots = shop ? generateTimeSlots({
     shopId,
     date: selectedDate.date,
     durationMin: selectedService?.durationMin ?? 0,
     timeline: timelineData,
-  })
+    timeZone: shop?.timeZone
+  }) : [];
 
   const handleConfirmBooking = async () => {
     if (!selectedService || !selectedDate.time || isAuthLoading) return;
@@ -78,7 +78,7 @@ export default function BookingPage({
     const response = await bookingMutation({
       shopId,
       serviceId: selectedService.id,
-      staffId: shop?.staffs[0].user?.id || undefined,
+      staffId: shop?.staffs[0]?.id || undefined,
       date: selectedDate.date,
       startTime: selectedDate.time,
     });

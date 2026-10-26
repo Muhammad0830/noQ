@@ -1,6 +1,4 @@
-import { fromZonedTime, toZonedTime } from "date-fns-tz";
-
-export const timeZone = "Asia/Tokyo";
+import { fromZonedTime, toZonedTime as _toZonedTime } from "date-fns-tz";
 
 export function localDateTimeToUtc(
     date: string,
@@ -11,19 +9,25 @@ export function localDateTimeToUtc(
 }
 
 export function dateToUtc(
-  date: string,
-  timeZone: string = "Asia/Tashkent",
+    date: string,
+    timeZone: string = "Asia/Tashkent",
 ): string {
-  const localMidnight = `${date}T00:00:00`;
+    const localMidnight = `${date}T00:00:00`;
 
-  return fromZonedTime(localMidnight, timeZone).toISOString();
+    return fromZonedTime(localMidnight, timeZone).toISOString();
 }
 
 export function getLocalMinutes(
     value: string | Date,
     timeZone: string,
 ): number {
-    const date = toZonedTime(value, timeZone);
+    const date = _toZonedTime(value, timeZone);
 
     return date.getHours() * 60 + date.getMinutes();
+}
+
+export function toZonedTime(date: Date | string, timezone: string) {
+    const newDate = new Date(date);
+
+    return _toZonedTime(newDate, timezone);
 }

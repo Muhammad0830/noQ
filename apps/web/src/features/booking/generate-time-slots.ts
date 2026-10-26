@@ -1,5 +1,5 @@
 
-import { getLocalMinutes, timeZone } from "@noq/shared";
+import { getLocalMinutes } from "@noq/shared";
 import type { ScheduleSlot, DayTimelineResponse } from "./types";
 
 interface GenerateTimeSlotsParams {
@@ -7,6 +7,7 @@ interface GenerateTimeSlotsParams {
     date: string | null;
     durationMin: number;
     timeline: DayTimelineResponse | undefined;
+    timeZone: string;
     intervalMin?: number;
 }
 
@@ -34,6 +35,7 @@ export function generateTimeSlots({
     date,
     durationMin,
     timeline,
+    timeZone,
 }: GenerateTimeSlotsParams): ScheduleSlot[] {
     if (
         !date ||
