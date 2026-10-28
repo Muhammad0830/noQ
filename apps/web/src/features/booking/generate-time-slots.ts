@@ -7,7 +7,7 @@ interface GenerateTimeSlotsParams {
     date: string | null;
     durationMin: number;
     timeline: DayTimelineResponse | undefined;
-    timeZone: string;
+    timezone: string;
     intervalMin?: number;
 }
 
@@ -35,7 +35,7 @@ export function generateTimeSlots({
     date,
     durationMin,
     timeline,
-    timeZone,
+    timezone,
 }: GenerateTimeSlotsParams): ScheduleSlot[] {
     if (
         !date ||
@@ -75,8 +75,8 @@ export function generateTimeSlots({
             ranges: { start: string; end: string }[],
         ) =>
             ranges.some((range) => {
-                const rangeStart = getLocalMinutes(range.start, timeZone);
-                const rangeEnd = getLocalMinutes(range.end, timeZone);
+                const rangeStart = getLocalMinutes(range.start, timezone);
+                const rangeEnd = getLocalMinutes(range.end, timezone);
 
                 // Half-open intervals: [start, end)
                 return rangeStart < endMin && rangeEnd > startMin;

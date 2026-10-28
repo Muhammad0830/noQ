@@ -1,10 +1,10 @@
 import { cn, getInitials } from "@/lib/utils";
-import { ShopWithStaffs } from "@/shared/types/shop";
+import { ShopDetails } from "@noq/shared";
 import { useTranslations } from "next-intl";
 import { FC } from "react";
 
 interface SelectStaffSectionProps {
-    shop: ShopWithStaffs | undefined;
+    shop: ShopDetails | undefined;
 }
 
 const SelectStaffSection: FC<SelectStaffSectionProps> = ({
@@ -30,7 +30,10 @@ const SelectStaffSection: FC<SelectStaffSectionProps> = ({
                             key={`${member.id ?? "staff"}-${index}`}
                             className="shrink-0 w-23 text-center snap-start flex flex-col items-center"
                         >
-                            <div className={`h-16 w-16 rounded-full border-2 p-0.5 ${index === 0 ? "border-[#F49B33]" : "border-transparent"}`}>
+                            <div className={cn(
+                                "h-16 w-16 rounded-full border-2 p-0.5",
+                                index === 0 ? "border-[#F49B33]" : "border-transparent"
+                            )}>
                                 <div className={cn(
                                     "h-full w-full rounded-full flex items-center justify-center",
                                     index === 0 ? "bg-[#ff951d]" : "bg-[#ff961dc0]"

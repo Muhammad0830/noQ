@@ -39,6 +39,9 @@ export class PrismaShopRepository implements ShopRepositoryInterface {
         const shopList = await this.prisma.shop.findMany({
             where: {
                 isOpen: true,
+                ...(input.idList && {
+                    id: { in: input.idList.map(id => id.toString()) }
+                }),
                 ...(input.search && {
                     name: {
                         contains: input.search,
@@ -53,10 +56,18 @@ export class PrismaShopRepository implements ShopRepositoryInterface {
             },
             take: input.limit,
             include: { category: true },
-            orderBy: { createdAt: "desc" }
+            orderBy: { createdAt: "desc" },
         });
 
         return shopList.map(shop => this.toEntity(shop));
+    }
+
+    async exists(shopId: ShopId): Promise<boolean> {
+        const shop = await this.prisma.shop.findFirst({
+            where: { id: shopId.toString() }
+        });
+
+        return !!shop;
     }
 
     async add(shop: Shop): Promise<void> {

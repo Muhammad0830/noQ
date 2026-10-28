@@ -9,6 +9,8 @@ export interface ServiceRepositoryInterface {
 
     findMany(input: ServiceFindManyInput): Promise<Service[]>;
 
+    exists(serviceId: ServiceId): Promise<boolean>;
+
     nextIdentity(): ServiceId;
 }
 

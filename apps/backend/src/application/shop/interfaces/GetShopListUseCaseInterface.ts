@@ -1,6 +1,5 @@
 import { Service } from "@/domain/service/entities/Service.js";
-import { Shop } from "@/domain/shop/entities/Shop.js";
-import { DiscoveryShopsResponse } from "@noq/shared";
+import { GetShopForDiscoveryOutput } from "./GetShopListQueryInterface.js";
 
 export interface GetShopListUseCaseInput {
     categoryIdList?: string[];
@@ -15,6 +14,6 @@ export interface GetShopListUseCaseInterface {
 }
 
 export interface GetShopListUseCaseOutput {
-    shops: Shop[];
+    shops: GetShopForDiscoveryOutput;
     services: Service[];
 }

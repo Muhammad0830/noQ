@@ -1,10 +1,11 @@
-import { ShopWithStaffs } from "@/shared/types/shop";
+
+import { ShopDetails } from "@noq/shared";
 import { Clock, MapPin, Phone, SquareArrowOutUpRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { FC } from "react";
 
 interface ShopDetailsScreenProps {
-    shop: ShopWithStaffs;
+    shop: ShopDetails;
 }
 
 const ShopDetailsScreen: FC<ShopDetailsScreenProps> = ({

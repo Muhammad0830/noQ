@@ -14,11 +14,11 @@ import { Route } from "next";
 import ScheduleDatePicker from "@/features/booking/components/ScheduleDatePicker";
 import { generateTimeSlots } from "@/features/booking/generate-time-slots";
 import { TimeSlotPicker } from "@/features/booking/components/TimeSlotPicker";
-import { ShopWithStaffs } from "@/shared/types/shop";
 import Header from "@/features/booking/components/Header";
 import SelectedServiceCard from "@/features/booking/components/SelectedServiceCard";
 import SelectStaffSection from "@/features/booking/components/SelectStaffSection";
 import BookingFooter from "@/features/booking/components/BookingFooter";
+import { ShopDetails } from "@noq/shared";
 
 interface Props {
   params: Promise<{ shopId: string }>;
@@ -38,7 +38,7 @@ export default function BookingPage({
 
   const [selectedDate, setSelectedDate] = useState<SelectedDateType>(defaultSelectedDate);
 
-  const { data: shop, isLoading: isShopLoading } = useApiQuery<ShopWithStaffs>(
+  const { data: shop, isLoading: isShopLoading } = useApiQuery<ShopDetails>(
     API_ENDPOINTS.shopById(shopId),
     { key: ["shop", shopId] }
   );
@@ -64,7 +64,7 @@ export default function BookingPage({
     date: selectedDate.date,
     durationMin: selectedService?.durationMin ?? 0,
     timeline: timelineData,
-    timeZone: shop?.timeZone
+    timezone: shop?.timezone
   }) : [];
 
   const handleConfirmBooking = async () => {

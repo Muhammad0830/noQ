@@ -5,3 +5,4 @@ export * from "./service.js";
 export * from "./staff.js";
 export * from "./general_types.js";
 export * from "./shop-schedule.js";
+export * from "./review.js";

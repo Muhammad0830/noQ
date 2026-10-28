@@ -130,9 +130,6 @@ export const API_ENDPOINTS = {
   user_shops: `${API_BASE_URL}/users/shops`,
   shops_trending: `${API_BASE_URL}/shops/trending/7days`,
   shopById: (id: string) => `${API_BASE_URL}/shops/${id}`,
-  shopServices: (id: string) => `${API_BASE_URL}/shops/${id}/services`,
-  shopStaff: (id: string) => `${API_BASE_URL}/shops/${id}/staffs`,
-  shopReviews: (id: string) => `${API_BASE_URL}/shops/${id}/reviews`,
   shopTimeline: (id: string) => `${API_BASE_URL}/shops/${id}/day-timeline`,
 
   // Services

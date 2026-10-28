@@ -72,6 +72,14 @@ export class PrismaServiceRepository implements ServiceRepositoryInterface {
         return serviceList.map(service => this.toEntity(service));
     }
 
+    async exists(serviceId: ServiceId): Promise<boolean> {
+        const service = await this.prisma.service.findFirst({
+            where: { id: serviceId.toString() },
+        });
+
+        return !!service;
+    }
+
     nextIdentity(value?: string): ServiceId {
         return ServiceId.create(value)
     }

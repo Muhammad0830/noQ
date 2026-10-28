@@ -1,4 +1,4 @@
-import type { User, Staff, Service } from "@/index.js";
+import type { User, Service, Review } from "@/index.js";
 
 export interface ShopCategory {
     id: string;
@@ -10,25 +10,29 @@ export interface ShopCategory {
 
 export interface Shop {
     id: string;
-    name: string;
-    description?: string;
-    logoUrl?: string;
-    backgroundImageUrl?: string;
-    address: string;
-    phoneNumber: string;
-    categoryId: string;
-    openTime: string | null;
-    closeTime: string | null;
-    category?: ShopCategory;
     ownerId: string;
-    timeZone: string;
-    owner?: User;
+    categoryId: string;
+    name: string;
+    description: string | null;
     isOpen: boolean;
-    createdAt: string;
-    averageRating?: number;
-    reviewCount?: number;
+    address: string;
+    createdAt: Date;
+    updatedAt: Date;
+    phoneNumber: string;
+    backgroundImageUrl: string | null;
+    logoUrl: string | null;
+    timezone: string;
+    category: ShopCategory;
+}
+
+export interface ShopWithRating extends Shop {
+    averageRating: number;
+    reviewCount: number;
+}
+
+export interface ShopForDiscovery extends ShopWithRating {
+    owner?: User;
     services: string[];
-    staff: Staff[];
 }
 
 export type ShopInBookingData = Pick<Shop,
@@ -39,8 +43,29 @@ export type ShopInBookingData = Pick<Shop,
 >
 
 export interface DiscoveryShopsResponse {
-    shops: Shop[];
+    shops: ShopWithRating[];
     services: Service[];
     nextServiceCursor?: string;
     nextShopCursor?: string;
+}
+
+export interface TrendingShop extends Omit<ShopWithRating, 'reviews'> {
+    services: string[];
+    servicesCount: number;
+}
+
+export interface TrendingShopsResponse {
+    shopList: TrendingShop[]
+}
+
+export interface ShopWithService extends ShopWithRating {
+    services: Service[]
+}
+
+export interface ShopDetails extends Shop {
+    openTime: string;
+    closeTime: string;
+    staffs: User[];
+    services: Service[];
+    reviews: Review[];
 }

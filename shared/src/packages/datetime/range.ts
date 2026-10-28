@@ -2,7 +2,7 @@ import { fromZonedTime } from "date-fns-tz";
 
 export function getUtcDayRange(
   date: string,
-  timeZone: string,
+  timezone: string,
 ) {
   const [year, month, day] = date.split("-").map(Number);
 
@@ -26,7 +26,7 @@ export function getUtcDayRange(
   ].join("-");
 
   return {
-    startUtc: fromZonedTime(`${date}T00:00:00`, timeZone),
-    endUtc: fromZonedTime(`${nextDate}T00:00:00`, timeZone),
+    startUtc: fromZonedTime(`${date}T00:00:00`, timezone),
+    endUtc: fromZonedTime(`${nextDate}T00:00:00`, timezone),
   };
 }

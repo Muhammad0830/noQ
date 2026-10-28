@@ -1,13 +1,6 @@
 import { TimePickerState } from "../scheduling/types";
 import { DaySchedule } from "./types";
 
-export const parseTime = (v: string | undefined, step: number = 5): { h: number; m: number } => {
-    const m = v?.match(/^(\d{1,2}):(\d{2})$/);
-    const h = m ? Math.min(23, Number(m[1])) : 9;
-    const raw = m ? Math.min(59, Number(m[2])) : 0;
-    return { h, m: Math.min(59, Math.round(raw / step) * step) };
-}
-
 export const defaultTimePicker: TimePickerState = {
     isOpen: false,
     dayId: null,

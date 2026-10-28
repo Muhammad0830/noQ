@@ -6,11 +6,11 @@ import GalleryTab from "./GalleryTab";
 import ReviewsTabSkeleton from "./ReviewsTabSkeleton";
 import ReviewsTab from "./ReviewsTab";
 import { useTranslations } from "next-intl";
-import { ShopWithStaffs } from "@/shared/types/shop";
+import { ShopDetails } from "@noq/shared";
 
 interface ShopTabsProps {
     isLoading: boolean;
-    shop: ShopWithStaffs;
+    shop: ShopDetails;
     imageLoadError: boolean;
     backgroundImage: string | null;
     setImageLoadError: Dispatch<SetStateAction<boolean>>;

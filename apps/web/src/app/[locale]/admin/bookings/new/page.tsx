@@ -145,9 +145,9 @@ export default function AdminNewBookingPage() {
 
   const { data: services = [], isLoading: servicesLoading } = useApiQuery<
     Service[]
-  >(activeShopId ? API_ENDPOINTS.shopServices(activeShopId) : null, {
+  >(API_ENDPOINTS.admin.services, {
     key: ["admin-new-booking-services", activeShopId || "none"],
-    enabled: Boolean(activeShopId && user),
+    enabled: activeShopId && user,
     staleTime: 30_000,
     refetchOnMount: false,
     refetchOnWindowFocus: false,

@@ -8,7 +8,7 @@ import SecondaryHeader from "@/components/layouts/SecondaryHeader";
 import ShopPageSkeleton from "@/shared/components/shop/ShopPageSkeleton";
 import ImageSection from "@/shared/components/shop/ImageSection";
 import ShopTabs from "@/shared/components/shop/ShopTabs";
-import { ShopWithStaffs } from "@/shared/types/shop";
+import { ShopDetails } from "@noq/shared";
 
 export default function ShopProfile({ params }: {
   params: Promise<{ id: string }>;
@@ -21,7 +21,7 @@ export default function ShopProfile({ params }: {
     data: shop,
     isLoading,
     error: shopError,
-  } = useApiQuery<ShopWithStaffs>(API_ENDPOINTS.shopById(id), {
+  } = useApiQuery<ShopDetails>(API_ENDPOINTS.shopById(id), {
     key: ["shop", id],
   });
 

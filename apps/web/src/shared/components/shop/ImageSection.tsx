@@ -1,13 +1,13 @@
 "use client";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { ShopWithServices } from "@/shared/types/shop";
+import { ShopDetails } from "@noq/shared";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Dispatch, FC, SetStateAction } from "react";
 
 interface ImageSectionProps {
-    shop: ShopWithServices;
+    shop: ShopDetails;
     isLoading: boolean;
     backgroundImage: string | null;
     imageLoadError: boolean;

@@ -3,11 +3,14 @@ import { RequestHandler } from "express";
 import { GetShopListSchema } from "../validators/shop/GetShopListSchema.js";
 import { toShopListResource } from "../resources/shop/GetShopListResource.js";
 import { GetShopDataUseCaseInterface } from "@/application/shop/interfaces/GetShopDataUseCaseInterface.js";
+import { GetTrendingShopListUseCaseInterface } from "@/application/shop/interfaces/GetTrendingShopListUseCaseInterface.js";
+import { TrendingShopsResponse } from "@noq/shared";
 
 export class ShopController {
     constructor(
         private readonly getShopListUseCase: GetShopListUseCaseInterface,
         private readonly getShopDataUseCase: GetShopDataUseCaseInterface,
+        private readonly getTrendingShopListUseCase: GetTrendingShopListUseCaseInterface,
     ) { }
 
     list: RequestHandler = async (req, res, next) => {
@@ -34,6 +37,16 @@ export class ShopController {
             res.status(200).json(output);
         } catch (error) {
             next(error);
+        }
+    }
+
+    getTrending: RequestHandler = async (req, res, next) => {
+        try {
+            const output: TrendingShopsResponse = await this.getTrendingShopListUseCase.execute();
+
+            res.status(200).json(output);
+        } catch (error) {
+            next(error)
         }
     }
 }

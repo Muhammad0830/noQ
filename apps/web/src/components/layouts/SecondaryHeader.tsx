@@ -1,9 +1,9 @@
-import { ShopWithServices } from "@/shared/types/shop";
+import { ShopDetails } from "@noq/shared";
 import { ChevronLeft, Heart, Share2, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 interface Props {
-    shop: ShopWithServices;
+    shop: ShopDetails;
     isFavorite: boolean;
     onFavorite: (value: boolean) => void;
 }
@@ -14,6 +14,10 @@ export default function SecondaryHeader({
     onFavorite
 }: Props) {
     const t = useTranslations();
+
+    const totalRating = shop.reviews.map(review => review.rating).reduce(
+        (acc: number, rating: number) => acc + rating);
+    const averageRating = parseFloat((totalRating / shop.reviews.length).toFixed(1));
 
     return (
         <div className="max-w-3xl mx-auto px-4 pt-3 pb-2 flex items-center gap-2 sm:gap-3">
@@ -32,10 +36,10 @@ export default function SecondaryHeader({
                 <div className="flex items-center justify-center gap-1 mt-0.5">
                     <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400" />
                     <span className="font-semibold text-xs sm:text-sm text-gray-900">
-                        {shop.averageRating?.toFixed(1) || "0.0"}
+                        {averageRating || "0.0"}
                     </span>
                     <span className="text-xs sm:text-sm text-gray-600">
-                        ({shop.reviewCount || 0} {t("common.reviews")})
+                        ({shop.reviews.length || 0} {t("common.reviews")})
                     </span>
                 </div>
             </div>

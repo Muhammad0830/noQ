@@ -9,10 +9,10 @@ import { useTranslations } from "next-intl";
 import FilterDialog from "@/components/user/discover/FilterDialog";
 import { FilterType } from "@/features/discovery/types";
 import { getShopsUrl } from "@/features/discovery/utils/get-shops-url";
-import ShopList from "@/components/user/discover/ShopList";
 import ServiceList from "@/components/user/discover/ServiceList";
-import { Shop, ShopCategory } from "@/shared/types/shop";
-import { DiscoveryShopsResponse, Service } from "@noq/shared";
+import { ShopCategory } from "@/shared/types/shop";
+import { DiscoveryShopsResponse, Service, TrendingShopsResponse } from "@noq/shared";
+import ShopsSection from "@/components/user/discover/ShopsSection";
 
 const SKELETON_COUNT = 10;
 const COMPACT_SHOP_ROW_SKELETON_COUNT = 5;
@@ -77,10 +77,13 @@ export default function Page() {
     useApiQuery<ShopCategory[]>(API_ENDPOINTS.categories, { key: ["discover-filter-categories"] });
 
   const { data: shopsData = { shops: [], services: [] }, isLoading: isShopsLoading } =
-    useApiQuery<DiscoveryShopsResponse>(shopsUrl, { key: [shopsUrl] });
+    useApiQuery<DiscoveryShopsResponse>(shopsUrl, {
+      key: [shopsUrl],
+      enabled: isSearching || filter.categories.length > 0 || filter.priceEnabled
+    });
 
-  const { data: trendingShops = { shops: [] }, isLoading: isTrendingShopsLoading } =
-    useApiQuery<{ shops: Shop[] }>(API_ENDPOINTS.shops_trending, { key: ['trending_shops'] });
+  const { data: trendingShops = { shopList: [] }, isLoading: isTrendingShopsLoading } =
+    useApiQuery<TrendingShopsResponse>(API_ENDPOINTS.shops_trending, { key: ['trending_shops'] });
 
   const { data: trendingServices = [], isLoading: isTrendingServicesLoading } =
     useApiQuery<Service[]>(API_ENDPOINTS.services_trending, { key: ['trending_services'] });
@@ -123,20 +126,15 @@ export default function Page() {
         />
 
         {contentVisible && !isPriceOnlyFilter && (
-          <div className="mt-5">
-            <p className="mb-3 text-sm font-semibold text-slate-700">
-              {t("user.discover.shops")}
-            </p>
-
-            <ShopList
-              shops={filterItemsVisible ? shopsData.shops : trendingShops.shops}
-              isLoading={filterItemsVisible ? isShopsLoading : isTrendingShopsLoading}
-              isListLayoutForShops={isListLayoutForShops}
-              skeleton_count={SKELETON_COUNT}
-              activeDot={activeDot}
-              setActiveDot={setActiveDot}
-              compact_skeleton_count={COMPACT_SHOP_ROW_SKELETON_COUNT} />
-          </div>
+          <ShopsSection
+            trendingShops={trendingShops.shopList}
+            filteredShops={shopsData.shops}
+            isLoading={filterItemsVisible ? isShopsLoading : isTrendingShopsLoading}
+            isListLayoutForShops={isListLayoutForShops}
+            skeleton_count={SKELETON_COUNT}
+            compact_shop_row_skeleton_count={COMPACT_SHOP_ROW_SKELETON_COUNT}
+            activeDot={activeDot}
+            setActiveDot={setActiveDot} />
         )}
 
         {contentVisible && (
