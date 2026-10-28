@@ -13,6 +13,8 @@ import type { RequestWithUser } from "@/types.js";
 import { toCreateBookingResource } from "@/http/resources/booking/CreateBookingResource.js";
 import { toBookingResource, } from "@/http/resources/booking/UserBookingsResource.js";
 import { checkUserAuthenticated } from "../validators/auth/CheckUserAuthenticated.js";
+import { CreateBookingRequestBody } from "../validators/booking/CreateBookingSchema.js";
+import { UserRole } from "@/domain/shared/value-objects/UserRole.js";
 
 export class BookingController {
     constructor(
@@ -30,9 +32,16 @@ export class BookingController {
                 return;
             }
 
-            const body = req.body;
-            const customerId = user.id;
-            const result = await this.createBookingUseCase.execute({ ...body, customerId });
+            const body = req.body as CreateBookingRequestBody;
+
+            const result = await this.createBookingUseCase.execute({
+                customerId: user.id,
+                shopId: body.shopId,
+                date: body.date,
+                startTime: body.startTime,
+                serviceId: body.serviceId,
+                actorRole: UserRole.from(user.role)
+            });
 
             res.status(201).json(
                 toCreateBookingResource(result)

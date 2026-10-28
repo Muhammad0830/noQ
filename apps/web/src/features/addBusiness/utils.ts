@@ -103,7 +103,7 @@ export const mockStaffMembers = [
 
 export const defaultServiceValues = {
     name: "",
-    duration: "00:00",
+    durationMin: "00:00",
     bufferTime: 0,
     price: 0,
     assignedToAllStaffs: false,

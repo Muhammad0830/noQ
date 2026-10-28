@@ -8,6 +8,9 @@ export interface GetShopDataQueryOutput {
     name: string;
     description: string | null;
     phoneNumber: string;
+    address: string;
+    backgroundImageUrl: string | null;
+    isOpen: boolean;
     createdAt: Date;
     updatedAt: Date;
     averageRating: number;
@@ -36,7 +39,7 @@ export interface GetShopDataQueryOutput {
         name: string;
         description: string | null;
         price: number;
-        duration: number;
+        durationMin: number;
         isActive: boolean;
         bufferTime: number | null;
         createdAt: Date;

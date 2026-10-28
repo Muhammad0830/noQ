@@ -1,4 +1,4 @@
-import { addMinutes as _addMinutes, addDays, formatToDateString, formatToTimeString } from "@noq/shared";
+import { addMinutes as _addMinutes, addDays, createDateTime, formatToDateString, formatToTimeString } from "@noq/shared";
 
 export class DateTime {
     constructor(
@@ -13,6 +13,16 @@ export class DateTime {
         }
 
         return new DateTime(date);
+    }
+
+    static fromDateAndTime(date: string, time: string): DateTime {
+        const newDate = createDateTime(date, time);
+
+        if (Number.isNaN(newDate.getTime())) {
+            throw new Error(`Invalid DateTime input. date: ${date}, time: ${time}`);
+        }
+
+        return new DateTime(newDate);
     }
 
     static now(): DateTime {

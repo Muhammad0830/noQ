@@ -19,7 +19,7 @@ export class PrismaServiceRepository implements ServiceRepositoryInterface {
                 name: service.getName(),
                 description: service.getDescription(),
                 price: service.getPrice().amount,
-                durationMin: service.getDuration(),
+                durationMin: service.getDurationMin(),
                 bufferTime: service.getBufferTime(),
                 updatedAt: service.getUpdatedAt().getValue(),
             }

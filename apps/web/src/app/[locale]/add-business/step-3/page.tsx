@@ -22,7 +22,7 @@ export default function AddBusinessStepThreePage() {
   const t = useTranslations();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [selectedField, setSelectedField] = useState<'duration' | 'bufferTime'>('duration')
+  const [selectedField, setSelectedField] = useState<'durationMin' | 'bufferTime'>('durationMin')
 
   const { mutate, isPending } = useApiMutation(API_ENDPOINTS.shops, 'post');
 
@@ -47,12 +47,12 @@ export default function AddBusinessStepThreePage() {
     defaultValues: defaultServiceValues,
   })
 
-  const [name, price, duration, bufferTime, enabled, selectedStaffs] = useWatch({
+  const [name, price, durationMin, bufferTime, enabled, selectedStaffs] = useWatch({
     control,
     name: [
       "name",
       "price",
-      "duration",
+      "durationMin",
       "bufferTime",
       "assignedToAllStaffs",
       "selectedStaffs"
@@ -60,7 +60,7 @@ export default function AddBusinessStepThreePage() {
   });
 
   const onSubmit = async (data: CreateServiceData) => {
-    const durationMin = durationToMinutes(data.duration);
+    const durationMin = durationToMinutes(data.durationMin);
     const shopDetails = window.sessionStorage.getItem('shop_details');
     const scheduleDetails = window.sessionStorage.getItem('shop_schedule')
 
@@ -82,7 +82,7 @@ export default function AddBusinessStepThreePage() {
     router.push(`/admin?shopId=${encodeURIComponent("shopId")}`);
   };
 
-  const handleDrawerOpen = (field: 'duration' | 'bufferTime') => {
+  const handleDrawerOpen = (field: 'durationMin' | 'bufferTime') => {
     setIsDrawerOpen(true);
     setSelectedField(field);
   }
@@ -140,8 +140,8 @@ export default function AddBusinessStepThreePage() {
           </FieldCard>
 
           <ServiceAddDurationFields
-            error={errors.duration || errors.bufferTime}
-            duration={duration}
+            error={errors.durationMin || errors.bufferTime}
+            duration={durationMin}
             bufferTime={bufferTime}
             handleDrawerOpen={handleDrawerOpen} />
 
@@ -183,7 +183,7 @@ export default function AddBusinessStepThreePage() {
         setIsOpen={setIsDrawerOpen}
         onValueChange={(value) => setValue(
           selectedField,
-          selectedField === 'duration' ? value : durationToMinutes(value)
+          selectedField === 'durationMin' ? value : durationToMinutes(value)
         )} />
     </main>
   );

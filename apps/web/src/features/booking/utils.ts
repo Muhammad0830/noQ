@@ -23,7 +23,7 @@ const buildCommonBookingCard = (booking: BookingItem) => {
         id: booking.id,
         shopName: booking.shop.name,
         serviceName: booking.service.name,
-        duration: `${booking.service.durationMin} min`,
+        durationMin: `${booking.service.durationMin} min`,
         price: Number(booking.service.price),
         address: booking.shop.address,
         image: resolveShopImage(booking.shop.backgroundImageUrl),

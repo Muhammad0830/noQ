@@ -245,7 +245,7 @@ export default function Page() {
         serviceName,
         staffName,
         time: formatToDateString(booking.startTime),
-        duration: formatDuration(booking.startTime, booking.endTime),
+        durationMin: formatDuration(booking.startTime, booking.endTime),
         amount: formatCurrency(amountValue, locale),
         status: booking.status,
         statusLabel: statusLabels[booking.status],
@@ -315,7 +315,7 @@ export default function Page() {
         item.staffName,
         item.statusLabel,
         item.amount,
-        item.duration,
+        item.durationMin,
       ]),
     ];
 

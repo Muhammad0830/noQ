@@ -14,3 +14,11 @@ export enum SlotStatus {
     BREAK = 2,
     EMERGENCY = 3,
 }
+
+export interface BookingSlot {
+    id: string;
+    bufferTime: number;
+    durationMin: number;
+    status: SlotStatus;
+    time: string;
+}

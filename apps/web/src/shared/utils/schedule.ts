@@ -61,7 +61,7 @@ export const buildNonOverlappingDaySlots = (day: DaySchedule): ScheduleSlot[] =>
     return slots;
 };
 
-export const durationToMinutes = (duration: string): number => {
-    const [hours, minutes] = duration.split(":").map(Number);
+export const durationToMinutes = (time: string): number => {
+    const [hours, minutes] = time.split(":").map(Number);
     return hours * 60 + minutes;
 };

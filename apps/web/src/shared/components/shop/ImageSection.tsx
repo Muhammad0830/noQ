@@ -24,6 +24,7 @@ const ImageSection: FC<ImageSectionProps> = ({
     const t = useTranslations();
 
     const shopInitial = (shop.name?.trim()?.charAt(0) || "S").toUpperCase();
+    console.log(shop)
 
     return (
         <div className="max-w-3xl mx-4 mt-1 relative h-64 sm:h-80 bg-gray-300 overflow-hidden rounded-3xl">
@@ -54,7 +55,7 @@ const ImageSection: FC<ImageSectionProps> = ({
 
                     <div className="absolute bottom-3 sm:bottom-4 left-3 right-0 sm:left-4 pr-4">
                         <span
-                            className={`px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold text-white ${shop.isOpen ? "bg-teal-500" : "bg-red-500"}`}
+                            className={`px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold text-white ${shop.isOpen ? "bg-green-600" : "bg-red-500"}`}
                         >
                             {shop.isOpen ? t("user.shop.openNow") : t("user.shop.closed")}
                         </span>

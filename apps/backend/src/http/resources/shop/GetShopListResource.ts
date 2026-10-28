@@ -7,7 +7,7 @@ export function toShopListResource(output: GetShopListUseCaseOutput) {
         name: service.getName(),
         isActive: service.isActive(),
         price: service.getPrice().amount,
-        duration: service.getDuration(),
+        durationMin: service.getDurationMin(),
         bufferTime: service.getBufferTime(),
         description: service.getDescription(),
         createdAt: service.getCreatedAt().getValue(),

@@ -7,18 +7,17 @@ import { API_ENDPOINTS } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoginDialog } from "@/contexts/LogInDialogContext";
-import { DayTimelineResponse, SelectedDateType } from "@/features/booking/types";
+import { SelectedDateType } from "@/features/booking/types";
 import { addMinutes, defaultSelectedDate } from "@/features/booking/utils";
 import { useRouter } from "@/i18n/navigation";
 import { Route } from "next";
 import ScheduleDatePicker from "@/features/booking/components/ScheduleDatePicker";
-import { generateTimeSlots } from "@/features/booking/generate-time-slots";
 import { TimeSlotPicker } from "@/features/booking/components/TimeSlotPicker";
 import Header from "@/features/booking/components/Header";
 import SelectedServiceCard from "@/features/booking/components/SelectedServiceCard";
 import SelectStaffSection from "@/features/booking/components/SelectStaffSection";
 import BookingFooter from "@/features/booking/components/BookingFooter";
-import { ShopDetails } from "@noq/shared";
+import { ShopDetails, BookingSlot } from "@noq/shared";
 
 interface Props {
   params: Promise<{ shopId: string }>;
@@ -43,9 +42,9 @@ export default function BookingPage({
     { key: ["shop", shopId] }
   );
 
-  const { data: timelineData, isLoading: isTimelineLoading } = useApiQuery<DayTimelineResponse>(
-    `${API_ENDPOINTS.shopTimeline(shopId)}?date=${selectedDate.date}`,
-    { key: ["timeline", shopId, `${selectedDate.date}`], enabled: !!shop },
+  const { data: slotsData = [], isLoading: isTimelineLoading } = useApiQuery<BookingSlot[]>(
+    `${API_ENDPOINTS.bookingsAvailableSlots}?date=${selectedDate.date}&serviceId=${serviceFromQuery}&shopId=${shopId}`,
+    { key: ["timeline", shopId, selectedDate.date, `${serviceFromQuery}`], enabled: !!shop },
   );
 
   const { mutateAsync: bookingMutation, isPending } = useApiMutation<{ message: string }>(
@@ -58,14 +57,6 @@ export default function BookingPage({
   const bookingEndTime = selectedDate.time
     ? addMinutes(selectedDate.time, selectedService?.durationMin ?? 0)
     : null;
-
-  const timelineSlots = shop ? generateTimeSlots({
-    shopId,
-    date: selectedDate.date,
-    durationMin: selectedService?.durationMin ?? 0,
-    timeline: timelineData,
-    timezone: shop?.timezone
-  }) : [];
 
   const handleConfirmBooking = async () => {
     if (!selectedService || !selectedDate.time || isAuthLoading) return;
@@ -96,6 +87,8 @@ export default function BookingPage({
     );
   }
 
+  console.log(selectedDate)
+
   return (
     <div className="min-h-dvh max-w-md mx-auto px-4 bg-white text-slate-900 pb-0">
       <div className="pt-3">
@@ -108,7 +101,7 @@ export default function BookingPage({
         <ScheduleDatePicker selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
 
         <TimeSlotPicker
-          slots={timelineSlots}
+          slots={slotsData}
           selectedTime={selectedDate.time}
           durationMin={selectedService?.durationMin ?? 0}
           loading={isTimelineLoading}

@@ -42,7 +42,7 @@ type SlotItem = {
   id: string;
   time: string;
   available: boolean;
-  duration: number;
+  durationMin: number;
   bufferTime: number;
 };
 
@@ -852,7 +852,7 @@ export default function AdminNewBookingPage() {
                         const canSelect = !isBooked;
                         const endTime = addMinutes(
                           slot.time,
-                          ((slot.duration || selectedDuration) + slot.bufferTime),
+                          ((slot.durationMin || selectedDuration) + slot.bufferTime),
                         );
                         const status = isSelected
                           ? "selected"

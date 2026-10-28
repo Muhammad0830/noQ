@@ -5,7 +5,7 @@ import prisma from "@/db/prisma.js";
 import { ShopController } from "@/http/controllers/ShopController.js";
 import { PrismaServiceRepository } from "@/infrastructue/persistence/service/PrismaServiceRepository.js";
 import { GetShopDataQuery } from "@/infrastructue/persistence/shop/GetShopDataQuery.js";
-import { GetShopListQuery } from "@/infrastructue/persistence/shop/getShopListQuery.js";
+import { GetShopListQuery } from "@/infrastructue/persistence/shop/GetShopListQuery.js";
 import { PrismaShopRepository } from "@/infrastructue/persistence/shop/PrismaShopRepository.js";
 
 const shopRepository = new PrismaShopRepository(prisma);

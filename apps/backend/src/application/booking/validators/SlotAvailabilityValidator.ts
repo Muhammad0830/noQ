@@ -1,4 +1,4 @@
-import { createDateTime, SlotStatus } from "@noq/shared";
+import { SlotStatus } from "@noq/shared";
 import { TimeSlot } from "@/domain/shared/value-objects/TimeSlot.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 import type { GetSlotStatusInput } from
@@ -6,12 +6,12 @@ import type { GetSlotStatusInput } from
 
 export class SlotAvailabilityValidator {
     validate(input: GetSlotStatusInput): SlotStatus {
-        const slotStart = createDateTime(input.selectedDate.toDateString(), input.startTime);
-        const slotEnd = createDateTime(input.selectedDate.toDateString(), input.endTime);
+        const slotStart = DateTime.fromDateAndTime(input.selectedDate.toDateString(), input.startTime)
+        const slotEnd = DateTime.fromDateAndTime(input.selectedDate.toDateString(), input.endTime)
 
         const timeSlot = TimeSlot.create({
-            start: DateTime.from(slotStart),
-            end: DateTime.from(slotEnd)
+            start: slotStart,
+            end: slotEnd,
         });
 
         const isRegularBlockConflict = input.regularBlockSlots.some(busySlot => busySlot.overlaps(timeSlot));

@@ -90,7 +90,7 @@ export class Booking {
 
     getEndTime(): DateTime {
         return this.props.startTime.addMinutes(
-            this.props.service.getTotalDuration()
+            this.props.service.getTotalDurationMin()
         );
     }
 
@@ -115,7 +115,7 @@ export class Booking {
     }
 
     getDuration(): number {
-        return this.props.service.getDuration();
+        return this.props.service.getDurationMin();
     }
 
     reschedule(newStartTime: DateTime): void {

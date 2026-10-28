@@ -60,14 +60,16 @@ export default function ShopProfile({ params }: {
         backgroundImage={backgroundImage}
         imageLoadError={imageLoadError}
         isLoading={isLoading}
-        setImageLoadError={setImageLoadError} />
+        setImageLoadError={setImageLoadError}
+      />
 
       <ShopTabs
         imageLoadError={imageLoadError}
         shop={shop}
         isLoading={isLoading}
         backgroundImage={backgroundImage}
-        setImageLoadError={setImageLoadError} />
+        setImageLoadError={setImageLoadError}
+      />
     </div>
   );
 }

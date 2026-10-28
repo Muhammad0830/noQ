@@ -15,7 +15,7 @@ export interface GetAvailableSlotsUseCaseInput {
 export interface VisibleSlots {
     id: string;
     time: string;
-    duration: number;
+    durationMin: number;
     bufferTime: number;
     status: SlotStatus;
 }

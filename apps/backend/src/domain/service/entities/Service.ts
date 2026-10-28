@@ -81,7 +81,7 @@ export class Service {
         return this.props.price;
     }
 
-    getDuration(): number {
+    getDurationMin(): number {
         return this.props.durationMin;
     }
 
@@ -93,7 +93,7 @@ export class Service {
         return this.props.bufferTime || null;
     }
 
-    getTotalDuration(): number {
+    getTotalDurationMin(): number {
         return this.props.durationMin + (this.props.bufferTime ?? 0)
     }
 
