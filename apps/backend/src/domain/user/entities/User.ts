@@ -8,8 +8,8 @@ interface Props {
     name: string,
     email: EmailAddress,
     role: UserRole,
-    avatarUrl?: string,
-    phoneNumber?: string,
+    avatarUrl: string | null,
+    phoneNumber: string | null,
     createdAt: DateTime,
     updatedAt: DateTime,
 }
@@ -81,7 +81,48 @@ export class User {
         return this.props.updatedAt;
     }
 
+    isAdmin(): boolean {
+        return this.props.role.equals(UserRole.ADMIN);
+    }
+
+    isUser(): boolean {
+        return this.props.role.equals(UserRole.USER);
+    }
+
     sameAsOther(other: User): boolean {
         return other.getId().equals(this.props.id);
+    }
+
+    updateName(name: string): void {
+        this.props.name = name;
+        this.touch();
+    }
+
+    updateAvatarUrl(url: string): void {
+        this.props.avatarUrl = url;
+        this.touch();
+    }
+
+    updatePhoneNumber(phoneNumber: string): void {
+        this.props.phoneNumber = phoneNumber;
+        this.touch();
+    }
+
+    updateRole(role: UserRole): void {
+        if (role.equals(UserRole.ADMIN)) {
+            this.ensureCanBecomeAdmin();
+        }
+
+        this.props.role = role;
+    }
+
+    private ensureCanBecomeAdmin(): void {
+        if (this.isAdmin()) {
+            throw new Error("User already Admin");
+        }
+    }
+
+    private touch(): void {
+        this.props.updatedAt = DateTime.now();
     }
 }

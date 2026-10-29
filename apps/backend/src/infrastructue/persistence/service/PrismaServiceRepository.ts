@@ -4,27 +4,14 @@ import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 import { Money } from "@/domain/shared/value-objects/Money.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
-import type { PrismaClient, Service as ServiceModel } from "@prisma/client";
+import type { Prisma, PrismaClient, Service as ServiceModel } from "@prisma/client";
+
+type PrismaExecutor = PrismaClient | Prisma.TransactionClient;
 
 export class PrismaServiceRepository implements ServiceRepositoryInterface {
     constructor(
-        private readonly prisma: PrismaClient,
+        private readonly prisma: PrismaExecutor,
     ) { }
-
-    async save(service: Service): Promise<void> {
-        await this.prisma.service.create({
-            data: {
-                id: service.getId().toString(),
-                shopId: service.getShopId().toString(),
-                name: service.getName(),
-                description: service.getDescription(),
-                price: service.getPrice().amount,
-                durationMin: service.getDurationMin(),
-                bufferTime: service.getBufferTime(),
-                updatedAt: service.getUpdatedAt().getValue(),
-            }
-        })
-    }
 
     async findById(id: ServiceId): Promise<Service> {
         const serviceModel = await this.prisma.service.findUnique({
@@ -70,6 +57,54 @@ export class PrismaServiceRepository implements ServiceRepositoryInterface {
         });
 
         return serviceList.map(service => this.toEntity(service));
+    }
+
+    async save(service: Service): Promise<void> {
+        await this.prisma.service.update({
+            where: { id: service.getId().toString() },
+            data: {
+                id: service.getId().toString(),
+                shopId: service.getShopId().toString(),
+                name: service.getName(),
+                description: service.getDescription(),
+                price: service.getPrice().amount,
+                durationMin: service.getDurationMin(),
+                bufferTime: service.getBufferTime(),
+                updatedAt: service.getUpdatedAt().getValue(),
+            }
+        })
+    }
+
+    async add(service: Service): Promise<void> {
+        await this.prisma.service.create({
+            data: {
+                id: service.getId().toString(),
+                shopId: service.getShopId().toString(),
+                name: service.getName(),
+                description: service.getDescription(),
+                price: service.getPrice().amount,
+                durationMin: service.getDurationMin(),
+                bufferTime: service.getBufferTime(),
+                createdAt: service.getCreatedAt().getValue(),
+                updatedAt: service.getUpdatedAt().getValue(),
+            }
+        })
+    }
+
+    async addMany(serviceList: Service[]): Promise<void> {
+        await this.prisma.service.createMany({
+            data: serviceList.map(service => ({
+                id: service.getId().toString(),
+                shopId: service.getShopId().toString(),
+                name: service.getName(),
+                description: service.getDescription(),
+                price: service.getPrice().amount,
+                durationMin: service.getDurationMin(),
+                bufferTime: service.getBufferTime(),
+                createdAt: service.getCreatedAt().getValue(),
+                updatedAt: service.getUpdatedAt().getValue(),
+            }))
+        })
     }
 
     async exists(serviceId: ServiceId): Promise<boolean> {

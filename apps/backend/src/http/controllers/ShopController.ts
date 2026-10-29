@@ -1,17 +1,62 @@
-import { GetShopListUseCaseInterface } from "@/application/shop/interfaces/GetShopListUseCaseInterface.js";
+import { GetShopListUseCaseInterface } from
+    "@/application/shop/interfaces/GetShopListUseCaseInterface.js";
+import { GetShopDataUseCaseInterface } from
+    "@/application/shop/interfaces/GetShopDataUseCaseInterface.js";
+import { GetTrendingShopListUseCaseInterface } from
+    "@/application/shop/interfaces/GetTrendingShopListUseCaseInterface.js";
+import { CreateShopUseCaseInterface } from
+    "@/application/shop/interfaces/CreateShopUseCaseInterface.js";
+import { toShopListResource } from "@/http/resources/shop/GetShopListResource.js";
 import { RequestHandler } from "express";
-import { GetShopListSchema } from "../validators/shop/GetShopListSchema.js";
-import { toShopListResource } from "../resources/shop/GetShopListResource.js";
-import { GetShopDataUseCaseInterface } from "@/application/shop/interfaces/GetShopDataUseCaseInterface.js";
-import { GetTrendingShopListUseCaseInterface } from "@/application/shop/interfaces/GetTrendingShopListUseCaseInterface.js";
+import { GetShopListSchema } from "@/http/validators/shop/GetShopListSchema.js";
 import { TrendingShopsResponse } from "@noq/shared";
+import { CreateShopSchema } from "@/http/validators/shop/CreateShopSchema.js";
 
 export class ShopController {
     constructor(
         private readonly getShopListUseCase: GetShopListUseCaseInterface,
         private readonly getShopDataUseCase: GetShopDataUseCaseInterface,
         private readonly getTrendingShopListUseCase: GetTrendingShopListUseCaseInterface,
+        private readonly createShopUseCase: CreateShopUseCaseInterface,
     ) { }
+
+    create: RequestHandler = async (req, res, next) => {
+        try {
+            const body = req.body as CreateShopSchema;
+
+            const shopId = await this.createShopUseCase.execute({
+                shop: {
+                    userId: body.shop.userId,
+                    categoryId: body.shop.categoryId,
+                    name: body.shop.name,
+                    address: body.shop.address,
+                    phoneNumber: body.shop.phoneNumber,
+                    description: body.shop.description ?? null,
+                    logoUrl: body.shop.logoUrl ?? null,
+                    file: req.file ?? null,
+                },
+                schedule: body.schedule,
+                services: body.services.map(service => ({
+                    name: service.name,
+                    price: service.price,
+                    durationMin: service.durationMin,
+                    selectedStaffs: service.selectedStaffs,
+                    bufferTime: service.bufferTime ?? null,
+                    description: service.description ?? null,
+                })),
+            });
+
+            res.status(201).json({
+                success: true,
+                message: "Shop created successfully",
+                data: {
+                    shopId: shopId.toString(),
+                },
+            })
+        } catch (error) {
+            next(error);
+        }
+    }
 
     list: RequestHandler = async (req, res, next) => {
         try {

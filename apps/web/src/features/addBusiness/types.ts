@@ -7,7 +7,7 @@ export interface ScheduleSlot {
 }
 
 export interface StepOneForm {
-    businessName: string;
+    name: string;
     categoryId: string;
     description: string;
     address: string;

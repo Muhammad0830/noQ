@@ -1,21 +1,17 @@
-import { OwnerId } from "@/domain/owner/value-objects/OwnerId.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
-import { ShopCategory } from "@/domain/shop-category/entities/ShopCategory.js";
 import { ShopCategoryId } from "@/domain/shop-category/value-objects/ShopCategoryId.js";
 import { Shop } from "@/domain/shop/entities/Shop.js";
-import { ShopFindManyInput, ShopRepositoryInterface } from "@/domain/shop/repositories/ShopRepositoryInterface.js";
+import { ShopFindManyInput, ShopRepositoryInterface } from
+    "@/domain/shop/repositories/ShopRepositoryInterface.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
+import { UserId } from "@/domain/user/value-objects/UserId.js";
 import { Prisma, PrismaClient, Shop as ShopModel } from "@prisma/client";
 
-type ShopModelWithCategory = Prisma.ShopGetPayload<{
-    include: {
-        category: true,
-    },
-}>
+type PrismaExecutor = PrismaClient | Prisma.TransactionClient;
 
 export class PrismaShopRepository implements ShopRepositoryInterface {
     constructor(
-        private readonly prisma: PrismaClient,
+        private readonly prisma: PrismaExecutor,
     ) { }
 
     async findById(id: ShopId): Promise<Shop> {
@@ -75,22 +71,16 @@ export class PrismaShopRepository implements ShopRepositoryInterface {
             data: {
                 id: shop.getId().toString(),
                 ownerId: shop.getOwnerId().toString(),
-                categoryId: shop.getCategory().getId().toString(),
+                categoryId: shop.getCategoryId().toString(),
                 name: shop.getName(),
                 isOpen: shop.isOpen(),
                 createdAt: shop.getCreatedAt().getValue(),
                 updatedAt: shop.getUpdatedAt().getValue(),
                 address: shop.getAddress(),
                 phone: shop.getPhoneNumber(),
-                ...(shop.getDescription() && {
-                    description: shop.getDescription(),
-                }),
-                ...(shop.getLogoUrl() && {
-                    logoUrl: shop.getLogoUrl(),
-                }),
-                ...(shop.getBackgroundImageUrl() && {
-                    backgroundImageUrl: shop.getBackgroundImageUrl()
-                }),
+                description: shop.getDescription(),
+                logoUrl: shop.getLogoUrl(),
+                backgroundImageUrl: shop.getBackgroundImageUrl()
             }
         });
     }
@@ -105,18 +95,10 @@ export class PrismaShopRepository implements ShopRepositoryInterface {
                 isOpen: shop.isOpen(),
                 updatedAt: shop.getUpdatedAt().getValue(),
                 address: shop.getAddress(),
-                ...(shop.getDescription() && {
-                    description: shop.getDescription(),
-                }),
-                ...(shop.getLogoUrl() && {
-                    logoUrl: shop.getLogoUrl(),
-                }),
-                ...(shop.getPhoneNumber() && {
-                    phone: shop.getPhoneNumber()
-                }),
-                ...(shop.getBackgroundImageUrl() && {
-                    backgroundImageUrl: shop.getBackgroundImageUrl()
-                }),
+                description: shop.getDescription(),
+                logoUrl: shop.getLogoUrl(),
+                phone: shop.getPhoneNumber(),
+                backgroundImageUrl: shop.getBackgroundImageUrl()
             }
         });
     }
@@ -125,30 +107,20 @@ export class PrismaShopRepository implements ShopRepositoryInterface {
         return ShopId.create();
     }
 
-    private toEntity(model: ShopModelWithCategory): Shop {
+    private toEntity(model: ShopModel): Shop {
         return Shop.create({
             id: ShopId.create(model.id),
-            ownerId: OwnerId.create(model.ownerId),
-            category: ShopCategory.create({
-                id: ShopCategoryId.create(model.categoryId),
-                name: model.category.name,
-                icon: model.category.icon,
-            }),
+            ownerId: UserId.create(model.ownerId),
+            categoryId: ShopCategoryId.create(model.categoryId),
             name: model.name,
             isOpen: model.isOpen,
             address: model.address,
-            phone: model.phone,
+            phoneNumber: model.phone,
             createdAt: DateTime.from(model.createdAt),
             updatedAt: DateTime.from(model.updatedAt),
-            ...(model.description && {
-                description: model.description,
-            }),
-            ...(model.logoUrl && {
-                logoUrl: model.logoUrl,
-            }),
-            ...(model.backgroundImageUrl && {
-                backgroundImageUrl: model.backgroundImageUrl
-            }),
+            description: model.description,
+            logoUrl: model.logoUrl,
+            backgroundImageUrl: model.backgroundImageUrl
         })
     }
 }

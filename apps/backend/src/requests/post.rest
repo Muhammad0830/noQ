@@ -1,4 +1,4 @@
-@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzkzMTYyODI2LCJpYXQiOjE3OTMxNTkyMjYsImVtYWlsIjoiYUBnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc5MzE1OTIyNn1dLCJzZXNzaW9uX2lkIjoiNzdlNjI0NDgtZjYyNC00ODlmLTk0YmEtNjk4MDc0MTNiNWI0IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.AjgK-tUT3eRMTYeRu-XdHwndNEJQfCIgX7XKyFNEMxD925mq0_nA8fqiXhR2EQm6DmWMqC0y96sLjiICIIcXfA
+@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzkzMjM1Nzk3LCJpYXQiOjE3OTMyMzIxOTcsImVtYWlsIjoiYUBnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc5MzIzMjE5N31dLCJzZXNzaW9uX2lkIjoiZjczZDRkMTgtMzU3Zi00N2ViLWFmNzItMTI3YzczMGUzYWQzIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.9_BJvSUd6fpCAiVhlx7fu0wjfTMEA8POdfXWxXkXWOMQ7S4NUAYmDFKdldvBEuJMVDIgqyos_28McvBUeNHc_Q
 
 POST http://localhost:3001/auth/signup
 Content-Type: application/json
@@ -44,12 +44,12 @@ Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 
 {
-  "name": "Sunnatilla electrician",
+  "userId": "0e6c38d7-2241-4ab2-883a-038818b7cb7d",
+  "name": "MUHAMMD SHOP",
   "address": "93 Main St, Sometown",
-  "phone": "+998928392363",
+  "phoneNumber": "+998928392363",
   "categoryId": "a85dbfa6-7c8f-4ffc-a7ad-b3a85a5503e8",
-  "description": "A modern electrician with a passion for providing top-notch service and expertise. We pride ourselves on offering personalized attention and exceptional customer service. Our team is dedicated to ensuring that every customer is satisfied with their electrical needs. Whether you need help with wiring, installing new equipment, or troubleshooting technical issues, we are here to assist you. Contact us today to schedule a consultation and learn more about our services.",
-  "shopImageFile": "File"
+  "description": "A modern electrician with a passion for providing top-notch service and expertise. We pride ourselves on offering personalized attention and exceptional customer service. Our team is dedicated to ensuring that every customer is satisfied with their electrical needs. Whether you need help with wiring, installing new equipment, or troubleshooting technical issues, we are here to assist you. Contact us today to schedule a consultation and learn more about our services."
 }
 
 ###

@@ -5,8 +5,8 @@ export class ShopScheduleId {
         private readonly value: string,
     ) { }
 
-    static create(value: string): ShopScheduleId {
-        return new ShopScheduleId(value ?? uuiv4);
+    static create(value?: string): ShopScheduleId {
+        return new ShopScheduleId(value ?? uuiv4());
     }
 
     toString(): string {

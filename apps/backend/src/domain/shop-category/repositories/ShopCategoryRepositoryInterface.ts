@@ -6,6 +6,8 @@ export interface ShopCategoryRepositoryInterface {
 
     all(): Promise<ShopCategory[]>;
 
+    exists(categoryId: ShopCategoryId): Promise<boolean>;
+
     add(shopCategory: ShopCategory): Promise<void>;
 
     save(shopCategory: ShopCategory): Promise<void>;

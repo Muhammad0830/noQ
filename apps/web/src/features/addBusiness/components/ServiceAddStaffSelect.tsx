@@ -75,7 +75,7 @@ const ServiceAddStaffSelect: FC<ServiceAddStaffSelectProps> = ({
                             <span
                                 className={cn(
                                     "flex h-6 w-6 items-center justify-center rounded-full border",
-                                    active && enabled ? "border-white bg-white text-[#F49B33]" : "border-[#d8dde5] bg-white text-transparent"
+                                    active || enabled ? "border-white bg-white text-[#F49B33]" : "border-[#d8dde5] bg-white text-transparent"
                                 )}
                             >
                                 <Check className="h-4 w-4" />

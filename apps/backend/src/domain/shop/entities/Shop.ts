@@ -1,21 +1,21 @@
 import type { ShopId } from "../value-objects/ShopId.js";
-import type { OwnerId } from "@/domain/owner/value-objects/OwnerId.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
-import { ShopCategory } from "@/domain/shop-category/entities/ShopCategory.js";
+import { ShopCategoryId } from "@/domain/shop-category/value-objects/ShopCategoryId.js";
+import { UserId } from "@/domain/user/value-objects/UserId.js";
 
 interface Props {
     id: ShopId,
-    ownerId: OwnerId,
+    ownerId: UserId,
+    categoryId: ShopCategoryId,
     name: string,
     isOpen: boolean,
     address: string,
-    category: ShopCategory,
     createdAt: DateTime,
     updatedAt: DateTime,
-    description?: string,
-    logoUrl?: string,
-    phone: string,
-    backgroundImageUrl?: string,
+    description: string | null,
+    logoUrl: string | null,
+    phoneNumber: string,
+    backgroundImageUrl: string | null,
 }
 
 interface CreateProps extends Omit<Props, 'createdAt' | 'updatedAt'> {
@@ -37,8 +37,8 @@ export class Shop {
             throw new Error("Owner ID is required");
         }
 
-        if (!props.category) {
-            throw new Error("Category is required");
+        if (!props.categoryId.toString().trim()) {
+            throw new Error("Category ID is required");
         }
 
         if (!props.name.trim()) {
@@ -60,12 +60,12 @@ export class Shop {
         return this.props.id;
     }
 
-    getOwnerId(): OwnerId {
+    getOwnerId(): UserId {
         return this.props.ownerId;
     }
 
-    getCategory(): ShopCategory {
-        return this.props.category;
+    getCategoryId(): ShopCategoryId {
+        return this.props.categoryId;
     }
 
     getName(): string {
@@ -93,7 +93,7 @@ export class Shop {
     }
 
     getPhoneNumber(): string {
-        return this.props.phone;
+        return this.props.phoneNumber;
     }
 
     getBackgroundImageUrl(): string | null {

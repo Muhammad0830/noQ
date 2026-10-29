@@ -3,7 +3,7 @@ import type { ServiceId } from "../value-objects/ServiceId.js";
 import type { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 
-interface ServiceProps {
+interface Props {
     id: ServiceId,
     shopId: ShopId,
     name: string,
@@ -16,10 +16,15 @@ interface ServiceProps {
     description?: string | null,
 }
 
-export class Service {
-    constructor(private readonly props: ServiceProps) { }
+interface CreateProps extends Omit<Props, 'createdAt' | 'updatedAt'> {
+    createdAt?: DateTime,
+    updatedAt?: DateTime,
+}
 
-    static create(service: ServiceProps): Service {
+export class Service {
+    constructor(private readonly props: Props) { }
+
+    static create(service: CreateProps): Service {
         if (!service.id.toString().trim()) {
             throw new Error("Service ID is required");
         }

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { SubmitEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { API_ENDPOINTS } from "@/lib/api";
 import useApiQuery from "@/hooks/useApiQuery";
@@ -24,9 +24,9 @@ export default function AddBusinessStepOnePage() {
     form.name.trim().length > 1 &&
     form.categoryId.trim().length > 0 &&
     form.address.trim().length > 3 &&
-    form.phone.trim().length >= 4;
+    form.phoneNumber.trim().length >= 4;
 
-  const handleNext = (event: FormEvent<HTMLFormElement>) => {
+  const handleNext = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!canProceed) return;
@@ -35,11 +35,11 @@ export default function AddBusinessStepOnePage() {
       window.sessionStorage.setItem(
         "shop_details",
         JSON.stringify({
-          businessName: form.name.trim(),
+          name: form.name.trim(),
           categoryId: form.categoryId,
           description: form.description?.trim(),
           address: form.address.trim(),
-          phone: form.phone.trim(),
+          phoneNumber: form.phoneNumber.trim(),
         }),
       );
     }
@@ -87,10 +87,10 @@ export default function AddBusinessStepOnePage() {
           onChange={(event) => handleInputChange(event.target.value, 'address')} />
 
         <InputField
-          value={form.phone}
+          value={form.phoneNumber}
           label={t("newShop.step1.phone")}
           placeholder={t("newShop.step1.phonePlaceholder")}
-          onChange={(event) => handleInputChange(event.target.value, 'phone')} />
+          onChange={(event) => handleInputChange(event.target.value, 'phoneNumber')} />
 
         <button
           type="submit"
