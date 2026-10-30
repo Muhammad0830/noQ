@@ -19,7 +19,6 @@ const resolveShopImage = (rawImage?: string | null) => {
 };
 
 const buildCommonBookingCard = (booking: BookingItem) => {
-    console.log(booking.service)
     return {
         id: booking.id,
         shopName: booking.shop.name,

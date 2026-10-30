@@ -23,6 +23,17 @@ export class PrismaFavouriteServiceRepository implements FavouriteServiceReposit
         return this.toEntity(favouriteService);
     }
 
+    async findByServiceIdAndUserId(serviceId: ServiceId, userId: UserId): Promise<FavouriteService | null> {
+        const favouriteService = await this.prisma.favoriteService.findFirst({
+            where: {
+                userId: userId.toString(),
+                serviceId: serviceId.toString(),
+            },
+        });
+
+        return favouriteService ? this.toEntity(favouriteService) : null;
+    }
+
     async add(favouriteService: FavouriteService): Promise<void> {
         await this.prisma.favoriteService.create({
             data: {
@@ -33,6 +44,12 @@ export class PrismaFavouriteServiceRepository implements FavouriteServiceReposit
                 updatedAt: favouriteService.getUpdatedAt().getValue(),
             }
         })
+    }
+
+    async delete(favouriteServiceId: FavouriteServiceId): Promise<void> {
+        await this.prisma.favoriteService.delete({
+            where: { id: favouriteServiceId.toString() },
+        });
     }
 
     nextIdentity(): FavouriteServiceId {

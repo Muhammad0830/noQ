@@ -22,6 +22,17 @@ export class PrismaFavouriteShopRepository implements FavouriteShopRepositoryInt
         return this.toEntity(favouriteShop);
     }
 
+    async findByShopIdAndUserId(shopId: ShopId, userId: UserId): Promise<FavouriteShop | null> {
+        const favouriteShop = await this.prisma.favoriteShop.findFirst({
+            where: {
+                userId: userId.toString(),
+                shopId: shopId.toString(),
+            },
+        });
+
+        return favouriteShop ? this.toEntity(favouriteShop) : null;
+    }
+
     async add(favouriteShop: FavouriteShop): Promise<void> {
         await this.prisma.favoriteShop.create({
             data: {
@@ -32,6 +43,12 @@ export class PrismaFavouriteShopRepository implements FavouriteShopRepositoryInt
                 updatedAt: favouriteShop.getUpdatedAt().getValue(),
             }
         })
+    }
+
+    async delete(favouriteShopId: FavouriteShopId): Promise<void> {
+        await this.prisma.favoriteShop.delete({
+            where: { id: favouriteShopId.toString() },
+        });
     }
 
     nextIdentity(): FavouriteShopId {
