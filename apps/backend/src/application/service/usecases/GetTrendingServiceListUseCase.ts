@@ -1,4 +1,4 @@
-import { GetServiceDataQueryInterface, GetTrendingServiceListDTO } from "@/domain/service/repositories/GetServiceDataQueryInterface.js";
+import { GetServiceDataQueryInterface, GetTrendingServiceListDTO } from "@/application/service/interfaces/GetServiceDataQueryInterface.js";
 import { GetTrendingServiceListUseCaseInterface } from "../interfaces/GetTrendingServiceListUseCaseInterface.js";
 
 const TIME_RANGE = 7 * 24 * 60 * 60 * 1000;

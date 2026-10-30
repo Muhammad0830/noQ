@@ -1,4 +1,5 @@
-import { GetServiceDataQueryInterface, GetTrendingServiceListDTO } from "@/domain/service/repositories/GetServiceDataQueryInterface.js";
+import { GetServiceDataQueryInterface, GetTrendingServiceListDTO, ServiceDetailsDTO } from "@/application/service/interfaces/GetServiceDataQueryInterface.js";
+import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
 import { BookingStatus, PrismaClient } from "@prisma/client";
 
 export class GetServiceDataQuery implements GetServiceDataQueryInterface {
@@ -44,5 +45,28 @@ export class GetServiceDataQuery implements GetServiceDataQueryInterface {
                 description: service.description
             }))
         };
+    }
+
+    async getDetails(serviceId: ServiceId): Promise<ServiceDetailsDTO> {
+        const service = await this.prisma.service.findUnique({
+            where: { id: serviceId.toString() },
+        });
+
+        if (!service) {
+            throw new Error("Service not found");
+        }
+
+        return {
+            id: service.id,
+            shopId: service.shopId,
+            name: service.name,
+            description: service.description,
+            price: Number(service.price),
+            durationMin: service.durationMin,
+            bufferTime: service.bufferTime,
+            isActive: service.isActive,
+            createdAt: service.createdAt,
+            updatedAt: service.updatedAt,
+        }
     }
 }

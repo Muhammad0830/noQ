@@ -1,3 +1,4 @@
+import { GetServiceDetailsUseCase } from "@/application/service/usecases/GetServiceDetailsUseCase.js";
 import { GetTrendingServiceListUseCase } from "@/application/service/usecases/GetTrendingServiceListUseCase.js";
 import prisma from "@/db/prisma.js";
 import { ServiceController } from "@/http/controllers/ServiceController.js";
@@ -8,8 +9,10 @@ const serviceRepository = new PrismaServiceRepository(prisma);
 
 const getServiceDataQuery = new GetServiceDataQuery(prisma);
 
-const getTrendingServiceListUseCae = new GetTrendingServiceListUseCase(getServiceDataQuery);
+const getTrendingServiceListUseCase = new GetTrendingServiceListUseCase(getServiceDataQuery);
+const getServiceDetailsUseCase = new GetServiceDetailsUseCase(getServiceDataQuery);
 
 export const serviceController = new ServiceController(
-    getTrendingServiceListUseCae
+    getTrendingServiceListUseCase,
+    getServiceDetailsUseCase,
 );
