@@ -1,4 +1,4 @@
-@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzkzMjM1Nzk3LCJpYXQiOjE3OTMyMzIxOTcsImVtYWlsIjoiYUBnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc5MzIzMjE5N31dLCJzZXNzaW9uX2lkIjoiZjczZDRkMTgtMzU3Zi00N2ViLWFmNzItMTI3YzczMGUzYWQzIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.9_BJvSUd6fpCAiVhlx7fu0wjfTMEA8POdfXWxXkXWOMQ7S4NUAYmDFKdldvBEuJMVDIgqyos_28McvBUeNHc_Q
+@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzkzMzUwMzcxLCJpYXQiOjE3OTMzNDY3NzEsImVtYWlsIjoiYUBnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc5MzM0Njc3MX1dLCJzZXNzaW9uX2lkIjoiZTg0MmFkZjUtYjczZS00NzIwLWEwYzMtZTBiOWE0YWNiYjI4IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.u8yflDQbXXuRx3Sc4l5OqoKvpQj3BW_jAYIvay2MXvwy4SUnnaTJL6lm9SWIsyGHTqXmiC4xMQdAt0sLtcSVUw
 
 POST http://localhost:3001/auth/signup
 Content-Type: application/json
@@ -25,7 +25,7 @@ Content-Type: application/json
 
 {
   "email": "229453m@jdu.uz",
-  "password": "IloveMyself3"
+  "password": "123123"
 }
 
 ###
@@ -70,7 +70,8 @@ Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 
 {
-  "shopId": "925e1f3b-b646-42a7-8235-1b2c612dee94"
+  "shopId": "0d1ff19b-c4e3-4679-a385-263ca5f85097",
+  "userId": "2e8a795a-f0b6-481d-bb21-66d9144cbe3c"
 }
 
 ###
@@ -79,7 +80,8 @@ Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 
 {
-  "serviceId": "74ea7c46-c05c-4be9-8726-8393919204b6"
+  "serviceId": "110b8d5a-25f8-4a42-8ad6-142a483d90ec",
+  "userId": "2e8a795a-f0b6-481d-bb21-66d9144cbe3c"
 }
 
 ###

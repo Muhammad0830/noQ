@@ -1,95 +1,49 @@
 import { Router } from "express";
 import prisma from "@/db/prisma.js";
 import { authMiddleware } from "@/http/middlewares/auth.middleware.js";
+import { favouriteController } from "@/composition/favourite.js";
+import { validateBody } from "@/http/middlewares/validate.middleware.js";
+import { addShopToFavouriteSchema } from "@/http/validators/favourite/AddShopToFavouriteSchema.js";
+import { addServiceToFavouriteSchema } from "@/http/validators/favourite/AddServiceToFavouriteSchema.js";
 
 const favouriteRouter = Router();
 
-favouriteRouter.get("/shops", authMiddleware, async (req: any, res: any) => {
-  try {
-    const favourites = await prisma.favoriteShop.findMany({
-      where: {
-        userId: req.user.id,
-      },
-      include: {
-        shop: true,
-      },
-    });
+favouriteRouter.get(
+  "/shops",
+  authMiddleware,
+  favouriteController.getShopList
+);
 
-    res.status(200).json(favourites);
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
+favouriteRouter.get(
+  "/services",
+  authMiddleware,
+  favouriteController.getServiceList
+);
 
-favouriteRouter.get("/services", authMiddleware, async (req: any, res: any) => {
-  try {
-    const favourites = await prisma.favoriteService.findMany({
-      where: {
-        userId: req.user.id,
-      },
-      include: {
-        service: true,
-      },
-    });
+favouriteRouter.post(
+  "/shop",
+  authMiddleware,
+  validateBody(addShopToFavouriteSchema),
+  favouriteController.addShopToFavourite
+)
 
-    if (favourites.length === 0) {
-      return res.status(404).json({ message: "No favourites found" });
-    }
+favouriteRouter.post(
+  "/service",
+  authMiddleware,
+  validateBody(addServiceToFavouriteSchema),
+  favouriteController.addServiceToFavourite
+)
 
-    res.status(200).json(favourites);
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
+favouriteRouter.delete(
+  "/shops/:id",
+  authMiddleware,
+  favouriteController.removeShopFromFavourite
+);
 
-favouriteRouter.post("/shop", authMiddleware, async (req: any, res) => {
-  try {
-    const { shopId } = req.body;
-
-    const shop = await prisma.shop.findUnique({
-      where: { id: shopId },
-    });
-
-    if (!shop) {
-      return res.status(404).json({ message: "Shop not found" });
-    }
-
-    const fav = await prisma.favoriteShop.create({
-      data: {
-        userId: req.user.id,
-        shopId,
-      },
-    });
-
-    res.status(200).json(fav);
-  } catch (error) {
-    return res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-favouriteRouter.post("/service", authMiddleware, async (req: any, res) => {
-  try {
-    const { serviceId } = req.body;
-
-    const service = await prisma.service.findUnique({
-      where: { id: serviceId },
-    });
-
-    if (!service) {
-      return res.status(404).json({ message: "Service not found" });
-    }
-
-    const fav = await prisma.favoriteService.create({
-      data: {
-        userId: req.user.id,
-        serviceId,
-      },
-    });
-
-    res.status(200).json(fav);
-  } catch (error) {
-    return res.status(500).json({ error: "Internal server error" });
-  }
-});
+favouriteRouter.delete(
+  "/services/:id",
+  authMiddleware,
+  favouriteController.removeServiceFromFavourite
+);
 
 export default favouriteRouter;

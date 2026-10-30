@@ -1,5 +1,20 @@
 import { ShopCategoryId } from "@/domain/shop-category/value-objects/ShopCategoryId.js";
 import { GetTrendingShopListUseCaseOutput } from "./GetTrendingShopListUseCaseInterface.js";
+import { UserId } from "@/domain/user/value-objects/UserId.js";
+
+export interface GetShopListQueryInterface {
+    getBySearch(
+        search: string,
+        limit: number
+    ): Promise<GetShopForDiscoveryOutput>
+
+    getByCategoryIdList(
+        categoryIdList: ShopCategoryId[],
+        limit: number
+    ): Promise<GetShopForDiscoveryOutput>
+
+    getTrendingList(timeRange: number): Promise<GetTrendingShopListUseCaseOutput>;
+}
 
 export interface GetShopForDiscoveryOutput {
     shopList: {
@@ -25,18 +40,4 @@ export interface GetShopForDiscoveryOutput {
         averageRating: number,
         reviewCount: number,
     }[];
-}
-
-export interface GetShopListQueryInterface {
-    getBySearch(
-        search: string,
-        limit: number
-    ): Promise<GetShopForDiscoveryOutput>
-
-    getByCategoryIdList(
-        categoryIdList: ShopCategoryId[],
-        limit: number
-    ): Promise<GetShopForDiscoveryOutput>
-
-    getTrendingList(timeRange: number): Promise<GetTrendingShopListUseCaseOutput>
 }

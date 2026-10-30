@@ -1,6 +1,7 @@
 import { GetShopForDiscoveryOutput, GetShopListQueryInterface } from "@/application/shop/interfaces/GetShopListQueryInterface.js";
 import { GetTrendingShopListUseCaseOutput } from "@/application/shop/interfaces/GetTrendingShopListUseCaseInterface.js";
 import { ShopCategoryId } from "@/domain/shop-category/value-objects/ShopCategoryId.js";
+import { UserId } from "@/domain/user/value-objects/UserId.js";
 import { PrismaClient } from "@prisma/client";
 
 export class GetShopListQuery implements GetShopListQueryInterface {
@@ -107,7 +108,7 @@ export class GetShopListQuery implements GetShopListQueryInterface {
             where: {
                 status: "COMPLETED",
                 endTime: {
-                    gte: new Date(Date.now() - timeRange), 
+                    gte: new Date(Date.now() - timeRange),
                 },
             },
             orderBy: {
