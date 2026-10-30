@@ -40,7 +40,7 @@ model Shop {
   description        String?
   logoUrl            String?
   address            String
-  phone              String?
+  phone              String
   categoryId         String
   ownerId            String
   isOpen             Boolean        @default(true)
@@ -53,7 +53,7 @@ model Shop {
   reviews            Review[]
   services           Service[]
   category           ShopCategory   @relation(fields: [categoryId], references: [id])
-  owner              User           @relation("ShopOwner", fields: [ownerId], references: [id])
+  owner              User           @relation("ShopOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   blocks             ShopBlock[]
   shopSchedules      ShopSchedule[]
   staffs             Staff[]        @relation("ShopStaffs")
@@ -76,7 +76,7 @@ model Service {
   bookings    Booking[]
   favorites   FavoriteService[]
   reviews     Review[]
-  shop        Shop              @relation(fields: [shopId], references: [id])
+  shop        Shop              @relation(fields: [shopId], references: [id], onDelete: Cascade)
 
   @@index([shopId])
 }
@@ -85,7 +85,7 @@ model Booking {
   id                 String        @id @default(uuid())
   userId             String
   shopId             String
-  serviceId          String
+  serviceId          String?
   startTime          DateTime
   endTime            DateTime
   status             BookingStatus @default(PENDING)
@@ -94,10 +94,10 @@ model Booking {
   updatedAt          DateTime      @default(now()) @map("updated_at")
   cancellationReason String?
   cancelledAt        DateTime?
-  service            Service       @relation(fields: [serviceId], references: [id])
-  shop               Shop          @relation(fields: [shopId], references: [id])
+  service            Service?      @relation(fields: [serviceId], references: [id])
+  shop               Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade)
   staff              Staff?        @relation("StaffBookings", fields: [staffId], references: [id])
-  user               User          @relation("UserBookings", fields: [userId], references: [id])
+  user               User          @relation("UserBookings", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([shopId, startTime])
@@ -111,13 +111,13 @@ model Review {
   rating    Int
   comment   String?
   userId    String
-  shopId    String?
+  shopId    String
   serviceId String?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at")
   service   Service? @relation(fields: [serviceId], references: [id])
-  shop      Shop?    @relation(fields: [shopId], references: [id])
-  user      User     @relation("UserReviews", fields: [userId], references: [id])
+  shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  user      User     @relation("UserReviews", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([shopId])
@@ -130,8 +130,8 @@ model FavoriteShop {
   shopId    String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at")
-  shop      Shop     @relation(fields: [shopId], references: [id])
-  user      User     @relation("UserFavoriteShops", fields: [userId], references: [id])
+  shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  user      User     @relation("UserFavoriteShops", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, shopId])
   @@index([userId])
@@ -144,8 +144,8 @@ model FavoriteService {
   serviceId String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at")
-  service   Service  @relation(fields: [serviceId], references: [id])
-  user      User     @relation("UserFavoriteServices", fields: [userId], references: [id])
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  user      User     @relation("UserFavoriteServices", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, serviceId])
   @@index([userId])
@@ -161,7 +161,7 @@ model ShopSchedule {
   type      ScheduleType @default(OPEN)
   createdAt DateTime     @default(now()) @map("created_at")
   updatedAt DateTime     @default(now()) @map("updated_at")
-  shop      Shop         @relation(fields: [shopId], references: [id])
+  shop      Shop         @relation(fields: [shopId], references: [id], onDelete: Cascade)
 
   @@index([shopId])
 }
@@ -174,7 +174,7 @@ model ShopBlock {
   reason    String?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at")
-  shop      Shop     @relation(fields: [shopId], references: [id])
+  shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
 
   @@index([shopId])
 }
@@ -187,8 +187,8 @@ model Staff {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @default(now()) @map("updated_at")
   bookings  Booking[] @relation("StaffBookings")
-  shop      Shop      @relation("ShopStaffs", fields: [shopId], references: [id])
-  user      User      @relation("UserStaffs", fields: [userId], references: [id])
+  shop      Shop      @relation("ShopStaffs", fields: [shopId], references: [id], onDelete: Cascade)
+  user      User      @relation("UserStaffs", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, shopId])
   @@index([userId])

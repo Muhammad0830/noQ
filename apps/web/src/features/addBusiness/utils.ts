@@ -1,13 +1,5 @@
-import { timeZone } from "@noq/shared";
 import { TimePickerState } from "../scheduling/types";
 import { DaySchedule } from "./types";
-
-export const parseTime = (v: string | undefined, step: number = 5): { h: number; m: number } => {
-    const m = v?.match(/^(\d{1,2}):(\d{2})$/);
-    const h = m ? Math.min(23, Number(m[1])) : 9;
-    const raw = m ? Math.min(59, Number(m[2])) : 0;
-    return { h, m: Math.min(59, Math.round(raw / step) * step) };
-}
 
 export const defaultTimePicker: TimePickerState = {
     isOpen: false,
@@ -95,7 +87,6 @@ export const dayByName: Record<string, number> = {
 export const getToday = () => {
     const weekdayName = new Intl.DateTimeFormat("en-US", {
         weekday: "long",
-        timeZone,
     }).format(new Date());
 
     const todayDayOfWeek = dayByName[weekdayName] ?? new Date().getDay();
@@ -112,7 +103,7 @@ export const mockStaffMembers = [
 
 export const defaultServiceValues = {
     name: "",
-    duration: "00:00",
+    durationMin: "00:00",
     bufferTime: 0,
     price: 0,
     assignedToAllStaffs: false,

@@ -115,10 +115,10 @@ dashboardRouter.get(
 
       // 💰 calculate revenue
       const currentRevenue = currentCompleted.reduce((acc: number, b) => {
-        return acc + parseFloat(b.service.price.toString());
+        return acc + parseFloat(b.service?.price.toString() ?? '0');
       }, 0);
       const prevRevenue = prevCompleted.reduce((acc: number, b) => {
-        return acc + parseFloat(b.service.price.toString());
+        return acc + parseFloat(b.service?.price.toString() ?? '0');
       }, 0);
 
       let revenueChange = 0;

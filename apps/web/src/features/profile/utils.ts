@@ -10,5 +10,5 @@ export const addBusinessStepOneFormDefault = {
     description: undefined,
     categoryId: '',
     address: '',
-    phone: '',
+    phoneNumber: '',
 }

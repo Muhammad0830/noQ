@@ -74,6 +74,10 @@ export class ShopSchedule {
         return this.props.createdAt;
     }
 
+    getUpdatedAt(): DateTime {
+        return this.props.updatedAt;
+    }
+
     sameAsOther(other: ShopSchedule): boolean {
         return this.props.id.equals(other.getId());
     }

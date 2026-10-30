@@ -6,14 +6,14 @@ import { FieldError } from "react-hook-form";
 
 interface ServiceAddDurationFieldsProps {
     error: FieldError | undefined;
-    duration: string,
+    durationMin: string,
     bufferTime: number,
-    handleDrawerOpen: (field: 'duration' | 'bufferTime') => void;
+    handleDrawerOpen: (field: 'durationMin' | 'bufferTime') => void;
 }
 
 const ServiceAddDurationFields: FC<ServiceAddDurationFieldsProps> = ({
     error,
-    duration,
+    durationMin,
     bufferTime,
     handleDrawerOpen,
 }) => {
@@ -33,10 +33,10 @@ const ServiceAddDurationFields: FC<ServiceAddDurationFieldsProps> = ({
 
                     <button
                         type="button"
-                        onClick={() => handleDrawerOpen('duration')}
+                        onClick={() => handleDrawerOpen('durationMin')}
                         className="h-12 w-full rounded-2xl border border-[#cfd5dd] bg-white px-4 text-[#111827] text-start"
                     >
-                        {duration === "00:00" ? '--:--' : duration}
+                        {durationMin === "00:00" ? '--:--' : durationMin}
                     </button>
                 </div>
 

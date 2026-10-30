@@ -7,7 +7,7 @@ export const createServiceSchema = (staffs: { id: string }[]) => z.object({
         .min(2, "Service name must contain at least 2 characters")
         .max(100, "Service name cannot exceed 100 characters"),
 
-    duration: z
+    durationMin: z
         .string("Invalid value")
         .regex(
             /^\d{2,}:[0-5]\d$/,

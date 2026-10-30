@@ -1,25 +1,24 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Filter } from "lucide-react";
 import ShopCard from "../../ShopCard";
 import { useTranslations } from "next-intl";
 import ShopListSkeleton from "./ShopListSkeleton";
-import { Shop } from "@/shared/types/shop";
-import { ApiError } from "@/shared/types";
+import { ApiError, TrendingShopsResponse } from "@/shared/types";
 
 const SKELETON_MOBILE_COUNT = 3;
 const SKELETON_DESKTOP_COUNT = 8;
 
 interface Props {
-  shops: Shop[];
+  shopsData: TrendingShopsResponse;
   isLoading: boolean;
   isError: boolean;
   error: ApiError | null;
 }
 
 const ShopList = ({
-  shops,
+  shopsData,
   isLoading,
   isError,
   error
@@ -28,7 +27,7 @@ const ShopList = ({
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [activeDot, setActiveDot] = useState(0);
 
-  const indicatorCount = Math.max(1, shops.length);
+  const indicatorCount = Math.max(1, shopsData.shopList.length);
 
   const updateActiveDot = () => {
     const el = scrollRef.current;
@@ -73,16 +72,16 @@ const ShopList = ({
         {/* LOADING */}
         {isLoading ? (
           <ShopListSkeleton desktop_count={SKELETON_DESKTOP_COUNT} mobile_count={SKELETON_MOBILE_COUNT} />
-        ) : shops.length > 0 ? (
+        ) : shopsData.shopList.length > 0 ? (
           <>
             {/* MOBILE */}
             <div className="sm:hidden">
               <div
                 ref={scrollRef}
                 onScroll={updateActiveDot}
-                className="overflow-x-auto flex gap-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                className="overflow-x-auto flex gap-4 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               >
-                {shops.map((shop) => (
+                {shopsData.shopList.map((shop) => (
                   <div
                     key={shop.id}
                     className="max-w-85 min-w-65 w-[70vw] shrink-0"
@@ -95,7 +94,7 @@ const ShopList = ({
 
             {/* DESKTOP */}
             <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {shops.map((shop) => (
+              {shopsData.shopList.map((shop) => (
                 <ShopCard
                   key={shop.id}
                   shop={shop}

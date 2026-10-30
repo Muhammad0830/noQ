@@ -14,10 +14,10 @@ import Link from "next/link";
 import { getImageUrl } from "@/lib/supabaseClient";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { Shop } from "@/shared/types/shop";
+import { ShopWithService } from "@noq/shared";
 
 interface ShopCardProps {
-  shop: Shop;
+  shop: ShopWithService;
   onFavorite?: (shopId: string) => void;
   isFavorite?: boolean;
 }
@@ -93,7 +93,7 @@ const ShopCard: React.FC<ShopCardProps> = ({
 }) => {
   const t = useTranslations();
   const [imageLoadError, setImageLoadError] = useState(false);
-  const rootShop = shop as Partial<Shop> & {
+  const rootShop = shop as Partial<ShopWithService> & {
     id?: string;
     logoUrl?: string;
     backgroundImageUrl?: string;
@@ -119,8 +119,8 @@ const ShopCard: React.FC<ShopCardProps> = ({
 
   const serviceNames = Array.isArray(serviceNamesSource)
     ? serviceNamesSource
-        .map((item) => (typeof item === "string" ? item : String(item)))
-        .join(" — ")
+      .map((item) => (typeof item === "string" ? item : String(item)))
+      .join(" — ")
     : "";
   const isCurrentlyOpen = shop?.isOpen ?? rootShop.isOpen ?? true;
   const rawImage = rootShop.backgroundImageUrl;
@@ -160,9 +160,8 @@ const ShopCard: React.FC<ShopCardProps> = ({
           </div>
 
           <div
-            className={`absolute bottom-3 left-3 rounded-full px-2.5 py-1 text-[10px] sm:text-xs font-semibold text-white ${
-              isCurrentlyOpen ? "bg-[#F49B33]" : "bg-red-500"
-            }`}
+            className={`absolute bottom-3 left-3 rounded-full px-2.5 py-1 text-[10px] sm:text-xs font-semibold text-white ${isCurrentlyOpen ? "bg-[#F49B33]" : "bg-red-500"
+              }`}
           >
             {isCurrentlyOpen
               ? t("user.discover.shopCard.availableNow")

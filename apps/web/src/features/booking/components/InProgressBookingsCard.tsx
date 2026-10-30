@@ -110,7 +110,7 @@ const InProgressBookingCard: FC<InProgressBookingCardProps> = ({
                     </p>
 
                     <p className="text-sm font-semibold text-slate-800">
-                        {booking.duration} • {formatPrice(booking.price, locale)} {t("common.currency")}
+                        {booking.durationMin} • {formatPrice(booking.price, locale)} {t("common.currency")}
                     </p>
                 </div>
 

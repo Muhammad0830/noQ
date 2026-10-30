@@ -61,7 +61,7 @@ const HistoryPanelBookingCard: FC<HistoryPanelBookingCardProps> = ({
                     </span>
                 </div>
                 <div className="text-sm font-semibold text-slate-900">
-                    {booking.duration} • {formatPrice(booking.price, locale)} {t("common.currency")}
+                    {booking.durationMin} • {formatPrice(booking.price, locale)} {t("common.currency")}
                 </div>
             </div>
 

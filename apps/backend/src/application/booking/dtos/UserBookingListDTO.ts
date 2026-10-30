@@ -10,7 +10,7 @@ export type BookingListView = "ongoing" | "completed" | "cancelled";
 export interface UserBookingItem {
     id: string,
     shopId: string,
-    serviceId: string,
+    serviceId: string | null,
     customerId: string,
     startTime: Date,
     endTime: Date,
@@ -27,7 +27,7 @@ export interface UserBookingItem {
         name: string;
         price: number;
         durationMin: number;
-    },
+    } | null,
 }
 
 export interface UserBookingListDTO {

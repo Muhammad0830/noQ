@@ -8,5 +8,5 @@ export interface AddBusinessStepOneForm {
     categoryId: string;
     description?: string | null;
     address: string;
-    phone: string;
+    phoneNumber: string;
 }

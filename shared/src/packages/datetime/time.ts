@@ -5,16 +5,6 @@ export const timeToMinutes = (time: string): number => {
     return differenceInMinutes(date, startOfDay(date));
 };
 
-export const minutesToTimeString = (minutes: number): string => {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-
-    const paddedHours = String(h).padStart(2, '0');
-    const paddedMinutes = String(m).padStart(2, '0');
-
-    return `${paddedHours}:${paddedMinutes}`;
-}
-
 export function addMinutes(isoString: string | Date, minutes: number): Date {
     return addMinutesDateFns(new Date(isoString), minutes);
 }
@@ -30,7 +20,7 @@ export function isTimeBetween({
     targetStartStr: string, // 16:50
     targetEndStr?: string, // 16:50
 }): boolean {
-    const referenceDate = new Date(); // Base date for parsing
+    const referenceDate = new Date(); // base date for parsing
 
     const targetStart = parse(targetStartStr, 'HH:mm', referenceDate);
     const targetEnd = targetEndStr ? parse(targetEndStr, 'HH:mm', referenceDate) : null;
@@ -45,4 +35,10 @@ export function isTimeBetween({
 export function formatToTimeString(value: Date | string) {
     const date = new Date(value);
     return format(date, 'HH:mm');
+}
+
+export function minutesToTimeString(totalMinutes: number) {
+    const baseDate = startOfDay(new Date()); // base date for parsing with 00:00
+    const targetDate = addMinutes(baseDate, totalMinutes);
+    return formatToTimeString(targetDate);
 }

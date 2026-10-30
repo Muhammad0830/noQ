@@ -2,7 +2,7 @@ export {
     localDateTimeToUtc,
     dateToUtc,
     getLocalMinutes,
-    timeZone
+    toZonedTime,
 } from "./timezone.js"
 
 export { getUtcDayRange } from "./range.js"

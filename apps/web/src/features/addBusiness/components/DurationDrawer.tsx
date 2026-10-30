@@ -6,11 +6,13 @@ import { Dispatch, FC, SetStateAction } from "react";
 interface DurationDrawerProps {
     isOpen: boolean,
     setIsOpen: Dispatch<SetStateAction<boolean>>;
+    value: string;
     onValueChange: (value: string) => void;
 }
 
 const DurationDrawer: FC<DurationDrawerProps> = ({
     isOpen,
+    value,
     setIsOpen,
     onValueChange,
 }) => {
@@ -33,6 +35,7 @@ const DurationDrawer: FC<DurationDrawerProps> = ({
                     <TimePicker
                         hourCycle={24}
                         defaultValue="00:00"
+                        value={value}
                         minuteStep={1}
                         onValueChange={onValueChange} />
                 </div>

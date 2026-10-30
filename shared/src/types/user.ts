@@ -5,8 +5,13 @@ export interface User {
     email: string;
     name: string;
     phoneNumber?: string | null;
-    role: "USER" | "ADMIN";
+    role: UserRoleType;
+    position?: UserPositionType;
     createdAt: string;
     avatarUrl?: string | null;
     shops?: Shop[];
 }
+
+export type UserRoleType = "USER" | "ADMIN";
+
+export type UserPositionType = "STAFF" | "OWNER" | "MANAGER";

@@ -11,28 +11,28 @@ export default function StaffSchedule({ params }: { params: { id: string } }) {
 
   const schedule = {
     Monday: [
-      { start: 9, duration: 1, client: 'John Doe', service: 'Haircut' },
-      { start: 11, duration: 1.5, client: 'Jane Smith', service: 'Coloring' },
-      { start: 14, duration: 0.5, client: 'Bob Wilson', service: 'Trim' },
+      { start: 9, durationMin: 1, client: 'John Doe', service: 'Haircut' },
+      { start: 11, durationMin: 1.5, client: 'Jane Smith', service: 'Coloring' },
+      { start: 14, durationMin: 0.5, client: 'Bob Wilson', service: 'Trim' },
     ],
     Tuesday: [
-      { start: 10, duration: 1, client: 'Alice Brown', service: 'Styling' },
-      { start: 15, duration: 2, client: 'Charlie Davis', service: 'Treatment' },
+      { start: 10, durationMin: 1, client: 'Alice Brown', service: 'Styling' },
+      { start: 15, durationMin: 2, client: 'Charlie Davis', service: 'Treatment' },
     ],
     Wednesday: [],
     Thursday: [
-      { start: 9, duration: 1, client: 'Diana Evans', service: 'Haircut' },
-      { start: 12, duration: 1, client: 'Eve Foster', service: 'Styling' },
+      { start: 9, durationMin: 1, client: 'Diana Evans', service: 'Haircut' },
+      { start: 12, durationMin: 1, client: 'Eve Foster', service: 'Styling' },
     ],
     Friday: [
-      { start: 10, duration: 1.5, client: 'Frank Green', service: 'Coloring' },
-      { start: 14, duration: 1, client: 'Grace Hill', service: 'Haircut' },
-      { start: 16, duration: 1, client: 'Henry Irving', service: 'Trim' },
+      { start: 10, durationMin: 1.5, client: 'Frank Green', service: 'Coloring' },
+      { start: 14, durationMin: 1, client: 'Grace Hill', service: 'Haircut' },
+      { start: 16, durationMin: 1, client: 'Henry Irving', service: 'Trim' },
     ],
     Saturday: [
-      { start: 9, duration: 1, client: 'Ivy Johnson', service: 'Styling' },
-      { start: 11, duration: 2, client: 'Jack King', service: 'Treatment' },
-      { start: 15, duration: 1, client: 'Kelly Lee', service: 'Haircut' },
+      { start: 9, durationMin: 1, client: 'Ivy Johnson', service: 'Styling' },
+      { start: 11, durationMin: 2, client: 'Jack King', service: 'Treatment' },
+      { start: 15, durationMin: 1, client: 'Kelly Lee', service: 'Haircut' },
     ],
     Sunday: [],
   }
@@ -95,7 +95,7 @@ export default function StaffSchedule({ params }: { params: { id: string } }) {
 
         {/* Schedule Grid */}
         <div className="bg-white rounded-lg shadow-sm p-6 overflow-x-auto">
-          <div className="min-w-[800px]">
+          <div className="min-w-200">
             {/* Header Row */}
             <div className="grid grid-cols-8 gap-2 mb-2">
               <div className="font-semibold text-sm text-gray-600">Time</div>
@@ -117,12 +117,12 @@ export default function StaffSchedule({ params }: { params: { id: string } }) {
                   const appointment = daySchedule.find(app => app.start === hour)
                   
                   return (
-                    <div key={`${day}-${hour}`} className="min-h-[60px] border-l relative">
+                    <div key={`${day}-${hour}`} className="min-h-15 border-l relative">
                       {appointment && (
                         <div 
                           className="absolute inset-x-1 bg-blue-100 border-l-4 border-blue-600 p-2 rounded"
                           style={{ 
-                            height: `${appointment.duration * 60}px`,
+                            height: `${appointment.durationMin * 60}px`,
                             zIndex: 10 
                           }}
                         >

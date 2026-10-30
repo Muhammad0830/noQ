@@ -15,7 +15,7 @@ export interface Booking {
   id: string;
   userId: string;
   shopId: string;
-  serviceId: string;
+  serviceId: string | null;
   startTime: Date;
   endTime: Date;
   status: BookingStatus;
@@ -26,7 +26,7 @@ export interface Booking {
 }
 
 export interface BookingItem extends Omit<Booking, 'service' | 'shop' | 'user'> {
-  service: ServiceInBookingData,
+  service: ServiceInBookingData | null,
   shop: ShopInBookingData,
 }
 

@@ -6,40 +6,29 @@ import GalleryTab from "./GalleryTab";
 import ReviewsTabSkeleton from "./ReviewsTabSkeleton";
 import ReviewsTab from "./ReviewsTab";
 import { useTranslations } from "next-intl";
-import { ShopWithServices } from "@/shared/types/shop";
-import { Review } from "@/features/reviews/types";
-import { Service } from "@noq/shared";
+import { ShopDetails } from "@noq/shared";
 
 interface ShopTabsProps {
+    isLoading: boolean;
+    shop: ShopDetails;
     imageLoadError: boolean;
-    isShopLoading: boolean;
-    isServicesLoading: boolean;
-    isReviewsLoading: boolean;
-    shop: ShopWithServices;
-    serviceList: Service[];
-    reviewList: Review[];
     backgroundImage: string | null;
     setImageLoadError: Dispatch<SetStateAction<boolean>>;
 }
 
 const ShopTabs: FC<ShopTabsProps> = ({
-    imageLoadError,
-    isShopLoading,
-    isServicesLoading,
-    serviceList,
     shop,
-    reviewList,
-    isReviewsLoading,
+    isLoading,
+    imageLoadError,
     backgroundImage,
     setImageLoadError,
 }) => {
     const t = useTranslations();
-
     const [activeTab, setActiveTab] = useState("services");
 
     return (
         <div className="max-w-3xl mx-auto px-4 pt-6">
-            <ShopDetailsSection phone={shop.phone} />
+            <ShopDetailsSection shop={shop} />
 
             {/* Tabs */}
             <div className="border-b border-gray-200 mb-6">
@@ -59,11 +48,11 @@ const ShopTabs: FC<ShopTabsProps> = ({
                 </div>
             </div>
 
-            {activeTab === "services" && !isShopLoading && (
+            {activeTab === "services" && (
                 <div className="space-y-4">
-                    {isServicesLoading
+                    {isLoading
                         ? <ServiceTabSkeleton />
-                        : <ServiceTab serviceList={serviceList} shopId={shop.id} />}
+                        : <ServiceTab serviceList={shop.services} shopId={shop.id} />}
                 </div>
             )}
 
@@ -78,9 +67,9 @@ const ShopTabs: FC<ShopTabsProps> = ({
             {/* Reviews Tab */}
             {activeTab === "reviews" && (
                 <div className="space-y-4">
-                    {isReviewsLoading
+                    {isLoading
                         ? <ReviewsTabSkeleton />
-                        : <ReviewsTab reviewList={reviewList} />}
+                        : <ReviewsTab reviewList={shop.reviews} />}
                 </div>
             )}
 

@@ -8,7 +8,8 @@ import { API_ENDPOINTS } from "@/lib/api";
 import useApiQuery from "@/hooks/useApiQuery";
 import { useLocale } from "next-intl";
 import { Route } from "next";
-import { Shop, ShopCategory } from "@/shared/types/shop";
+import { ShopCategory } from "@/shared/types/shop";
+import { TrendingShopsResponse } from "@noq/shared";
 
 export default function Home() {
   const router = useRouter();
@@ -20,11 +21,11 @@ export default function Home() {
   });
 
   const {
-    data: shopsData,
+    data: shopsData = { shopList: [] },
     isLoading,
     isError,
     error,
-  } = useApiQuery<{ shops: Shop[] }>(API_ENDPOINTS.shops_trending, {
+  } = useApiQuery<TrendingShopsResponse>(API_ENDPOINTS.shops_trending, {
     key: ["shops"],
   });
 
@@ -56,7 +57,7 @@ export default function Home() {
       {/* Shops Section */}
       <div id="shops">
         <ShopList
-          shops={shopsData?.shops ?? []}
+          shopsData={shopsData}
           isLoading={isLoading}
           isError={isError}
           error={error}

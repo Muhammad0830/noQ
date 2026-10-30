@@ -11,15 +11,16 @@ import type { CustomerRepositoryInterface } from
     "@/domain/customer/repositories/CustomerRepositoryInterface.js";
 import type { BookingAvailabilityCheckerQueryInterface } from
     "@/application/booking/read-queries/BookingAvailabilityCheckerQueryInterface.js";
+import type { ShopScheduleRepositoryInterface } from
+    "@/domain/shop-schedule/repositories/ShopScheduleRepositoryInterface.js";
 import { Booking } from "@/domain/booking/entities/Booking.js";
 import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
 import { CustomerId } from "@/domain/customer/value-objects/CustomerId.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 import { DayOfWeek } from "@/domain/shop-schedule/value-objects/DayOfWeek.js";
-import { createDateTime } from "@noq/shared";
 import type { ScheduleValidator } from "../validators/ScheduleValidator.js";
-import type { ShopScheduleRepositoryInterface } from "@/domain/shop-schedule/repositories/ShopScheduleRepositoryInterface.js";
+import { BookingCreationPolicy } from "../policies/BookingCreationPolicy.js";
 
 export class CreateBookingUseCase implements CreateBookingUseCaseInterface {
     public constructor(
@@ -29,11 +30,21 @@ export class CreateBookingUseCase implements CreateBookingUseCaseInterface {
         private readonly availabilityCheckerQuery: BookingAvailabilityCheckerQueryInterface,
         private readonly scheduleRepository: ShopScheduleRepositoryInterface,
         private readonly scheduleValidator: ScheduleValidator,
+        private readonly bookingCreationPolicy: BookingCreationPolicy,
     ) { }
 
     async execute(
         input: CreateBookingInput,
     ): Promise<CreateBookingOutput> {
+        const startTime = DateTime.fromDateAndTime(input.date, input.startTime);
+
+        if (
+            startTime.isPast() &&
+            !this.bookingCreationPolicy.canCreatePastBooking(input.actorRole)
+        ) {
+            throw new Error("Selected time should be future");
+        }
+
         const shopId = ShopId.create(input.shopId);
         const serviceId = ServiceId.create(input.serviceId);
         const customerId = CustomerId.create(input.customerId);
@@ -46,10 +57,9 @@ export class CreateBookingUseCase implements CreateBookingUseCaseInterface {
 
         await this.customerRepository.findById(customerId);
 
-        const startTime = DateTime.from(
-            createDateTime(input.date, input.startTime)
-        );
         const bookingId = this.bookingRepository.nextIdentity();
+
+        const endTime = startTime.addMinutes(service.getTotalDurationMin());
 
         const booking = Booking.create({
             id: bookingId,
@@ -57,7 +67,9 @@ export class CreateBookingUseCase implements CreateBookingUseCaseInterface {
             customerId: customerId,
             shopId: shopId,
             startTime: startTime,
-            service: service,
+            endTime: endTime,
+            cancellationReason: null,
+            cancelledAt: null,
         });
 
         const schedules = await this.scheduleRepository

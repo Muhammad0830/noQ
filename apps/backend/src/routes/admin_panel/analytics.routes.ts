@@ -119,7 +119,7 @@ analyticsRouter.get("/", async (req: any, res) => {
       ]);
 
       const currentRevenue = bookings.reduce(
-        (acc, b) => acc + Number(b.service.price),
+        (acc, b) => acc + Number(b.service?.price ?? 0),
         0,
       );
 
@@ -177,12 +177,12 @@ analyticsRouter.get("/", async (req: any, res) => {
     ]);
 
     const currentRevenue = bookings.reduce(
-      (acc, b) => acc + Number(b.service.price),
+      (acc, b) => acc + Number(b.service?.price ?? 0),
       0,
     );
 
     const prevRevenue = prevBookings.reduce(
-      (acc, b) => acc + Number(b.service.price),
+      (acc, b) => acc + Number(b.service?.price ?? 0),
       0,
     );
 

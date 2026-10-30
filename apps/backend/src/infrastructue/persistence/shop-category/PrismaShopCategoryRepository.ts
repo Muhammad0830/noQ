@@ -2,11 +2,13 @@ import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 import { ShopCategory } from "@/domain/shop-category/entities/ShopCategory.js";
 import { ShopCategoryRepositoryInterface } from "@/domain/shop-category/repositories/ShopCategoryRepositoryInterface.js";
 import { ShopCategoryId } from "@/domain/shop-category/value-objects/ShopCategoryId.js";
-import { PrismaClient, ShopCategory as ShopCategoryModel } from "@prisma/client";
+import { Prisma, PrismaClient, ShopCategory as ShopCategoryModel } from "@prisma/client";
+
+type PrismaExecutor = PrismaClient | Prisma.TransactionClient;
 
 export class PrismaShopCategoryRepository implements ShopCategoryRepositoryInterface {
     constructor(
-        private readonly prisma: PrismaClient,
+        private readonly prisma: PrismaExecutor,
     ) { }
 
     async findById(shopCategory: ShopCategory): Promise<ShopCategory> {
@@ -27,6 +29,14 @@ export class PrismaShopCategoryRepository implements ShopCategoryRepositoryInter
         const categoryList = await this.prisma.shopCategory.findMany();
 
         return categoryList.map(category => this.toEntity(category));
+    }
+
+    async exists(categoryId: ShopCategoryId): Promise<boolean> {
+        const category = await this.prisma.shopCategory.findFirst({
+            where: { id: categoryId.toString() },
+        });
+
+        return !!category;
     }
 
     async add(shopCategory: ShopCategory): Promise<void> {

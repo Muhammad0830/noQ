@@ -1,27 +1,54 @@
-
 "use client";
 
-import type { ScheduleSlot } from "../types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { addMinutes } from "../utils";
 import { useTranslations } from "next-intl";
+import { BookingSlot, SlotStatus } from "@noq/shared";
+import { cn } from "cn";
+import { Diff } from "lucide-react";
 
 interface TimeSlotPickerProps {
-    slots: ScheduleSlot[];
+    slots: BookingSlot[];
     selectedTime: string | null;
     durationMin: number;
     loading?: boolean;
     onSelect: (time: string) => void;
 }
 
+const statusLabel = [
+    "user.booking.availableSlot",
+    "user.booking.alreadyReserved",
+    "user.booking.break",
+    "user.booking.break",
+    "user.booking.selected",
+];
+
+const colorClasses = [
+    "text-[#F49B33]",
+    "text-slate-500",
+    "text-[#8a5620]",
+    "text-[#8a5620]",
+    "text-white",
+];
+
+const containerClasses = [
+    "border-[#f1c894] bg-white/95 text-[#F49B33] hover:border-[#F49B33] hover:bg-[#fff3e6]",
+    "border-slate-200 bg-slate-100/90 text-slate-500 cursor-not-allowed",
+    "border-[#f1c894] bg-[#fff3e6] text-[#8a5620] cursor-not-allowed",
+    "border-[#f1c894] bg-[#fff3e6] text-[#8a5620] cursor-not-allowed",
+    "border-[#F49B33] bg-[#F49B33] text-white",
+]
+
 export function TimeSlotPicker({
     slots,
     selectedTime,
-    durationMin,
     loading = false,
     onSelect,
 }: TimeSlotPickerProps) {
     const t = useTranslations()
+
+    console.log(selectedTime, slots[0]?.time)
+    console.log(selectedTime === slots[0]?.time)
 
     if (loading) {
         return (
@@ -71,61 +98,51 @@ export function TimeSlotPicker({
                 </p>
             </div>
 
-            <div className="rounded-3xl border border-[#f1c894]/80 bg-white p-3 sm:p-4">
-                <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl border border-[#f1c894]/80 bg-white p-2">
+                <div className="grid grid-cols-2 gap-2">
                     {slots.map((slot) => {
+                        const endTime = addMinutes(slot.time, slot.durationMin);
                         const isSelected = selectedTime === slot.time;
-                        const canSelect = slot.type === "available";
-
-                        const status = isSelected ? "selected" : slot.type;
-
-                        const statusLabel = {
-                            selected: t("user.booking.selected"),
-                            available: t("user.booking.availableSlot"),
-                            break: t("user.booking.break"),
-                            booked: t("user.booking.alreadyReserved"),
-                        }[status];
-
-                        const colorClasses = {
-                            selected: "text-white",
-                            available: "text-[#F49B33]",
-                            break: "text-[#8a5620]",
-                            booked: "text-slate-500",
-                        }[status];
-
-                        const containerClasses = {
-                            selected:
-                                "border-[#F49B33] bg-[#F49B33] text-white",
-                            available:
-                                "border-[#f1c894] bg-white/95 text-[#F49B33] hover:border-[#F49B33] hover:bg-[#fff3e6]",
-                            break:
-                                "border-[#f1c894] bg-[#fff3e6] text-[#8a5620] cursor-not-allowed",
-                            booked:
-                                "border-slate-200 bg-slate-100/90 text-slate-500 cursor-not-allowed",
-                        }[status];
-
-                        const endTime = addMinutes(slot.time, durationMin);
 
                         return (
                             <button
                                 key={slot.id}
                                 type="button"
                                 aria-pressed={isSelected}
-                                disabled={!canSelect}
+                                disabled={slot.status !== SlotStatus.AVAILABLE}
                                 onClick={() => onSelect(slot.time)}
-                                className={`min-h-18 rounded-3xl border px-3 py-2 text-center transition-all disabled:cursor-not-allowed ${containerClasses}`}
+                                className={cn(
+                                    "relative min-h-18 rounded-xl border px-3 py-2 text-center transition-all disabled:cursor-not-allowed",
+                                    containerClasses[isSelected ? 4 : slot.status]
+                                )}
                             >
                                 <span
-                                    className={`block text-[14px] leading-none font-bold tracking-tight ${colorClasses}`}
+                                    className={cn(
+                                        "block text-[14px] leading-none font-bold tracking-tight ",
+                                        colorClasses[isSelected ? 4 : slot.status]
+                                    )}
                                 >
                                     {slot.time} - {endTime}
                                 </span>
 
                                 <span
-                                    className={`mt-1 block text-[8px] font-semibold uppercase tracking-[0.08em] opacity-95 ${colorClasses}`}
+                                    className={cn(
+                                        "mt-1 block text-[8px] font-semibold uppercase tracking-[0.08em] opacity-95",
+                                        colorClasses[isSelected ? 4 : slot.status]
+                                    )}
                                 >
-                                    {statusLabel}
+                                    {t(statusLabel[isSelected ? 4 : slot.status])}
                                 </span>
+
+                                {slot.bufferTime && (
+                                    <span className="flex items-center gap-1  text-xs absolute bottom-1 right-2">
+                                        <div className="flex items-center">
+                                            <Diff className="w-2.5 h-2.5" />
+                                            <span>{slot.bufferTime}</span>
+                                        </div>
+                                        <span>{t("user.services.duration")}</span>
+                                    </span>
+                                )}
                             </button>
                         );
                     })}

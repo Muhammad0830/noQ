@@ -2,13 +2,15 @@ import { ShopSchedule } from "@/domain/shop-schedule/entities/ShopSchedule.js";
 import type { ShopScheduleRepositoryInterface } from "@/domain/shop-schedule/repositories/ShopScheduleRepositoryInterface.js";
 import { DayOfWeek } from "@/domain/shop-schedule/value-objects/DayOfWeek.js";
 import { ShopScheduleId } from "@/domain/shop-schedule/value-objects/ShopScheduleId.js";
-import { ShopScheduleType, type ShopScheduleTypeValue } from "@/domain/shop-schedule/value-objects/ShopScheduleType.js";
+import { ShopScheduleType } from "@/domain/shop-schedule/value-objects/ShopScheduleType.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
-import type { PrismaClient, ShopSchedule as ShopScheduleModel } from "@prisma/client";
+import type { Prisma, PrismaClient, ShopSchedule as ShopScheduleModel } from "@prisma/client";
+
+type PrismaExecutor = PrismaClient | Prisma.TransactionClient;
 
 export class PrismaShopScheduleRepository implements ShopScheduleRepositoryInterface {
     constructor(
-        private readonly prisma: PrismaClient,
+        private readonly prisma: PrismaExecutor,
     ) { }
 
     async findById(scheduleId: ShopScheduleId): Promise<ShopSchedule> {
@@ -45,6 +47,25 @@ export class PrismaShopScheduleRepository implements ShopScheduleRepositoryInter
         })
 
         return scheduleList.map(schedule => this.toEntity(schedule));
+    }
+
+    async addMany(scheduleList: ShopSchedule[]): Promise<void> {
+        await this.prisma.shopSchedule.createMany({
+            data: scheduleList.map(schedule => ({
+                id: schedule.getId().toString(),
+                shopId: schedule.getShopId().toString(),
+                dayOfWeek: schedule.getDayOfWeek().getValue(),
+                startTime: schedule.getStartTime(),
+                endTime: schedule.getEndTime(),
+                type: schedule.getType().getValue(),
+                createdAt: schedule.getCreatedAt().getValue(),
+                updatedAt: schedule.getUpdatedAt().getValue(),
+            }))
+        })
+    }
+
+    nextIdentity(): ShopScheduleId {
+        return ShopScheduleId.create();
     }
 
     private toEntity(model: ShopScheduleModel): ShopSchedule {

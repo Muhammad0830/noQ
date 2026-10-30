@@ -8,9 +8,7 @@ import SecondaryHeader from "@/components/layouts/SecondaryHeader";
 import ShopPageSkeleton from "@/shared/components/shop/ShopPageSkeleton";
 import ImageSection from "@/shared/components/shop/ImageSection";
 import ShopTabs from "@/shared/components/shop/ShopTabs";
-import { ShopWithServices } from "@/shared/types/shop";
-import { Review } from "@/features/reviews/types";
-import { Service } from "@noq/shared";
+import { ShopDetails } from "@noq/shared";
 
 export default function ShopProfile({ params }: {
   params: Promise<{ id: string }>;
@@ -21,25 +19,13 @@ export default function ShopProfile({ params }: {
 
   const {
     data: shop,
-    isLoading: shopLoading,
+    isLoading,
     error: shopError,
-  } = useApiQuery<ShopWithServices>(API_ENDPOINTS.shopById(id), {
+  } = useApiQuery<ShopDetails>(API_ENDPOINTS.shopById(id), {
     key: ["shop", id],
   });
 
-  const { data: servicesData = [], isLoading: servicesLoading } = useApiQuery<
-    Service[]
-  >(API_ENDPOINTS.shopServices(id), {
-    key: ["services", id],
-  });
-
-  const { data: reviewsData = { data: [] }, isLoading: reviewsLoading } = useApiQuery<
-    { data: Review[] }
-  >(API_ENDPOINTS.shopReviews(id), {
-    key: ["reviews", id],
-  });
-
-  if (shopLoading) {
+  if (isLoading) {
     return <ShopPageSkeleton />
   }
 
@@ -73,19 +59,17 @@ export default function ShopProfile({ params }: {
         shop={shop}
         backgroundImage={backgroundImage}
         imageLoadError={imageLoadError}
-        isLoading={shopLoading}
-        setImageLoadError={setImageLoadError} />
+        isLoading={isLoading}
+        setImageLoadError={setImageLoadError}
+      />
 
       <ShopTabs
         imageLoadError={imageLoadError}
-        isShopLoading={shopLoading}
-        isServicesLoading={servicesLoading}
-        isReviewsLoading={reviewsLoading}
         shop={shop}
-        serviceList={servicesData}
-        reviewList={reviewsData.data}
+        isLoading={isLoading}
         backgroundImage={backgroundImage}
-        setImageLoadError={setImageLoadError} />
+        setImageLoadError={setImageLoadError}
+      />
     </div>
   );
 }

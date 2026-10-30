@@ -42,7 +42,7 @@ type SlotItem = {
   id: string;
   time: string;
   available: boolean;
-  duration: number;
+  durationMin: number;
   bufferTime: number;
 };
 
@@ -145,9 +145,9 @@ export default function AdminNewBookingPage() {
 
   const { data: services = [], isLoading: servicesLoading } = useApiQuery<
     Service[]
-  >(activeShopId ? API_ENDPOINTS.shopServices(activeShopId) : null, {
+  >(API_ENDPOINTS.admin.services, {
     key: ["admin-new-booking-services", activeShopId || "none"],
-    enabled: Boolean(activeShopId && user),
+    enabled: activeShopId && user,
     staleTime: 30_000,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
@@ -852,7 +852,7 @@ export default function AdminNewBookingPage() {
                         const canSelect = !isBooked;
                         const endTime = addMinutes(
                           slot.time,
-                          ((slot.duration || selectedDuration) + slot.bufferTime),
+                          ((slot.durationMin || selectedDuration) + slot.bufferTime),
                         );
                         const status = isSelected
                           ? "selected"

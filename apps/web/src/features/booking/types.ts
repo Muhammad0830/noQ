@@ -16,7 +16,7 @@ export interface InProgressBookingCardData {
     id: string;
     shopName: string;
     serviceName: string;
-    duration: string;
+    durationMin: string;
     price: number;
     status: BookingStatus;
     address: string;
@@ -34,7 +34,7 @@ export interface HistoryCardData {
     serviceName: string;
     date: string;
     time: string;
-    duration: string;
+    durationMin: string;
     price: number;
     status: BookingStatus;
     address: string;
@@ -58,20 +58,9 @@ export interface TimeSlot {
     type: 'available' | 'break' | 'booked';
 }
 
-export interface ScheduleSlot extends TimeSlot {
-    startMin: number;
-}
-
 export interface TimelineRange {
     start: string;
     end: string;
-}
-
-export interface DayTimelineResponse {
-    open: string | null;
-    close: string | null;
-    disabled: TimelineRange[];
-    busy: TimelineRange[];
 }
 
 export interface SelectedDateType {

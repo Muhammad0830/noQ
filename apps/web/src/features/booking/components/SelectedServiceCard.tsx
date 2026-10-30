@@ -13,6 +13,8 @@ const SelectedServiceCard: FC<SelectedServiceCardProps> = ({
     const t = useTranslations();
     const locale = useLocale();
 
+    console.log(service)
+
     return (
         <div
             className="rounded-2xl border border-[#f1c894] bg-white p-4 mb-6 cursor-pointer"
@@ -28,7 +30,7 @@ const SelectedServiceCard: FC<SelectedServiceCardProps> = ({
                         </span>
                         <span className="text-[#d3b089]">·</span>
                         <span className="text-slate-500">
-                            {service?.durationMin} {t("user.services.duration")}
+                            {service.durationMin} {t("user.services.duration")}
                         </span>
                     </div>
                 </div>

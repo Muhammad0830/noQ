@@ -49,7 +49,7 @@ export class PrismaUserBookingListQuery implements UserBookingListQueryInterface
         return {
             bookings: bookingList.map(booking => ({
                 id: booking.id,
-                serviceId: booking.serviceId,
+                serviceId: booking.serviceId || null,
                 shopId: booking.shopId,
                 customerId: booking.userId,
                 startTime: booking.startTime,
@@ -62,12 +62,12 @@ export class PrismaUserBookingListQuery implements UserBookingListQueryInterface
                     address: booking.shop.address,
                     backgroundImageUrl: booking.shop.backgroundImageUrl
                 },
-                service: {
+                service: booking.service ? {
                     id: booking.service.id,
                     name: booking.service.name,
                     price: Number(booking.service.price),
                     durationMin: booking.service.durationMin,
-                },
+                } : null,
             }))
         }
     }
