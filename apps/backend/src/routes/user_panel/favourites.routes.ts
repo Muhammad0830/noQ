@@ -1,32 +1,13 @@
 import { Router } from "express";
 import prisma from "@/db/prisma.js";
 import { authMiddleware } from "@/http/middlewares/auth.middleware.js";
-import { shopController } from "@/composition/shop.js";
+import { favouriteController } from "@/composition/favourite.js";
 
 const favouriteRouter = Router();
 
-favouriteRouter.get("/shops", authMiddleware, shopController.getFavourite);
+favouriteRouter.get("/shops", authMiddleware, favouriteController.getShopList);
 
-favouriteRouter.get("/services", authMiddleware, async (req: any, res: any) => {
-  try {
-    const favourites = await prisma.favoriteService.findMany({
-      where: {
-        userId: req.user.id,
-      },
-      include: {
-        service: true,
-      },
-    });
-
-    if (favourites.length === 0) {
-      return res.status(404).json({ message: "No favourites found" });
-    }
-
-    res.status(200).json(favourites);
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
+favouriteRouter.get("/services", authMiddleware, favouriteController.getServiceList);
 
 favouriteRouter.post("/shop", authMiddleware, async (req: any, res) => {
   try {

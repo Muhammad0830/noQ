@@ -14,8 +14,6 @@ export interface GetShopListQueryInterface {
     ): Promise<GetShopForDiscoveryOutput>
 
     getTrendingList(timeRange: number): Promise<GetTrendingShopListUseCaseOutput>;
-
-    getFavouriteList(userId: UserId): Promise<FavouriteShopListDTO>;
 }
 
 export interface GetShopForDiscoveryOutput {
@@ -42,30 +40,4 @@ export interface GetShopForDiscoveryOutput {
         averageRating: number,
         reviewCount: number,
     }[];
-}
-
-
-export interface FavouriteShop {
-    id: string;
-    categoryId: string;
-    ownerId: string;
-    name: string;
-    description: string | null;
-    logoUrl: string | null;
-    address: string;
-    phoneNumber: string;
-    isOpen: boolean;
-    backgroundImageUrl: string | null;
-    timezone: string;
-    createdAt: Date;
-    updatedAt: Date;
-    category: {
-        id: string;
-        name: string;
-        icon: string | null;
-    }
-}
-
-export interface FavouriteShopListDTO {
-    shopList: FavouriteShop[]
 }
