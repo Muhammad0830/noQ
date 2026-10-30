@@ -17,7 +17,7 @@ import Header from "@/features/booking/components/Header";
 import SelectedServiceCard from "@/features/booking/components/SelectedServiceCard";
 import SelectStaffSection from "@/features/booking/components/SelectStaffSection";
 import BookingFooter from "@/features/booking/components/BookingFooter";
-import { ShopDetails, BookingSlot } from "@noq/shared";
+import { ShopDetails, BookingSlot, Service } from "@noq/shared";
 
 interface Props {
   params: Promise<{ shopId: string }>;
@@ -52,7 +52,7 @@ export default function BookingPage({
     "post",
   );
 
-  const selectedService = shop?.services.find((service) => service.id === serviceFromQuery);
+  const selectedService: Service = shop?.services.find((service) => service.id === serviceFromQuery);
 
   const bookingEndTime = selectedDate.time
     ? addMinutes(selectedDate.time, selectedService?.durationMin ?? 0)

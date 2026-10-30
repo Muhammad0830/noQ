@@ -89,6 +89,7 @@ export class GetShopDataQuery implements GetShopDataQueryInterface {
             })),
             services: shop.services.map(service => ({
                 id: service.id,
+                shopId: service.shopId,
                 name: service.name,
                 description: service.description,
                 price: Number(service.price),

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import prisma from "@/db/prisma.js";
 import { getPaginationParams } from "@/utils/pagination.js";
+import { serviceController } from "@/composition/service.js";
 
 const serviceRouter = Router();
 
@@ -98,89 +99,90 @@ serviceRouter.get("/:id/reviews", async (req: any, res: any) => {
   }
 });
 
-serviceRouter.get("/trending/7days", async (req: any, res) => {
-  try {
-    const { search = "" } = req.query as { search?: string };
-    const now = new Date();
+serviceRouter.get("/trending/7days", serviceController.trending)
+// async (req: any, res) => {
+//   try {
+//     const { search = "" } = req.query as { search?: string };
+//     const now = new Date();
 
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(now.getDate() - 7);
+//     const sevenDaysAgo = new Date();
+//     sevenDaysAgo.setDate(now.getDate() - 7);
 
-    const services = await prisma.service.findMany({
-      where: {
-        isActive: true,
-        ...(search
-          ? {
-            OR: [
-              { name: { contains: search, mode: "insensitive" } },
-              {
-                shop: {
-                  name: { contains: search, mode: "insensitive" },
-                },
-              },
-            ],
-          }
-          : {}),
-      },
-      include: {
-        reviews: {
-          select: {
-            rating: true,
-          },
-        },
-        shop: {
-          select: {
-            id: true,
-            name: true,
-            category: true,
-          },
-        },
-        _count: {
-          select: {
-            reviews: true,
-            bookings: {
-              where: {
-                status: "COMPLETED",
-                createdAt: {
-                  gte: sevenDaysAgo,
-                  lte: now,
-                },
-              },
-            },
-          },
-        },
-      },
-      take: 10,
-    });
+//     const services = await prisma.service.findMany({
+//       where: {
+//         isActive: true,
+//         ...(search
+//           ? {
+//             OR: [
+//               { name: { contains: search, mode: "insensitive" } },
+//               {
+//                 shop: {
+//                   name: { contains: search, mode: "insensitive" },
+//                 },
+//               },
+//             ],
+//           }
+//           : {}),
+//       },
+//       include: {
+//         reviews: {
+//           select: {
+//             rating: true,
+//           },
+//         },
+//         shop: {
+//           select: {
+//             id: true,
+//             name: true,
+//             category: true,
+//           },
+//         },
+//         _count: {
+//           select: {
+//             reviews: true,
+//             bookings: {
+//               where: {
+//                 status: "COMPLETED",
+//                 createdAt: {
+//                   gte: sevenDaysAgo,
+//                   lte: now,
+//                 },
+//               },
+//             },
+//           },
+//         },
+//       },
+//       take: 10,
+//     });
 
-    if (services.length === 0) {
-      return res.status(200).json([]);
-    }
+//     if (services.length === 0) {
+//       return res.status(200).json([]);
+//     }
 
-    const result = services
-      .map((service) => {
-        const bookingCount = service._count.bookings;
+//     const result = services
+//       .map((service) => {
+//         const bookingCount = service._count.bookings;
 
-        const total = service.reviews.reduce((acc, rev) => acc + rev.rating, 0);
+//         const total = service.reviews.reduce((acc, rev) => acc + rev.rating, 0);
 
-        const avg =
-          service.reviews.length > 0 ? total / service.reviews.length : 0;
+//         const avg =
+//           service.reviews.length > 0 ? total / service.reviews.length : 0;
 
-        const { reviews, ...rest } = service;
+//         const { reviews, ...rest } = service;
 
-        return {
-          ...rest,
-          booking_count: bookingCount,
-          averageRating: parseFloat(avg.toFixed(1)),
-        };
-      })
-      .sort((a, b) => b.booking_count - a.booking_count);
+//         return {
+//           ...rest,
+//           booking_count: bookingCount,
+//           averageRating: parseFloat(avg.toFixed(1)),
+//         };
+//       })
+//       .sort((a, b) => b.booking_count - a.booking_count);
 
-    return res.status(200).json(result);
-  } catch (error) {
-    console.error("Error fetching famous services:", error);
-    res.status(500).json({ error: "Failed to fetch famous services" });
-  }
-});
+//     return res.status(200).json(result);
+//   } catch (error) {
+//     console.error("Error fetching famous services:", error);
+//     res.status(500).json({ error: "Failed to fetch famous services" });
+//   }
+// });
 
 export default serviceRouter;
