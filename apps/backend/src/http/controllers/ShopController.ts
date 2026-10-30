@@ -7,10 +7,13 @@ import { GetTrendingShopListUseCaseInterface } from
 import { CreateShopUseCaseInterface } from
     "@/application/shop/interfaces/CreateShopUseCaseInterface.js";
 import { toShopListResource } from "@/http/resources/shop/GetShopListResource.js";
-import { RequestHandler } from "express";
+import { RequestHandler, Response } from "express";
 import { GetShopListSchema } from "@/http/validators/shop/GetShopListSchema.js";
 import { TrendingShopsResponse } from "@noq/shared";
 import { CreateShopSchema } from "@/http/validators/shop/CreateShopSchema.js";
+import { checkUserAuthenticated } from "../validators/auth/CheckUserAuthenticated.js";
+import { RequestWithUser } from "@/types.js";
+import { GetFavouriteShopListUseCaseInterface } from "@/application/shop/interfaces/GetFavouriteShopListUseCaseInterface.js";
 
 export class ShopController {
     constructor(
@@ -18,6 +21,7 @@ export class ShopController {
         private readonly getShopDataUseCase: GetShopDataUseCaseInterface,
         private readonly getTrendingShopListUseCase: GetTrendingShopListUseCaseInterface,
         private readonly createShopUseCase: CreateShopUseCaseInterface,
+        private readonly getFavouriteShopListUseCase: GetFavouriteShopListUseCaseInterface,
     ) { }
 
     create: RequestHandler = async (req, res, next) => {
@@ -92,6 +96,22 @@ export class ShopController {
             res.status(200).json(output);
         } catch (error) {
             next(error)
+        }
+    }
+
+    getFavourite: RequestHandler = async (req, res, next) => {
+        try {
+            const user = checkUserAuthenticated(req as RequestWithUser, res as Response);
+
+            if (!user) {
+                return;
+            }
+
+            const output = await this.getFavouriteShopListUseCase.execute(user.id);
+
+            res.status(200).json(output);
+        } catch (error) {
+            next(error);
         }
     }
 }

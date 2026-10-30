@@ -1,5 +1,6 @@
 import { StorageService } from "@/application/shared/services/StorageService.js";
 import { CreateShopUseCase } from "@/application/shop/usecases/CreateShopUseCase.js";
+import { GetFavouriteShopListUseCase } from "@/application/shop/usecases/GetFavouriteShopListUseCase.js";
 import { GetShopDataUseCase } from "@/application/shop/usecases/GetShopDataUseCase.js";
 import { GetShopListUseCase } from "@/application/shop/usecases/GetShopListUseCase.js";
 import { GetTrendingShopListUseCase } from "@/application/shop/usecases/GetTrendingShopListUseCase.js";
@@ -50,9 +51,12 @@ const createShopUseCase = new CreateShopUseCase(
     shopCreationUnitOfWork,
 );
 
+const getFavouriteShopListUseCase = new GetFavouriteShopListUseCase(getShopListQuery);
+
 export const shopController = new ShopController(
     getShopListUseCase,
     getShopDataUseCase,
     getTrendingShopListUseCase,
     createShopUseCase,
+    getFavouriteShopListUseCase,
 );

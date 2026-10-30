@@ -1,6 +1,7 @@
-import { GetShopForDiscoveryOutput, GetShopListQueryInterface } from "@/application/shop/interfaces/GetShopListQueryInterface.js";
+import { FavouriteShopListDTO, GetShopForDiscoveryOutput, GetShopListQueryInterface } from "@/application/shop/interfaces/GetShopListQueryInterface.js";
 import { GetTrendingShopListUseCaseOutput } from "@/application/shop/interfaces/GetTrendingShopListUseCaseInterface.js";
 import { ShopCategoryId } from "@/domain/shop-category/value-objects/ShopCategoryId.js";
+import { UserId } from "@/domain/user/value-objects/UserId.js";
 import { PrismaClient } from "@prisma/client";
 
 export class GetShopListQuery implements GetShopListQueryInterface {
@@ -107,7 +108,7 @@ export class GetShopListQuery implements GetShopListQueryInterface {
             where: {
                 status: "COMPLETED",
                 endTime: {
-                    gte: new Date(Date.now() - timeRange), 
+                    gte: new Date(Date.now() - timeRange),
                 },
             },
             orderBy: {
@@ -163,6 +164,40 @@ export class GetShopListQuery implements GetShopListQueryInterface {
                     category: shop.category,
                 })
             }),
+        };
+    }
+
+    async getFavouriteList(userId: UserId): Promise<FavouriteShopListDTO> {
+        const shopList = await this.prisma.favoriteShop.findMany({
+            where: { userId: userId.toString() },
+            include: {
+                shop: {
+                    include: { category: true },
+                },
+            },
+        });
+
+        return {
+            shopList: shopList.map(favourite => ({
+                id: favourite.shop.id,
+                ownerId: favourite.shop.ownerId,
+                categoryId: favourite.shop.categoryId,
+                name: favourite.shop.name,
+                description: favourite.shop.description,
+                logoUrl: favourite.shop.logoUrl,
+                address: favourite.shop.address,
+                phoneNumber: favourite.shop.phone,
+                isOpen: favourite.shop.isOpen,
+                backgroundImageUrl: favourite.shop.backgroundImageUrl,
+                timezone: favourite.shop.timezone,
+                createdAt: favourite.shop.createdAt,
+                updatedAt: favourite.shop.updatedAt,
+                category: {
+                    id: favourite.shop.category.id,
+                    name: favourite.shop.category.name,
+                    icon: favourite.shop.category.icon,
+                },
+            })),
         };
     }
 

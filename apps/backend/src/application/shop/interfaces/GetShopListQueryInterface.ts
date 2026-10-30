@@ -1,5 +1,22 @@
 import { ShopCategoryId } from "@/domain/shop-category/value-objects/ShopCategoryId.js";
 import { GetTrendingShopListUseCaseOutput } from "./GetTrendingShopListUseCaseInterface.js";
+import { UserId } from "@/domain/user/value-objects/UserId.js";
+
+export interface GetShopListQueryInterface {
+    getBySearch(
+        search: string,
+        limit: number
+    ): Promise<GetShopForDiscoveryOutput>
+
+    getByCategoryIdList(
+        categoryIdList: ShopCategoryId[],
+        limit: number
+    ): Promise<GetShopForDiscoveryOutput>
+
+    getTrendingList(timeRange: number): Promise<GetTrendingShopListUseCaseOutput>;
+
+    getFavouriteList(userId: UserId): Promise<FavouriteShopListDTO>;
+}
 
 export interface GetShopForDiscoveryOutput {
     shopList: {
@@ -27,16 +44,28 @@ export interface GetShopForDiscoveryOutput {
     }[];
 }
 
-export interface GetShopListQueryInterface {
-    getBySearch(
-        search: string,
-        limit: number
-    ): Promise<GetShopForDiscoveryOutput>
 
-    getByCategoryIdList(
-        categoryIdList: ShopCategoryId[],
-        limit: number
-    ): Promise<GetShopForDiscoveryOutput>
+export interface FavouriteShop {
+    id: string;
+    categoryId: string;
+    ownerId: string;
+    name: string;
+    description: string | null;
+    logoUrl: string | null;
+    address: string;
+    phoneNumber: string;
+    isOpen: boolean;
+    backgroundImageUrl: string | null;
+    timezone: string;
+    createdAt: Date;
+    updatedAt: Date;
+    category: {
+        id: string;
+        name: string;
+        icon: string | null;
+    }
+}
 
-    getTrendingList(timeRange: number): Promise<GetTrendingShopListUseCaseOutput>
+export interface FavouriteShopListDTO {
+    shopList: FavouriteShop[]
 }
