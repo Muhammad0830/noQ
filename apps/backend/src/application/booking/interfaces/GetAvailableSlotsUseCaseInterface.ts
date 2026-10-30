@@ -16,7 +16,7 @@ export interface VisibleSlots {
     id: string;
     time: string;
     durationMin: number;
-    bufferTime: number;
+    bufferTime: number | null;
     status: SlotStatus;
 }
 

@@ -113,7 +113,7 @@ export class GetAvailableSlotsUseCase implements GetAvailableSlotsUseCaseInterfa
                     id: `${input.shopId}-${input.selectedDate}-${startTime} `,
                     time: startTime,
                     durationMin: input.service.getDurationMin(),
-                    bufferTime: input.service.getBufferTime() ?? 0,
+                    bufferTime: input.service.getBufferTime(),
                     status: slotStatus,
                 });
 

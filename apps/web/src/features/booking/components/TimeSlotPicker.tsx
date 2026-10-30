@@ -131,7 +131,7 @@ export function TimeSlotPicker({
                                     {t(statusLabel[isSelected ? 4 : slot.status])}
                                 </span>
 
-                                {slot.bufferTime && (
+                                {slot.bufferTime !== null && slot.bufferTime > 0 && (
                                     <span className="flex items-center gap-1  text-xs absolute bottom-1 right-2">
                                         <div className="flex items-center">
                                             <Diff className="w-2.5 h-2.5" />

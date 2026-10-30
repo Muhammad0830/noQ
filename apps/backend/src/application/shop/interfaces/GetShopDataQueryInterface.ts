@@ -36,6 +36,7 @@ export interface GetShopDataQueryOutput {
     }[];
     services: {
         id: string;
+        shopId: string;
         name: string;
         description: string | null;
         price: number;

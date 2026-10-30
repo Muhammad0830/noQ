@@ -110,6 +110,31 @@ export class Service {
         return this.props.updatedAt
     }
 
+    updateName(name: string): void {
+        this.props.name = name;
+        this.touch();
+    }
+
+    updatePrice(price: Money): void {
+        this.props.price = price;
+        this.touch();
+    }
+
+    updateDurationMin(duration: number): void {
+        this.props.durationMin = duration;
+        this.touch();
+    }
+
+    updateBufferTime(bufferTime: number): void {
+        this.props.bufferTime = bufferTime;
+        this.touch();
+    }
+
+    updateDescription(description: string): void {
+        this.props.description = description;
+        this.touch();
+    }
+
     isActive(): boolean {
         return this.props.isActive;
     }
@@ -123,7 +148,7 @@ export class Service {
         this.touch();
     }
 
-    inactivate(): void {
+    deactivate(): void {
         if (!this.isActive()) {
             throw new Error("Service is already inactive");
         }
