@@ -1,4 +1,4 @@
-import { GetServiceDataQueryInterface, GetTrendingServiceListDTO, ServiceDetailsDTO } from "@/application/service/interfaces/GetServiceDataQueryInterface.js";
+import { GetServiceDataQueryInterface, GetTrendingServiceListDTO, ServiceDetailsDTO, ServiceWithReviewsDTO } from "@/application/service/interfaces/GetServiceDataQueryInterface.js";
 import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
 import { BookingStatus, PrismaClient } from "@prisma/client";
 
@@ -68,5 +68,66 @@ export class GetServiceDataQuery implements GetServiceDataQueryInterface {
             createdAt: service.createdAt,
             updatedAt: service.updatedAt,
         }
+    }
+
+    async getServiceReviewList(serviceId: ServiceId): Promise<ServiceWithReviewsDTO> {
+        const service = await this.prisma.service.findUnique({
+            where: { id: serviceId.toString() },
+            include: {
+                reviews: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                avatarUrl: true,
+                            },
+                        },
+                        shop: {
+                            select: {
+                                id: true,
+                                name: true,
+                            }
+                        }
+                    }
+                },
+            },
+        });
+
+        if (!service) {
+            throw new Error("Service not found");
+        }
+
+        return {
+            id: service.id,
+            shopId: service.shopId,
+            isActive: service.isActive,
+            name: service.name,
+            description: service.description,
+            price: Number(service.price),
+            bufferTime: service.bufferTime,
+            durationMin: service.durationMin,
+            createdAt: service.createdAt,
+            updatedAt: service.updatedAt,
+            reviews: service.reviews.map(review => ({
+                id: review.id,
+                serviceId: review.serviceId,
+                shopId: review.shopId,
+                userId: review.userId,
+                rating: review.rating,
+                comment: review.comment,
+                createdAt: review.createdAt,
+                updatedAt: review.updatedAt,
+                user: {
+                    id: review.user.id,
+                    name: review.user.name,
+                    avatarUrl: review.user.avatarUrl,
+                },
+                shop: {
+                    id: review.shop.id,
+                    name: review.shop.name,
+                }
+            })),
+        };
     }
 }

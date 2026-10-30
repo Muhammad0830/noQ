@@ -52,6 +52,10 @@ GET http://localhost:3001/services/89629de1-2a63-43b2-821a-e84ddf1ce1b8
 Authorization: Bearer {{bearer_token}}
 
 ###
+GET http://localhost:3001/services/67210056-d8e3-4ea4-a917-72d2455215a2/reviews
+Authorization: Bearer {{bearer_token}}
+
+###
 GET http://localhost:3001/shops?open=true&limit=10&minPrice=20000&maxPrice=200000&categories=a85dbfa6-7c8f-4ffc-a7ad-b3a85a5503e8,74e8e6c9-51cb-48ee-b2ea-113b86f00573
 Authorization: Bearer {{bearer_token}}
 

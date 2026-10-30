@@ -4,6 +4,8 @@ export interface GetServiceDataQueryInterface {
     getTrending(timeRange: number, limit: number): Promise<GetTrendingServiceListDTO>;
 
     getDetails(serviceId: ServiceId): Promise<ServiceDetailsDTO>;
+
+    getServiceReviewList(serviceId: ServiceId): Promise<ServiceWithReviewsDTO>;
 }
 
 export interface GetTrendingServiceListDTO {
@@ -32,4 +34,38 @@ export interface ServiceDetailsDTO {
     isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
+}
+
+export interface ServiceWithReviewsDTO {
+    id: string;
+    shopId: string;
+    name: string;
+    description: string | null;
+    price: number;
+    durationMin: number;
+    bufferTime: number | null;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    reviews: ReviewItem[]
+}
+
+export interface ReviewItem {
+    id: string;
+    serviceId: string | null;
+    shopId: string;
+    userId: string;
+    rating: number;
+    comment: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    user: {
+        id: string;
+        name: string;
+        avatarUrl: string | null;
+    }
+    shop: {
+        id: string;
+        name: string;
+    }
 }
