@@ -1,8 +1,8 @@
 import { RequestHandler, Response } from "express";
 import { checkUserAuthenticated } from "../validators/auth/CheckUserAuthenticated.js";
 import { RequestWithUser } from "@/types.js";
-import { GetFavouriteShopListUseCaseInterface } from "@/application/shop/interfaces/GetFavouriteShopListUseCaseInterface.js";
 import { GetFavouriteServiceListUseCaseInterface } from "@/application/favourite/interfaces/GetFavouriteServiceListUseCaseInterface.js";
+import { GetFavouriteShopListUseCaseInterface } from "@/application/favourite/interfaces/GetFavouriteShopListUseCaseInterface.js";
 
 export class FavouriteController {
     constructor(
