@@ -7,7 +7,7 @@ import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 export interface Props {
     id: ReviewId;
     userId: UserId;
-    shopId: ShopId | null;
+    shopId: ShopId;
     serviceId: ServiceId | null;
     rating: number;
     comment: string | null;
@@ -62,7 +62,7 @@ export class Review {
         return this.props.userId;
     }
 
-    getShopId(): ShopId | null {
+    getShopId(): ShopId {
         return this.props.shopId;
     }
 

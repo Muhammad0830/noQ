@@ -6,17 +6,17 @@ export function toBookingResource(dto: UserBookingListDTO): BookingItem[] {
         id: booking.id,
         userId: booking.customerId,
         shopId: booking.shopId,
-        serviceId: booking.serviceId,
+        serviceId: booking.serviceId ?? null,
         startTime: booking.startTime,
         endTime: booking.endTime,
         status: booking.status.getValue(),
         createdAt: booking.createdAt,
-        service: {
+        service: booking.service ? {
             id: booking.service.id,
             name: booking.service.name,
             price: booking.service.price,
             durationMin: booking.service.durationMin,
-        },
+        } : null,
         shop: {
             id: booking.shop.id,
             name: booking.shop.name,

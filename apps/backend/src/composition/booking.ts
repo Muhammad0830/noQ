@@ -29,6 +29,7 @@ import { GetBlockSlotListQuery } from
     "@/infrastructue/persistence/shop-block/GetBlockSlotListQuery.js";
 import { SlotAvailabilityValidator } from
     "@/application/booking/validators/SlotAvailabilityValidator.js";
+import { BookingCreationPolicy } from "@/application/booking/policies/BookingCreationPolicy.js";
 
 // infrastructure
 const bookingRepository = new PrismaBookingRepository(prisma);
@@ -44,6 +45,8 @@ const scheduleRepository = new PrismaShopScheduleRepository(prisma);
 // application
 const scheduleValidator = new ScheduleValidator();
 const slotAvailabilityValidator = new SlotAvailabilityValidator();
+
+const bookingCreationPolicy = new BookingCreationPolicy();
 
 const getBookingListUseCase = new GetUserBookingListUseCase(userBookingListQuery);
 const cancelBookingUseCase = new CancelBookingUseCase(bookingRepository);
@@ -61,6 +64,7 @@ const createBookingUseCase = new CreateBookingUseCase(
     availabilityCheckerQuery,
     scheduleRepository,
     scheduleValidator,
+    bookingCreationPolicy,
 );
 
 // http

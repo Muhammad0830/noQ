@@ -59,13 +59,17 @@ export class CreateBookingUseCase implements CreateBookingUseCaseInterface {
 
         const bookingId = this.bookingRepository.nextIdentity();
 
+        const endTime = startTime.addMinutes(service.getTotalDurationMin());
+
         const booking = Booking.create({
             id: bookingId,
             serviceId: serviceId,
             customerId: customerId,
             shopId: shopId,
             startTime: startTime,
-            service: service,
+            endTime: endTime,
+            cancellationReason: null,
+            cancelledAt: null,
         });
 
         const schedules = await this.scheduleRepository

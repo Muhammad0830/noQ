@@ -6,37 +6,29 @@ import type { CustomerId } from "@/domain/customer/value-objects/CustomerId.js";
 import type { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 
-export interface BookingProps {
+export interface Props {
     id: BookingId;
     customerId: CustomerId;
-    serviceId: ServiceId,
+    serviceId: ServiceId | null,
     shopId: ShopId;
-    service: Service;
     startTime: DateTime;
+    endTime: DateTime;
     status: BookingStatus;
     createdAt: DateTime;
     updatedAt: DateTime;
-    cancellationReason?: string;
-    cancelledAt?: DateTime;
+    cancellationReason: string | null;
+    cancelledAt: DateTime | null;
 }
 
-export interface CreateBookingProps {
-    id: BookingId;
-    customerId: CustomerId;
-    serviceId: ServiceId;
-    shopId: ShopId;
-    service: Service;
-    startTime: DateTime;
-    status?: BookingStatus;
+export interface CreateBookingProps extends Omit<Props, 'createdAt' | 'updatedAt' | 'status'> {
     createdAt?: DateTime;
     updatedAt?: DateTime;
-    cancellationReason?: string;
-    cancelledAt?: DateTime;
+    status?: BookingStatus;
 }
 
 export class Booking {
     private constructor(
-        private readonly props: BookingProps,
+        private readonly props: Props,
     ) { }
 
     static create(props: CreateBookingProps): Booking {
@@ -50,10 +42,6 @@ export class Booking {
 
         if (!props.shopId.toString().trim()) {
             throw new Error("Shop ID is required");
-        }
-
-        if (!props.service.isValid()) {
-            throw new Error("A booking must contain at least one item");
         }
 
         return new Booking({
@@ -72,7 +60,7 @@ export class Booking {
         return this.props.shopId;
     }
 
-    getServiceId(): ServiceId {
+    getServiceId(): ServiceId | null {
         return this.props.serviceId;
     }
 
@@ -89,9 +77,7 @@ export class Booking {
     }
 
     getEndTime(): DateTime {
-        return this.props.startTime.addMinutes(
-            this.props.service.getTotalDurationMin()
-        );
+        return this.props.endTime;
     }
 
     getCreatedAt(): DateTime {
@@ -103,19 +89,11 @@ export class Booking {
     }
 
     getCancelledAt(): DateTime | null {
-        return this.props.cancelledAt ?? null;
+        return this.props.cancelledAt;
     }
 
     getCancellationReason(): string | null {
-        return this.props.cancellationReason ?? null;
-    }
-
-    getService(): Service {
-        return this.props.service;
-    }
-
-    getDuration(): number {
-        return this.props.service.getDurationMin();
+        return this.props.cancellationReason;
     }
 
     reschedule(newStartTime: DateTime): void {

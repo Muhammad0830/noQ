@@ -36,7 +36,7 @@ export class PrismaBookingRepository implements BookingRepositoryInterface {
                 id: booking.getId().toString(),
                 userId: booking.getCustomerId().toString(),
                 shopId: booking.getShopId().toString(),
-                serviceId: booking.getServiceId().toString(),
+                serviceId: booking.getServiceId()?.toString(),
                 startTime: booking.getStartTime().getValue(),
                 endTime: booking.getEndTime().getValue(),
                 status: booking.getStatus().getValue(),
@@ -86,31 +86,20 @@ export class PrismaBookingRepository implements BookingRepositoryInterface {
     }
 
     private toEntity(bookingModel: BookingWithService) {
-        const shopId = ShopId.create(bookingModel.id);
-
-        const service = Service.create({
-            id: ServiceId.create(bookingModel.service.id),
-            shopId: shopId,
-            name: bookingModel.service.name,
-            description: bookingModel.service.description,
-            durationMin: bookingModel.service.durationMin,
-            bufferTime: bookingModel.service.bufferTime,
-            isActive: bookingModel.service.isActive,
-            price: Money.fromAmount(Number(bookingModel.service.price), "UZS"),
-            createdAt: DateTime.from(bookingModel.service.createdAt),
-            updatedAt: DateTime.from(bookingModel.service.updatedAt),
-        });
-
         return Booking.create({
             id: BookingId.create(bookingModel.id),
-            serviceId: service.getId(),
-            shopId: shopId,
+            shopId: ShopId.create(bookingModel.id),
             customerId: CustomerId.create(bookingModel.userId),
             startTime: DateTime.from(bookingModel.startTime),
-            service: service,
-            ...(bookingModel.status && {
-                status: BookingStatus.from(bookingModel.status) // if there is no status then uses default status
-            }),
+            endTime: DateTime.from(bookingModel.endTime),
+            status: BookingStatus.from(bookingModel.status),
+            cancellationReason: bookingModel.cancellationReason,
+            serviceId: bookingModel.service
+                ? ServiceId.create(bookingModel.service.id)
+                : null,
+            cancelledAt: bookingModel.cancelledAt
+                ? DateTime.from(bookingModel.cancelledAt)
+                : null,
         })
     }
 }

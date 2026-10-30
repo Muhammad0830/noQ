@@ -1,5 +1,5 @@
 import { BookingStatus } from "@noq/shared"
-import type { Booking, BookingItem, SlotStatus } from "@noq/shared"
+import type { Booking, BookingItem } from "@noq/shared"
 
 export { BookingStatus, Booking, BookingItem };
 

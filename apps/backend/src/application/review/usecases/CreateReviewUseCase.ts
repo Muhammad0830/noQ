@@ -22,7 +22,7 @@ export class CreateReviewUseCase implements CreateReviewUseCaseInterface {
 
         const reviewId = this.reviewRepository.nextIdentity();
         const userId = UserId.create(input.userId);
-        const shopId = input.shopId ? ShopId.create(input.shopId) : null;
+        const shopId = ShopId.create(input.shopId);
         const shopExists = shopId ? await this.shopRepository.exists(shopId) : false;
 
         if (shopId && !shopExists) {

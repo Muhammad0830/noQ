@@ -70,7 +70,7 @@ export class PrismaReviewRepository implements ReviewRepositoryInterface {
             data: {
                 id: review.getId().toString(),
                 userId: review.getUserId().toString(),
-                shopId: review.getShopId()?.toString(),
+                shopId: review.getShopId().toString(),
                 serviceId: review.getServiceId()?.toString(),
                 rating: review.getRating(),
                 comment: review.getComment(),
@@ -104,7 +104,7 @@ export class PrismaReviewRepository implements ReviewRepositoryInterface {
         return Review.create({
             id: ReviewId.create(model.id),
             userId: UserId.create(model.userId),
-            shopId: model.shopId ? ShopId.create(model.shopId) : null,
+            shopId: ShopId.create(model.shopId),
             serviceId: model.serviceId ? ServiceId.create(model.serviceId) : null,
             rating: model.rating,
             comment: model.comment,
