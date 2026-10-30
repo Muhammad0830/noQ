@@ -58,49 +58,55 @@ const InProgressBookingCard: FC<InProgressBookingCardProps> = ({
                 <div className="my-4 h-px w-full bg-linear-to-r from-slate-200/0 via-slate-400/40 to-slate-200/0" />
 
                 <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
-                    <div className="flex items-center gap-2.5">
-                        {booking.remainingDays !== null ? (
-                            <div className="flex h-14 w-20 flex-col items-center justify-center rounded-2xl bg-[#F49B33] text-white shadow-[0_8px_22px_rgba(244,155,51,0.34)]">
-                                <span className="text-[22px] font-semibold leading-none">
-                                    {booking.remainingDays}
-                                </span>
-
-                                <span className="text-[10px] font-semibold uppercase tracking-[0.09em]">
-                                    {t("user.history.time.days")}
-                                </span>
-                            </div>
-                        ) : (
-                            <>
-                                <div className="flex h-14 w-14 flex-col items-center justify-center rounded-2xl bg-[#F49B33] text-white shadow-[0_8px_22px_rgba(244,155,51,0.34)]">
+                    <div className="flex flex-col gap-1">
+                        <p className="text-[11px] uppercase tracking-[0.11em] text-slate-500">
+                            {t("user.history.timeLeft")}
+                        </p>
+                        <div className="flex items-center gap-2.5">
+                            {booking.remainingDays !== null ? (
+                                <div className="flex h-14 w-20 flex-col items-center justify-center rounded-2xl bg-[#F49B33] text-white shadow-[0_8px_22px_rgba(244,155,51,0.34)]">
                                     <span className="text-[22px] font-semibold leading-none">
-                                        {booking.remainingHours}
+                                        {booking.remainingDays}
                                     </span>
 
                                     <span className="text-[10px] font-semibold uppercase tracking-[0.09em]">
-                                        {t("user.history.time.hour")}
+                                        {t("user.history.time.days")}
                                     </span>
                                 </div>
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <div className="flex h-14 w-14 flex-col items-center justify-center rounded-2xl bg-[#F49B33] text-white shadow-[0_8px_22px_rgba(244,155,51,0.34)]">
+                                        <span className="text-[22px] font-semibold leading-none">
+                                            {booking.remainingHours}
+                                        </span>
 
-                                <div className="flex h-14 w-14 flex-col items-center justify-center rounded-2xl border border-slate-300 bg-white text-slate-900">
-                                    <span className="text-[22px] font-semibold leading-none">
-                                        {booking.remainingMinutes}
-                                    </span>
+                                        <span className="text-[10px] font-semibold uppercase tracking-[0.09em]">
+                                            {t("user.history.time.hour")}
+                                        </span>
+                                    </div>
 
-                                    <span className="text-[10px] font-semibold uppercase tracking-[0.09em] text-slate-500">
-                                        {t("user.history.time.min")}
-                                    </span>
+                                    <div className="flex h-14 w-14 flex-col items-center justify-center rounded-2xl border border-slate-300 bg-white text-slate-900">
+                                        <span className="text-[22px] font-semibold leading-none">
+                                            {booking.remainingMinutes}
+                                        </span>
+
+                                        <span className="text-[10px] font-semibold uppercase tracking-[0.09em] text-slate-500">
+                                            {t("user.history.time.min")}
+                                        </span>
+                                    </div>
                                 </div>
-                            </>
-                        )}
+                            )}
+                        </div>
                     </div>
                     <div className="text-right">
                         <p className="text-[11px] uppercase tracking-[0.11em] text-slate-500">
                             {t("user.history.startsAt")}
                         </p>
 
-                        <p className="text-[20px] font-semibold tracking-tight text-slate-900 sm:text-[30px]">
-                            {booking.startLabel}
-                        </p>
+                        <div className="text-[20px] font-semibold tracking-tight text-slate-900 sm:text-[30px]">
+                            <p>{booking.date}</p>
+                            <p>{booking.time}</p>
+                        </div>
                     </div>
                 </div>
 
@@ -109,9 +115,12 @@ const InProgressBookingCard: FC<InProgressBookingCardProps> = ({
                         {t("user.history.serviceDetails")}
                     </p>
 
-                    <p className="text-sm font-semibold text-slate-800">
-                        {booking.durationMin} • {formatPrice(booking.price, locale)} {t("common.currency")}
-                    </p>
+                    <div className="flex flex-col items-end">
+                        <p className="text-sm font-semibold text-slate-800">{formatPrice(booking.price, locale)} {t("common.currency")}</p>
+                        <p className="text-sm font-semibold text-slate-800">
+                            {booking.durationMin}
+                        </p>
+                    </div>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -137,7 +146,7 @@ const InProgressBookingCard: FC<InProgressBookingCardProps> = ({
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 

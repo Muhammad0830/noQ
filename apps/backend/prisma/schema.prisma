@@ -94,6 +94,8 @@ model Booking {
   updatedAt          DateTime      @default(now()) @map("updated_at")
   cancellationReason String?
   cancelledAt        DateTime?
+  serviceName        String        @default("ServiceName")
+  servicePrice       Decimal       @default(50000) @db.Decimal(10, 2)
   service            Service?      @relation(fields: [serviceId], references: [id])
   shop               Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade)
   staff              Staff?        @relation("StaffBookings", fields: [staffId], references: [id])

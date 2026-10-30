@@ -1,7 +1,4 @@
 import { BookingStatus } from "@noq/shared"
-import type { Booking, BookingItem } from "@noq/shared"
-
-export { BookingStatus, Booking, BookingItem };
 
 export enum BookingTabs {
     IN_PROGRESS = "IN_PROGRESS",
@@ -24,7 +21,8 @@ export interface InProgressBookingCardData {
     remainingDays: number | null;
     remainingHours: number;
     remainingMinutes: number;
-    startLabel: string;
+    date: string;
+    time: string;
     image: string | null;
 }
 

@@ -7,6 +7,8 @@ export function toBookingResource(dto: UserBookingListDTO): BookingItem[] {
         userId: booking.customerId,
         shopId: booking.shopId,
         serviceId: booking.serviceId ?? null,
+        serviceName: booking.serviceName,
+        servicePrice: booking.servicePrice,
         startTime: booking.startTime,
         endTime: booking.endTime,
         status: booking.status.getValue(),

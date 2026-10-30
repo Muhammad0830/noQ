@@ -3,7 +3,6 @@ import type { BookingRepositoryInterface, BookingWithService } from "@/domain/bo
 import { BookingId } from "@/domain/booking/value-objects/BookingId.js";
 import { BookingStatus } from "@/domain/booking/value-objects/BookingStatus.js";
 import { CustomerId } from "@/domain/customer/value-objects/CustomerId.js";
-import { Service } from "@/domain/service/entities/Service.js";
 import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 import { Money } from "@/domain/shared/value-objects/Money.js";
@@ -40,6 +39,8 @@ export class PrismaBookingRepository implements BookingRepositoryInterface {
                 startTime: booking.getStartTime().getValue(),
                 endTime: booking.getEndTime().getValue(),
                 status: booking.getStatus().getValue(),
+                serviceName: booking.getServiceName(),
+                servicePrice: booking.getServicePrice().amount,
             }
         })
     }
@@ -93,6 +94,8 @@ export class PrismaBookingRepository implements BookingRepositoryInterface {
             startTime: DateTime.from(bookingModel.startTime),
             endTime: DateTime.from(bookingModel.endTime),
             status: BookingStatus.from(bookingModel.status),
+            servicePrice: Money.fromAmount(Number(bookingModel.servicePrice), 'UZS'),
+            serviceName: bookingModel.serviceName,
             cancellationReason: bookingModel.cancellationReason,
             serviceId: bookingModel.service
                 ? ServiceId.create(bookingModel.service.id)

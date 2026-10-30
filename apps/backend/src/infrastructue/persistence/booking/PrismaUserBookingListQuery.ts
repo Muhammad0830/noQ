@@ -52,6 +52,8 @@ export class PrismaUserBookingListQuery implements UserBookingListQueryInterface
                 serviceId: booking.serviceId || null,
                 shopId: booking.shopId,
                 customerId: booking.userId,
+                serviceName: booking.serviceName,
+                servicePrice: Number(booking.servicePrice),
                 startTime: booking.startTime,
                 endTime: booking.endTime,
                 status: BookingStatus.from(booking.status),

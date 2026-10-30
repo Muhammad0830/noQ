@@ -2,11 +2,11 @@
 
 import { getImageUrl } from "@/lib/supabaseClient";
 import {
-    BookingItem,
     BookingTabs,
     HistoryCardData,
     InProgressBookingCardData,
 } from "./types";
+import { BookingItem, formatToDateString, formatToTimeString } from "@noq/shared";
 
 const resolveShopImage = (rawImage?: string | null) => {
     if (!rawImage) return null;
@@ -19,6 +19,7 @@ const resolveShopImage = (rawImage?: string | null) => {
 };
 
 const buildCommonBookingCard = (booking: BookingItem) => {
+    console.log(booking.service)
     return {
         id: booking.id,
         shopName: booking.shop.name,
@@ -59,12 +60,8 @@ export const buildInProgressCard = (
         remainingDays: totalDays,
         remainingHours: totalRemainingHours,
         remainingMinutes,
-        startLabel: startDate.toLocaleString("en-US", {
-            month: "short",
-            day: "2-digit",
-            hour: "numeric",
-            minute: "2-digit",
-        }),
+        date: formatToDateString(startDate),
+        time: formatToTimeString(startDate),
     };
 };
 

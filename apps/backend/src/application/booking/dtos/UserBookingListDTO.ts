@@ -12,6 +12,8 @@ export interface UserBookingItem {
     shopId: string,
     serviceId: string | null,
     customerId: string,
+    serviceName: string,
+    servicePrice: number,
     startTime: Date,
     endTime: Date,
     status: BookingStatus,

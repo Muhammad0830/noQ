@@ -13,8 +13,6 @@ const SelectedServiceCard: FC<SelectedServiceCardProps> = ({
     const t = useTranslations();
     const locale = useLocale();
 
-    console.log(service)
-
     return (
         <div
             className="rounded-2xl border border-[#f1c894] bg-white p-4 mb-6 cursor-pointer"

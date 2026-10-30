@@ -9,8 +9,6 @@ import HistoryPanel from "@/features/booking/components/HistoryPanel";
 import InProgressPanel from "@/features/booking/components/InProgressPanel";
 import { buildHistoryCard, buildInProgressCard } from "@/features/booking/utils";
 import {
-  BookingItem,
-  BookingStatus,
   BookingTabs as BookingTabsType,
 } from "@/features/booking/types";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,7 +17,7 @@ import { cn } from "@/lib/utils";
 import BookingCancelConfirmDialog from "@/features/booking/components/BookingCancelConfirmDialog";
 import BookingPanelTitle from "@/features/booking/components/BookingPanelTitle";
 import { STATUS_ICONS, STATUS_LABELS } from "@/features/booking/components/booking-status";
-import { CancelBookingRequestBody } from "@noq/shared";
+import { BookingItem, BookingStatus, CancelBookingRequestBody } from "@noq/shared";
 
 export default function MyBookings() {
   const { isAuthenticated, isLoading, user } = useAuth()

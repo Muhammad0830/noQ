@@ -11,7 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { useLocale } from "next-intl";
-import { BookingStatus } from "@/features/booking/types";
+import { BookingStatus } from "@noq/shared";
 
 export type AdminDashboardBooking = {
   id: string;
@@ -365,7 +365,7 @@ export function AdminScheduleTimeline({
         </div>
       </div>
 
-      <div className="mb-4 flex items-center gap-2 overflow-x-auto overflow-y-hidden p-1 md:gap-2.5 lg:gap-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div className="mb-4 flex items-center gap-2 overflow-x-auto overflow-y-hidden p-1 md:gap-2.5 lg:gap-3 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {weekDates.map((day) => {
           const isToday = day.toDateString() === currentDate.toDateString();
           const isSelected = day.toDateString() === selectedDate.toDateString();
@@ -407,7 +407,7 @@ export function AdminScheduleTimeline({
         })}
       </div>
 
-      <div className="pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div className="pr-1 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {isError && (
           <div className="mb-4 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
             {t("admin.dashboard.error.schedulePrefix", {
@@ -508,17 +508,16 @@ export function AdminScheduleTimeline({
                   <div className="min-w-0 pl-0.5 md:pl-1 lg:pl-1.5">
                     <div
                       onClick={() => onOpenPendingAppointment(appointment)}
-                      className={`rounded-2xl px-3 py-3 shadow-sm md:rounded-2xl md:px-4 md:py-3.5 lg:rounded-3xl lg:px-5 lg:py-4 ${statusStyle.card} ${
-                        isPending
-                          ? "cursor-pointer transition hover:border-orange-300 hover:shadow-md"
-                          : ""
-                      }`}
+                      className={`rounded-2xl px-3 py-3 shadow-sm md:rounded-2xl md:px-4 md:py-3.5 lg:rounded-3xl lg:px-5 lg:py-4 ${statusStyle.card} ${isPending
+                        ? "cursor-pointer transition hover:border-orange-300 hover:shadow-md"
+                        : ""
+                        }`}
                       style={
                         isCompleted
                           ? {
-                              backgroundColor: "transparent",
-                              borderColor: "#34d399",
-                            }
+                            backgroundColor: "transparent",
+                            borderColor: "#34d399",
+                          }
                           : undefined
                       }
                     >

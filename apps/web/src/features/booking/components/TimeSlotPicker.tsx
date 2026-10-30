@@ -47,9 +47,6 @@ export function TimeSlotPicker({
 }: TimeSlotPickerProps) {
     const t = useTranslations()
 
-    console.log(selectedTime, slots[0]?.time)
-    console.log(selectedTime === slots[0]?.time)
-
     if (loading) {
         return (
             <div className="max-h-72 overflow-y-auto pr-1">

@@ -1,5 +1,5 @@
+import { BookingStatus } from "@noq/shared";
 import { AlertCircle, Check, Clock3, X } from "lucide-react";
-import { BookingStatus } from "../types";
 
 export const STATUS_ICONS: Record<BookingStatus, React.ReactNode> = {
   [BookingStatus.PENDING]: <Clock3 className="h-3.5 w-3.5" />,
