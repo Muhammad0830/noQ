@@ -66,17 +66,17 @@ export default function BookingPage({
       return;
     }
 
-    const response = await bookingMutation({
+    await bookingMutation({
       shopId,
       serviceId: selectedService.id,
       staffId: shop?.staffs[0]?.id || undefined,
       date: selectedDate.date,
       startTime: selectedDate.time,
+    }, {
+      onSuccess: () => {
+        router.push("/bookings" as Route);
+      }
     });
-
-    if (response.message === 'success') {
-      router.push("/bookings" as Route);
-    }
   };
 
   if (isShopLoading) {
@@ -86,8 +86,6 @@ export default function BookingPage({
       </div>
     );
   }
-
-  console.log(selectedDate)
 
   return (
     <div className="min-h-dvh max-w-md mx-auto px-4 bg-white text-slate-900 pb-0">

@@ -16,6 +16,8 @@ export interface Booking {
   userId: string;
   shopId: string;
   serviceId: string | null;
+  serviceName: string;
+  servicePrice: number;
   startTime: Date;
   endTime: Date;
   status: BookingStatus;

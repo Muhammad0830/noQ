@@ -19,8 +19,7 @@ import { formatPrice } from "@/lib/utils";
 import AdminSidebar from "@/components/AdminSidebar";
 import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 import { useLocale, useTranslations } from "next-intl";
-import { BookingStatus } from "@/features/booking/types";
-import { formatToDateString } from "@noq/shared";
+import { BookingStatus, formatToDateString } from "@noq/shared";
 
 type AdminHistoryBooking = {
   id: string;

@@ -68,6 +68,8 @@ export class CreateBookingUseCase implements CreateBookingUseCaseInterface {
             shopId: shopId,
             startTime: startTime,
             endTime: endTime,
+            serviceName: service.getName(),
+            servicePrice: service.getPrice(),
             cancellationReason: null,
             cancelledAt: null,
         });

@@ -24,7 +24,6 @@ const ImageSection: FC<ImageSectionProps> = ({
     const t = useTranslations();
 
     const shopInitial = (shop.name?.trim()?.charAt(0) || "S").toUpperCase();
-    console.log(shop)
 
     return (
         <div className="max-w-3xl mx-4 mt-1 relative h-64 sm:h-80 bg-gray-300 overflow-hidden rounded-3xl">

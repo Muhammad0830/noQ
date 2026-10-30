@@ -446,6 +446,7 @@
       "nextAppointment": "Keyingi bandlov",
       "recentHistory": "So'nggi tarix",
       "startsAt": "Boshlanish vaqti",
+      "timeLeft": "Qolgan vaqt",
       "serviceDetails": "Xizmat tafsilotlari",
       "getDirections": "Yo'nalish olish",
       "emptyInProgress": "Sizda hozircha jarayondagi bandlov mavjud emas.",

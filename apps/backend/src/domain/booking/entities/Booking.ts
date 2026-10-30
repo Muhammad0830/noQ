@@ -1,10 +1,10 @@
-import type { Service } from "@/domain/service/entities/Service.js";
 import { BookingStatus } from "../value-objects/BookingStatus.js";
 import type { BookingId } from "../value-objects/BookingId.js";
 import type { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
 import type { CustomerId } from "@/domain/customer/value-objects/CustomerId.js";
 import type { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
+import { Money } from "@/domain/shared/value-objects/Money.js";
 
 export interface Props {
     id: BookingId;
@@ -14,6 +14,8 @@ export interface Props {
     startTime: DateTime;
     endTime: DateTime;
     status: BookingStatus;
+    serviceName: string;
+    servicePrice: Money;
     createdAt: DateTime;
     updatedAt: DateTime;
     cancellationReason: string | null;
@@ -78,6 +80,14 @@ export class Booking {
 
     getEndTime(): DateTime {
         return this.props.endTime;
+    }
+
+    getServiceName(): string {
+        return this.props.serviceName;
+    }
+
+    getServicePrice(): Money {
+        return this.props.servicePrice;
     }
 
     getCreatedAt(): DateTime {
