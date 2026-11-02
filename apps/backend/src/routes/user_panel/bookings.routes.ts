@@ -8,9 +8,11 @@ import { getAvailableSlotsSchema } from "@/http/validators/booking/GetAvailableS
 
 const bookingRouter = Router();
 
-bookingRouter.get("/available-slots",
+bookingRouter.get(
+  "/available-slots",
   validateQuery(getAvailableSlotsSchema),
-  bookingController.availableSlots)
+  bookingController.availableSlots
+)
 
 bookingRouter.get(
   "/users",

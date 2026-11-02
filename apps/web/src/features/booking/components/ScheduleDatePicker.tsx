@@ -3,9 +3,9 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Dispatch, FC, SetStateAction, useCallback, useMemo, useState } from "react";
 import { SelectedDateType } from "../types";
-import { getStringTimeFromDate } from "../utils";
 import { useTranslations } from "use-intl";
 import { cn } from "cn";
+import { formatToDateString } from "@noq/shared";
 
 const VISIBLE_DAYS = 5;
 const MAX_DAYS_AHEAD = 90;
@@ -96,14 +96,13 @@ const ScheduleDatePicker: FC<ScheduleDatePickerProps> = ({
 
                 <div className="w-full grid grid-cols-5 gap-2">
                     {visibleDates.map((date) => {
-                        const isSelected =
-                            selectedDate.date === getStringTimeFromDate(date);
+                        const isSelected = selectedDate.date === formatToDateString(date);
 
                         return (
                             <button
                                 key={date.toISOString()}
                                 type="button"
-                                onClick={() => setSelectedDate({ time: null, date: getStringTimeFromDate(date) })}
+                                onClick={() => setSelectedDate({ time: null, date: formatToDateString(date) })}
                                 className={cn(
                                     "rounded-xl py-2 text-center border",
                                     isSelected ? "bg-[#F49B33] text-white border-[#F49B33]" : "bg-white border-[#ead8c3] text-slate-700"
