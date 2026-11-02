@@ -65,18 +65,27 @@ const HistoryPanelBookingCard: FC<HistoryPanelBookingCardProps> = ({
                 </div>
             </div>
 
+            {!booking.serviceId && (
+                <div className="px-3.5 py-3 border-t border-slate-200 text-sm text-slate-600">
+                    {t("user.history.service_inactive")}
+                </div>
+            )}
+
             {booking.status === "COMPLETED" && (
                 <div className="border-t border-slate-200 px-3.5 py-3">
                     <div className="flex gap-2">
                         <button className="h-9 flex-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 text-xs font-semibold text-white transition hover:bg-emerald-500/20">
                             {t("user.history.rateService")}
                         </button>
-                        <Link
-                            href={`/book/${booking.id}`}
-                            className="flex h-9 flex-1 items-center justify-center rounded-full border border-slate-300 bg-white text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
-                        >
-                            {t("user.history.rebook")}
-                        </Link>
+
+                        {booking.serviceId && (
+                            <Link
+                                href={`/book/${booking.shopId}?service=${booking.serviceId}`}
+                                className="flex h-9 flex-1 items-center justify-center rounded-full border border-slate-300 bg-white text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                            >
+                                {t("user.history.rebook")}
+                            </Link>
+                        )}
                     </div>
                 </div>
             )}

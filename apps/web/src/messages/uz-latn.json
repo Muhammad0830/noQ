@@ -461,6 +461,7 @@
       "rebook": "Qayta band qilish",
       "reason": "Sabab",
       "noReason": "Sabab ko'rsatilmagan",
+      "service_inactive": "Bu xizmat faol emas",
       "time": {
         "days": "Kun",
         "hour": "Soat",

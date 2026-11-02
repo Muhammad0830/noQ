@@ -11,6 +11,8 @@ export type HistoryBookingStatus = Extract<BookingStatus, "COMPLETED" | "CANCELL
 
 export interface InProgressBookingCardData {
     id: string;
+    shopId: string;
+    serviceId: string | null;
     shopName: string;
     serviceName: string;
     durationMin: string;
@@ -28,6 +30,8 @@ export interface InProgressBookingCardData {
 
 export interface HistoryCardData {
     id: string;
+    shopId: string;
+    serviceId: string | null;
     shopName: string;
     serviceName: string;
     date: string;
