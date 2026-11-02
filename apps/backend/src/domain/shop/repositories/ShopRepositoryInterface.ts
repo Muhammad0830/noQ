@@ -21,5 +21,7 @@ export interface ShopRepositoryInterface {
 
     save(shop: Shop): Promise<void>;
 
+    ensureExists(shopId: ShopId): Promise<void>;
+
     nextIdentity(): ShopId;
 }

@@ -1,4 +1,4 @@
-@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzkzMzUwMzcxLCJpYXQiOjE3OTMzNDY3NzEsImVtYWlsIjoiYUBnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc5MzM0Njc3MX1dLCJzZXNzaW9uX2lkIjoiZTg0MmFkZjUtYjczZS00NzIwLWEwYzMtZTBiOWE0YWNiYjI4IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.u8yflDQbXXuRx3Sc4l5OqoKvpQj3BW_jAYIvay2MXvwy4SUnnaTJL6lm9SWIsyGHTqXmiC4xMQdAt0sLtcSVUw
+@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzkzNjAwMzQ0LCJpYXQiOjE3OTM1OTY3NDQsImVtYWlsIjoiYUBnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc5MzU5Njc0NH1dLCJzZXNzaW9uX2lkIjoiN2M4NzI3NmYtZGNhZS00M2E0LTk2MTAtMjBjMTA2N2ExODFlIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.2I2slZJ5_l9jFGIgg5fb7VEezlnYXxrGnGbWJFidJhmiCu1UL8doKQ4m7apTqB0yYDf2fXCYDXLvAfUtaZsERg
 
 POST http://localhost:3001/auth/signup
 Content-Type: application/json
@@ -116,63 +116,61 @@ Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 x-shop-id: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
-{
-  "schedule": [
-    {
-      "dayOfWeek": 0,
-      "slots": [
-        { "startTime": "09:00", "endTime": "18:00", "block": false }
-      ]
-    },
-    {
-      "dayOfWeek": 1,
-      "slots": [
-        { "startTime": "09:00", "endTime": "11:00", "block": false },
-        { "startTime": "11:00", "endTime": "15:00", "block": true },
-        { "startTime": "15:00", "endTime": "18:00", "block": false }
-      ]
-    },
-    {
-      "dayOfWeek": 2,
-      "slots": [
-        { "startTime": "09:00", "endTime": "18:00", "block": false }
-      ]
-    },
-    {
-      "dayOfWeek": 3,
-      "slots": [
-        { "startTime": "09:00", "endTime": "18:00", "block": false }
-      ]
-    },
-    {
-      "dayOfWeek": 4,
-      "slots": [
-        { "startTime": "09:00", "endTime": "18:00", "block": false }
-      ]
-    },
-    {
-      "dayOfWeek": 5,
-      "slots": [
-        { "startTime": "09:00", "endTime": "18:00", "block": false }
-      ]
-    },
-    {
-      "dayOfWeek": 6,
-      "slots": [
-        { "startTime": "09:00", "endTime": "18:00", "block": false }
-      ]
-    }
-  ]
-}
+[
+  {
+    "dayOfWeek": 1,
+    "startTime": "09:00",
+    "endTime": "18:00",
+    "type": "OPEN"
+  },
+  {
+    "dayOfWeek": 1,
+    "startTime": "13:00",
+    "endTime": "14:00",
+    "type": "BLOCK"
+  },
+  {
+    "dayOfWeek": 2,
+    "startTime": "09:00",
+    "endTime": "18:00",
+    "type": "OPEN"
+  },
+  {
+    "dayOfWeek": 3,
+    "startTime": "09:00",
+    "endTime": "18:00",
+    "type": "OPEN"
+  },
+  {
+    "dayOfWeek": 4,
+    "startTime": "09:00",
+    "endTime": "18:00",
+    "type": "OPEN"
+  },
+  {
+    "dayOfWeek": 5,
+    "startTime": "09:00",
+    "endTime": "18:00",
+    "type": "OPEN"
+  },
+  {
+    "dayOfWeek": 6,
+    "startTime": "09:00",
+    "endTime": "18:00",
+    "type": "OPEN"
+  }
+]
 
 ###
-POST http://localhost:3001/admin/schedule/block
+POST http://localhost:3001/admin/blocks
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 x-shop-id: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
-{
-  "startTime": "2023-03-01T08:00:00Z",
-  "endTime": "2023-03-01T09:00:00Z",
-  "reason": "Lunch Break"
-}
+[
+  {  
+    "startTime": "2026-11-25T02:00:00Z",
+    "endTime": "2026-11-25T06:00:00Z",
+    "reason": "Sales assistant has to go to clinic"
+  }
+]

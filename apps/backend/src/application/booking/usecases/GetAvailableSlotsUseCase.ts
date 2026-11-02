@@ -12,7 +12,7 @@ import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
 import { ShopScheduleType } from "@/domain/shop-schedule/value-objects/ShopScheduleType.js";
 import type { ServiceRepositoryInterface } from "@/domain/service/repositories/ServiceRepositoryInterface.js";
-import type { GetBlockSlotListQueryInterface } from "@/application/booking/read-queries/GetBlockSlotListQueryInterface.js";
+import type { GetEmergencyBlockListQueryInterface } from "@/application/shop-block/interfaces/GetEmergencyBlockListQueryInterface.js";
 import type { GetBookedSlotListByDateQueryInterface } from "@/application/booking/read-queries/GetBookedSlotListByDateQueryInterface.js";
 import { minutesToTimeString, timeToMinutes } from "@noq/shared";
 import { TimeSlot } from "@/domain/shared/value-objects/TimeSlot.js";
@@ -23,7 +23,7 @@ export class GetAvailableSlotsUseCase implements GetAvailableSlotsUseCaseInterfa
         private readonly getBookedTimesQuery: GetBookedSlotListByDateQueryInterface,
         private readonly scheduleRepository: ShopScheduleRepositoryInterface,
         private readonly serviceRepository: ServiceRepositoryInterface,
-        private readonly getBlockSlotListQuery: GetBlockSlotListQueryInterface,
+        private readonly getEmergencyBlockDataQuery: GetEmergencyBlockListQueryInterface,
         private readonly slotAvailabilityValidator: SlotAvailabilityValidator,
     ) { }
 
@@ -58,7 +58,7 @@ export class GetAvailableSlotsUseCase implements GetAvailableSlotsUseCaseInterfa
             endTime: selectedDate.addDays(1),
         })
 
-        const emergencyBlockSlots = await this.getBlockSlotListQuery.execute({
+        const emergencyBlockSlots = await this.getEmergencyBlockDataQuery.getListByTime({
             shopId: shopId,
             startTime: selectedDate,
             endTime: selectedDate.addDays(1),

@@ -28,6 +28,10 @@ export class ShopBlock {
             throw new Error("ShopBlock ShopID is required");
         }
 
+        if (props.endTime.getTime() <= props.startTime.getTime()) {
+            throw new Error("End Time should be after Start Time");
+        }
+
         return new ShopBlock({
             id: props.id,
             shopId: props.shopId,
@@ -57,8 +61,8 @@ export class ShopBlock {
         return this.props.endTime;
     }
 
-    getReason(): string | null {
-        return this.props.reason ?? null;
+    getReason(): string {
+        return this.props.reason ?? "No Reason";
     }
 
     sameAsOther(other: ShopBlock): boolean {

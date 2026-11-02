@@ -64,6 +64,32 @@ export class PrismaShopScheduleRepository implements ShopScheduleRepositoryInter
         })
     }
 
+    async replaceForShop(
+        shopId: ShopId,
+        scheduleList: ShopSchedule[],
+    ): Promise<void> {
+        await this.prisma.shopSchedule.deleteMany({
+            where: { shopId: shopId.toString() },
+        });
+
+        if (scheduleList.length === 0) {
+            return;
+        }
+
+        await this.prisma.shopSchedule.createMany({
+            data: scheduleList.map(schedule => ({
+                id: schedule.getId().toString(),
+                shopId: schedule.getShopId().toString(),
+                dayOfWeek: schedule.getDayOfWeek().getValue(),
+                startTime: schedule.getStartTime(),
+                endTime: schedule.getEndTime(),
+                type: schedule.getType().getValue(),
+                createdAt: schedule.getCreatedAt().getValue(),
+                updatedAt: schedule.getUpdatedAt().getValue(),
+            })),
+        });
+    }
+
     nextIdentity(): ShopScheduleId {
         return ShopScheduleId.create();
     }

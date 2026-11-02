@@ -15,5 +15,10 @@ export interface ShopScheduleRepositoryInterface {
         type?: ShopScheduleType
     ): Promise<ShopSchedule[]>;
 
+    replaceForShop(
+        shopId: ShopId,
+        scheduleList: ShopSchedule[],
+    ): Promise<void>;
+
     nextIdentity(): ShopScheduleId;
 }

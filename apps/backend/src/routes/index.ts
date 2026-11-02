@@ -14,6 +14,7 @@ import staffRouter from "@/routes/admin_panel/staff.routes.js";
 import scheduleRouter from "@/routes/admin_panel/schedule.routes.js";
 import bookingAdminRouter from "@/routes/admin_panel/bookings.routes.js";
 import adminShopRouter from "@/routes/admin_panel/shop.routes.js";
+import shopBlockRouter from "./admin_panel/shop-block.routes.js";
 
 export const userRoutes = {
   categoryRouter,
@@ -33,6 +34,7 @@ export const adminRoutes = {
   scheduleRouter,
   bookingAdminRouter,
   adminShopRouter,
+  shopBlockRouter,
 };
 
 export const generalRoutes = {
