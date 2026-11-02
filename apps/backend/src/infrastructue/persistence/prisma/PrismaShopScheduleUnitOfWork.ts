@@ -1,4 +1,4 @@
-import { ShopScheduleUpdateTransaction, ShopScheduleUpdateUnitOfWorkInterface } from "@/application/schedule/interfaces/ShopScheduleUpdateUnitOfWorkInterface.js";
+import { ShopScheduleUpdateTransaction, ShopScheduleUpdateUnitOfWorkInterface } from "@/application/shop-schedule/interfaces/ShopScheduleUpdateUnitOfWorkInterface.js";
 import { PrismaClient } from "@prisma/client";
 import { PrismaShopScheduleRepository } from "../shop-schedule/PrismaShopScheduleRepository.js";
 
