@@ -3,6 +3,7 @@ import type { ShopSchedule } from "../entities/ShopSchedule.js";
 import type { DayOfWeek } from "../value-objects/DayOfWeek.js";
 import type { ShopScheduleId } from "../value-objects/ShopScheduleId.js";
 import type { ShopScheduleType } from "../value-objects/ShopScheduleType.js";
+import { Prisma } from "@prisma/client";
 
 export interface ShopScheduleRepositoryInterface {
     findById(scheduleId: ShopScheduleId): Promise<ShopSchedule>;
@@ -14,6 +15,11 @@ export interface ShopScheduleRepositoryInterface {
         dayOfWeek?: DayOfWeek,
         type?: ShopScheduleType
     ): Promise<ShopSchedule[]>;
+
+    replaceForShop(
+        shopId: ShopId,
+        scheduleList: ShopSchedule[],
+    ): Promise<void>;
 
     nextIdentity(): ShopScheduleId;
 }

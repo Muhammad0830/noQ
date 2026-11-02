@@ -12,3 +12,10 @@ export interface MulterFile {
 export interface RequestWithUser<TQuery = {}> extends Request<ParamsDictionary, any, any, TQuery> {
     user: AuthenticatedUser
 }
+
+export interface RequestWithShop<TQuery = {}> extends Request<ParamsDictionary, any, any, TQuery> {
+    user: AuthenticatedUser,
+    shop: {
+        id: string;
+    },
+}

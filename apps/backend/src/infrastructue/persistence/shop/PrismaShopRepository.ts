@@ -103,6 +103,16 @@ export class PrismaShopRepository implements ShopRepositoryInterface {
         });
     }
 
+    async ensureExists(
+        shopId: ShopId
+    ): Promise<void> {
+        const exists = await this.exists(shopId);
+
+        if (!exists) {
+            throw new Error(`Shop with id ${shopId.toString()} does not exist`);
+        }
+    }
+
     nextIdentity(): ShopId {
         return ShopId.create();
     }

@@ -2,8 +2,9 @@ import { Router } from "express";
 import prisma from "@/db/prisma.js";
 import { authMiddleware } from "@/http/middlewares/auth.middleware.js";
 import { adminOnly } from "@/http/middlewares/admin.middleware.js";
-import { validateShop } from "@/http/middlewares/validate.middleware.js";
-import { schedulePostValidate } from "@/routes/validateFunctions/bookingScheduleValidate.js";
+import { validateBody, validateShop } from "@/http/middlewares/validate.middleware.js";
+import { updateShopScheduleSchema } from "@/http/validators/shop-schedule/UpdateShopScheduleSchema.js";
+import { shopScheduleController } from "@/composition/shop-schedule.js";
 
 const scheduleRouter = Router();
 
@@ -142,52 +143,8 @@ scheduleRouter.post(
   authMiddleware,
   adminOnly,
   validateShop,
-  async (req: any, res) => {
-    try {
-      const { schedule } = req.body;
-
-      if (!Array.isArray(schedule) || schedule.length !== 7) {
-        return res.status(400).json({ message: "Schedule must have 7 days" });
-      }
-
-      const shop = await prisma.shop.findUnique({
-        where: { id: req.shop.id },
-      });
-
-      if (!shop) {
-        return res.status(404).json({ message: "Shop not found" });
-      }
-
-      const { status, json } = schedulePostValidate(schedule) ?? {};
-
-      if (status && json) {
-        return res.status(status).json(json);
-      }
-
-      await prisma.shopSchedule.deleteMany({
-        where: { shopId: req.shop.id },
-      });
-
-      const data = schedule.flatMap((day: any) =>
-        day.slots.map((slot: any) => ({
-          shopId: req.shop.id,
-          dayOfWeek: day.dayOfWeek,
-          startTime: slot.startTime,
-          endTime: slot.endTime,
-          type: slot.block ? "BLOCK" : "OPEN",
-        })),
-      );
-
-      await prisma.shopSchedule.createMany({
-        data,
-      });
-
-      return res.status(200).json({ message: "Schedule saved successfully" });
-    } catch (error) {
-      console.error("Schedule error:", error);
-      return res.status(500).json({ message: "Internal server error" });
-    }
-  },
+  validateBody(updateShopScheduleSchema),
+  shopScheduleController.update
 );
 
 scheduleRouter.post(
