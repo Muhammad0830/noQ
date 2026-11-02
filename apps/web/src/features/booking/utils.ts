@@ -21,6 +21,8 @@ const resolveShopImage = (rawImage?: string | null) => {
 const buildCommonBookingCard = (booking: BookingItem) => {
     return {
         id: booking.id,
+        shopId: booking.shopId,
+        serviceId: booking.serviceId,
         shopName: booking.shop.name,
         serviceName: booking.service.name,
         durationMin: `${booking.service.durationMin} min`,

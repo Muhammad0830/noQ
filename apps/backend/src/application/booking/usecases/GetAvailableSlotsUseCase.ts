@@ -43,7 +43,7 @@ export class GetAvailableSlotsUseCase implements GetAvailableSlotsUseCaseInterfa
         );
 
         if (openSchedules.length === 0) {
-            throw new Error("Open Scheduled not found");
+            return [];
         }
 
         const service = await this.serviceRepository.findById(serviceId);
