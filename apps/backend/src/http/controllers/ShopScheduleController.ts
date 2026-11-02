@@ -3,12 +3,22 @@ import { RequestWithShop } from "@/types.js";
 import { RequestHandler } from "express";
 import { UpdateShopScheduleSchema } from "../validators/shop-schedule/UpdateShopScheduleSchema.js";
 import { GetShopScheduleDataUseCaseInterface } from "@/application/shop-schedule/interfaces/GetShopScheduleDataUseCaseInterface.js";
+import { GetEmergencyBlockListUseCaseInterface } from "@/application/shop-block/interfaces/GetEmergencyBlockListUseCaseInterface.js";
 
 export class ShopScheduleController {
     constructor(
         private readonly updateShopScheduleUseCase: UpdateShopScheduleUseCaseInterface,
         private readonly getShopScheduleDataUseCase: GetShopScheduleDataUseCaseInterface,
+        private readonly getEmergencyBlockListUseCase: GetEmergencyBlockListUseCaseInterface,
     ) { }
+
+    addEmergencyBlock: RequestHandler = async (req, res, next) => {
+        try {
+            const body = req.body;
+        } catch (error) {
+            next(error);
+        }
+    }
 
     update: RequestHandler = async (req, res, next) => {
         try {

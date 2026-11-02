@@ -25,8 +25,8 @@ import { GetAvailableSlotsUseCase } from
     "@/application/booking/usecases/GetAvailableSlotsUseCase.js";
 import { GetBookedSlotListByDateQuery } from
     "@/infrastructue/persistence/booking/GetBookedSlotListByDateQuery.js";
-import { GetBlockSlotListQuery } from
-    "@/infrastructue/persistence/shop-block/GetBlockSlotListQuery.js";
+import { GetEmergencyBlockDataQuery } from
+    "@/infrastructue/persistence/shop-block/GetEmergencyBlockDataQuery.js";
 import { SlotAvailabilityValidator } from
     "@/application/booking/validators/SlotAvailabilityValidator.js";
 import { BookingCreationPolicy } from "@/application/booking/policies/BookingCreationPolicy.js";
@@ -36,7 +36,7 @@ const bookingRepository = new PrismaBookingRepository(prisma);
 const userBookingListQuery = new PrismaUserBookingListQuery(prisma);
 const availabilityCheckerQuery = new PrismaBookingAvailabilityCheckerQuery(prisma);
 const bookedSlotListQuery = new GetBookedSlotListByDateQuery(prisma);
-const blockSlotListQuery = new GetBlockSlotListQuery(prisma);
+const blockSlotListQuery = new GetEmergencyBlockDataQuery(prisma);
 
 const serviceRepository = new PrismaServiceRepository(prisma);
 const customerRepository = new PrismaCustomerRepository(prisma);

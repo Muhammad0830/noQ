@@ -1,5 +1,4 @@
-import { GetShopScheduleDataQueryInterface } from "@/application/shop-schedule/interfaces/GetShopScheduleDataQueryInterface.js";
-import { defaultShopScheduleDTO, ShopScheduleDTO } from "@/application/shop-schedule/interfaces/ShopScheduleUpdateUnitOfWorkInterface.js";
+import { defaultShopScheduleDTO, GetShopScheduleDataQueryInterface, ShopScheduleDTO } from "@/application/shop-schedule/interfaces/GetShopScheduleDataQueryInterface.js";
 import { ShopScheduleType } from "@/domain/shop-schedule/value-objects/ShopScheduleType.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 import { PrismaClient } from "@prisma/client";

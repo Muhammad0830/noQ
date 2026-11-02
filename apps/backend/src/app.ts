@@ -93,6 +93,14 @@ app.use(
   adminRoutes.adminShopRouter,
 );
 
+app.use(
+  "/admin/blocks",
+  authMiddleware,
+  validateShop,
+  adminOnly,
+  adminRoutes.shopBlockRouter
+)
+
 export default app;
 
 // {

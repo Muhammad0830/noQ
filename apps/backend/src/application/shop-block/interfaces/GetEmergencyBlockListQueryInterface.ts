@@ -1,0 +1,25 @@
+import type { DateTime } from "@/domain/shared/value-objects/DateTime.js";
+import type { TimeSlot } from "@/domain/shared/value-objects/TimeSlot.js";
+import type { ShopId } from "@/domain/shop/value-objects/ShopId.js";
+
+export interface getEmergencyBlockDataQueryInput {
+    shopId: ShopId,
+    startTime: DateTime,
+    endTime: DateTime,
+}
+
+export interface GetEmergencyBlockListQueryInterface {
+    getListByTime(input: getEmergencyBlockDataQueryInput): Promise<TimeSlot[]>
+
+    getListByShopId(shopId: ShopId): Promise<EmergencyBlockDTO>;
+}
+
+export interface EmergencyBlockDTO {
+    blocks: {
+        id: string;
+        shopId: string;
+        startTime: Date;
+        endTime: Date;
+        reason: string | null;
+    }[]
+}

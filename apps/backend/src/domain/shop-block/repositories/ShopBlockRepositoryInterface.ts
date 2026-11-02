@@ -1,10 +1,14 @@
 import type { ShopBlock } from "../entities/ShopBlock.js";
 import type { ShopBlockId } from "../value-objects/ShopBlockId.js";
 
-export interface ShopBlockRepository {
+export interface ShopBlockRepositoryInterface {
     findById(shopBlockId: ShopBlockId): Promise<ShopBlock>;
 
     save(shopBlock: ShopBlock): Promise<void>;
 
     add(shopBlock: ShopBlock): Promise<void>;
+
+    addMany(shopBlockList: ShopBlock[]): Promise<void>;
+
+    nextIdentity(): ShopBlockId;
 }

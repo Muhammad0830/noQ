@@ -1,8 +1,7 @@
 import { GetShopScheduleDataUseCaseInterface } from "../interfaces/GetShopScheduleDataUseCaseInterface.js";
-import { ShopScheduleDTO } from "../interfaces/ShopScheduleUpdateUnitOfWorkInterface.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 import { ShopRepositoryInterface } from "@/domain/shop/repositories/ShopRepositoryInterface.js";
-import { GetShopScheduleDataQueryInterface } from "../interfaces/GetShopScheduleDataQueryInterface.js";
+import { GetShopScheduleDataQueryInterface, ShopScheduleDTO } from "../interfaces/GetShopScheduleDataQueryInterface.js";
 
 export class GetShopScheduleDataUseCase implements GetShopScheduleDataUseCaseInterface {
     constructor(
