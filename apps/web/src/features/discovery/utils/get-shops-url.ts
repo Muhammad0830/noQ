@@ -13,7 +13,7 @@ export function getShopsUrl({
     }
 
     if (filter.categories.length > 0) {
-        params.set("categoryIds", filter.categories.join(","));
+        params.set("categories", filter.categories.join(","));
     }
 
     if (filter.priceEnabled) {
