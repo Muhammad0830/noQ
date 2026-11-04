@@ -1,4 +1,4 @@
-import { addMinutes as _addMinutes, addDays as _addDays, createDateTime, formatToDateString, formatToTimeString, subDays } from "@noq/shared";
+import { addMinutes as _addMinutes, addDays as _addDays, createDateTime, formatToDateString, formatToTimeString, subDays, differenceInMilliseconds, subMilliseconds } from "@noq/shared";
 
 export class DateTime {
     constructor(
@@ -80,6 +80,15 @@ export class DateTime {
         return DateTime.from(newDate);
     }
 
+    subtractMilliseconds(milliseconds: number): DateTime {
+        const newDate = subMilliseconds(this.value, milliseconds);
+        return DateTime.from(newDate);
+    }
+
+    static diffInMilliseconds(endTime: DateTime, startTime: DateTime): number {
+        return differenceInMilliseconds(endTime.getValue(), startTime.getValue());
+    }
+
     toTimeString(): string {
         return formatToTimeString(this.value);
     }
@@ -89,7 +98,11 @@ export class DateTime {
     }
 
     toISOString(): string {
-        return this.value.toISOString()
+        return this.value.toISOString();
+    }
+
+    getUTCFullYear(): number {
+        return this.value.getUTCFullYear();
     }
 
     toJSON(): string {

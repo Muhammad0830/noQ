@@ -1,4 +1,6 @@
 import { ReviewId } from "@/domain/review/value-objects/ReviewId.js";
+import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
+import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 
 export interface ReviewDetails {
     id: string;
@@ -50,4 +52,10 @@ export interface ReviewDetails {
 
 export interface GetReviewDataQueryInterface {
     findById(id: ReviewId): Promise<ReviewDetails>
+    getAverageByTime(input: GetAverageByTimeInput): Promise<number>;
+}
+
+export interface GetAverageByTimeInput {
+    shopId: ShopId,
+    endTime: DateTime,
 }

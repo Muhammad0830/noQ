@@ -10,9 +10,14 @@ export { getUtcDayRange } from "./range.js"
 export {
     getOneDayAfter,
     addDays,
+    addMonths,
+    addYears,
     createDateTime,
     formatToDateString,
-    subDays
+    subDays,
+    startOfDay,
+    startOfMonth,
+    startOfYear,
 } from "./date.js"
 
 export {
@@ -21,4 +26,6 @@ export {
     isTimeBetween,
     formatToTimeString,
     minutesToTimeString,
+    differenceInMilliseconds,
+    subMilliseconds,
 } from "./time.js"

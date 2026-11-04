@@ -1,4 +1,4 @@
-@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzkzNzU4NTI5LCJpYXQiOjE3OTM3NTQ5MjksImVtYWlsIjoiYUBnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc5Mzc1NDkyOX1dLCJzZXNzaW9uX2lkIjoiNzFkNDQ0MTAtYmFiOC00ZjRhLTliNDMtYzU3NmUwYzRhZGVhIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.SKgEJg423pPzSTm1Ie4APandHV25AJMOBey1W3xNDwKP4xcofrWN16kEs8ftVwvVIVhPf5EwGwzmI5ZPeNavZw
+@bearer_token = eyJhbGciOiJFUzI1NiIsImtpZCI6ImQ5MTg3YmQ1LWY4ZGQtNGQ2YS1hNjUwLTJkYmE3YTViMzNhNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3l4YmVpZWZneHp2YW1vZGR1dnh6LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzkzNzgzODM1LCJpYXQiOjE3OTM3ODAyMzUsImVtYWlsIjoiYUBnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiIyZThhNzk1YS1mMGI2LTQ4MWQtYmIyMS02NmQ5MTQ0Y2JlM2MifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc5Mzc4MDIzNX1dLCJzZXNzaW9uX2lkIjoiNWVkMWEyZTMtOWE0NS00MWMzLTkwNjAtMWQ3Yjg0ZDg3NTJkIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.o9M9MZQybmiC6aXkC2SjmJXP5qcnhJqGklSjr0A3P2Nx33RH8L2XaDnjIjbn-640av3p88HLG1hUTB3akSp4dw
 
 GET http://localhost:3001/auth/me
 Authorization: Bearer {{bearer_token}}
@@ -93,22 +93,22 @@ Authorization: Bearer {{bearer_token}}
 x-shop-id: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/admin/analytics?type=week
+GET http://localhost:3001/admin/analytics?startTime=2026-10-28T11:38:00.000Z&endTime=2026-11-04T11:38:00.000Z
 Authorization: Bearer {{bearer_token}}
 x-shop-id: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/admin/analytics/diagram_info?type=all
+GET http://localhost:3001/admin/analytics/diagram_info?startTime=2025-11-05T00:00:00.000Z&endTime=2026-11-05T00:00:00.000Z&interval=month
 Authorization: Bearer {{bearer_token}}
 x-shop-id: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/admin/analytics/famousServices?type=all
+GET http://localhost:3001/admin/analytics/famousServices?startTime=2025-11-05T00:00:00.000Z&endTime=2026-11-05T00:00:00.000Z
 Authorization: Bearer {{bearer_token}}
 x-shop-id: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
-GET http://localhost:3001/admin/analytics/peak-hours?type=all
+GET http://localhost:3001/admin/analytics/peak-hours?startTime=2025-11-05T00:00:00.000Z&endTime=2026-11-05T00:00:00.000Z
 Authorization: Bearer {{bearer_token}}
 x-shop-id: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
