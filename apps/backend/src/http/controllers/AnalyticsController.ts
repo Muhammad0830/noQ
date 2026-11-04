@@ -4,11 +4,14 @@ import { RequestHandler } from "express";
 import { GetRevenueBaseInfoSchema } from "../validators/analytics/GetRevenueBaseInfoSchema.js";
 import { GetRevenueDiagramInfoUseCaseInterface } from "@/application/analytics/interfaces/GetRevenueDiagramInfoUseCaseInterface.js";
 import { GetRevenueDiagramInfoSchema } from "../validators/analytics/GetRevenueDiagramInfoSchema.js";
+import { GetFamousServiceListUseCaseInterface } from "@/application/analytics/interfaces/GetFamousServiceListUseCaseInterface.js";
+import { GetFamousServiceListSchema } from "../validators/analytics/GetFamousServiceListSchema.js";
 
 export class AnalyticsController {
     constructor(
         private readonly getRevenueBaseInfoUseCase: GetRevenueBaseInfoUseCaseInterface,
         private readonly getRevenueDiagramInfoUseCase: GetRevenueDiagramInfoUseCaseInterface,
+        private readonly getFamousServiceListUseCase: GetFamousServiceListUseCaseInterface,
     ) { }
 
     getRevenueBaseInfo: RequestHandler = async (req, res, next) => {
@@ -39,6 +42,22 @@ export class AnalyticsController {
             })
 
             res.status(200).json(revenueDiagramInfo);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    getFamousServiceList: RequestHandler = async (req, res, next) => {
+        try {
+            const shopId = (req as RequestWithShop).shop.id;
+            const query = res.locals.validatedQuery as GetFamousServiceListSchema;
+
+            const serviceList = await this.getFamousServiceListUseCase.execute({
+                ...query,
+                shopId,
+            });
+
+            res.status(200).json(serviceList);
         } catch (error) {
             next(error);
         }

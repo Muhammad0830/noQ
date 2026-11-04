@@ -1,6 +1,8 @@
 import {
+    FamousServiceItem,
     GetBookingDataQueryInterface,
     GetCountByTimeInput,
+    GetFamousServiceListInput,
     GetPriceByTimeInput,
     GetRevenueByTimeInput,
     GetRevenueByTimeOutput
@@ -69,5 +71,41 @@ export class GetBookingDataQuery implements GetBookingDataQueryInterface {
                 servicePrice: Number(b.servicePrice),
             }))
         }
+    }
+
+    async getFamousServiceList(input: GetFamousServiceListInput): Promise<FamousServiceItem[]> {
+        const services = await this.prisma.booking.groupBy({
+            by: ["serviceId", "serviceName"],
+            where: {
+                shopId: input.shopId.toString(),
+                status: "COMPLETED",
+                serviceId: {
+                    not: null,
+                },
+                startTime: {
+                    gte: input.startTime.getValue(),
+                    lt: input.endTime.getValue(),
+                },
+            },
+            _count: {
+                _all: true,
+            },
+            orderBy: {
+                _count: {
+                    serviceId: "desc",
+                },
+            },
+            take: 5,
+        });
+
+        return services.filter(
+            (service): service is typeof service & {
+                serviceId: string;
+            } => service.serviceId !== null
+        ).map(service => ({
+            id: service.serviceId,
+            name: service.serviceName,
+            bookingCount: service._count._all,
+        }));
     }
 }

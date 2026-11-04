@@ -1,6 +1,7 @@
 import { analyticsController } from "@/composition/analytics.js";
 import prisma from "@/db/prisma.js";
 import { validateQuery } from "@/http/middlewares/validate.middleware.js";
+import { getFamousServiceListSchema } from "@/http/validators/analytics/GetFamousServiceListSchema.js";
 import { getRevenueBaseInfoSchema } from "@/http/validators/analytics/GetRevenueBaseInfoSchema.js";
 import { getRevenueDiagramInfoSchema } from "@/http/validators/analytics/GetRevenueDiagramInfoSchema.js";
 import { Router } from "express";
@@ -99,79 +100,84 @@ analyticsRouter.get(
   analyticsController.getRevenueDiagramInfo
 )
 
-analyticsRouter.get("/famousServices", async (req: any, res) => {
-  try {
-    const { type = "all" } = req.query as {
-      type: "week" | "month" | "year" | "all";
-    };
+analyticsRouter.get(
+  "/famousServices",
+  validateQuery(getFamousServiceListSchema),
+  analyticsController.getFamousServiceList
+)
+// async (req: any, res) => {
+//   try {
+//     const { type = "all" } = req.query as {
+//       type: "week" | "month" | "year" | "all";
+//     };
 
-    const { startDate, now } = getDateRange(type);
+//     const { startDate, now } = getDateRange(type);
 
-    const services = await prisma.service.findMany({
-      where: { shopId: req.shop.id },
-      include: {
-        reviews: {
-          where: {
-            createdAt: {
-              gte: startDate,
-              lte: now,
-            },
-          },
-          select: { rating: true },
-        },
-        shop: {
-          select: {
-            id: true,
-            name: true,
-            category: true,
-          },
-        },
-        _count: {
-          select: {
-            bookings: {
-              where: {
-                status: "COMPLETED",
-                startTime: {
-                  gte: startDate,
-                  lte: now,
-                },
-              },
-            },
-          },
-        },
-      },
-    });
+//     const services = await prisma.service.findMany({
+//       where: { shopId: req.shop.id },
+//       include: {
+//         reviews: {
+//           where: {
+//             createdAt: {
+//               gte: startDate,
+//               lte: now,
+//             },
+//           },
+//           select: { rating: true },
+//         },
+//         shop: {
+//           select: {
+//             id: true,
+//             name: true,
+//             category: true,
+//           },
+//         },
+//         _count: {
+//           select: {
+//             bookings: {
+//               where: {
+//                 status: "COMPLETED",
+//                 startTime: {
+//                   gte: startDate,
+//                   lte: now,
+//                 },
+//               },
+//             },
+//           },
+//         },
+//       },
+//     });
 
-    const result = services
-      .map((service) => {
-        const bookingCount = service._count.bookings;
+//     const result = services
+//       .map((service) => {
+//         const bookingCount = service._count.bookings;
 
-        const avg =
-          service.reviews.length > 0
-            ? service.reviews.reduce((a, b) => a + b.rating, 0) /
-            service.reviews.length
-            : 0;
+//         const avg =
+//           service.reviews.length > 0
+//             ? service.reviews.reduce((a, b) => a + b.rating, 0) /
+//             service.reviews.length
+//             : 0;
 
-        const { reviews, shop, description, _count, ...rest } = service;
+//         const { reviews, shop, description, _count, ...rest } = service;
 
-        return {
-          ...rest,
-          shopName: shop.name,
-          booking_count: bookingCount,
-          averageRating: parseFloat(avg.toFixed(1)),
-        };
-      })
-      .sort((a, b) => b.booking_count - a.booking_count);
+//         return {
+//           ...rest,
+//           shopName: shop.name,
+//           booking_count: bookingCount,
+//           averageRating: parseFloat(avg.toFixed(1)),
+//         };
+//       })
+//       .sort((a, b) => b.booking_count - a.booking_count);
 
-    return res.status(200).json({
-      type,
-      data: result,
-    });
-  } catch (error) {
-    console.error("Error fetching famous services:", error);
-    res.status(500).json({ error: "Failed to fetch famous services" });
-  }
-});
+//     return res.status(200).json({
+//       type,
+//       data: result,
+//     });
+//   } catch (error) {
+//     console.error("Error fetching famous services:", error);
+//     res.status(500).json({ error: "Failed to fetch famous services" });
+//   }
+// });
 
 analyticsRouter.get("/peak-hours", async (req: any, res) => {
   try {

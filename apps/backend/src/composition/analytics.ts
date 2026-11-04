@@ -1,3 +1,4 @@
+import { GetFamousServiceListUseCase } from "@/application/analytics/usecases/GetFamousServiceListUseCase.js";
 import { GetRevenueBaseInfoUseCase } from "@/application/analytics/usecases/GetRevenueBaseInfoUseCase.js";
 import { GetRevenueDiagramInfoUseCase } from "@/application/analytics/usecases/GetRevenueDiagramInfoUseCase.js";
 import prisma from "@/db/prisma.js";
@@ -19,9 +20,15 @@ const getRevenueBaseInfoUseCase = new GetRevenueBaseInfoUseCase(
 const getRevenueDiagramInfoUseCase = new GetRevenueDiagramInfoUseCase(
     shopRepository,
     getBookingDataQuery,
-)
+);
+
+const getFamousServiceListUseCase = new GetFamousServiceListUseCase(
+    shopRepository,
+    getBookingDataQuery,
+);
 
 export const analyticsController = new AnalyticsController(
     getRevenueBaseInfoUseCase,
     getRevenueDiagramInfoUseCase,
+    getFamousServiceListUseCase,
 )
