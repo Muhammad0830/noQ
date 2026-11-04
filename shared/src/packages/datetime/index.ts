@@ -21,4 +21,6 @@ export {
     isTimeBetween,
     formatToTimeString,
     minutesToTimeString,
+    differenceInMilliseconds,
+    subMilliseconds,
 } from "./time.js"

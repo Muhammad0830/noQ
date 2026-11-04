@@ -1,4 +1,7 @@
+import { analyticsController } from "@/composition/analytics.js";
 import prisma from "@/db/prisma.js";
+import { validateQuery } from "@/http/middlewares/validate.middleware.js";
+import { getRevenueBaseInfoSchema } from "@/http/validators/analytics/GetRevenueBaseInfoSchema.js";
 import { Router } from "express";
 
 const analyticsRouter = Router();
@@ -83,151 +86,11 @@ function getDateRange(type: "week" | "month" | "year" | "all") {
   return { startDate, now };
 }
 
-analyticsRouter.get("/", async (req: any, res) => {
-  try {
-    const { type = "week" } = req.query as {
-      type: "week" | "month" | "year" | "all";
-    };
-
-    if (type === "all") {
-      const [bookings, reviews] = await Promise.all([
-        prisma.booking.findMany({
-          where: {
-            shopId: req.shop.id,
-            status: "COMPLETED",
-          },
-          select: {
-            service: { select: { price: true } },
-          },
-        }),
-
-        prisma.review.aggregate({
-          where: { shopId: req.shop.id },
-          _avg: { rating: true },
-          _count: { id: true },
-        }),
-      ]);
-
-      const currentRevenue = bookings.reduce(
-        (acc, b) => acc + Number(b.service?.price ?? 0),
-        0,
-      );
-
-      return res.status(200).json({
-        currentRevenue,
-        currentBookingsCount: bookings.length,
-        currentAverageRating: reviews._avg.rating || 0,
-      });
-    }
-
-    const { startDate, now } = getDateRange(type);
-
-    const prevStartDate = new Date(startDate);
-
-    switch (type) {
-      case "week":
-        prevStartDate.setDate(prevStartDate.getDate() - 7);
-        break;
-      case "month":
-        prevStartDate.setMonth(prevStartDate.getMonth() - 1);
-        break;
-      case "year":
-        prevStartDate.setFullYear(prevStartDate.getFullYear() - 1);
-        break;
-    }
-
-    const [bookings, prevBookings] = await Promise.all([
-      prisma.booking.findMany({
-        where: {
-          shopId: req.shop.id,
-          status: "COMPLETED",
-          startTime: {
-            gte: startDate,
-            lte: now,
-          },
-        },
-        select: {
-          service: { select: { price: true } },
-        },
-      }),
-
-      prisma.booking.findMany({
-        where: {
-          shopId: req.shop.id,
-          status: "COMPLETED",
-          startTime: {
-            gte: prevStartDate,
-            lte: startDate,
-          },
-        },
-        select: {
-          service: { select: { price: true } },
-        },
-      }),
-    ]);
-
-    const currentRevenue = bookings.reduce(
-      (acc, b) => acc + Number(b.service?.price ?? 0),
-      0,
-    );
-
-    const prevRevenue = prevBookings.reduce(
-      (acc, b) => acc + Number(b.service?.price ?? 0),
-      0,
-    );
-
-    const revenueChange = prevRevenue === 0
-      ? currentRevenue > 0 ? 100 : 0
-      : ((currentRevenue - prevRevenue) / prevRevenue) * 100;
-
-    const [currentReviews, previousReviews] = await Promise.all([
-      prisma.review.aggregate({
-        where: {
-          shopId: req.shop.id,
-          createdAt: { lte: now },
-        },
-        _avg: { rating: true },
-        _count: { id: true },
-      }),
-
-      prisma.review.aggregate({
-        where: {
-          shopId: req.shop.id,
-          createdAt: { lte: startDate },
-        },
-        _avg: { rating: true },
-        _count: { id: true },
-      }),
-    ]);
-
-    const bookingsNumberChange =
-      prevBookings.length === 0
-        ? bookings.length > 0
-          ? 100
-          : 0
-        : ((bookings.length - prevBookings.length) / prevBookings.length) * 100;
-
-    const currentAvg = currentReviews._avg.rating ?? 0;
-    const previousAvg = previousReviews._avg.rating ?? 0;
-
-    const averageRatingChange = currentAvg - previousAvg;
-
-    return res.status(200).json({
-      currentRevenue,
-      prevRevenue,
-      revenueChange,
-      currentBookingsCount: bookings.length,
-      prevBookingsCount: prevBookings.length,
-      bookingsNumberChange,
-      currentAverageRating: currentAvg,
-      prevAverageRating: previousAvg,
-      averageRatingChange,
-    });
-  } catch (error) {
-    console.error("Error fetching shop analytics:", error);
-    res.status(500).json({ error: "Failed to fetch shop analytics" });
-  }
-});
+analyticsRouter.get(
+  "/",
+  validateQuery(getRevenueBaseInfoSchema),
+  analyticsController.revenueBaseInfo
+);
 
 analyticsRouter.get("/diagram_info", async (req: any, res) => {
   try {

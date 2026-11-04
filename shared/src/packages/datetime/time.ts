@@ -1,4 +1,13 @@
-import { addMinutes as addMinutesDateFns, differenceInMinutes, format, isWithinInterval, parse, parseISO, startOfDay } from 'date-fns';
+import {
+    addMinutes as _addMinutesDate,
+    differenceInMilliseconds as _differenceInMilliseconds,
+    differenceInMinutes,
+    format,
+    isWithinInterval,
+    parse,
+    startOfDay,
+    subMilliseconds as _subMilliseconds
+} from 'date-fns';
 
 export const timeToMinutes = (time: string): number => {
     const date = parse(time, "HH:mm", new Date(0));
@@ -6,7 +15,7 @@ export const timeToMinutes = (time: string): number => {
 };
 
 export function addMinutes(isoString: string | Date, minutes: number): Date {
-    return addMinutesDateFns(new Date(isoString), minutes);
+    return _addMinutesDate(new Date(isoString), minutes);
 }
 
 export function isTimeBetween({
@@ -41,4 +50,12 @@ export function minutesToTimeString(totalMinutes: number) {
     const baseDate = startOfDay(new Date()); // base date for parsing with 00:00
     const targetDate = addMinutes(baseDate, totalMinutes);
     return formatToTimeString(targetDate);
+}
+
+export function differenceInMilliseconds(endTime: Date | string, startTime: Date | string) {
+    return _differenceInMilliseconds(endTime, startTime)
+}
+
+export function subMilliseconds(startTime: Date | string, duration: number) {
+    return _subMilliseconds(startTime, duration);
 }

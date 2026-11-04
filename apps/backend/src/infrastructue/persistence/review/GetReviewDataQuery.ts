@@ -1,4 +1,4 @@
-import { GetReviewDataQueryInterface, ReviewDetails } from "@/application/review/interfaces/GetReviewDataQueryInterface.js";
+import { GetAverageByTimeInput, GetReviewDataQueryInterface, ReviewDetails } from "@/application/review/interfaces/GetReviewDataQueryInterface.js";
 import { ReviewId } from "@/domain/review/value-objects/ReviewId.js";
 import { PrismaClient } from "@prisma/client";
 
@@ -66,5 +66,17 @@ export class GetReviewDataQuery implements GetReviewDataQueryInterface {
                 category: review.shop.category
             } : null,
         }
+    }
+
+    async getAverageByTime(input: GetAverageByTimeInput): Promise<number> {
+        const averageReview = await this.prisma.review.aggregate({
+            where: {
+                shopId: input.shopId.toString(),
+                createdAt: { lte: input.endTime.getValue() },
+            },
+            _avg: { rating: true },
+        });
+
+        return averageReview._avg.rating ?? 0;
     }
 }
