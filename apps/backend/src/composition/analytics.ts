@@ -1,4 +1,5 @@
 import { GetRevenueBaseInfoUseCase } from "@/application/analytics/usecases/GetRevenueBaseInfoUseCase.js";
+import { GetRevenueDiagramInfoUseCase } from "@/application/analytics/usecases/GetRevenueDiagramInfoUseCase.js";
 import prisma from "@/db/prisma.js";
 import { AnalyticsController } from "@/http/controllers/AnalyticsController.js";
 import { GetBookingDataQuery } from "@/infrastructue/persistence/booking/GetBookingDataQuery.js";
@@ -13,8 +14,14 @@ const getRevenueBaseInfoUseCase = new GetRevenueBaseInfoUseCase(
     shopRepository,
     getBookingDataQuery,
     getReviewDataQuery,
+);
+
+const getRevenueDiagramInfoUseCase = new GetRevenueDiagramInfoUseCase(
+    shopRepository,
+    getBookingDataQuery,
 )
 
 export const analyticsController = new AnalyticsController(
     getRevenueBaseInfoUseCase,
+    getRevenueDiagramInfoUseCase,
 )

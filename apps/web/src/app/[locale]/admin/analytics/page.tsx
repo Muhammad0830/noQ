@@ -10,6 +10,55 @@ import AdminSidebar from "@/components/AdminSidebar";
 import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 import { useLocale, useTranslations } from "next-intl";
 
+// function getDiagramInterval(
+//     startTime: Date,
+//     endTime: Date
+// ): "day" | "month" | "year" {
+//     const days =
+//         (endTime.getTime() - startTime.getTime()) /
+//         (1000 * 60 * 60 * 24);
+
+//     if (days <= 90) return "day";
+//     if (days <= 365 * 3) return "month";
+
+//     return "year";
+// }
+
+// import {
+//     subDays,
+//     subMonths,
+//     subYears,
+// } from "date-fns";
+
+// function getDateRange(type: "week" | "month" | "year" | "all") {
+//     const endTime = new Date();
+
+//     let startTime: Date;
+
+//     switch (type) {
+//         case "week":
+//             startTime = subDays(endTime, 6);
+//             break;
+
+//         case "month":
+//             startTime = subMonths(endTime, 1);
+//             break;
+
+//         case "year":
+//             startTime = subYears(endTime, 1);
+//             break;
+
+//         case "all":
+//             startTime = new Date(2026, 0, 1);
+//             break;
+//     }
+
+//     return {
+//         startTime: startTime.toISOString(),
+//         endTime: endTime.toISOString(),
+//     };
+// }
+
 type AnalyticsType = "week" | "month" | "year";
 
 type AnalyticsSummaryResponse = {

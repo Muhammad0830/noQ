@@ -98,7 +98,11 @@ export class DateTime {
     }
 
     toISOString(): string {
-        return this.value.toISOString()
+        return this.value.toISOString();
+    }
+
+    getUTCFullYear(): number {
+        return this.value.getUTCFullYear();
     }
 
     toJSON(): string {

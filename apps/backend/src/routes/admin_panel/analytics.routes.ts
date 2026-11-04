@@ -2,6 +2,7 @@ import { analyticsController } from "@/composition/analytics.js";
 import prisma from "@/db/prisma.js";
 import { validateQuery } from "@/http/middlewares/validate.middleware.js";
 import { getRevenueBaseInfoSchema } from "@/http/validators/analytics/GetRevenueBaseInfoSchema.js";
+import { getRevenueDiagramInfoSchema } from "@/http/validators/analytics/GetRevenueDiagramInfoSchema.js";
 import { Router } from "express";
 
 const analyticsRouter = Router();
@@ -89,93 +90,14 @@ function getDateRange(type: "week" | "month" | "year" | "all") {
 analyticsRouter.get(
   "/",
   validateQuery(getRevenueBaseInfoSchema),
-  analyticsController.revenueBaseInfo
+  analyticsController.getRevenueBaseInfo
 );
 
-analyticsRouter.get("/diagram_info", async (req: any, res) => {
-  try {
-    const { type = "week" } = req.query as {
-      type: "week" | "month" | "year" | "all";
-    };
-
-    let startDate = new Date();
-    let groupBy: "day" | "month" | "year" = "day";
-
-    // 🔥 determine grouping + range
-    switch (type) {
-      case "week":
-        startDate.setDate(startDate.getDate() - 6);
-        groupBy = "day";
-        break;
-
-      case "month":
-        startDate.setMonth(startDate.getMonth() - 1);
-        groupBy = "day";
-        break;
-
-      case "year":
-        startDate.setFullYear(startDate.getFullYear() - 1);
-        groupBy = "month";
-        break;
-
-      case "all":
-        groupBy = "year";
-        break;
-    }
-
-    // 🔥 get earliest booking for "all"
-    if (type === "all") {
-      const firstBooking = await prisma.booking.findFirst({
-        where: { shopId: req.shop.id },
-        orderBy: { startTime: "asc" },
-        select: { startTime: true },
-      });
-
-      if (firstBooking) {
-        startDate = new Date(firstBooking.startTime);
-      }
-    }
-
-    // 🔥 build WHERE condition safely
-    let dateFilter = "";
-    if (type !== "all") {
-      dateFilter = `AND b."startTime" >= '${startDate.toISOString()}'`;
-    }
-
-    // 🔥 FINAL QUERY (fixed syntax)
-    const result: any[] = await prisma.$queryRawUnsafe(`
-      SELECT 
-        date_trunc('${groupBy}', b."startTime") AS bucket,
-        COALESCE(SUM(s.price), 0)::float AS revenue
-      FROM "Booking" b
-      JOIN "Service" s ON b."serviceId" = s.id
-      WHERE 
-        b."shopId" = '${req.shop.id}'
-        AND b."status" = 'COMPLETED'
-        ${dateFilter}
-      GROUP BY bucket
-      ORDER BY bucket ASC;
-    `);
-
-    // 🔥 fill missing dates (supports "all")
-    const filled = fillMissingDates(
-      result.map((r: any) => ({
-        date: r.bucket,
-        revenue: r.revenue || 0,
-      })),
-      type,
-      startDate,
-    );
-
-    return res.json({
-      type,
-      data: filled,
-    });
-  } catch (error) {
-    console.error("Error fetching diagram info:", error);
-    res.status(500).json({ error: "Failed to fetch diagram info" });
-  }
-});
+analyticsRouter.get(
+  "/diagram_info",
+  validateQuery(getRevenueDiagramInfoSchema),
+  analyticsController.getRevenueDiagramInfo
+)
 
 analyticsRouter.get("/famousServices", async (req: any, res) => {
   try {
