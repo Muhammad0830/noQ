@@ -6,6 +6,7 @@ export interface GetBookingDataQueryInterface {
     getPriceListByTime(input: GetPriceByTimeInput): Promise<number[]>;
     getRevenueByTime(input: GetRevenueByTimeInput): Promise<GetRevenueByTimeOutput>;
     getFamousServiceList(input: GetFamousServiceListInput): Promise<FamousServiceItem[]>;
+    getPeakHourList(input: GetPeakHourListInput): Promise<PeakHourItem[]>;
 }
 
 export interface GetCountByTimeInput {
@@ -45,4 +46,15 @@ export interface FamousServiceItem {
     id: string;
     name: string;
     bookingCount: number;
+}
+
+export interface GetPeakHourListInput {
+    shopId: ShopId;
+    startTime: DateTime;
+    endTime: DateTime;
+}
+
+export interface PeakHourItem {
+    hour: number;
+    count: number;
 }

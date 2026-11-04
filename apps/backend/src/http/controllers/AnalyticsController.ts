@@ -6,12 +6,15 @@ import { GetRevenueDiagramInfoUseCaseInterface } from "@/application/analytics/i
 import { GetRevenueDiagramInfoSchema } from "../validators/analytics/GetRevenueDiagramInfoSchema.js";
 import { GetFamousServiceListUseCaseInterface } from "@/application/analytics/interfaces/GetFamousServiceListUseCaseInterface.js";
 import { GetFamousServiceListSchema } from "../validators/analytics/GetFamousServiceListSchema.js";
+import { GetPeakHourListSchema } from "../validators/analytics/GetPeakHourListSchema.js";
+import { GetPeakHourListUseCaseInterface } from "@/application/analytics/interfaces/GetPeakHourListUseCaseInterface.js";
 
 export class AnalyticsController {
     constructor(
         private readonly getRevenueBaseInfoUseCase: GetRevenueBaseInfoUseCaseInterface,
         private readonly getRevenueDiagramInfoUseCase: GetRevenueDiagramInfoUseCaseInterface,
         private readonly getFamousServiceListUseCase: GetFamousServiceListUseCaseInterface,
+        private readonly getPeakHourListUseCase: GetPeakHourListUseCaseInterface,
     ) { }
 
     getRevenueBaseInfo: RequestHandler = async (req, res, next) => {
@@ -58,6 +61,22 @@ export class AnalyticsController {
             });
 
             res.status(200).json(serviceList);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    getPeakHourList: RequestHandler = async (req, res, next) => {
+        try {
+            const shopId = (req as RequestWithShop).shop.id;
+            const query = res.locals.validatedQuery as GetPeakHourListSchema;
+
+            const peakHourList = await this.getPeakHourListUseCase.execute({
+                ...query,
+                shopId,
+            });
+
+            res.status(200).json(peakHourList);
         } catch (error) {
             next(error);
         }

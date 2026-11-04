@@ -3,12 +3,14 @@ import {
     GetBookingDataQueryInterface,
     GetCountByTimeInput,
     GetFamousServiceListInput,
+    GetPeakHourListInput,
     GetPriceByTimeInput,
     GetRevenueByTimeInput,
-    GetRevenueByTimeOutput
+    GetRevenueByTimeOutput,
+    PeakHourItem
 } from "@/application/booking/interfaces/GetBookingDataQueryInterface.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 export class GetBookingDataQuery implements GetBookingDataQueryInterface {
     constructor(
@@ -107,5 +109,21 @@ export class GetBookingDataQuery implements GetBookingDataQueryInterface {
             name: service.serviceName,
             bookingCount: service._count._all,
         }));
+    }
+
+    async getPeakHourList(input: GetPeakHourListInput): Promise<PeakHourItem[]> {
+        return await this.prisma.$queryRaw<PeakHourItem[]>(Prisma.sql`
+            SELECT
+                EXTRACT(HOUR FROM "startTime")::int AS hour,
+                COUNT(*)::int AS count
+            FROM "Booking"
+            WHERE
+                "shopId" = ${input.shopId.toString()}
+                AND "status" = 'COMPLETED'
+                AND "startTime" >= ${input.startTime.getValue()}
+                AND "startTime" <= ${input.endTime.getValue()}
+            GROUP BY hour
+            ORDER BY hour ASC
+        `);
     }
 }
