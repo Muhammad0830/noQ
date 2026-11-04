@@ -3,16 +3,6 @@ import { Router } from "express";
 
 const analyticsRouter = Router();
 
-function formatLocalDate(date: Date, type: string) {
-  if (type === "year" || type === "all") {
-    return `${date.getFullYear()}-01-01`;
-  }
-
-  return `${date.getFullYear()}-${(date.getMonth() + 1)
-    .toString()
-    .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
-}
-
 function fillMissingDates(
   data: { date: Date; revenue: number }[],
   type: "week" | "month" | "year" | "all",
@@ -186,12 +176,9 @@ analyticsRouter.get("/", async (req: any, res) => {
       0,
     );
 
-    const revenueChange =
-      prevRevenue === 0
-        ? currentRevenue > 0
-          ? 100
-          : 0
-        : ((currentRevenue - prevRevenue) / prevRevenue) * 100;
+    const revenueChange = prevRevenue === 0
+      ? currentRevenue > 0 ? 100 : 0
+      : ((currentRevenue - prevRevenue) / prevRevenue) * 100;
 
     const [currentReviews, previousReviews] = await Promise.all([
       prisma.review.aggregate({
@@ -377,7 +364,7 @@ analyticsRouter.get("/famousServices", async (req: any, res) => {
         const avg =
           service.reviews.length > 0
             ? service.reviews.reduce((a, b) => a + b.rating, 0) /
-              service.reviews.length
+            service.reviews.length
             : 0;
 
         const { reviews, shop, description, _count, ...rest } = service;

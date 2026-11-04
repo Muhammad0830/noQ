@@ -1,4 +1,4 @@
-import { addMinutes as _addMinutes, addDays, createDateTime, formatToDateString, formatToTimeString } from "@noq/shared";
+import { addMinutes as _addMinutes, addDays as _addDays, createDateTime, formatToDateString, formatToTimeString, subDays } from "@noq/shared";
 
 export class DateTime {
     constructor(
@@ -71,8 +71,13 @@ export class DateTime {
     }
 
     addDays(days: number): DateTime {
-        const newDate = addDays(this.value, days);
-        return new DateTime(newDate);
+        const newDate = _addDays(this.value, days);
+        return DateTime.from(newDate);
+    }
+
+    subtractDays(days: number): DateTime {
+        const newDate = subDays(this.value, days);
+        return DateTime.from(newDate);
     }
 
     toTimeString(): string {

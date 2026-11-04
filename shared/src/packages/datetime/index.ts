@@ -11,7 +11,8 @@ export {
     getOneDayAfter,
     addDays,
     createDateTime,
-    formatToDateString
+    formatToDateString,
+    subDays
 } from "./date.js"
 
 export {
