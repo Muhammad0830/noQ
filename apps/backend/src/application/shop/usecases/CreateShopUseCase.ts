@@ -135,6 +135,7 @@ export class CreateShopUseCase implements CreateShopUseCaseInterface {
             name: input.shopDetails.name,
             address: input.shopDetails.address,
             phoneNumber: input.shopDetails.phoneNumber,
+            timezone: input.shopDetails.timezone,
             description: input.shopDetails.description,
             logoUrl: input.shopDetails.logoUrl,
             backgroundImageUrl: input.fileName,

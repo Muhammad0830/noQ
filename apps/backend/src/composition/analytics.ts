@@ -1,5 +1,5 @@
 import { GetFamousServiceListUseCase } from "@/application/analytics/usecases/GetFamousServiceListUseCase.js";
-import { GetPeakHourListUseCase } from "@/application/analytics/usecases/GetPealHourListUseCase.js";
+import { GetPeakHourListUseCase } from "@/application/analytics/usecases/GetPeakHourListUseCase.js";
 import { GetRevenueBaseInfoUseCase } from "@/application/analytics/usecases/GetRevenueBaseInfoUseCase.js";
 import { GetRevenueDiagramInfoUseCase } from "@/application/analytics/usecases/GetRevenueDiagramInfoUseCase.js";
 import prisma from "@/db/prisma.js";

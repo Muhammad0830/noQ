@@ -126,6 +126,7 @@ export class PrismaShopRepository implements ShopRepositoryInterface {
             isOpen: model.isOpen,
             address: model.address,
             phoneNumber: model.phone,
+            timezone: model.timezone,
             createdAt: DateTime.from(model.createdAt),
             updatedAt: DateTime.from(model.updatedAt),
             description: model.description,

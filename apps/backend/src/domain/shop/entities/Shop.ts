@@ -14,6 +14,7 @@ interface Props {
     updatedAt: DateTime,
     description: string | null,
     logoUrl: string | null,
+    timezone: string,
     phoneNumber: string,
     backgroundImageUrl: string | null,
 }
@@ -98,6 +99,10 @@ export class Shop {
 
     getBackgroundImageUrl(): string | null {
         return this.props.backgroundImageUrl ?? null;
+    }
+
+    getTimezone(): string {
+        return this.props.timezone;
     }
 
     updateName(name: string): void {

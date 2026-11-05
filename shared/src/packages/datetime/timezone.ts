@@ -1,4 +1,8 @@
-import { fromZonedTime, toZonedTime as _toZonedTime } from "date-fns-tz";
+import {
+    fromZonedTime,
+    toZonedTime as _toZonedTime,
+    getTimezoneOffset as _getTimezoneOffset
+} from "date-fns-tz";
 
 export function localDateTimeToUtc(
     date: string,
@@ -30,4 +34,8 @@ export function toZonedTime(date: Date | string, timezone: string) {
     const newDate = new Date(date);
 
     return _toZonedTime(newDate, timezone);
+}
+
+export function getTimezoneOffset(timezone: string, date: Date) {
+    return _getTimezoneOffset(timezone, date);
 }
