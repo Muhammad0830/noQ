@@ -5,8 +5,8 @@ export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 );
 
-export const getImageUrl = (folderName: string, pathName?: string | null, ) => {
-  if(!pathName) return null;
+export const getImageUrl = (folderName: string, pathName?: string | null,) => {
+  if (!pathName) return null;
 
   if (pathName.startsWith("http://") || pathName.startsWith("https://")) {
     return pathName;
@@ -14,7 +14,8 @@ export const getImageUrl = (folderName: string, pathName?: string | null, ) => {
 
   const { publicUrl } = supabase.storage
     .from(folderName)
-    .getPublicUrl(`${pathName}`).data;
+    .getPublicUrl(`${pathName}`)
+    .data;
 
   if (!publicUrl) {
     console.error("Error getting public URL:", publicUrl);

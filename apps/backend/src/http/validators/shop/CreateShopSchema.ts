@@ -1,4 +1,4 @@
-import z, { minLength } from "zod";
+import z from "zod";
 
 export const createShopSchema = z.object({
     shop: z.object({

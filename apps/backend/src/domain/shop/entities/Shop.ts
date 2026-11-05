@@ -100,7 +100,65 @@ export class Shop {
         return this.props.backgroundImageUrl ?? null;
     }
 
+    updateName(name: string): void {
+        if (!name.trim()) {
+            throw new Error("Shop Name is required");
+        }
+
+        this.props.name = name;
+        this.touch();
+    }
+
+    updateDescription(description: string | null): void {
+        if (description === null) {
+            return;
+        }
+
+        this.props.description = description;
+        this.touch();
+    }
+
+    updatePhoneNumber(phoneNumber: string): void {
+        if (!phoneNumber.trim()) {
+            throw new Error("Shop phoneNumber is required");
+        }
+
+        this.props.phoneNumber = phoneNumber;
+        this.touch();
+    }
+
+    updateAddress(address: string): void {
+        if (!address.trim()) {
+            throw new Error("Shop address is required");
+        }
+
+        this.props.address = address;
+        this.touch();
+    }
+
+    updateLogoUrl(url: string | null): void {
+        if (url === null) {
+            return;
+        }
+
+        this.props.logoUrl = url;
+        this.touch();
+    }
+
+    updateBackgroundImageUrl(url: string | null) {
+        if (url === null) {
+            return;
+        }
+
+        this.props.backgroundImageUrl = url;
+        this.touch();
+    }
+
     isOpen(): boolean {
         return this.props.isOpen;
+    }
+
+    private touch(): void {
+        this.props.updatedAt = DateTime.now();
     }
 }
