@@ -7,6 +7,8 @@ import { RequestWithShop } from "@/types.js";
 import { GetShopServiceListUseCaseInterface } from "@/application/service/interfaces/GetShopServiceListUseCaseInterface.js";
 import { CreateServiceUseCaseInterface } from "@/application/service/interfaces/CreateServiceUseCaseInterface.js";
 import { CreateServiceSchema } from "../validators/service/CreateServiceSchema.js";
+import { UpdateServiceUseCaseInterface } from "@/application/service/interfaces/UpdateServiceUseCaseInterface.js";
+import { UpdateServiceSchema } from "../validators/service/UpdateServiceSchema.js";
 
 export class ServiceController {
     constructor(
@@ -15,6 +17,7 @@ export class ServiceController {
         private readonly getServiceReviewListUseCase: GetServiceReviewListUseCaseInterface,
         private readonly getShopServiceListUseCase: GetShopServiceListUseCaseInterface,
         private readonly createServiceUseCase: CreateServiceUseCaseInterface,
+        private readonly updateServiceUseCase: UpdateServiceUseCaseInterface,
     ) { }
 
     create: RequestHandler = async (req, res, next) => {
@@ -45,6 +48,35 @@ export class ServiceController {
             res.status(201).json({
                 success: true,
                 message: "Service created Successfully"
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    update: RequestHandler = async (req, res, next) => {
+        try {
+            const {
+                id,
+                name,
+                description,
+                price,
+                durationMin,
+                bufferTime,
+            } = req.body as UpdateServiceSchema;
+
+            await this.updateServiceUseCase.execute({
+                id: id,
+                name: name,
+                description: description ?? null,
+                price: price,
+                durationMin: durationMin,
+                bufferTime: bufferTime ?? null,
+            });
+
+            res.status(201).json({
+                success: true,
+                message: "Service Updated successfully",
             });
         } catch (error) {
             next(error);

@@ -3,6 +3,7 @@ import { GetServiceDetailsUseCase } from "@/application/service/usecases/GetServ
 import { GetServiceReviewListUseCase } from "@/application/service/usecases/GetServiceRewiewListUseCase.js";
 import { GetShopServiceListUseCase } from "@/application/service/usecases/GetShopServiceListUseCase.js";
 import { GetTrendingServiceListUseCase } from "@/application/service/usecases/GetTrendingServiceListUseCase.js";
+import { UpdateServiceUseCase } from "@/application/service/usecases/UpdateServiceUseCase.js";
 import prisma from "@/db/prisma.js";
 import { ServiceController } from "@/http/controllers/ServiceController.js";
 import { GetServiceDataQuery } from "@/infrastructue/persistence/service/GetServiceDataQuery.js";
@@ -28,10 +29,15 @@ const createServiceUseCase = new CreateServiceUseCase(
     serviceRepository,
 )
 
+const updateServiceUseCase = new UpdateServiceUseCase(
+    serviceRepository,
+)
+
 export const serviceController = new ServiceController(
     getTrendingServiceListUseCase,
     getServiceDetailsUseCase,
     getServiceReviewListUseCase,
     getShopServiceListUseCase,
     createServiceUseCase,
+    updateServiceUseCase,
 );
