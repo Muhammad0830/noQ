@@ -34,13 +34,19 @@ import { CancelBookingByAdminUseCase } from "@/application/booking/usecases/Canc
 import { CompleteBookingUseCase } from "@/application/booking/usecases/CompleteBookingUseCase.js";
 import { ConfirmBookingUseCase } from "@/application/booking/usecases/ConfirmBookingUseCase.js";
 import { StartBookingUseCase } from "@/application/booking/usecases/StartBookingUseCase.js";
+import { GetShopHistoryBookingListUseCase } from "@/application/booking/usecases/GetShopHistoryBookingListUseCase.js";
+import { PrismaShopRepository } from "@/infrastructue/persistence/shop/PrismaShopRepository.js";
+import { GetBookingDataQuery } from "@/infrastructue/persistence/booking/GetBookingDataQuery.js";
 
 // infrastructure
 const bookingRepository = new PrismaBookingRepository(prisma);
+const shopRepository = new PrismaShopRepository(prisma);
+
 const userBookingListQuery = new PrismaUserBookingListQuery(prisma);
 const availabilityCheckerQuery = new PrismaBookingAvailabilityCheckerQuery(prisma);
 const bookedSlotListQuery = new GetBookedSlotListByDateQuery(prisma);
 const blockSlotListQuery = new GetEmergencyBlockDataQuery(prisma);
+const getBookingDataQuery = new GetBookingDataQuery(prisma);
 
 const serviceRepository = new PrismaServiceRepository(prisma);
 const customerRepository = new PrismaCustomerRepository(prisma);
@@ -79,6 +85,11 @@ const confirmBookingUseCase = new ConfirmBookingUseCase(bookingRepository);
 
 const startBookingUseCase = new StartBookingUseCase(bookingRepository);
 
+const getShopHistoryBookingListUseCase = new GetShopHistoryBookingListUseCase(
+    shopRepository,
+    getBookingDataQuery,
+)
+
 // http
 export const bookingController = new BookingController(
     createBookingUseCase,
@@ -89,4 +100,5 @@ export const bookingController = new BookingController(
     completeBookingUseCase,
     confirmBookingUseCase,
     startBookingUseCase,
+    getShopHistoryBookingListUseCase,
 )

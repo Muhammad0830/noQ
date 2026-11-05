@@ -1,5 +1,6 @@
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
+import { BookingStatus } from "@noq/shared";
 
 export interface GetBookingDataQueryInterface {
     getCountByTime(input: GetCountByTimeInput): Promise<number>;
@@ -7,6 +8,7 @@ export interface GetBookingDataQueryInterface {
     getRevenueByTime(input: GetRevenueByTimeInput): Promise<GetRevenueByTimeOutput>;
     getFamousServiceList(input: GetFamousServiceListInput): Promise<FamousServiceItem[]>;
     getPeakHourList(input: GetPeakHourListInput): Promise<PeakHourItem[]>;
+    getShopHistoryBookingList(input: GetShopHistoryBookingListInput): Promise<GetShopHistoryBookingListOutput>;
 }
 
 export interface GetCountByTimeInput {
@@ -57,4 +59,36 @@ export interface GetPeakHourListInput {
 export interface PeakHourItem {
     hour: number;
     count: number;
+}
+
+export interface GetShopHistoryBookingListInput {
+    shopId: ShopId;
+    startTime: DateTime;
+    endTime: DateTime;
+    searchQuery: string | null;
+}
+
+export interface GetShopHistoryBookingListOutput {
+    bookingList: {
+        id: string,
+        userId: string,
+        shopId: string,
+        serviceId: string | null,
+        serviceName: string,
+        servicePrice: number,
+        startTime: Date,
+        endTime: Date,
+        status: BookingStatus,
+        staffId: string | null,
+        createdAt: Date,
+        updatedAt: Date,
+        user: {
+            id: string,
+            name: string
+        },
+        staff: {
+            id: string,
+            name: string,
+        } | null
+    }[];
 }

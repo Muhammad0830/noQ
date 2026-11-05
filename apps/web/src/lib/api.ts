@@ -165,7 +165,7 @@ export const API_ENDPOINTS = {
   // Admin
   admin: {
     dashboardBaseInfo: `${API_BASE_URL}/admin/dashboard/base_info`,
-    dashboardHistory: `${API_BASE_URL}/admin/history`,
+    dashboardHistory: `${API_BASE_URL}/admin/bookings`,
     bookingCancel: (bookingId: string) =>
       `${API_BASE_URL}/admin/bookings/${bookingId}/cancel`,
     bookingComplete: (bookingId: string) =>

@@ -48,7 +48,7 @@ export async function validateShop(req: any, res: any, next: any) {
         const headerShopId = req.headers["x-shop-id"];
         const rawShopId = Array.isArray(headerShopId)
             ? headerShopId[0]
-            : headerShopId ?? req.query?.shopId;
+            : headerShopId;
         const shopId = typeof rawShopId === "string" ? rawShopId.trim() : "";
 
         if (!shopId) {
