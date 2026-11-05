@@ -13,4 +13,6 @@ bookingRouter.put(
 
 bookingRouter.put("/:id/complete", bookingController.complete);
 
+bookingRouter.put("/:id/confirm", bookingController.confirm);
+
 export default bookingRouter;

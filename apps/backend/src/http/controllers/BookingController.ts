@@ -16,8 +16,9 @@ import { checkUserAuthenticated } from "../validators/auth/CheckUserAuthenticate
 import { CreateBookingRequestBody } from "../validators/booking/CreateBookingSchema.js";
 import { UserRole } from "@/domain/shared/value-objects/UserRole.js";
 import { CancelBookingSchema } from "../validators/booking/CancelBookingSchema.js";
-import { CancelBookingByAdminUseCaseInterface } from "@/application/booking/interfaces/CancelBookingByAdminUseCase.js";
+import { CancelBookingByAdminUseCaseInterface } from "@/application/booking/interfaces/CancelBookingByAdminUseCaseInterface.js";
 import { CompleteBookingUseCaseInterface } from "@/application/booking/interfaces/CompleteBookingUseCaseInterface.js";
+import { ConfirmBookingUseCaseInterface } from "@/application/booking/interfaces/ConfirmBookingUseCaseInterface.js";
 
 export class BookingController {
     constructor(
@@ -27,6 +28,7 @@ export class BookingController {
         private readonly cancelBookingUseCase: CancelBookingUseCaseInterface,
         private readonly cancelBookingByAdminUseCase: CancelBookingByAdminUseCaseInterface,
         private readonly completeBookingUseCase: CompleteBookingUseCaseInterface,
+        private readonly confirmBookingUseCase: ConfirmBookingUseCaseInterface,
     ) { }
 
     create: RequestHandler = async (req, res, next): Promise<void> => {
@@ -140,10 +142,29 @@ export class BookingController {
                 id: id,
                 shopId: shopId
             });
-            
+
             res.status(201).json({
                 success: true,
                 message: "Booking completed successfully",
+            })
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    confirm: RequestHandler = async (req, res, next) => {
+        try {
+            const { id } = req.params as { id: string };
+            const shopId = (req as RequestWithShop).shop.id;
+
+            await this.confirmBookingUseCase.execute({
+                id: id,
+                shopId: shopId,
+            });
+
+            res.status(201).json({
+                success: true,
+                message: "Booking confirmed successfully",
             })
         } catch (error) {
             next(error);

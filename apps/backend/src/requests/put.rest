@@ -17,6 +17,13 @@ Authorization: Bearer {{bearer_token}}
 x-shop-id: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 
 ###
+PUT http://localhost:3001/admin/bookings/139f86ed-821b-451b-b572-3406ec11c264/confirm
+Content-Type: application/json
+Authorization: Bearer {{bearer_token}}
+x-shop-id: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
+
+
+###
 PUT http://localhost:3001/admin/shops/1aa8ef4a-654e-44e4-ad38-6740e5cca17b
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}

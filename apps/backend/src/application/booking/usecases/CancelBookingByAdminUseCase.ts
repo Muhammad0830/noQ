@@ -1,7 +1,7 @@
 import {
     CancelBookingByAdminUseCaseInput,
     CancelBookingByAdminUseCaseInterface
-} from "../interfaces/CancelBookingByAdminUseCase.js";
+} from "../interfaces/CancelBookingByAdminUseCaseInterface.js";
 import { BookingRepositoryInterface } from "@/domain/booking/repositories/BookingRepositoryInterface.js";
 import { BookingId } from "@/domain/booking/value-objects/BookingId.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
