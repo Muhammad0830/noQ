@@ -3,6 +3,7 @@ import { CreateShopUseCase } from "@/application/shop/usecases/CreateShopUseCase
 import { GetShopDataUseCase } from "@/application/shop/usecases/GetShopDataUseCase.js";
 import { GetShopListUseCase } from "@/application/shop/usecases/GetShopListUseCase.js";
 import { GetTrendingShopListUseCase } from "@/application/shop/usecases/GetTrendingShopListUseCase.js";
+import { UpdateShopUseCase } from "@/application/shop/usecases/UpdateShopUseCase.js";
 import prisma from "@/db/prisma.js";
 import { ShopController } from "@/http/controllers/ShopController.js";
 import { PrismaShopCreationUnitOfWork } from "@/infrastructue/persistence/prisma/PrismaShopCreationUnitOfWork.js";
@@ -50,9 +51,15 @@ const createShopUseCase = new CreateShopUseCase(
     shopCreationUnitOfWork,
 );
 
+const updateShopUseCase = new UpdateShopUseCase(
+    shopRepository,
+    storageService,
+)
+
 export const shopController = new ShopController(
     getShopListUseCase,
     getShopDataUseCase,
     getTrendingShopListUseCase,
     createShopUseCase,
+    updateShopUseCase,
 );

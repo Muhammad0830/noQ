@@ -11,6 +11,9 @@ import { RequestHandler } from "express";
 import { GetShopListSchema } from "@/http/validators/shop/GetShopListSchema.js";
 import { TrendingShopsResponse } from "@noq/shared";
 import { CreateShopSchema } from "@/http/validators/shop/CreateShopSchema.js";
+import { MulterFile, RequestWithShop } from "@/types.js";
+import { UpdateShopUseCaseInterface } from "@/application/shop/interfaces/UpdateShopUseCaseInterface.js";
+import { UpdateShopSchema } from "../validators/shop/UpdateShopSchema.js";
 
 export class ShopController {
     constructor(
@@ -18,6 +21,7 @@ export class ShopController {
         private readonly getShopDataUseCase: GetShopDataUseCaseInterface,
         private readonly getTrendingShopListUseCase: GetTrendingShopListUseCaseInterface,
         private readonly createShopUseCase: CreateShopUseCaseInterface,
+        private readonly updateShopUseCase: UpdateShopUseCaseInterface,
     ) { }
 
     create: RequestHandler = async (req, res, next) => {
@@ -92,6 +96,51 @@ export class ShopController {
             res.status(200).json(output);
         } catch (error) {
             next(error)
+        }
+    }
+
+    update: RequestHandler = async (req, res, next) => {
+        try {
+            const shopIdMiddleware = (req as RequestWithShop).shop.id;
+            const params = req.params as { shopId: string };
+
+            const {
+                id,
+                name,
+                description,
+                address,
+                phoneNumber,
+                logoURL,
+            } = req.body as UpdateShopSchema;
+
+            if (
+                !shopIdMiddleware ||
+                shopIdMiddleware !== id ||
+                id !== params.shopId
+            ) {
+                res.status(400).json({
+                    success: false,
+                    message: "Shop update failed",
+                    errors: [{ message: "Invalid Shop ID" }],
+                });
+            }
+
+            await this.updateShopUseCase.execute({
+                id: shopIdMiddleware,
+                name: name,
+                description: description ?? null,
+                address: address,
+                phoneNumber: phoneNumber,
+                logoURL: logoURL ?? null,
+                file: req.file ?? null,
+            });
+
+            res.status(201).json({
+                success: true,
+                message: "Shop updated successfully",
+            })
+        } catch (error) {
+            next(error);
         }
     }
 }

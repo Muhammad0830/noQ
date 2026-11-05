@@ -1,10 +1,13 @@
 import { StorageServiceInterface } from
     "@/application/shared/interfaces/StorageServiceInterface.js";
+import { supabase } from "@/config/supabase.js";
 import { supabaseServer } from "@/services/supabaseServer.js";
 import { MulterFile } from "@/types.js";
 import { v4 as uuidv4 } from "uuid";
 
 export class StorageService implements StorageServiceInterface {
+    readonly shopImagesPath = "shop_iamges";
+
     async uploadImage(image: MulterFile, folderName: string): Promise<string> {
         const fileExt = image.originalname.split(".").pop();
         const fileName = `${uuidv4()}.${fileExt}`;
@@ -33,5 +36,21 @@ export class StorageService implements StorageServiceInterface {
             console.error("Supabase removal error", error);
             throw new Error(error.message);
         }
+    }
+
+    async getImageUrl(folderName: string, fileName: string): Promise<string | null> {
+        if (!fileName) return null;
+
+        const { publicUrl } = supabase.storage
+            .from(folderName)
+            .getPublicUrl(`${fileName}`)
+            .data;
+
+        if (!publicUrl) {
+            console.error("Error getting public URL:", publicUrl);
+            return null;
+        }
+
+        return publicUrl;
     }
 }
