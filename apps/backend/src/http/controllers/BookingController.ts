@@ -9,19 +9,22 @@ import type { CancelBookingUseCaseInterface } from
     "@/application/booking/interfaces/CancelBookingUseCaseInterface.js";
 import type { GetAvailableSlotsUseCaseInput, GetAvailableSlotsUseCaseInterface } from
     "@/application/booking/interfaces/GetAvailableSlotsUseCaseInterface.js";
-import type { RequestWithUser } from "@/types.js";
+import type { RequestWithShop, RequestWithUser } from "@/types.js";
 import { toCreateBookingResource } from "@/http/resources/booking/CreateBookingResource.js";
 import { toBookingResource, } from "@/http/resources/booking/UserBookingsResource.js";
 import { checkUserAuthenticated } from "../validators/auth/CheckUserAuthenticated.js";
 import { CreateBookingRequestBody } from "../validators/booking/CreateBookingSchema.js";
 import { UserRole } from "@/domain/shared/value-objects/UserRole.js";
+import { CancelBookingSchema } from "../validators/booking/CancelBookingSchema.js";
+import { CancelBookingByAdminUseCaseInterface } from "@/application/booking/interfaces/CancelBookingByAdminUseCase.js";
 
 export class BookingController {
     constructor(
         private readonly createBookingUseCase: CreateBookingUseCaseInterface,
         private readonly getUserBookingListUsecase: GetUserBookingListUseCaseInterface,
-        private readonly cancelBookingUseCase: CancelBookingUseCaseInterface,
         private readonly getAvailableSlotsUseCase: GetAvailableSlotsUseCaseInterface,
+        private readonly cancelBookingUseCase: CancelBookingUseCaseInterface,
+        private readonly cancelBookingByAdminUseCase: CancelBookingByAdminUseCaseInterface,
     ) { }
 
     create: RequestHandler = async (req, res, next): Promise<void> => {
@@ -81,12 +84,33 @@ export class BookingController {
             }
 
             const input = req.body as CancelBookingRequestBody;
+
             await this.cancelBookingUseCase.execute(input)
 
             res.status(201).json({
                 success: true,
                 message: "Booking Cancelled successfully",
-                data: null,
+            })
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    cancelByAdmin: RequestHandler = async (req, res, next) => {
+        try {
+            const { id } = req.params as { id: string };
+            const shopId = (req as RequestWithShop).shop.id;
+            const { reason } = req.body as CancelBookingSchema;
+
+            await this.cancelBookingByAdminUseCase.execute({
+                id: id,
+                shopId: shopId,
+                reason: reason,
+            })
+
+            res.status(201).json({
+                success: true,
+                message: "Booking cancelled successfully",
             })
         } catch (error) {
             next(error);

@@ -138,6 +138,13 @@ export class Booking {
             throw new Error("Cancellation reason is required");
         }
 
+        if (
+            !this.props.status.equals(BookingStatus.PENDING) &&
+            !this.props.status.equals(BookingStatus.CONFIRMED)
+        ) {
+            throw new Error("The booking cannot be cancelled");
+        }
+
         this.transitionTo(BookingStatus.CANCELLED);
         this.props.cancellationReason = reason.trim();
         this.props.cancelledAt = DateTime.now();
