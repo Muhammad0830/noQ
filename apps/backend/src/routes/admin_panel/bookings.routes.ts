@@ -1,68 +1,20 @@
-import prisma from "@/db/prisma.js";
+import { bookingController } from "@/composition/booking.js";
+import { validateBody } from "@/http/middlewares/validate.middleware.js";
+import { cancelBookingSchema } from "@/http/validators/booking/CancelBookingSchema.js";
 import { Router } from "express";
 
 const bookingRouter = Router();
 
-bookingRouter.put("/:id/cancel", async (req: any, res: any) => {
-  try {
-    const { id } = req.params;
+bookingRouter.put(
+  "/:id/cancel",
+  validateBody(cancelBookingSchema),
+  bookingController.cancelByAdmin,
+);
 
-    const booking = await prisma.booking.findUnique({
-      where: { id },
-      include: {
-        shop: true,
-        service: true,
-        user: true,
-      },
-    });
+bookingRouter.put("/:id/complete", bookingController.complete);
 
-    if (!booking) {
-      return res.status(404).json({ message: "Booking not found" });
-    }
+bookingRouter.put("/:id/confirm", bookingController.confirm);
 
-    await prisma.booking.update({
-      where: { id },
-      data: {
-        status: "CANCELLED",
-      },
-    });
-
-    res.status(200).json({ message: "Booking cancelled successfully" });
-  } catch (err) {
-    console.error("booking cancel error", err);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-bookingRouter.put("/:id/complete", async (req: any, res: any) => {
-  try {
-    const { id } = req.params;
-
-    const booking = await prisma.booking.findUnique({
-      where: { id },
-      include: {
-        shop: true,
-        service: true,
-        user: true,
-      },
-    });
-
-    if (!booking) {
-      return res.status(404).json({ message: "Booking not found" });
-    }
-
-    await prisma.booking.update({
-      where: { id },
-      data: {
-        status: "COMPLETED",
-      },
-    });
-
-    res.status(200).json({ message: "Booking completed successfully" });
-  } catch (err) {
-    console.error("booking complete error", err);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
+bookingRouter.put("/:id/start", bookingController.start);
 
 export default bookingRouter;

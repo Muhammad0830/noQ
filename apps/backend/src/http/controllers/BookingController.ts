@@ -9,19 +9,28 @@ import type { CancelBookingUseCaseInterface } from
     "@/application/booking/interfaces/CancelBookingUseCaseInterface.js";
 import type { GetAvailableSlotsUseCaseInput, GetAvailableSlotsUseCaseInterface } from
     "@/application/booking/interfaces/GetAvailableSlotsUseCaseInterface.js";
-import type { RequestWithUser } from "@/types.js";
+import type { RequestWithShop, RequestWithUser } from "@/types.js";
 import { toCreateBookingResource } from "@/http/resources/booking/CreateBookingResource.js";
 import { toBookingResource, } from "@/http/resources/booking/UserBookingsResource.js";
 import { checkUserAuthenticated } from "../validators/auth/CheckUserAuthenticated.js";
 import { CreateBookingRequestBody } from "../validators/booking/CreateBookingSchema.js";
 import { UserRole } from "@/domain/shared/value-objects/UserRole.js";
+import { CancelBookingSchema } from "../validators/booking/CancelBookingSchema.js";
+import { CancelBookingByAdminUseCaseInterface } from "@/application/booking/interfaces/CancelBookingByAdminUseCaseInterface.js";
+import { CompleteBookingUseCaseInterface } from "@/application/booking/interfaces/CompleteBookingUseCaseInterface.js";
+import { ConfirmBookingUseCaseInterface } from "@/application/booking/interfaces/ConfirmBookingUseCaseInterface.js";
+import { StartBookingUseCaseInterface } from "@/application/booking/interfaces/StartBookingUseCaseInterface.js";
 
 export class BookingController {
     constructor(
         private readonly createBookingUseCase: CreateBookingUseCaseInterface,
         private readonly getUserBookingListUsecase: GetUserBookingListUseCaseInterface,
-        private readonly cancelBookingUseCase: CancelBookingUseCaseInterface,
         private readonly getAvailableSlotsUseCase: GetAvailableSlotsUseCaseInterface,
+        private readonly cancelBookingUseCase: CancelBookingUseCaseInterface,
+        private readonly cancelBookingByAdminUseCase: CancelBookingByAdminUseCaseInterface,
+        private readonly completeBookingUseCase: CompleteBookingUseCaseInterface,
+        private readonly confirmBookingUseCase: ConfirmBookingUseCaseInterface,
+        private readonly startBookingUseCase: StartBookingUseCaseInterface,
     ) { }
 
     create: RequestHandler = async (req, res, next): Promise<void> => {
@@ -81,12 +90,33 @@ export class BookingController {
             }
 
             const input = req.body as CancelBookingRequestBody;
+
             await this.cancelBookingUseCase.execute(input)
 
             res.status(201).json({
                 success: true,
                 message: "Booking Cancelled successfully",
-                data: null,
+            })
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    cancelByAdmin: RequestHandler = async (req, res, next) => {
+        try {
+            const { id } = req.params as { id: string };
+            const shopId = (req as RequestWithShop).shop.id;
+            const { reason } = req.body as CancelBookingSchema;
+
+            await this.cancelBookingByAdminUseCase.execute({
+                id: id,
+                shopId: shopId,
+                reason: reason,
+            })
+
+            res.status(201).json({
+                success: true,
+                message: "Booking cancelled successfully",
             })
         } catch (error) {
             next(error);
@@ -100,6 +130,63 @@ export class BookingController {
             const availableSlots = await this.getAvailableSlotsUseCase.execute(query);
 
             res.status(200).json(availableSlots)
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    complete: RequestHandler = async (req, res, next) => {
+        try {
+            const { id } = req.params as { id: string };
+            const shopId = (req as RequestWithShop).shop.id;
+
+            await this.completeBookingUseCase.execute({
+                id: id,
+                shopId: shopId
+            });
+
+            res.status(201).json({
+                success: true,
+                message: "Booking completed successfully",
+            })
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    confirm: RequestHandler = async (req, res, next) => {
+        try {
+            const { id } = req.params as { id: string };
+            const shopId = (req as RequestWithShop).shop.id;
+
+            await this.confirmBookingUseCase.execute({
+                id: id,
+                shopId: shopId,
+            });
+
+            res.status(201).json({
+                success: true,
+                message: "Booking confirmed successfully",
+            })
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    start: RequestHandler = async (req, res, next) => {
+        try {
+            const { id } = req.params as { id: string };
+            const shopId = (req as RequestWithShop).shop.id;
+
+            await this.startBookingUseCase.execute({
+                id: id,
+                shopId: shopId,
+            });
+
+            res.status(201).json({
+                success: true,
+                message: "Booking is now in progress",
+            });
         } catch (error) {
             next(error);
         }

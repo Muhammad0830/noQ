@@ -89,7 +89,7 @@ export class PrismaBookingRepository implements BookingRepositoryInterface {
     private toEntity(bookingModel: BookingWithService) {
         return Booking.create({
             id: BookingId.create(bookingModel.id),
-            shopId: ShopId.create(bookingModel.id),
+            shopId: ShopId.create(bookingModel.shopId),
             customerId: CustomerId.create(bookingModel.userId),
             startTime: DateTime.from(bookingModel.startTime),
             endTime: DateTime.from(bookingModel.endTime),
