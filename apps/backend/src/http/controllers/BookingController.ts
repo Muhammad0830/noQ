@@ -19,6 +19,7 @@ import { CancelBookingSchema } from "../validators/booking/CancelBookingSchema.j
 import { CancelBookingByAdminUseCaseInterface } from "@/application/booking/interfaces/CancelBookingByAdminUseCaseInterface.js";
 import { CompleteBookingUseCaseInterface } from "@/application/booking/interfaces/CompleteBookingUseCaseInterface.js";
 import { ConfirmBookingUseCaseInterface } from "@/application/booking/interfaces/ConfirmBookingUseCaseInterface.js";
+import { StartBookingUseCaseInterface } from "@/application/booking/interfaces/StartBookingUseCaseInterface.js";
 
 export class BookingController {
     constructor(
@@ -29,6 +30,7 @@ export class BookingController {
         private readonly cancelBookingByAdminUseCase: CancelBookingByAdminUseCaseInterface,
         private readonly completeBookingUseCase: CompleteBookingUseCaseInterface,
         private readonly confirmBookingUseCase: ConfirmBookingUseCaseInterface,
+        private readonly startBookingUseCase: StartBookingUseCaseInterface,
     ) { }
 
     create: RequestHandler = async (req, res, next): Promise<void> => {
@@ -166,6 +168,25 @@ export class BookingController {
                 success: true,
                 message: "Booking confirmed successfully",
             })
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    start: RequestHandler = async (req, res, next) => {
+        try {
+            const { id } = req.params as { id: string };
+            const shopId = (req as RequestWithShop).shop.id;
+
+            await this.startBookingUseCase.execute({
+                id: id,
+                shopId: shopId,
+            });
+
+            res.status(201).json({
+                success: true,
+                message: "Booking is now in progress",
+            });
         } catch (error) {
             next(error);
         }

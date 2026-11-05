@@ -33,6 +33,7 @@ import { BookingCreationPolicy } from "@/application/booking/policies/BookingCre
 import { CancelBookingByAdminUseCase } from "@/application/booking/usecases/CancelBookingByAdminUseCase.js";
 import { CompleteBookingUseCase } from "@/application/booking/usecases/CompleteBookingUseCase.js";
 import { ConfirmBookingUseCase } from "@/application/booking/usecases/ConfirmBookingUseCase.js";
+import { StartBookingUseCase } from "@/application/booking/usecases/StartBookingUseCase.js";
 
 // infrastructure
 const bookingRepository = new PrismaBookingRepository(prisma);
@@ -76,6 +77,8 @@ const completeBookingUseCase = new CompleteBookingUseCase(bookingRepository);
 
 const confirmBookingUseCase = new ConfirmBookingUseCase(bookingRepository);
 
+const startBookingUseCase = new StartBookingUseCase(bookingRepository);
+
 // http
 export const bookingController = new BookingController(
     createBookingUseCase,
@@ -85,4 +88,5 @@ export const bookingController = new BookingController(
     cancelBookingByAdminUseCase,
     completeBookingUseCase,
     confirmBookingUseCase,
+    startBookingUseCase,
 )
