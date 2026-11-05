@@ -1,4 +1,5 @@
 import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
+import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 
 export interface GetServiceDataQueryInterface {
     getTrending(timeRange: number, limit: number): Promise<GetTrendingServiceListDTO>;
@@ -6,6 +7,8 @@ export interface GetServiceDataQueryInterface {
     getDetails(serviceId: ServiceId): Promise<ServiceDetailsDTO>;
 
     getServiceReviewList(serviceId: ServiceId): Promise<ServiceWithReviewsDTO>;
+
+    getByShopId(shopId: ShopId): Promise<ServiceDetailsDTO[]>;
 }
 
 export interface GetTrendingServiceListDTO {

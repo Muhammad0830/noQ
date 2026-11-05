@@ -1,5 +1,6 @@
 import { GetServiceDataQueryInterface, GetTrendingServiceListDTO, ServiceDetailsDTO, ServiceWithReviewsDTO } from "@/application/service/interfaces/GetServiceDataQueryInterface.js";
 import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
+import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 import { BookingStatus, PrismaClient } from "@prisma/client";
 
 export class GetServiceDataQuery implements GetServiceDataQueryInterface {
@@ -129,5 +130,26 @@ export class GetServiceDataQuery implements GetServiceDataQueryInterface {
                 }
             })),
         };
+    }
+
+    async getByShopId(shopId: ShopId): Promise<ServiceDetailsDTO[]> {
+        const serviceList = await this.prisma.service.findMany({
+            where: {
+                shopId: shopId.toString(),
+            },
+        });
+
+        return serviceList.map(service => ({
+            id: service.id,
+            shopId: service.shopId,
+            name: service.name,
+            description: service.description,
+            price: Number(service.price),
+            durationMin: service.durationMin,
+            bufferTime: service.bufferTime,
+            isActive: service.isActive,
+            createdAt: service.createdAt,
+            updatedAt: service.updatedAt,
+        }))
     }
 }

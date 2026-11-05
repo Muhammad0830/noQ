@@ -1,24 +1,9 @@
 import { Router } from "express";
 import prisma from "@/db/prisma.js";
+import { serviceController } from "@/composition/service.js";
 const serviceRouter = Router();
 
-serviceRouter.get("/", async (req: any, res: any) => {
-  try {
-    const services = await prisma.service.findMany({
-      where: {
-        shopId: req.shop.id,
-      },
-      include: {
-        shop: true,
-      },
-    });
-
-    res.status(200).json(services);
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
-    console.error(error);
-  }
-});
+serviceRouter.get("/", serviceController.getByShopId);
 
 serviceRouter.post("/", async (req: any, res: any) => {
   try {
