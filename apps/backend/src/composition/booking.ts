@@ -31,6 +31,7 @@ import { SlotAvailabilityValidator } from
     "@/application/booking/validators/SlotAvailabilityValidator.js";
 import { BookingCreationPolicy } from "@/application/booking/policies/BookingCreationPolicy.js";
 import { CancelBookingByAdminUseCase } from "@/application/booking/usecases/CancelBookingByAdminUseCase.js";
+import { CompleteBookingUseCase } from "@/application/booking/usecases/CompleteBookingUseCase.js";
 
 // infrastructure
 const bookingRepository = new PrismaBookingRepository(prisma);
@@ -70,6 +71,8 @@ const createBookingUseCase = new CreateBookingUseCase(
 
 const cancelBookingByAdminUseCase = new CancelBookingByAdminUseCase(bookingRepository);
 
+const completeBookingUseCase = new CompleteBookingUseCase(bookingRepository);
+
 // http
 export const bookingController = new BookingController(
     createBookingUseCase,
@@ -77,4 +80,5 @@ export const bookingController = new BookingController(
     getAvailableSlotsUseCase,
     cancelBookingUseCase,
     cancelBookingByAdminUseCase,
+    completeBookingUseCase,
 )

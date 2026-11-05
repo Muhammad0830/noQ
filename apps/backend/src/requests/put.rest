@@ -11,7 +11,7 @@ x-shop-id: 4c953f8f-f7c8-4860-962d-21a2f06bcb89
 }
 
 ###
-PUT http://localhost:3001/admin/bookings/901020df-7378-49a9-bb61-b2fd44ab3641/complete
+PUT http://localhost:3001/admin/bookings/139f86ed-821b-451b-b572-3406ec11c264/complete
 Content-Type: application/json
 Authorization: Bearer {{bearer_token}}
 x-shop-id: 4c953f8f-f7c8-4860-962d-21a2f06bcb89

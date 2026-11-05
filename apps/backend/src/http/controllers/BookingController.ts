@@ -17,6 +17,7 @@ import { CreateBookingRequestBody } from "../validators/booking/CreateBookingSch
 import { UserRole } from "@/domain/shared/value-objects/UserRole.js";
 import { CancelBookingSchema } from "../validators/booking/CancelBookingSchema.js";
 import { CancelBookingByAdminUseCaseInterface } from "@/application/booking/interfaces/CancelBookingByAdminUseCase.js";
+import { CompleteBookingUseCaseInterface } from "@/application/booking/interfaces/CompleteBookingUseCaseInterface.js";
 
 export class BookingController {
     constructor(
@@ -25,6 +26,7 @@ export class BookingController {
         private readonly getAvailableSlotsUseCase: GetAvailableSlotsUseCaseInterface,
         private readonly cancelBookingUseCase: CancelBookingUseCaseInterface,
         private readonly cancelBookingByAdminUseCase: CancelBookingByAdminUseCaseInterface,
+        private readonly completeBookingUseCase: CompleteBookingUseCaseInterface,
     ) { }
 
     create: RequestHandler = async (req, res, next): Promise<void> => {
@@ -124,6 +126,25 @@ export class BookingController {
             const availableSlots = await this.getAvailableSlotsUseCase.execute(query);
 
             res.status(200).json(availableSlots)
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    complete: RequestHandler = async (req, res, next) => {
+        try {
+            const { id } = req.params as { id: string };
+            const shopId = (req as RequestWithShop).shop.id;
+
+            await this.completeBookingUseCase.execute({
+                id: id,
+                shopId: shopId
+            });
+            
+            res.status(201).json({
+                success: true,
+                message: "Booking completed successfully",
+            })
         } catch (error) {
             next(error);
         }
