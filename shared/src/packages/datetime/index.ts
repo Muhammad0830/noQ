@@ -3,6 +3,7 @@ export {
     dateToUtc,
     getLocalMinutes,
     toZonedTime,
+    getTimezoneOffset,
 } from "./timezone.js"
 
 export { getUtcDayRange } from "./range.js"

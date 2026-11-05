@@ -11,7 +11,7 @@ import { RequestHandler } from "express";
 import { GetShopListSchema } from "@/http/validators/shop/GetShopListSchema.js";
 import { TrendingShopsResponse } from "@noq/shared";
 import { CreateShopSchema } from "@/http/validators/shop/CreateShopSchema.js";
-import { MulterFile, RequestWithShop } from "@/types.js";
+import { RequestWithShop } from "@/types.js";
 import { UpdateShopUseCaseInterface } from "@/application/shop/interfaces/UpdateShopUseCaseInterface.js";
 import { UpdateShopSchema } from "../validators/shop/UpdateShopSchema.js";
 
@@ -35,6 +35,7 @@ export class ShopController {
                     name: body.shop.name,
                     address: body.shop.address,
                     phoneNumber: body.shop.phoneNumber,
+                    timezone: body.shop.timezone,
                     description: body.shop.description ?? null,
                     logoUrl: body.shop.logoUrl ?? null,
                     file: req.file ?? null,

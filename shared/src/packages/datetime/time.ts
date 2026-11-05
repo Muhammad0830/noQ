@@ -6,7 +6,7 @@ import {
     isWithinInterval,
     parse,
     startOfDay,
-    subMilliseconds as _subMilliseconds
+    subMilliseconds as _subMilliseconds,
 } from 'date-fns';
 
 export const timeToMinutes = (time: string): number => {

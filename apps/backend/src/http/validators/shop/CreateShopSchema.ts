@@ -7,6 +7,7 @@ export const createShopSchema = z.object({
         name: z.string().min(1, "Shop name is required"),
         address: z.string().min(1, "Shop address is required"),
         phoneNumber: z.string().min(1, "Shop phone number is required"),
+        timezone: z.string().min(1, "shop timezone is required"),
         description: z.string().optional(),
         logoUrl: z.string().optional(),
         file: z.file().optional(),

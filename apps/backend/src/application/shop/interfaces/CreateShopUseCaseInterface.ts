@@ -27,6 +27,7 @@ export interface ShopDetails {
     name: string;
     address: string;
     phoneNumber: string;
+    timezone: string;
     description: string | null;
     logoUrl: string | null;
     file: MulterFile | null;
