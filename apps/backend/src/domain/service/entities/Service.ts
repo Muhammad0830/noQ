@@ -47,8 +47,8 @@ export class Service {
 
         return new Service({
             ...service,
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
+            createdAt: service.createdAt ?? DateTime.now(),
+            updatedAt: service.updatedAt ?? DateTime.now(),
         });
     }
 

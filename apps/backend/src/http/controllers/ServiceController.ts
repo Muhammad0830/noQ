@@ -5,14 +5,51 @@ import { GetServiceDetailsUseCaseInterface } from "@/application/service/interfa
 import { GetServiceReviewListUseCaseInterface } from "@/application/service/interfaces/GetServiceReviewListUseCaseInterface.js";
 import { RequestWithShop } from "@/types.js";
 import { GetShopServiceListUseCaseInterface } from "@/application/service/interfaces/GetShopServiceListUseCaseInterface.js";
+import { CreateServiceUseCaseInterface } from "@/application/service/interfaces/CreateServiceUseCaseInterface.js";
+import { CreateServiceSchema } from "../validators/service/CreateServiceSchema.js";
 
 export class ServiceController {
     constructor(
         private readonly getTrendingServiceListUseCase: GetTrendingServiceListUseCaseInterface,
         private readonly getServiceDetailsUseCase: GetServiceDetailsUseCaseInterface,
         private readonly getServiceReviewListUseCase: GetServiceReviewListUseCaseInterface,
-        private readonly getShopServiceListUseCase: GetShopServiceListUseCaseInterface
+        private readonly getShopServiceListUseCase: GetShopServiceListUseCaseInterface,
+        private readonly createServiceUseCase: CreateServiceUseCaseInterface,
     ) { }
+
+    create: RequestHandler = async (req, res, next) => {
+        try {
+            const shopIdMiddleware = (req as RequestWithShop).shop.id;
+            const {
+                shopId,
+                name,
+                description,
+                price,
+                durationMin,
+                bufferTime,
+            } = req.body as CreateServiceSchema;
+
+            if (shopIdMiddleware !== shopId) {
+                throw new Error("Forbidden");
+            }
+
+            await this.createServiceUseCase.execute({
+                shopId: shopId,
+                name: name,
+                price: price,
+                durationMin: durationMin,
+                bufferTime: bufferTime ?? null,
+                description: description ?? null,
+            });
+
+            res.status(201).json({
+                success: true,
+                message: "Service created Successfully"
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 
     trending: RequestHandler = async (req, res, next) => {
         try {

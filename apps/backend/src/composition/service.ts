@@ -1,3 +1,4 @@
+import { CreateServiceUseCase } from "@/application/service/usecases/CreateServiceUseCase.js";
 import { GetServiceDetailsUseCase } from "@/application/service/usecases/GetServiceDetailsUseCase.js";
 import { GetServiceReviewListUseCase } from "@/application/service/usecases/GetServiceRewiewListUseCase.js";
 import { GetShopServiceListUseCase } from "@/application/service/usecases/GetShopServiceListUseCase.js";
@@ -22,9 +23,15 @@ const getShopServiceListUseCase = new GetShopServiceListUseCase(
     getServiceDataQuery,
 )
 
+const createServiceUseCase = new CreateServiceUseCase(
+    shopRepository,
+    serviceRepository,
+)
+
 export const serviceController = new ServiceController(
     getTrendingServiceListUseCase,
     getServiceDetailsUseCase,
     getServiceReviewListUseCase,
     getShopServiceListUseCase,
+    createServiceUseCase,
 );

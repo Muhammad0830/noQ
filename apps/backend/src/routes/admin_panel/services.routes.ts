@@ -1,29 +1,17 @@
 import { Router } from "express";
 import prisma from "@/db/prisma.js";
 import { serviceController } from "@/composition/service.js";
+import { validateBody } from "@/http/middlewares/validate.middleware.js";
+import { createServiceSchema } from "@/http/validators/service/CreateServiceSchema.js";
 const serviceRouter = Router();
 
 serviceRouter.get("/", serviceController.getByShopId);
 
-serviceRouter.post("/", async (req: any, res: any) => {
-  try {
-    const { name, price, durationMin, bufferTime = null } = req.body;
-
-    const service = await prisma.service.create({
-      data: {
-        shopId: req.shop.id,
-        name,
-        price,
-        durationMin,
-        bufferTime,
-      },
-    });
-
-    res.status(200).json(service);
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
+serviceRouter.post(
+  "/",
+  validateBody(createServiceSchema),
+  serviceController.create
+)
 
 serviceRouter.post("/isActive/toggle", async (req: any, res: any) => {
   try {
