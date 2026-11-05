@@ -7,9 +7,12 @@ import {
     GetPriceByTimeInput,
     GetRevenueByTimeInput,
     GetRevenueByTimeOutput,
+    GetShopHistoryBookingListInput,
+    GetShopHistoryBookingListOutput,
     PeakHourItem
 } from "@/application/booking/interfaces/GetBookingDataQueryInterface.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
+import { BookingStatus } from "@noq/shared";
 import { Prisma, PrismaClient } from "@prisma/client";
 
 export class GetBookingDataQuery implements GetBookingDataQueryInterface {
@@ -125,5 +128,90 @@ export class GetBookingDataQuery implements GetBookingDataQueryInterface {
             GROUP BY hour
             ORDER BY hour ASC
         `);
+    }
+
+    async getShopHistoryBookingList(input: GetShopHistoryBookingListInput): Promise<GetShopHistoryBookingListOutput> {
+        const bookingList = await this.prisma.booking.findMany({
+            where: {
+                shopId: input.shopId.toString(),
+                startTime: {
+                    gte: input.startTime.getValue(),
+                    lt: input.endTime.getValue(),
+                },
+                ...(input.searchQuery && {
+                    OR: [
+                        {
+                            user: {
+                                name: {
+                                    contains: input.searchQuery,
+                                    mode: "insensitive",
+                                },
+                            },
+                        },
+                        {
+                            service: {
+                                name: {
+                                    contains: input.searchQuery,
+                                    mode: "insensitive",
+                                },
+                            },
+                        },
+                        {
+                            staff: {
+                                user: {
+                                    name: {
+                                        contains: input.searchQuery,
+                                        mode: "insensitive",
+                                    },
+                                },
+                            },
+                        },
+                    ],
+                }),
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                    },
+                },
+                staff: {
+                    select: {
+                        id: true,
+                        user: {
+                            select: {
+                                name: true,
+                            },
+                        },
+                    },
+                },
+            }
+        });
+
+        return {
+            bookingList: bookingList.map(booking => ({
+                id: booking.id,
+                userId: booking.userId,
+                shopId: booking.shopId,
+                serviceId: booking.serviceId,
+                serviceName: booking.serviceName,
+                servicePrice: Number(booking.servicePrice),
+                startTime: booking.startTime,
+                endTime: booking.endTime,
+                status: BookingStatus[booking.status],
+                staffId: booking.staffId,
+                createdAt: booking.createdAt,
+                updatedAt: booking.updatedAt,
+                user: {
+                    id: booking.user.id,
+                    name: booking.user.name
+                },
+                staff: booking.staff ? {
+                    id: booking.staff.id,
+                    name: booking.staff.user.name,
+                } : null
+            }))
+        }
     }
 }

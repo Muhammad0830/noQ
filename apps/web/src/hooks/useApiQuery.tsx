@@ -16,7 +16,7 @@ type UseApiQueryOptions<T> = {
   staleTime?: number;
   refetchOnMount?: boolean | "always";
   refetchOnWindowFocus?: boolean;
-  headers?: HeadersInit;
+  headers?: Record<string, string>;
 
   queryOptions?: Omit<
     UseQueryOptions<T, AxiosError<ApiErrorResponse>, T, readonly unknown[]>,
@@ -32,6 +32,7 @@ export default function useApiQuery<T,>(
     staleTime = 0,
     refetchOnMount = "always",
     refetchOnWindowFocus = true,
+    headers,
     queryOptions,
   }: UseApiQueryOptions<T>,
 ) {
@@ -43,7 +44,9 @@ export default function useApiQuery<T,>(
     queryFn: async () => {
       if (!url) throw new Error("No URL provided");
 
-      const res = await api.get(url);
+      const res = await api.get(url, {
+        headers: headers
+      });
 
       return res.data as T;
     },

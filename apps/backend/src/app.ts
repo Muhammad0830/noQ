@@ -51,13 +51,6 @@ app.use(
   adminRoutes.analyticsRouter,
 );
 app.use(
-  "/admin/history",
-  authMiddleware,
-  validateShop,
-  adminOnly,
-  adminRoutes.historyRouter,
-);
-app.use(
   "/admin/services",
   authMiddleware,
   validateShop,

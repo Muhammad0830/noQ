@@ -244,7 +244,7 @@ export default function AdminDashboard() {
     isLoading: isBaseInfoLoading,
   } = useApiQuery<DashboardBaseInfoResponse>(
     activeShopId
-      ? `${API_ENDPOINTS.admin.dashboardBaseInfo}?shopId=${encodeURIComponent(activeShopId)}`
+      ? `${API_ENDPOINTS.admin.dashboardBaseInfo}`
       : null,
     {
       key: ["admin-dashboard-base-info", activeShopId || "none"],
@@ -252,9 +252,7 @@ export default function AdminDashboard() {
       staleTime: 30_000,
       refetchOnMount: false,
       refetchOnWindowFocus: false,
-      headers: activeShopId
-        ? { "x-shop-id": activeShopId }
-        : undefined,
+      headers: { "x-shop-id": activeShopId }
     },
   );
 

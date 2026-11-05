@@ -108,7 +108,8 @@ export default function Page() {
   const { user } = useAuth();
   const t = useTranslations();
   const locale = useLocale();
-  const shopId = searchParams.get("shopId");
+  const [persistedShopId] = useState<string | null>(typeof window !== "undefined"
+    ? localStorage.getItem("selected_shop_id") : null);
   const [search, setSearch] = useState("");
   const [isExporting, setIsExporting] = useState(false);
   const [exportDone, setExportDone] = useState(false);
@@ -119,7 +120,7 @@ export default function Page() {
     openSidebar,
     closeSidebar,
     getAdminHrefWithShopId,
-  } = useAdminSidebar(shopId);
+  } = useAdminSidebar(persistedShopId);
   const todayDate = useMemo(() => normalizeDate(new Date()), []);
   const todayQuery = useMemo(() => formatToDateString(todayDate), [todayDate]);
   // `visibleWeekStart` is actually used as the reference (week end) for building
@@ -136,13 +137,13 @@ export default function Page() {
       return t("admin.dashboard.panel");
     }
 
-    if (shopId) {
-      const activeShop = user.shops?.find((shop) => shop.id === shopId);
+    if (persistedShopId) {
+      const activeShop = user.shops?.find((shop) => shop.id === persistedShopId);
       return activeShop?.name || t("admin.dashboard.panel");
     }
 
     return user.shops?.[0]?.name || t("admin.dashboard.panel");
-  }, [shopId, t, user]);
+  }, [persistedShopId, t, user]);
 
   const selectedDate = useMemo(() => {
     const parsedDate = parseDateQuery(searchParams.get("date"));
@@ -158,9 +159,11 @@ export default function Page() {
     [visibleWeekStart],
   );
 
-  const historyUrl = shopId
-    ? `${API_ENDPOINTS.admin.dashboardHistory}?shopId=${encodeURIComponent(shopId)}&date=${encodeURIComponent(selectedDateQuery)}`
+  const historyUrl = persistedShopId
+    ? `${API_ENDPOINTS.admin.dashboardHistory}?shopId=${encodeURIComponent(persistedShopId)}&date=${encodeURIComponent(selectedDateQuery)}`
     : null;
+
+  console.log("historyUrl", historyUrl)
 
   const {
     data: bookings = [],
@@ -168,24 +171,19 @@ export default function Page() {
     isError,
     error,
   } = useApiQuery<AdminHistoryBooking[]>(historyUrl, {
-    key: ["admin-history", shopId || "none", selectedDateQuery],
-    enabled: Boolean(shopId),
-    staleTime: 0,
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
-    queryOptions: {
-      refetchInterval: 15_000,
-    },
-    headers: shopId ? { "x-shop-id": shopId } : undefined,
+    key: ["admin-history", `${persistedShopId}`, selectedDateQuery],
+    enabled: Boolean(persistedShopId),
+    staleTime: 60_000, // 1 minute
+    headers: { "x-shop-id": persistedShopId ?? '' }
   });
 
   const handleDateChange = (date: string) => {
-    if (!shopId) {
+    if (!persistedShopId) {
       return;
     }
 
     const params = new URLSearchParams(searchParams.toString());
-    params.set("shopId", shopId);
+    params.set("shopId", persistedShopId);
     params.set("date", date > todayQuery ? todayQuery : date);
     router.replace(`/admin/history?${params.toString()}`);
   };
@@ -422,7 +420,7 @@ export default function Page() {
         </div>
 
         <main className="flex min-h-0 flex-1 flex-col gap-4 px-3 pt-3 pb-32 sm:px-4 md:pb-6">
-          {!shopId ? (
+          {!persistedShopId ? (
             <div className="rounded-2xl border border-[#d7d9dd] bg-[#fafafa] p-4 text-sm text-[#8f949a]">
               {t("admin.history.noShopSelected")}
             </div>

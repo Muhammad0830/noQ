@@ -20,6 +20,8 @@ import { CancelBookingByAdminUseCaseInterface } from "@/application/booking/inte
 import { CompleteBookingUseCaseInterface } from "@/application/booking/interfaces/CompleteBookingUseCaseInterface.js";
 import { ConfirmBookingUseCaseInterface } from "@/application/booking/interfaces/ConfirmBookingUseCaseInterface.js";
 import { StartBookingUseCaseInterface } from "@/application/booking/interfaces/StartBookingUseCaseInterface.js";
+import { GetShopHistoryBookingListUseCaseInterface } from "@/application/booking/interfaces/GetShopHistoryBookingListUseCaseInterface.js";
+import { GetShopHistoryBookingListSchema } from "../validators/booking/GetShopHistoryBookingListSchema.js";
 
 export class BookingController {
     constructor(
@@ -31,6 +33,7 @@ export class BookingController {
         private readonly completeBookingUseCase: CompleteBookingUseCaseInterface,
         private readonly confirmBookingUseCase: ConfirmBookingUseCaseInterface,
         private readonly startBookingUseCase: StartBookingUseCaseInterface,
+        private readonly getShopHistoryBookingListUseCase: GetShopHistoryBookingListUseCaseInterface,
     ) { }
 
     create: RequestHandler = async (req, res, next): Promise<void> => {
@@ -187,6 +190,24 @@ export class BookingController {
                 success: true,
                 message: "Booking is now in progress",
             });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    getShopHistory: RequestHandler = async (req, res, next) => {
+        try {
+            const shopId = (req as RequestWithShop).shop.id;
+            const { startTime, endTime, searchQuery } = res.locals.validatedQuery as GetShopHistoryBookingListSchema;
+
+            const bookingList = await this.getShopHistoryBookingListUseCase.execute({
+                shopId: shopId,
+                startTime: startTime,
+                endTime: endTime,
+                searchQuery: searchQuery ?? null
+            });
+
+            res.status(200).json(bookingList);
         } catch (error) {
             next(error);
         }
