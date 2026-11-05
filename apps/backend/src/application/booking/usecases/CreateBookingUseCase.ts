@@ -21,7 +21,6 @@ import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 import { DayOfWeek } from "@/domain/shop-schedule/value-objects/DayOfWeek.js";
 import type { ScheduleValidator } from "../validators/ScheduleValidator.js";
 import { BookingCreationPolicy } from "../policies/BookingCreationPolicy.js";
-import { BookingStatus } from "@/domain/booking/value-objects/BookingStatus.js";
 
 export class CreateBookingUseCase implements CreateBookingUseCaseInterface {
     public constructor(
@@ -38,8 +37,6 @@ export class CreateBookingUseCase implements CreateBookingUseCaseInterface {
         input: CreateBookingInput,
     ): Promise<CreateBookingOutput> {
         const startTime = DateTime.fromDateAndTime(input.date, input.startTime);
-
-        console.log("startTime", startTime);
 
         if (
             startTime.isPast() &&
