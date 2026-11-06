@@ -1,12 +1,12 @@
 import { CheckEmailExistsUseCaseInterface } from "@/application/auth/interfaces/CheckEmailExistsUseCaseInterface.js";
 import { RequestHandler } from "express";
 import { CheckEmailExistsSchema } from "../validators/auth/CheckEmailExistsSchema.js";
-import { RequestWithUser } from "@/types.js";
 import { FindUserUseCaseInterface } from "@/application/auth/interfaces/FindUserUseCaseInterface.js";
 import { SignUpUseCaseInterface } from "@/application/auth/interfaces/SignUpUseCaseInterface.js";
 import { SignUpSchema } from "../validators/auth/SignUpSchema.js";
 import { SignInUseCaseInterface } from "@/application/auth/interfaces/SignInUseCaseInterface.js";
 import { SignInSchema } from "../validators/auth/SignInSchema.js";
+import { validateUser } from "../utils/ValidateUser.js";
 
 export class AuthController {
     constructor(
@@ -30,9 +30,9 @@ export class AuthController {
 
     getUser: RequestHandler = async (req, res, next) => {
         try {
-            const id = (req as RequestWithUser).user.id;
+            const user = validateUser(req);
 
-            const userData = await this.findUserUseCase.execute(id);
+            const userData = await this.findUserUseCase.execute(user.id);
 
             res.status(200).json(userData);
         } catch (error) {

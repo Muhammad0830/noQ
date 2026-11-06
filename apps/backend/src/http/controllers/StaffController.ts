@@ -1,10 +1,10 @@
 import { GetStaffListUseCaseInterface } from "@/application/staff/interfaces/GetStaffListUseCaseInterface.js";
-import { RequestWithShop } from "@/types.js";
 import { RequestHandler } from "express";
 import { toStaffListResource } from "../resources/staff/GetStaffListResource.js";
 import { CreateStaffUseCaseInterface } from "@/application/staff/interfaces/CreateStaffUseCaseInterface.js";
 import { CreateStaffSchema } from "../validators/staff/CreateStaffSchema.js";
 import { DeleteStaffUseCaseInterface } from "@/application/staff/interfaces/DeleteStaffUseCaseInterface.js";
+import { validateShopContext } from "../utils/ValidateShopContext.js";
 
 export class StaffController {
     constructor(
@@ -15,9 +15,9 @@ export class StaffController {
 
     getList: RequestHandler = async (req, res, next) => {
         try {
-            const shopId = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req)
 
-            const staffList = await this.getStaffListUseCase.execute(shopId);
+            const staffList = await this.getStaffListUseCase.execute(shopContext.shopId);
 
             res.status(200).json(toStaffListResource(staffList));
         } catch (error) {
@@ -27,11 +27,11 @@ export class StaffController {
 
     create: RequestHandler = async (req, res, next) => {
         try {
-            const shopIdMiddleware = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req)
 
             const { userId, shopId, position } = req.body as CreateStaffSchema;
 
-            if (shopIdMiddleware !== shopId) {
+            if (shopContext.shopId !== shopId) {
                 throw new Error("Shop ID mismatch");
             }
 

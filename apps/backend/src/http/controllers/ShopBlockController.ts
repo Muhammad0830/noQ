@@ -1,8 +1,8 @@
 import { CreateEmergencyBlockUseCaseInterface } from "@/application/shop-block/interfaces/CreateEmergencyBlockUseCaseInterface.js";
 import { GetEmergencyBlockListUseCaseInterface } from "@/application/shop-block/interfaces/GetEmergencyBlockListUseCaseInterface.js";
-import { RequestWithShop } from "@/types.js";
 import { RequestHandler } from "express";
 import { CreateShopBlockSchema } from "../validators/shop-block/CreateShopBlockSchema.js";
+import { validateShopContext } from "../utils/ValidateShopContext.js";
 
 export class ShopBlockController {
     constructor(
@@ -12,12 +12,12 @@ export class ShopBlockController {
 
     create: RequestHandler = async (req, res, next) => {
         try {
-            const shopId = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req);
 
             const blockListData = req.body as CreateShopBlockSchema;
 
             await this.createEmergencyBlockUseCase.execute({
-                shopId: shopId,
+                shopId: shopContext.shopId,
                 blockList: blockListData.map(block => ({
                     startTime: block.startTime,
                     endTime: block.endTime,
@@ -36,9 +36,9 @@ export class ShopBlockController {
 
     list: RequestHandler = async (req, res, next) => {
         try {
-            const shopId = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req);
 
-            const emergencyBlockList = await this.getEmergencyBlockListUseCase.execute(shopId);
+            const emergencyBlockList = await this.getEmergencyBlockListUseCase.execute(shopContext.shopId);
 
             res.status(200).json(emergencyBlockList);
         } catch (error) {

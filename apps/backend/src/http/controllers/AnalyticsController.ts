@@ -1,5 +1,4 @@
 import { GetRevenueBaseInfoUseCaseInterface } from "@/application/analytics/interfaces/GetRevenueBaseInfoUseCaseInterface.js";
-import { RequestWithShop } from "@/types.js";
 import { RequestHandler } from "express";
 import { GetRevenueBaseInfoSchema } from "../validators/analytics/GetRevenueBaseInfoSchema.js";
 import { GetRevenueDiagramInfoUseCaseInterface } from "@/application/analytics/interfaces/GetRevenueDiagramInfoUseCaseInterface.js";
@@ -8,6 +7,7 @@ import { GetFamousServiceListUseCaseInterface } from "@/application/analytics/in
 import { GetFamousServiceListSchema } from "../validators/analytics/GetFamousServiceListSchema.js";
 import { GetPeakHourListSchema } from "../validators/analytics/GetPeakHourListSchema.js";
 import { GetPeakHourListUseCaseInterface } from "@/application/analytics/interfaces/GetPeakHourListUseCaseInterface.js";
+import { validateShopContext } from "../utils/ValidateShopContext.js";
 
 export class AnalyticsController {
     constructor(
@@ -19,11 +19,12 @@ export class AnalyticsController {
 
     getRevenueBaseInfo: RequestHandler = async (req, res, next) => {
         try {
-            const shopId = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req);
+
             const { startTime, endTime } = res.locals.validatedQuery as GetRevenueBaseInfoSchema;
 
             const revenueBaseInfo = await this.getRevenueBaseInfoUseCase.execute({
-                shopId: shopId,
+                shopId: shopContext.shopId,
                 startTime: startTime,
                 endTime: endTime,
             });
@@ -36,12 +37,12 @@ export class AnalyticsController {
 
     getRevenueDiagramInfo: RequestHandler = async (req, res, next) => {
         try {
-            const shopId = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req);
             const query = res.locals.validatedQuery as GetRevenueDiagramInfoSchema;
 
             const revenueDiagramInfo = await this.getRevenueDiagramInfoUseCase.execute({
                 ...query,
-                shopId: shopId,
+                shopId: shopContext.shopId,
             })
 
             res.status(200).json(revenueDiagramInfo);
@@ -52,12 +53,12 @@ export class AnalyticsController {
 
     getFamousServiceList: RequestHandler = async (req, res, next) => {
         try {
-            const shopId = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req);
             const query = res.locals.validatedQuery as GetFamousServiceListSchema;
 
             const serviceList = await this.getFamousServiceListUseCase.execute({
                 ...query,
-                shopId,
+                shopId: shopContext.shopId,
             });
 
             res.status(200).json(serviceList);
@@ -68,12 +69,12 @@ export class AnalyticsController {
 
     getPeakHourList: RequestHandler = async (req, res, next) => {
         try {
-            const shopId = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req);
             const query = res.locals.validatedQuery as GetPeakHourListSchema;
 
             const peakHourList = await this.getPeakHourListUseCase.execute({
                 ...query,
-                shopId,
+                shopId: shopContext.shopId,
             });
 
             res.status(200).json(peakHourList);

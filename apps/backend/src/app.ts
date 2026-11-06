@@ -2,9 +2,10 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { userRoutes, adminRoutes, generalRoutes } from "./routes/index.js";
-import { validateShop } from "@/http/middlewares/validate.middleware.js";
 import { adminOnly } from "@/http/middlewares/admin.middleware.js";
 import { authMiddleware } from "@/http/middlewares/auth.middleware.js";
+import { shopContextMiddleware } from "./http/middlewares/shopContext.middleware.js";
+import { authorizeShopAcessUseCase } from "./composition/shop.js";
 
 const app = express();
 
@@ -32,56 +33,52 @@ app.use("/services", userRoutes.serviceRouter);
 app.use("/shops", userRoutes.shopRouter);
 app.use("/reviews", userRoutes.reviewsRouter);
 
-app.get("/test", (req, res) => {
-  res.json({ ok: true, message: "is working" });
-});
-
 app.use(
   "/admin/dashboard",
   authMiddleware,
-  validateShop,
+  shopContextMiddleware(authorizeShopAcessUseCase),
   adminOnly,
   adminRoutes.dashboardRouter,
 );
 app.use(
   "/admin/analytics",
   authMiddleware,
-  validateShop,
+  shopContextMiddleware(authorizeShopAcessUseCase),
   adminOnly,
   adminRoutes.analyticsRouter,
 );
 app.use(
   "/admin/services",
   authMiddleware,
-  validateShop,
+  shopContextMiddleware(authorizeShopAcessUseCase),
   adminOnly,
   adminRoutes.adminServicePanel,
 );
 app.use(
   "/admin/staffs",
   authMiddleware,
-  validateShop,
+  shopContextMiddleware(authorizeShopAcessUseCase),
   adminOnly,
   adminRoutes.staffRouter,
 );
 app.use(
   "/admin/schedule",
   authMiddleware,
-  validateShop,
+  shopContextMiddleware(authorizeShopAcessUseCase),
   adminOnly,
   adminRoutes.scheduleRouter,
 );
 app.use(
   "/admin/bookings",
   authMiddleware,
-  validateShop,
+  shopContextMiddleware(authorizeShopAcessUseCase),
   adminOnly,
   adminRoutes.bookingAdminRouter,
 );
 app.use(
   "/admin/shops",
   authMiddleware,
-  validateShop,
+  shopContextMiddleware(authorizeShopAcessUseCase),
   adminOnly,
   adminRoutes.adminShopRouter,
 );
@@ -89,7 +86,7 @@ app.use(
 app.use(
   "/admin/blocks",
   authMiddleware,
-  validateShop,
+  shopContextMiddleware(authorizeShopAcessUseCase),
   adminOnly,
   adminRoutes.shopBlockRouter
 )

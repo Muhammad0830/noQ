@@ -3,7 +3,6 @@ import { GetTrendingServiceListUseCaseInterface } from
     "@/application/service/interfaces/GetTrendingServiceListUseCaseInterface.js";
 import { GetServiceDetailsUseCaseInterface } from "@/application/service/interfaces/GetServiceDetailsUseCaseInterface.js";
 import { GetServiceReviewListUseCaseInterface } from "@/application/service/interfaces/GetServiceReviewListUseCaseInterface.js";
-import { RequestWithShop } from "@/types.js";
 import { GetShopServiceListUseCaseInterface } from "@/application/service/interfaces/GetShopServiceListUseCaseInterface.js";
 import { CreateServiceUseCaseInterface } from "@/application/service/interfaces/CreateServiceUseCaseInterface.js";
 import { CreateServiceSchema } from "../validators/service/CreateServiceSchema.js";
@@ -12,6 +11,7 @@ import { UpdateServiceSchema } from "../validators/service/UpdateServiceSchema.j
 import { ActivateServiceUseCaseInterface } from "@/application/service/interfaces/ActivateServiceUseCaseInterface.js";
 import { DeactivateServiceUseCaseInterface } from "@/application/service/interfaces/DeactivateServiceUseCaseInterface.js";
 import { DeleteServiceUseCaseInterface } from "@/application/service/interfaces/DeleteServiceUseCaseInterface.js";
+import { validateShopContext } from "../utils/ValidateShopContext.js";
 
 export class ServiceController {
     constructor(
@@ -28,7 +28,8 @@ export class ServiceController {
 
     create: RequestHandler = async (req, res, next) => {
         try {
-            const shopIdMiddleware = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req);
+
             const {
                 shopId,
                 name,
@@ -38,7 +39,7 @@ export class ServiceController {
                 bufferTime,
             } = req.body as CreateServiceSchema;
 
-            if (shopIdMiddleware !== shopId) {
+            if (shopContext.shopId !== shopId) {
                 throw new Error("Forbidden");
             }
 
@@ -125,9 +126,9 @@ export class ServiceController {
 
     getByShopId: RequestHandler = async (req, res, next) => {
         try {
-            const shopId = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req);
 
-            const serviceList = await this.getShopServiceListUseCase.execute(shopId);
+            const serviceList = await this.getShopServiceListUseCase.execute(shopContext.shopId);
 
             res.status(200).json(serviceList);
         } catch (error) {

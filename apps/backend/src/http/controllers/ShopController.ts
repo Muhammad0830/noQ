@@ -11,9 +11,9 @@ import { RequestHandler } from "express";
 import { GetShopListSchema } from "@/http/validators/shop/GetShopListSchema.js";
 import { TrendingShopsResponse } from "@noq/shared";
 import { CreateShopSchema } from "@/http/validators/shop/CreateShopSchema.js";
-import { RequestWithShop } from "@/types.js";
 import { UpdateShopUseCaseInterface } from "@/application/shop/interfaces/UpdateShopUseCaseInterface.js";
 import { UpdateShopSchema } from "../validators/shop/UpdateShopSchema.js";
+import { validateShopContext } from "../utils/ValidateShopContext.js";
 
 export class ShopController {
     constructor(
@@ -102,7 +102,7 @@ export class ShopController {
 
     update: RequestHandler = async (req, res, next) => {
         try {
-            const shopIdMiddleware = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req);
             const params = req.params as { shopId: string };
 
             const {
@@ -115,8 +115,8 @@ export class ShopController {
             } = req.body as UpdateShopSchema;
 
             if (
-                !shopIdMiddleware ||
-                shopIdMiddleware !== id ||
+                !shopContext.shopId ||
+                shopContext.shopId !== id ||
                 id !== params.shopId
             ) {
                 res.status(400).json({
@@ -127,7 +127,7 @@ export class ShopController {
             }
 
             await this.updateShopUseCase.execute({
-                id: shopIdMiddleware,
+                id: shopContext.shopId,
                 name: name,
                 description: description ?? null,
                 address: address,

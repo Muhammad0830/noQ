@@ -2,8 +2,6 @@ import { GetAllShopCategoryListUseCaseInterface } from "@/application/shop-categ
 import { RequestHandler } from "express";
 import { toCategoryListResource } from "../resources/shop-category/CategoryListResource.js";
 import { CreateShopCategoryUseCaseInterface } from "@/application/shop-category/interfaces/CreateShopCategoryUseCaseInterface.js";
-import { RequestWithUser } from "@/types.js";
-import { checkUserAuthenticated } from "../validators/auth/CheckUserAuthenticated.js";
 
 export class ShopCategoryController {
     constructor(
@@ -23,10 +21,6 @@ export class ShopCategoryController {
 
     create: RequestHandler = async (req, res, next) => {
         try {
-            if (!checkUserAuthenticated(req as RequestWithUser, res)) {
-                return;
-            }
-
             const output = await this.createShopCategoryUseCase.execute(req.body);
 
             res.status(201).json({

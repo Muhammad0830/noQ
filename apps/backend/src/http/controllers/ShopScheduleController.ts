@@ -1,8 +1,8 @@
 import { UpdateShopScheduleUseCaseInterface } from "@/application/shop-schedule/interfaces/UpdateShopScheduleUseCaseInterface.js";
-import { RequestWithShop } from "@/types.js";
 import { RequestHandler } from "express";
 import { UpdateShopScheduleSchema } from "../validators/shop-schedule/UpdateShopScheduleSchema.js";
 import { GetShopScheduleDataUseCaseInterface } from "@/application/shop-schedule/interfaces/GetShopScheduleDataUseCaseInterface.js";
+import { validateShopContext } from "../utils/ValidateShopContext.js";
 
 export class ShopScheduleController {
     constructor(
@@ -13,10 +13,10 @@ export class ShopScheduleController {
     update: RequestHandler = async (req, res, next) => {
         try {
             const body = req.body as UpdateShopScheduleSchema;
-            const shopId = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req);
 
             await this.updateShopScheduleUseCase.execute({
-                shopId: shopId,
+                shopId: shopContext.shopId,
                 scheduleList: body,
             });
 
@@ -31,9 +31,9 @@ export class ShopScheduleController {
 
     getWeekly: RequestHandler = async (req, res, next) => {
         try {
-            const shopId = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req)
 
-            const shopScheduleData = await this.getShopScheduleDataUseCase.execute(shopId);
+            const shopScheduleData = await this.getShopScheduleDataUseCase.execute(shopContext.shopId);
 
             res.status(200).json(shopScheduleData);
         } catch (error) {
