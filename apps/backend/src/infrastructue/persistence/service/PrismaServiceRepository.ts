@@ -67,6 +67,7 @@ export class PrismaServiceRepository implements ServiceRepositoryInterface {
                 shopId: service.getShopId().toString(),
                 name: service.getName(),
                 description: service.getDescription(),
+                isActive: service.isActive(),
                 price: service.getPrice().amount,
                 durationMin: service.getDurationMin(),
                 bufferTime: service.getBufferTime(),
@@ -113,6 +114,22 @@ export class PrismaServiceRepository implements ServiceRepositoryInterface {
         });
 
         return !!service;
+    }
+
+    async ensureExists(serviceId: ServiceId): Promise<void> {
+        const service = await this.prisma.service.findUnique({
+            where: { id: serviceId.toString() },
+        });
+
+        if (!service) {
+            throw new Error("Service not found");
+        }
+    }
+
+    async delete(serviceId: ServiceId): Promise<void> {
+        await this.prisma.service.delete({
+            where: { id: serviceId.toString() },
+        });
     }
 
     nextIdentity(value?: string): ServiceId {

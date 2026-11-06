@@ -1,7 +1,6 @@
 import { ShopCategoryId } from "@/domain/shop-category/value-objects/ShopCategoryId.js";
 import type { Service } from "../entities/Service.js";
 import type { ServiceId } from "../value-objects/ServiceId.js";
-import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 
 export interface ServiceRepositoryInterface {
     findById(id: ServiceId): Promise<Service>;
@@ -15,6 +14,10 @@ export interface ServiceRepositoryInterface {
     addMany(service: Service[]): Promise<void>;
 
     exists(serviceId: ServiceId): Promise<boolean>;
+
+    ensureExists(serviceId: ServiceId): Promise<void>;
+
+    delete(serviceId: ServiceId): Promise<void>;
 
     nextIdentity(): ServiceId;
 }

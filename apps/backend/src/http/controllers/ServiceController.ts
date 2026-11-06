@@ -9,6 +9,9 @@ import { CreateServiceUseCaseInterface } from "@/application/service/interfaces/
 import { CreateServiceSchema } from "../validators/service/CreateServiceSchema.js";
 import { UpdateServiceUseCaseInterface } from "@/application/service/interfaces/UpdateServiceUseCaseInterface.js";
 import { UpdateServiceSchema } from "../validators/service/UpdateServiceSchema.js";
+import { ActivateServiceUseCaseInterface } from "@/application/service/interfaces/ActivateServiceUseCaseInterface.js";
+import { DeactivateServiceUseCaseInterface } from "@/application/service/interfaces/DeactivateServiceUseCaseInterface.js";
+import { DeleteServiceUseCaseInterface } from "@/application/service/interfaces/DeleteServiceUseCaseInterface.js";
 
 export class ServiceController {
     constructor(
@@ -18,6 +21,9 @@ export class ServiceController {
         private readonly getShopServiceListUseCase: GetShopServiceListUseCaseInterface,
         private readonly createServiceUseCase: CreateServiceUseCaseInterface,
         private readonly updateServiceUseCase: UpdateServiceUseCaseInterface,
+        private readonly activateServiceUseCase: ActivateServiceUseCaseInterface,
+        private readonly deactivateServiceUseCase: DeactivateServiceUseCaseInterface,
+        private readonly deleteServiceUseCase: DeleteServiceUseCaseInterface,
     ) { }
 
     create: RequestHandler = async (req, res, next) => {
@@ -124,6 +130,51 @@ export class ServiceController {
             const serviceList = await this.getShopServiceListUseCase.execute(shopId);
 
             res.status(200).json(serviceList);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    activate: RequestHandler = async (req, res, next) => {
+        try {
+            const { id } = req.params as { id: string }
+
+            await this.activateServiceUseCase.execute(id);
+
+            res.status(201).json({
+                success: true,
+                message: "Service activated successfully",
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    deactivate: RequestHandler = async (req, res, next) => {
+        try {
+            const { id } = req.params as { id: string };
+
+            await this.deactivateServiceUseCase.execute(id);
+
+            res.status(201).json({
+                success: true,
+                message: "Service deactivated successfully",
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    delete: RequestHandler = async (req, res, next) => {
+        try {
+            const { id } = req.params as { id: string };
+
+            await this.deleteServiceUseCase.execute(id);
+
+            res.status(201).json({
+                success: true,
+                message: "Service deleted successfully",
+            });
         } catch (error) {
             next(error);
         }

@@ -1,4 +1,7 @@
+import { ActivateServiceUseCase } from "@/application/service/usecases/ActivateServiceUseCase.js";
 import { CreateServiceUseCase } from "@/application/service/usecases/CreateServiceUseCase.js";
+import { DeactivateServiceUseCase } from "@/application/service/usecases/DeactivateServiceUseCase.js";
+import { DeleteServiceUseCase } from "@/application/service/usecases/DeleteServiceUseCase.js";
 import { GetServiceDetailsUseCase } from "@/application/service/usecases/GetServiceDetailsUseCase.js";
 import { GetServiceReviewListUseCase } from "@/application/service/usecases/GetServiceRewiewListUseCase.js";
 import { GetShopServiceListUseCase } from "@/application/service/usecases/GetShopServiceListUseCase.js";
@@ -29,9 +32,13 @@ const createServiceUseCase = new CreateServiceUseCase(
     serviceRepository,
 )
 
-const updateServiceUseCase = new UpdateServiceUseCase(
-    serviceRepository,
-)
+const updateServiceUseCase = new UpdateServiceUseCase(serviceRepository)
+
+const activateServiceUseCase = new ActivateServiceUseCase(serviceRepository);
+
+const deactivateServiceUseCase = new DeactivateServiceUseCase(serviceRepository);
+
+const deleteServiceUseCase = new DeleteServiceUseCase(serviceRepository);
 
 export const serviceController = new ServiceController(
     getTrendingServiceListUseCase,
@@ -40,4 +47,7 @@ export const serviceController = new ServiceController(
     getShopServiceListUseCase,
     createServiceUseCase,
     updateServiceUseCase,
+    activateServiceUseCase,
+    deactivateServiceUseCase,
+    deleteServiceUseCase,
 );
