@@ -3,7 +3,7 @@ import { DashboardStatisticsDTO, GetDashboardStatisticsUseCaseInterface } from "
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 import { ShopRepositoryInterface } from "@/domain/shop/repositories/ShopRepositoryInterface.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
-import { GetStaffDataQueryInterface } from "@/domain/staff/repositories/GetStaffDataQueryInterface.js";
+import { GetStaffDataQueryInterface } from "@/application/staff/interfaces/GetStaffDataQueryInterface.js";
 
 export class GetDashboardStatisticsUseCase implements GetDashboardStatisticsUseCaseInterface {
     constructor(
