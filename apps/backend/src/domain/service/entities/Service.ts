@@ -47,8 +47,8 @@ export class Service {
 
         return new Service({
             ...service,
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
+            createdAt: service.createdAt ?? DateTime.now(),
+            updatedAt: service.updatedAt ?? DateTime.now(),
         });
     }
 
@@ -125,12 +125,20 @@ export class Service {
         this.touch();
     }
 
-    updateBufferTime(bufferTime: number): void {
+    updateBufferTime(bufferTime: number | null): void {
+        if (bufferTime === null) {
+            return;
+        }
+
         this.props.bufferTime = bufferTime;
         this.touch();
     }
 
-    updateDescription(description: string): void {
+    updateDescription(description: string | null): void {
+        if (description === null) {
+            return;
+        }
+
         this.props.description = description;
         this.touch();
     }

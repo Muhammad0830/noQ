@@ -22,6 +22,6 @@ bookingRouter.get(
   "/",
   validateQuery(getShopHistoryBookingListSchema),
   bookingController.getShopHistory
-)
+);
 
 export default bookingRouter;

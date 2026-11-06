@@ -15,6 +15,10 @@ export interface ServiceRepositoryInterface {
 
     exists(serviceId: ServiceId): Promise<boolean>;
 
+    ensureExists(serviceId: ServiceId): Promise<void>;
+
+    delete(serviceId: ServiceId): Promise<void>;
+
     nextIdentity(): ServiceId;
 }
 

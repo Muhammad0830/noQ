@@ -1,12 +1,20 @@
+import { ActivateServiceUseCase } from "@/application/service/usecases/ActivateServiceUseCase.js";
+import { CreateServiceUseCase } from "@/application/service/usecases/CreateServiceUseCase.js";
+import { DeactivateServiceUseCase } from "@/application/service/usecases/DeactivateServiceUseCase.js";
+import { DeleteServiceUseCase } from "@/application/service/usecases/DeleteServiceUseCase.js";
 import { GetServiceDetailsUseCase } from "@/application/service/usecases/GetServiceDetailsUseCase.js";
 import { GetServiceReviewListUseCase } from "@/application/service/usecases/GetServiceRewiewListUseCase.js";
+import { GetShopServiceListUseCase } from "@/application/service/usecases/GetShopServiceListUseCase.js";
 import { GetTrendingServiceListUseCase } from "@/application/service/usecases/GetTrendingServiceListUseCase.js";
+import { UpdateServiceUseCase } from "@/application/service/usecases/UpdateServiceUseCase.js";
 import prisma from "@/db/prisma.js";
 import { ServiceController } from "@/http/controllers/ServiceController.js";
 import { GetServiceDataQuery } from "@/infrastructue/persistence/service/GetServiceDataQuery.js";
 import { PrismaServiceRepository } from "@/infrastructue/persistence/service/PrismaServiceRepository.js";
+import { PrismaShopRepository } from "@/infrastructue/persistence/shop/PrismaShopRepository.js";
 
 const serviceRepository = new PrismaServiceRepository(prisma);
+const shopRepository = new PrismaShopRepository(prisma);
 
 const getServiceDataQuery = new GetServiceDataQuery(prisma);
 
@@ -14,8 +22,32 @@ const getTrendingServiceListUseCase = new GetTrendingServiceListUseCase(getServi
 const getServiceDetailsUseCase = new GetServiceDetailsUseCase(getServiceDataQuery);
 const getServiceReviewListUseCase = new GetServiceReviewListUseCase(getServiceDataQuery);
 
+const getShopServiceListUseCase = new GetShopServiceListUseCase(
+    shopRepository,
+    getServiceDataQuery,
+)
+
+const createServiceUseCase = new CreateServiceUseCase(
+    shopRepository,
+    serviceRepository,
+)
+
+const updateServiceUseCase = new UpdateServiceUseCase(serviceRepository)
+
+const activateServiceUseCase = new ActivateServiceUseCase(serviceRepository);
+
+const deactivateServiceUseCase = new DeactivateServiceUseCase(serviceRepository);
+
+const deleteServiceUseCase = new DeleteServiceUseCase(serviceRepository);
+
 export const serviceController = new ServiceController(
     getTrendingServiceListUseCase,
     getServiceDetailsUseCase,
     getServiceReviewListUseCase,
+    getShopServiceListUseCase,
+    createServiceUseCase,
+    updateServiceUseCase,
+    activateServiceUseCase,
+    deactivateServiceUseCase,
+    deleteServiceUseCase,
 );
