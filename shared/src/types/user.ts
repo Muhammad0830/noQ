@@ -15,3 +15,14 @@ export interface User {
 export type UserRoleType = "USER" | "ADMIN";
 
 export type UserPositionType = "STAFF" | "OWNER" | "MANAGER";
+
+export interface SignUpResponse { 
+    user: {
+        id: string;
+        name: string;
+        email: string;
+        phoneNumber: string | null;
+    };
+    access_token: string,
+    refresh_token: string,
+}

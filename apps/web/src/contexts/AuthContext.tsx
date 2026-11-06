@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { User } from "@/shared/types/user";
 import { Shop } from "@/shared/types/shop";
+import { SignUpResponse } from "@noq/shared";
+import { useRouter } from "next/navigation";
 
 interface AuthContextType {
   user: User | null;
@@ -93,6 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isProfileUpdating, setIsProfileUpdating] = useState(false);
   const t = useTranslations();
+  const router = useRouter();
 
   useEffect(() => {
     initializeAuth();
@@ -146,7 +149,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     API_ENDPOINTS.auth.signin,
     "post",
   );
-  const { mutateAsync: signUpAsync } = useApiMutation<unknown, SignUpPayload>(
+  const { mutateAsync: signUpAsync } = useApiMutation<SignUpResponse | null, SignUpPayload>(
     API_ENDPOINTS.auth.signup,
     "post",
   );
@@ -232,9 +235,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
         name,
         ...(phone ? { phoneNumber: phone } : {}),
+      }, {
+        onSuccess: async (response) => {
+          if (response.data) {
+            await login(response.data.user.email, password);
+            router.push("/home");
+          }
+        }
       });
-
-      await login(email, password);
     } catch (error) {
       throw error;
     } finally {
