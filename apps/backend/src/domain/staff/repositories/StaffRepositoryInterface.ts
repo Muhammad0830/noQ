@@ -8,5 +8,11 @@ export interface StaffRepositoryInterface {
 
     save(staff: Staff): Promise<void>;
 
+    exists(staffId: StaffId): Promise<boolean>;
+
+    ensureExists(staffId: StaffId): Promise<void>;
+
+    delete(staffId: StaffId): Promise<void>;
+    
     nextIdentity(): StaffId;
 }

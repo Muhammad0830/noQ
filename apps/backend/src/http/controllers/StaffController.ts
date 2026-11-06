@@ -4,11 +4,13 @@ import { RequestHandler } from "express";
 import { toStaffListResource } from "../resources/staff/GetStaffListResource.js";
 import { CreateStaffUseCaseInterface } from "@/application/staff/interfaces/CreateStaffUseCaseInterface.js";
 import { CreateStaffSchema } from "../validators/staff/CreateStaffSchema.js";
+import { DeleteStaffUseCaseInterface } from "@/application/staff/interfaces/DeleteStaffUseCaseInterface.js";
 
 export class StaffController {
     constructor(
         private readonly getStaffListUseCase: GetStaffListUseCaseInterface,
         private readonly createStaffUseCase: CreateStaffUseCaseInterface,
+        private readonly deleteStaffUseCase: DeleteStaffUseCaseInterface,
     ) { }
 
     getList: RequestHandler = async (req, res, next) => {
@@ -42,6 +44,21 @@ export class StaffController {
             res.status(201).json({
                 success: true,
                 message: "Staff created successfully",
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    delete: RequestHandler = async (req, res, next) => {
+        try {
+            const { id } = req.params as { id: string };
+
+            await this.deleteStaffUseCase.execute(id);
+
+            res.status(201).json({
+                success: true,
+                message: "Staff deleted successfully",
             });
         } catch (error) {
             next(error);

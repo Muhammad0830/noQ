@@ -50,6 +50,28 @@ export class PrismaStaffRepository implements StaffRepositoryInterface {
         });
     }
 
+    async exists(staffId: StaffId): Promise<boolean> {
+        const staff = await this.prisma.staff.findUnique({
+            where: { id: staffId.toString() },
+        });
+
+        return !!staff;
+    }
+
+    async ensureExists(staffId: StaffId): Promise<void> {
+        const exists = await this.exists(staffId);
+
+        if (!exists) {
+            throw new Error("Staff not found");
+        }
+    }
+
+    async delete(staffId: StaffId): Promise<void> {
+        await this.prisma.staff.delete({
+            where: { id: staffId.toString() },
+        });
+    }
+
     nextIdentity(): StaffId {
         return StaffId.create();
     }

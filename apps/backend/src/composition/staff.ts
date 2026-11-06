@@ -1,4 +1,5 @@
 import { CreateStaffUseCase } from "@/application/staff/usecases/CreateStaffUseCase.js";
+import { DeleteStaffUseCase } from "@/application/staff/usecases/DeleteStaffUseCase.js";
 import { GetStaffListUseCase } from "@/application/staff/usecases/GetStaffListUseCase.js";
 import prisma from "@/db/prisma.js";
 import { StaffController } from "@/http/controllers/StaffController.js";
@@ -24,8 +25,13 @@ const createStaffUseCase = new CreateStaffUseCase(
     staffRepository,
 );
 
+const deleteStaffUseCase = new DeleteStaffUseCase(
+    staffRepository,
+)
+
 export const staffController = new StaffController(
     getStaffListUseCase,
     createStaffUseCase,
+    deleteStaffUseCase,
 )
 
