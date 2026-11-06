@@ -5,8 +5,7 @@ import { toReviewListResource } from "../resources/review/GetReviewListResource.
 import { FindReviewByIdUseCaseInterface } from "@/application/review/interfaces/FindReviewByIdUseCaseInterface.js";
 import { CreateReviewUseCaseInterface } from "@/application/review/interfaces/CreateReviewUseCaseInterface.js";
 import { CreateReviewSchema } from "../validators/review/CreateReviewSchema.js";
-import { checkUserAuthenticated } from "../validators/auth/CheckUserAuthenticated.js";
-import { RequestWithUser } from "@/types.js";
+import { validateUser } from "../utils/ValidateUser.js";
 
 export class ReviewController {
     constructor(
@@ -18,11 +17,7 @@ export class ReviewController {
 
     create: RequestHandler = async (req, res, next) => {
         try {
-            const user = checkUserAuthenticated(req as RequestWithUser, res as Response);
-
-            if (!user) {
-                return;
-            }
+            const user = validateUser(req);
 
             const body = req.body as CreateReviewSchema;
 

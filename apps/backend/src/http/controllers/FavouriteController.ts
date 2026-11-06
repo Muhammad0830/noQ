@@ -1,6 +1,4 @@
 import { RequestHandler, Response } from "express";
-import { checkUserAuthenticated } from "../validators/auth/CheckUserAuthenticated.js";
-import { RequestWithUser } from "@/types.js";
 import { GetFavouriteServiceListUseCaseInterface } from "@/application/favourite/interfaces/GetFavouriteServiceListUseCaseInterface.js";
 import { GetFavouriteShopListUseCaseInterface } from "@/application/favourite/interfaces/GetFavouriteShopListUseCaseInterface.js";
 import { AddToFavouriteShopsUseCaseInterface } from "@/application/favourite/interfaces/AddToFavouriteShopsUseCaseInterface.js";
@@ -9,6 +7,7 @@ import { AddToFavouriteServiceUseCaseInterface } from "@/application/favourite/i
 import { RemoveFromFavouriteServiceUseCaseInterface } from "@/application/favourite/interfaces/RemoveFromFavouriteServiceUseCaseInterface.js";
 import { AddShopToFavouriteSchema } from "../validators/favourite/AddShopToFavouriteSchema.js";
 import { AddServiceToFavouriteSchema } from "../validators/favourite/AddServiceToFavouriteSchema.js";
+import { validateUser } from "../utils/ValidateUser.js";
 
 export class FavouriteController {
     constructor(
@@ -22,11 +21,7 @@ export class FavouriteController {
 
     getShopList: RequestHandler = async (req, res, next) => {
         try {
-            const user = checkUserAuthenticated(req as RequestWithUser, res as Response);
-
-            if (!user) {
-                return;
-            }
+            const user = validateUser(req);
 
             const output = await this.getFavouriteShopListUseCase.execute(user.id);
 
@@ -58,11 +53,7 @@ export class FavouriteController {
         try {
             const { id } = req.params as { id: string };
 
-            const user = checkUserAuthenticated(req as RequestWithUser, res as Response);
-
-            if (!user) {
-                return;
-            }
+            const user = validateUser(req);
 
             await this.removeFromFavouriteShopUseCase.execute({
                 shopId: id,
@@ -80,11 +71,7 @@ export class FavouriteController {
 
     getServiceList: RequestHandler = async (req, res, next) => {
         try {
-            const user = checkUserAuthenticated(req as RequestWithUser, res as Response);
-
-            if (!user) {
-                return;
-            }
+            const user = validateUser(req);
 
             const output = await this.getFavouriteServiceListUseCase.execute(user.id);
 
@@ -116,11 +103,7 @@ export class FavouriteController {
         try {
             const { id } = req.params as { id: string };
 
-            const user = checkUserAuthenticated(req as RequestWithUser, res as Response);
-
-            if (!user) {
-                return;
-            }
+            const user = validateUser(req);
 
             await this.removeFromFavouriteServiceUseCase.execute({
                 serviceId: id,

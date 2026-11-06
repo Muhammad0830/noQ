@@ -9,10 +9,8 @@ import type { CancelBookingUseCaseInterface } from
     "@/application/booking/interfaces/CancelBookingUseCaseInterface.js";
 import type { GetAvailableSlotsUseCaseInput, GetAvailableSlotsUseCaseInterface } from
     "@/application/booking/interfaces/GetAvailableSlotsUseCaseInterface.js";
-import type { RequestWithShop, RequestWithUser } from "@/types.js";
 import { toCreateBookingResource } from "@/http/resources/booking/CreateBookingResource.js";
 import { toBookingResource, } from "@/http/resources/booking/UserBookingsResource.js";
-import { checkUserAuthenticated } from "../validators/auth/CheckUserAuthenticated.js";
 import { CreateBookingRequestBody } from "../validators/booking/CreateBookingSchema.js";
 import { UserRole } from "@/domain/shared/value-objects/UserRole.js";
 import { CancelBookingSchema } from "../validators/booking/CancelBookingSchema.js";
@@ -22,6 +20,8 @@ import { ConfirmBookingUseCaseInterface } from "@/application/booking/interfaces
 import { StartBookingUseCaseInterface } from "@/application/booking/interfaces/StartBookingUseCaseInterface.js";
 import { GetShopHistoryBookingListUseCaseInterface } from "@/application/booking/interfaces/GetShopHistoryBookingListUseCaseInterface.js";
 import { GetShopHistoryBookingListSchema } from "../validators/booking/GetShopHistoryBookingListSchema.js";
+import { validateUser } from "../utils/ValidateUser.js";
+import { validateShopContext } from "../utils/ValidateShopContext.js";
 
 export class BookingController {
     constructor(
@@ -38,11 +38,7 @@ export class BookingController {
 
     create: RequestHandler = async (req, res, next): Promise<void> => {
         try {
-            const user = checkUserAuthenticated(req as RequestWithUser, res as Response);
-
-            if (!user) {
-                return;
-            }
+            const user = validateUser(req);
 
             const body = req.body as CreateBookingRequestBody;
 
@@ -65,11 +61,7 @@ export class BookingController {
 
     listForUsers: RequestHandler = async (req, res, next): Promise<void> => {
         try {
-            const user = checkUserAuthenticated(req as RequestWithUser, res as Response);
-
-            if (!user) {
-                return;
-            }
+            const user = validateUser(req);
 
             const query = res.locals.validatedQuery as GetUserBookingsQuery;
 
@@ -88,10 +80,6 @@ export class BookingController {
 
     cancel: RequestHandler = async (req, res, next): Promise<void> => {
         try {
-            if (!checkUserAuthenticated(req as RequestWithUser, res as Response)) {
-                return;
-            }
-
             const input = req.body as CancelBookingRequestBody;
 
             await this.cancelBookingUseCase.execute(input)
@@ -108,12 +96,12 @@ export class BookingController {
     cancelByAdmin: RequestHandler = async (req, res, next) => {
         try {
             const { id } = req.params as { id: string };
-            const shopId = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req);
             const { reason } = req.body as CancelBookingSchema;
 
             await this.cancelBookingByAdminUseCase.execute({
                 id: id,
-                shopId: shopId,
+                shopId: shopContext.shopId,
                 reason: reason,
             })
 
@@ -141,11 +129,11 @@ export class BookingController {
     complete: RequestHandler = async (req, res, next) => {
         try {
             const { id } = req.params as { id: string };
-            const shopId = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req);
 
             await this.completeBookingUseCase.execute({
                 id: id,
-                shopId: shopId
+                shopId: shopContext.shopId
             });
 
             res.status(201).json({
@@ -160,11 +148,11 @@ export class BookingController {
     confirm: RequestHandler = async (req, res, next) => {
         try {
             const { id } = req.params as { id: string };
-            const shopId = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req);
 
             await this.confirmBookingUseCase.execute({
                 id: id,
-                shopId: shopId,
+                shopId: shopContext.shopId,
             });
 
             res.status(201).json({
@@ -179,11 +167,11 @@ export class BookingController {
     start: RequestHandler = async (req, res, next) => {
         try {
             const { id } = req.params as { id: string };
-            const shopId = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req);
 
             await this.startBookingUseCase.execute({
                 id: id,
-                shopId: shopId,
+                shopId: shopContext.shopId,
             });
 
             res.status(201).json({
@@ -197,11 +185,11 @@ export class BookingController {
 
     getShopHistory: RequestHandler = async (req, res, next) => {
         try {
-            const shopId = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req);
             const { startTime, endTime, searchQuery } = res.locals.validatedQuery as GetShopHistoryBookingListSchema;
 
             const bookingList = await this.getShopHistoryBookingListUseCase.execute({
-                shopId: shopId,
+                shopId: shopContext.shopId,
                 startTime: startTime,
                 endTime: endTime,
                 searchQuery: searchQuery ?? null

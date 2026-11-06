@@ -1,6 +1,6 @@
 import { GetDashboardStatisticsUseCaseInterface } from "@/application/dashboard/interfaces/GetDashboardStatisticsUseCaseInterface.js";
-import { RequestWithShop } from "@/types.js";
 import { RequestHandler } from "express";
+import { validateShopContext } from "../utils/ValidateShopContext.js";
 
 export class DashboardController {
     constructor(
@@ -9,9 +9,9 @@ export class DashboardController {
 
     getStatistics: RequestHandler = async (req, res, next) => {
         try {
-            const shopId = (req as RequestWithShop).shop.id;
+            const shopContext = validateShopContext(req);
 
-            const statisticsData = await this.getDashboardStatisticsUseCase.execute(shopId);
+            const statisticsData = await this.getDashboardStatisticsUseCase.execute(shopContext.shopId);
 
             res.status(200).json(statisticsData);
         } catch (error) {

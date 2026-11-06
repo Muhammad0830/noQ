@@ -1,4 +1,5 @@
 import { StorageService } from "@/application/shared/services/StorageService.js";
+import { AuthorizeShopAccessUseCase } from "@/application/shop/usecases/AuthorizeShopAccessUseCase.js";
 import { CreateShopUseCase } from "@/application/shop/usecases/CreateShopUseCase.js";
 import { GetShopDataUseCase } from "@/application/shop/usecases/GetShopDataUseCase.js";
 import { GetShopListUseCase } from "@/application/shop/usecases/GetShopListUseCase.js";
@@ -13,6 +14,7 @@ import { PrismaShopScheduleRepository } from "@/infrastructue/persistence/shop-s
 import { GetShopDataQuery } from "@/infrastructue/persistence/shop/GetShopDataQuery.js";
 import { GetShopListQuery } from "@/infrastructue/persistence/shop/GetShopListQuery.js";
 import { PrismaShopRepository } from "@/infrastructue/persistence/shop/PrismaShopRepository.js";
+import { ShopAccessQuery } from "@/infrastructue/persistence/shop/ShopAccessQuery.js";
 import { PrismaUserRepository } from "@/infrastructue/persistence/user/PrismaUserRepository.js";
 
 const shopRepository = new PrismaShopRepository(prisma);
@@ -20,6 +22,7 @@ const serviceRepository = new PrismaServiceRepository(prisma);
 const categoryRepository = new PrismaShopCategoryRepository(prisma);
 const userRepository = new PrismaUserRepository(prisma);
 const shopScheduleRepository = new PrismaShopScheduleRepository(prisma);
+const shopAccessQuery = new ShopAccessQuery(prisma);
 
 const storageService = new StorageService();
 
@@ -55,6 +58,8 @@ const updateShopUseCase = new UpdateShopUseCase(
     shopRepository,
     storageService,
 )
+
+export const authorizeShopAcessUseCase = new AuthorizeShopAccessUseCase(shopAccessQuery);
 
 export const shopController = new ShopController(
     getShopListUseCase,
