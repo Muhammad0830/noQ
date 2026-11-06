@@ -12,7 +12,6 @@ export class SignUpUseCase implements SignUpUseCaseInterface {
     ) { }
 
     async execute(input: SignUpUseCaseInput): Promise<SignUpUseCaseOutput | null> {
-        console.log("email", input.email);
         const emailAddress = EmailAddress.from(input.email);
 
         if (!input.password.trim()) {

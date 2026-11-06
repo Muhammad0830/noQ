@@ -9,6 +9,8 @@ export interface UserRepositoryInterface {
 
     exists(userId: UserId): Promise<boolean>;
 
+    ensureExists(userId: UserId): Promise<void>;
+
     checkEmailExists(email: EmailAddress): Promise<boolean>;
 
     add(user: User): Promise<void>;

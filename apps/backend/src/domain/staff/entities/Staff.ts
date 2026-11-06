@@ -8,7 +8,7 @@ export interface Props {
     id: StaffId,
     userId: UserId,
     shopId: ShopId,
-    role: UserPosition,
+    position: UserPosition,
     createdAt: DateTime,
     updatedAt: DateTime,
 }
@@ -40,7 +40,7 @@ export class Staff {
             id: props.id,
             userId: props.userId,
             shopId: props.shopId,
-            role: props.role,
+            position: props.position,
             createdAt: props.createdAt ?? DateTime.now(),
             updatedAt: props.updatedAt ?? DateTime.now(),
         })
@@ -58,8 +58,8 @@ export class Staff {
         return this.props.shopId;
     }
 
-    getRole(): UserPosition {
-        return this.props.role;
+    getPosition(): UserPosition {
+        return this.props.position;
     }
 
     getCreatedAt(): DateTime {
