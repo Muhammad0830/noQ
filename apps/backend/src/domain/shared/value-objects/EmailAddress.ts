@@ -76,10 +76,10 @@ export class EmailAddress {
     }
 
     equals(other: EmailAddress): boolean {
-        return this.value === other.value;
+        return this.value.trim().toLowerCase() === other.toString();
     }
 
     toString(): string {
-        return this.value;
+        return this.value.trim().toLowerCase();
     }
 }

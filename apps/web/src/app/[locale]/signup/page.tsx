@@ -199,7 +199,6 @@ export default function SignUp() {
         formData.name,
         formData.phone,
       );
-      router.push("/home");
     } catch (err) {
       if (
         err instanceof Error &&
