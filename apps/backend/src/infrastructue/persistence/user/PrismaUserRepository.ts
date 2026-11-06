@@ -64,6 +64,14 @@ export class PrismaUserRepository implements UserRepositoryInterface {
         })
     }
 
+    async checkEmailExists(email: EmailAddress): Promise<boolean> {
+        const user = await this.prisma.user.findUnique({
+            where: { email: email.toString() },
+        });
+
+        return !!user;
+    }
+
     private toEntity(model: UserModel): User {
         return User.create({
             id: UserId.create(model.id),

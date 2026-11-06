@@ -2,50 +2,23 @@ import express from "express";
 import { authMiddleware } from "@/http/middlewares/auth.middleware.js";
 import prisma from "@/db/prisma.js";
 import { supabase } from "@/config/supabase.js";
+import { authController } from "@/composition/auth.js";
+import { validateQuery } from "@/http/middlewares/validate.middleware.js";
+import { checkEmailExistsSchema } from "@/http/validators/auth/CheckEmailExistsSchema.js";
 
 const router = express.Router();
 
-router.get("/check-email", async (req, res) => {
-  try {
-    const email = req.query.email?.toString().trim().toLowerCase();
+router.get(
+  "/check-email",
+  validateQuery(checkEmailExistsSchema),
+  authController.checkEmail
+);
 
-    if (!email) {
-      return res.status(400).json({ error: "Email is required" });
-    }
-
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-      select: { id: true },
-    });
-
-    return res.status(200).json({ exists: !!existingUser });
-  } catch (error) {
-    return res.status(500).json({ error: "Failed to check email" });
-  }
-});
-
-router.get("/me", authMiddleware, async (req: any, res: any) => {
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: req.user.id },
-      include: {
-        shops: {
-          include: {
-            category: true,
-          },
-        },
-      },
-    });
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    res.status(200).json(user);
-  } catch (error) {
-    return res.status(500).json({ error: "Failed to fetch user profile" });
-  }
-});
+router.get(
+  "/me",
+  authMiddleware,
+  authController.getUser
+);
 
 router.post("/signup", async (req, res) => {
   const email = req.body.email?.trim().toLowerCase();
