@@ -30,7 +30,7 @@ export class PrismaUserRepository implements UserRepositoryInterface {
             where: { email: emailAddress.toString() },
         });
 
-        if(!user) {
+        if (!user) {
             throw new Error("User not found");
         }
 
@@ -43,6 +43,14 @@ export class PrismaUserRepository implements UserRepositoryInterface {
         });
 
         return !!user;
+    }
+
+    async ensureExists(userId: UserId): Promise<void> {
+        const exists = await this.exists(userId);
+
+        if (!exists) {
+            throw new Error("User not found");
+        }
     }
 
     async add(user: User): Promise<void> {

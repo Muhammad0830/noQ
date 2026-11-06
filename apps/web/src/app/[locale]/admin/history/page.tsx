@@ -163,8 +163,6 @@ export default function Page() {
     ? `${API_ENDPOINTS.admin.dashboardHistory}?shopId=${encodeURIComponent(persistedShopId)}&date=${encodeURIComponent(selectedDateQuery)}`
     : null;
 
-  console.log("historyUrl", historyUrl)
-
   const {
     data: bookings = [],
     isLoading,
