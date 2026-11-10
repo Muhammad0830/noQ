@@ -1,5 +1,7 @@
-import { ServiceRepositoryInterface } from "@/domain/service/repositories/ServiceRepositoryInterface.js";
-import { DeleteServiceUseCaseInterface } from "../interfaces/DeleteServiceUseCaseInterface.js";
+import { ServiceRepositoryInterface } from
+    "@/domain/service/repositories/ServiceRepositoryInterface.js";
+import { DeleteServiceUseCaseInterface } from
+    "../interfaces/DeleteServiceUseCaseInterface.js";
 import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
 
 export class DeleteServiceUseCase implements DeleteServiceUseCaseInterface {

@@ -1,6 +1,10 @@
+import {
+    GetUserDataQueryInterface,
+    UserItem
+} from "../interfaces/GetUserDataQueryInterface.js";
+import { FindUserUseCaseInterface } from
+    "../interfaces/FindUserUseCaseInterface.js";
 import { UserId } from "@/domain/user/value-objects/UserId.js";
-import { GetUserDataQueryInterface, UserItem } from "../interfaces/GetUserDataQueryInterface.js";
-import { FindUserUseCaseInterface } from "../interfaces/FindUserUseCaseInterface.js";
 
 export class FindUserUseCase implements FindUserUseCaseInterface {
     constructor(

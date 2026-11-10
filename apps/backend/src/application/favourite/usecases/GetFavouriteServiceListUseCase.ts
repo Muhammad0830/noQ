@@ -1,6 +1,8 @@
+import { GetFavouriteServiceQueryInterface, ServiceItem } from
+    "../interfaces/GetFavouriteServiceQueryInterface.js";
+import { GetFavouriteServiceListUseCaseInterface } from
+    "../interfaces/GetFavouriteServiceListUseCaseInterface.js";
 import { UserId } from "@/domain/user/value-objects/UserId.js";
-import { GetFavouriteServiceQueryInterface, ServiceItem } from "../interfaces/GetFavouriteServiceQueryInterface.js";
-import { GetFavouriteServiceListUseCaseInterface } from "../interfaces/GetFavouriteServiceListUseCaseInterface.js";
 
 export class GetFavouriteServiceListUseCase implements GetFavouriteServiceListUseCaseInterface {
     constructor(

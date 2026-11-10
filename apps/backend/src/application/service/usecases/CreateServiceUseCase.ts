@@ -2,8 +2,10 @@ import {
     CreateServiceUseCaseInput,
     CreateServiceUseCaseInterface
 } from "../interfaces/CreateServiceUseCaseInterface.js";
-import { ServiceRepositoryInterface } from "@/domain/service/repositories/ServiceRepositoryInterface.js";
-import { ShopRepositoryInterface } from "@/domain/shop/repositories/ShopRepositoryInterface.js";
+import { ServiceRepositoryInterface } from
+    "@/domain/service/repositories/ServiceRepositoryInterface.js";
+import { ShopRepositoryInterface } from
+    "@/domain/shop/repositories/ShopRepositoryInterface.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 import { Service } from "@/domain/service/entities/Service.js";
 import { Money } from "@/domain/shared/value-objects/Money.js";

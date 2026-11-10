@@ -1,5 +1,9 @@
-import { BookingRepositoryInterface } from "@/domain/booking/repositories/BookingRepositoryInterface.js";
-import { ConfirmBookingUseCaseInput, ConfirmBookingUseCaseInterface } from "../interfaces/ConfirmBookingUseCaseInterface.js";
+import {
+    ConfirmBookingUseCaseInput,
+    ConfirmBookingUseCaseInterface
+} from "../interfaces/ConfirmBookingUseCaseInterface.js";
+import { BookingRepositoryInterface } from
+    "@/domain/booking/repositories/BookingRepositoryInterface.js";
 import { BookingId } from "@/domain/booking/value-objects/BookingId.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 

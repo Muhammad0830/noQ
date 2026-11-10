@@ -9,8 +9,6 @@ import type { ServiceRepositoryInterface } from
     "@/domain/service/repositories/ServiceRepositoryInterface.js";
 import type { CustomerRepositoryInterface } from
     "@/domain/customer/repositories/CustomerRepositoryInterface.js";
-import type { BookingAvailabilityCheckerQueryInterface } from
-    "@/application/booking/read-queries/BookingAvailabilityCheckerQueryInterface.js";
 import type { ShopScheduleRepositoryInterface } from
     "@/domain/shop-schedule/repositories/ShopScheduleRepositoryInterface.js";
 import { Booking } from "@/domain/booking/entities/Booking.js";
@@ -21,13 +19,14 @@ import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 import { DayOfWeek } from "@/domain/shop-schedule/value-objects/DayOfWeek.js";
 import type { ScheduleValidator } from "../validators/ScheduleValidator.js";
 import { BookingCreationPolicy } from "../policies/BookingCreationPolicy.js";
+import { GetBookingDataQueryInterface } from "../interfaces/GetBookingDataQueryInterface.js";
 
 export class CreateBookingUseCase implements CreateBookingUseCaseInterface {
     public constructor(
         private readonly bookingRepository: BookingRepositoryInterface,
         private readonly serviceRepository: ServiceRepositoryInterface,
         private readonly customerRepository: CustomerRepositoryInterface,
-        private readonly availabilityCheckerQuery: BookingAvailabilityCheckerQueryInterface,
+        private readonly getBookingDataQuery: GetBookingDataQueryInterface,
         private readonly scheduleRepository: ShopScheduleRepositoryInterface,
         private readonly scheduleValidator: ScheduleValidator,
         private readonly bookingCreationPolicy: BookingCreationPolicy,
@@ -83,7 +82,7 @@ export class CreateBookingUseCase implements CreateBookingUseCaseInterface {
             endTime: booking.getEndTime().toTimeString(),
         })
 
-        const hasConflictWithBookingTime = await this.availabilityCheckerQuery.hasConflict({
+        const hasConflictWithBookingTime = await this.getBookingDataQuery.checkAvailability({
             shopId,
             startTime,
             endTime: booking.getEndTime(),

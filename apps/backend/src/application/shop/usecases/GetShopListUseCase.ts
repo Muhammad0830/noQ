@@ -1,5 +1,10 @@
-import { GetShopListUseCaseInput, GetShopListUseCaseInterface, GetShopListUseCaseOutput } from "../interfaces/GetShopListUseCaseInterface.js";
-import { ServiceRepositoryInterface } from "@/domain/service/repositories/ServiceRepositoryInterface.js";
+import {
+    GetShopListUseCaseInput,
+    GetShopListUseCaseInterface,
+    GetShopListUseCaseOutput
+} from "../interfaces/GetShopListUseCaseInterface.js";
+import { ServiceRepositoryInterface } from
+    "@/domain/service/repositories/ServiceRepositoryInterface.js";
 import { ShopCategoryId } from "@/domain/shop-category/value-objects/ShopCategoryId.js";
 import { GetShopListQueryInterface } from "../interfaces/GetShopListQueryInterface.js";
 

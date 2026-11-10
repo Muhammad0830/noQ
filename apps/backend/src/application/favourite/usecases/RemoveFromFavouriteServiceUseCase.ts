@@ -1,5 +1,9 @@
-import { FavouriteServiceRepositoryInterface } from "@/domain/favourite/repositories/FavouriteServiceRepositoryInterface.js";
-import { RemoveFromFavouriteServiceUseCaseInput, RemoveFromFavouriteServiceUseCaseInterface } from "../interfaces/RemoveFromFavouriteServiceUseCaseInterface.js";
+import {
+    RemoveFromFavouriteServiceUseCaseInput,
+    RemoveFromFavouriteServiceUseCaseInterface
+} from "../interfaces/RemoveFromFavouriteServiceUseCaseInterface.js";
+import { FavouriteServiceRepositoryInterface } from
+    "@/domain/favourite/repositories/FavouriteServiceRepositoryInterface.js";
 import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
 import { UserId } from "@/domain/user/value-objects/UserId.js";
 

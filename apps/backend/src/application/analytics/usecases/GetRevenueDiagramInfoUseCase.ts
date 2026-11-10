@@ -1,8 +1,24 @@
-import { GetBookingDataQueryInterface } from "@/application/booking/interfaces/GetBookingDataQueryInterface.js";
-import { DiagramInterval, GetRevenueDiagramInfoUseCaseInterface, RevenueDiagramDTO, RevenueDiagramInput, RevenueDiagramItem } from "../interfaces/GetRevenueDiagramInfoUseCaseInterface.js";
-import { ShopId } from "@/domain/shop/value-objects/ShopId.js"; import { ShopRepositoryInterface } from "@/domain/shop/repositories/ShopRepositoryInterface.js";
+import {
+    addDays,
+    addMonths,
+    addYears,
+    startOfDay,
+    startOfMonth,
+    startOfYear
+} from "@noq/shared";
+import {
+    DiagramInterval,
+    GetRevenueDiagramInfoUseCaseInterface,
+    RevenueDiagramDTO,
+    RevenueDiagramInput,
+    RevenueDiagramItem
+} from "../interfaces/GetRevenueDiagramInfoUseCaseInterface.js";
+import { GetBookingDataQueryInterface } from
+    "@/application/booking/interfaces/GetBookingDataQueryInterface.js";
+import { ShopRepositoryInterface } from
+    "@/domain/shop/repositories/ShopRepositoryInterface.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
-import { addDays, addMonths, addYears, startOfDay, startOfMonth, startOfYear } from "@noq/shared";
+import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 
 export class GetRevenueDiagramInfoUseCase implements GetRevenueDiagramInfoUseCaseInterface {
     constructor(

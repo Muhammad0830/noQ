@@ -1,7 +1,12 @@
-import { UserRepositoryInterface } from "@/domain/user/repositories/UserRepositoryInterface.js";
-import { SignUpUseCaseOutput, SignUpUseCaseInterface, SignUpUseCaseInput } from "../interfaces/SignUpUseCaseInterface.js";
-import { EmailAddress } from "@/domain/shared/value-objects/EmailAddress.js";
+import {
+    SignUpUseCaseOutput,
+    SignUpUseCaseInterface,
+    SignUpUseCaseInput
+} from "../interfaces/SignUpUseCaseInterface.js";
+import { UserRepositoryInterface } from
+    "@/domain/user/repositories/UserRepositoryInterface.js";
 import { supabase } from "@/config/supabase.js";
+import { EmailAddress } from "@/domain/shared/value-objects/EmailAddress.js";
 import { User } from "@/domain/user/entities/User.js";
 import { UserId } from "@/domain/user/value-objects/UserId.js";
 import { UserRole } from "@/domain/shared/value-objects/UserRole.js";

@@ -1,5 +1,9 @@
+import {
+    AuthorizeShopAccessUseCaseInput,
+    AuthorizeShopAccessUseCaseInterface,
+    AuthorizeShopAccessUseCaseOutput
+} from "../interfaces/AuthorizeShopAccessUseCaseInterface.js";
 import { UserId } from "@/domain/user/value-objects/UserId.js";
-import { AuthorizeShopAccessUseCaseInput, AuthorizeShopAccessUseCaseInterface, AuthorizeShopAccessUseCaseOutput } from "../interfaces/AuthorizeShopAccessUseCaseInterface.js";
 import { ShopAccessQueryInterface } from "../interfaces/ShopAccessQueryInterface.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 

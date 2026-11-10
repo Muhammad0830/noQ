@@ -1,12 +1,16 @@
-import { ServiceRepositoryInterface } from "@/domain/service/repositories/ServiceRepositoryInterface.js";
-import { UpdateServiceUseCaseInput, UpdateServiceUseCaseInterface } from "../interfaces/UpdateServiceUseCaseInterface.js";
+import {
+    UpdateServiceUseCaseInput,
+    UpdateServiceUseCaseInterface
+} from "../interfaces/UpdateServiceUseCaseInterface.js";
+import { ServiceRepositoryInterface } from
+    "@/domain/service/repositories/ServiceRepositoryInterface.js";
 import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
 import { Money } from "@/domain/shared/value-objects/Money.js";
 
 export class UpdateServiceUseCase implements UpdateServiceUseCaseInterface {
     constructor(
         private readonly serviceRepository: ServiceRepositoryInterface,
-    ) {}
+    ) { }
 
     async execute(input: UpdateServiceUseCaseInput): Promise<void> {
         const serviceId = ServiceId.create(input.id);

@@ -3,11 +3,14 @@ import {
     GetRevenueBaseInfoUseCaseInterface,
     RevenueBaseInfoDTO
 } from "../interfaces/GetRevenueBaseInfoUseCaseInterface.js";
-import { GetBookingDataQueryInterface } from "@/application/booking/interfaces/GetBookingDataQueryInterface.js";
+import { GetBookingDataQueryInterface } from
+    "@/application/booking/interfaces/GetBookingDataQueryInterface.js";
+import { PrismaShopRepository } from
+    "@/infrastructue/persistence/shop/PrismaShopRepository.js";
+import { GetReviewDataQueryInterface } from
+    "@/application/review/interfaces/GetReviewDataQueryInterface.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
-import { PrismaShopRepository } from "@/infrastructue/persistence/shop/PrismaShopRepository.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
-import { GetReviewDataQueryInterface } from "@/application/review/interfaces/GetReviewDataQueryInterface.js";
 
 export class GetRevenueBaseInfoUseCase implements GetRevenueBaseInfoUseCaseInterface {
     constructor(

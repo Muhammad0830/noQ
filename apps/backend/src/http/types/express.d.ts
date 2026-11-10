@@ -1,5 +1,5 @@
 import { UserPosition } from "@/domain/shared/value-objects/UserPosition.ts";
-import { AuthenticatedUser } from "@/types/auth.ts";
+import { AuthenticatedUser } from "@/types.ts";
 
 declare global {
     namespace Express {

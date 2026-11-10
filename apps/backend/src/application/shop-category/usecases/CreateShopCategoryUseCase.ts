@@ -17,6 +17,7 @@ export class CreateShopCategoryUseCase implements CreateShopCategoryUseCaseInter
         });
 
         await this.categoryRepository.add(shopCategory);
+
         return { id: shopCategory.getId(), name: shopCategory.getName() };
     }
 }

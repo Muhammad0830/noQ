@@ -1,4 +1,7 @@
-import { GetServiceDataQueryInterface, ServiceDetailsDTO } from "@/application/service/interfaces/GetServiceDataQueryInterface.js";
+import {
+    GetServiceDataQueryInterface,
+    ServiceDetailsDTO
+} from "@/application/service/interfaces/GetServiceDataQueryInterface.js";
 import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
 
 export class GetServiceDetailsUseCase {

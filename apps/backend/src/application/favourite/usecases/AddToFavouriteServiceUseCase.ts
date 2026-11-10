@@ -1,9 +1,14 @@
-import { FavouriteServiceId } from "@/domain/favourite/value-objects/FavouriteServiceId.js";
-import { AddToFavouriteServiceUseCaseInput, AddToFavouriteServiceUseCaseInterface } from "../interfaces/AddToFavouriteServiceUseCase.js";
+import {
+    AddToFavouriteServiceUseCaseInput,
+    AddToFavouriteServiceUseCaseInterface
+} from "../interfaces/AddToFavouriteServiceUseCase.js";
+import { FavouriteServiceId } from
+    "@/domain/favourite/value-objects/FavouriteServiceId.js";
+import { FavouriteServiceRepositoryInterface } from
+    "@/domain/favourite/repositories/FavouriteServiceRepositoryInterface.js";
 import { UserId } from "@/domain/user/value-objects/UserId.js";
 import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
 import { FavouriteService } from "@/domain/favourite/entities/FavouriteService.js";
-import { FavouriteServiceRepositoryInterface } from "@/domain/favourite/repositories/FavouriteServiceRepositoryInterface.js";
 
 export class AddToFavouriteServiceUseCase implements AddToFavouriteServiceUseCaseInterface {
     constructor(

@@ -1,9 +1,15 @@
-import { GetBookingDataQueryInterface } from "@/application/booking/interfaces/GetBookingDataQueryInterface.js";
-import { DashboardStatisticsDTO, GetDashboardStatisticsUseCaseInterface } from "../interfaces/GetDashboardStatisticsUseCaseInterface.js";
+import {
+    DashboardStatisticsDTO,
+    GetDashboardStatisticsUseCaseInterface
+} from "../interfaces/GetDashboardStatisticsUseCaseInterface.js";
+import { GetBookingDataQueryInterface } from
+    "@/application/booking/interfaces/GetBookingDataQueryInterface.js";
+import { ShopRepositoryInterface } from
+    "@/domain/shop/repositories/ShopRepositoryInterface.js";
+import { GetStaffDataQueryInterface } from
+    "@/application/staff/interfaces/GetStaffDataQueryInterface.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
-import { ShopRepositoryInterface } from "@/domain/shop/repositories/ShopRepositoryInterface.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
-import { GetStaffDataQueryInterface } from "@/application/staff/interfaces/GetStaffDataQueryInterface.js";
 
 export class GetDashboardStatisticsUseCase implements GetDashboardStatisticsUseCaseInterface {
     constructor(
