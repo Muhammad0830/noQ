@@ -29,9 +29,9 @@ const PanelChangeListItem: FC<PanelChangeListItemProps> = ({
         >
             <div className="absolute left-0 right-0 top-0 bg-black/10 h-px" />
 
-            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33]">
+            <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33]">
                 {icon}
-            </span>
+            </div>
 
             <div className="flex flex-col gap-0.5">
                 <span className="font-semibold text-sm text-slate-800">

@@ -43,23 +43,23 @@ export default function PanelChangeAccordion({
       <Accordion type="multiple" className="w-full">
         <AccordionItem value="admin-shops" className="border-0!">
           <AccordionTrigger icon_center color="#F49B33" className="rounded-xl px-0 py-3 hover:no-underline [&>svg]:text-[#F49B33]">
-            <span className="flex items-center gap-3">
-              <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33]">
+            <div className="flex items-center gap-3">
+              <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#fff3e6] text-[#F49B33]">
                 <User className="h-7 w-7" />
-              </span>
+              </div>
 
-              <span className="min-w-0 text-left">
+              <div className="min-w-0 text-left">
                 <span className="block truncate text-base font-semibold text-slate-900">
                   {t("profile.switchPanel")}
                 </span>
+
                 <span className="block truncate text-sm font-normal text-slate-500">
-                  {providerMode
-                    ? t("profile.adminPanel")
-                    : t("profile.personal")}
+                  {providerMode ? t("profile.adminPanel") : t("profile.personal")}
                 </span>
-              </span>
-            </span>
+              </div>
+            </div>
           </AccordionTrigger>
+
           <AccordionContent className="pb-0">
             {isLoadingShops ? (
               <p className="text-sm text-slate-500">{t("common.loading")}</p>
