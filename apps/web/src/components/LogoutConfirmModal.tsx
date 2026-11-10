@@ -37,14 +37,14 @@ export default function LogoutConfirmModal({
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="flex h-12 w-full items-center justify-center rounded-xl border border-slate-300 px-4 font-semibold text-slate-600 transition hover:bg-slate-100"
+            className="flex h-12 w-full items-center justify-center rounded-xl border border-slate-500 px-4 font-semibold text-slate-500"
           >
             {t("profile.cancel")}
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="flex h-12 w-full items-center justify-center rounded-xl bg-red-600 px-4 font-semibold text-white transition hover:bg-red-700"
+            className="flex h-12 w-full items-center justify-center rounded-xl border border-red-600 px-4 font-semibold text-red-600 transition hover:bg-red-700"
           >
             {t("profile.logout")}
           </button>
