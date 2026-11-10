@@ -35,9 +35,7 @@ export default function Login() {
     try {
       await login(formData.email, formData.password, formData.remember);
       if (selectedRole === "admin") {
-        try {
-          setProviderMode(true);
-        } catch {}
+        setProviderMode(true);
         router.push("/admin");
       } else {
         router.push("/home");
@@ -74,11 +72,10 @@ export default function Login() {
                 type="button"
                 onClick={() => setSelectedRole("user")}
                 disabled={isLoading}
-                className={`inline-flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl px-2 text-xs font-medium transition whitespace-nowrap sm:px-3 sm:text-sm ${
-                  selectedRole === "user"
+                className={`inline-flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl px-2 text-xs font-medium transition whitespace-nowrap sm:px-3 sm:text-sm ${selectedRole === "user"
                     ? "bg-[#F49B33] text-white shadow-sm"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 {t("auth.login.roleUser") || "User"}
               </button>
@@ -86,11 +83,10 @@ export default function Login() {
                 type="button"
                 onClick={() => setSelectedRole("admin")}
                 disabled={isLoading}
-                className={`inline-flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl px-2 text-xs font-medium transition whitespace-nowrap sm:px-3 sm:text-sm ${
-                  selectedRole === "admin"
+                className={`inline-flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl px-2 text-xs font-medium transition whitespace-nowrap sm:px-3 sm:text-sm ${selectedRole === "admin"
                     ? "bg-[#F49B33] text-white shadow-sm"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 {t("auth.login.roleAdmin") || "Admin"}
               </button>
