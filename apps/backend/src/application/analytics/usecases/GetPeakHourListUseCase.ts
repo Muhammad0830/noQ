@@ -3,8 +3,10 @@ import {
     GetPeakHourListUseCaseInterface,
     PeakHourItem
 } from "../interfaces/GetPeakHourListUseCaseInterface.js";
-import { GetBookingDataQueryInterface } from "@/application/booking/interfaces/GetBookingDataQueryInterface.js";
-import { ShopRepositoryInterface } from "@/domain/shop/repositories/ShopRepositoryInterface.js";
+import { GetBookingDataQueryInterface } from
+    "@/application/booking/interfaces/GetBookingDataQueryInterface.js";
+import { ShopRepositoryInterface } from
+    "@/domain/shop/repositories/ShopRepositoryInterface.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 import { getTimezoneOffset } from "@noq/shared";

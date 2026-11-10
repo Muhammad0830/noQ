@@ -1,12 +1,18 @@
-import { ReviewRepositoryInterface } from "@/domain/review/repositories/ReviewRepositoryInterface.js";
-import { CreateReviewUseCaseInput, CreateReviewUseCaseInterface } from "../interfaces/CreateReviewUseCaseInterface.js";
+import {
+    CreateReviewUseCaseInput,
+    CreateReviewUseCaseInterface
+} from "../interfaces/CreateReviewUseCaseInterface.js";
+import { ReviewRepositoryInterface } from
+    "@/domain/review/repositories/ReviewRepositoryInterface.js";
+import { ShopRepositoryInterface } from
+    "@/domain/shop/repositories/ShopRepositoryInterface.js";
+import { ServiceRepositoryInterface } from
+    "@/domain/service/repositories/ServiceRepositoryInterface.js";
 import { ReviewId } from "@/domain/review/value-objects/ReviewId.js";
 import { UserId } from "@/domain/user/value-objects/UserId.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
 import { Review } from "@/domain/review/entities/Review.js";
-import { ShopRepositoryInterface } from "@/domain/shop/repositories/ShopRepositoryInterface.js";
-import { ServiceRepositoryInterface } from "@/domain/service/repositories/ServiceRepositoryInterface.js";
 
 export class CreateReviewUseCase implements CreateReviewUseCaseInterface {
     constructor(

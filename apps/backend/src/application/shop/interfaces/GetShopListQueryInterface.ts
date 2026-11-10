@@ -1,6 +1,5 @@
 import { ShopCategoryId } from "@/domain/shop-category/value-objects/ShopCategoryId.js";
 import { GetTrendingShopListUseCaseOutput } from "./GetTrendingShopListUseCaseInterface.js";
-import { UserId } from "@/domain/user/value-objects/UserId.js";
 
 export interface GetShopListQueryInterface {
     getBySearch(

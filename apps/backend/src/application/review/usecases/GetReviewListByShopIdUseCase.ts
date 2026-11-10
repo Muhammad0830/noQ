@@ -1,6 +1,8 @@
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
-import { GetReviewListByShopIdUseCaseInterface, GetReviewListByShopIdUseCaseOutput } from
-    "@/application/review/interfaces/GetReviewListByShopIdUseCaseInterface.js";
+import {
+    GetReviewListByShopIdUseCaseInterface,
+    GetReviewListByShopIdUseCaseOutput
+} from "@/application/review/interfaces/GetReviewListByShopIdUseCaseInterface.js";
 import { ReviewRepositoryInterface } from
     "@/domain/review/repositories/ReviewRepositoryInterface.js";
 

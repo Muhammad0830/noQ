@@ -1,7 +1,11 @@
-import { FavouriteShopRepositoryInterface } from "@/domain/favourite/repositories/FavouriteShopRepositoryInterface.js";
+import {
+    RemoveFromFavouriteShopUseCaseInput,
+    RemoveFromFavouriteShopUseCaseInterface
+} from "../interfaces/RemoveFromFavouriteShopUseCaseInterface.js";
+import { FavouriteShopRepositoryInterface } from
+    "@/domain/favourite/repositories/FavouriteShopRepositoryInterface.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 import { UserId } from "@/domain/user/value-objects/UserId.js";
-import { RemoveFromFavouriteShopUseCaseInput, RemoveFromFavouriteShopUseCaseInterface } from "../interfaces/RemoveFromFavouriteShopUseCaseInterface.js";
 
 export class RemoveFromFavouriteShopUseCase
     implements RemoveFromFavouriteShopUseCaseInterface {

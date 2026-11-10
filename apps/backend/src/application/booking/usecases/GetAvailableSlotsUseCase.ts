@@ -6,21 +6,26 @@ import type {
 } from "../interfaces/GetAvailableSlotsUseCaseInterface.js";
 import type { ShopScheduleRepositoryInterface } from
     "@/domain/shop-schedule/repositories/ShopScheduleRepositoryInterface.js";
+import { ShopScheduleType } from
+    "@/domain/shop-schedule/value-objects/ShopScheduleType.js";
+import type { ServiceRepositoryInterface } from
+    "@/domain/service/repositories/ServiceRepositoryInterface.js";
+import type { GetEmergencyBlockListQueryInterface } from
+    "@/application/shop-block/interfaces/GetEmergencyBlockListQueryInterface.js";
+import type { SlotAvailabilityValidator } from
+    "../validators/SlotAvailabilityValidator.js";
+import { GetBookingDataQueryInterface } from
+    "../interfaces/GetBookingDataQueryInterface.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
 import { DayOfWeek } from "@/domain/shop-schedule/value-objects/DayOfWeek.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
-import { ShopScheduleType } from "@/domain/shop-schedule/value-objects/ShopScheduleType.js";
-import type { ServiceRepositoryInterface } from "@/domain/service/repositories/ServiceRepositoryInterface.js";
-import type { GetEmergencyBlockListQueryInterface } from "@/application/shop-block/interfaces/GetEmergencyBlockListQueryInterface.js";
-import type { GetBookedSlotListByDateQueryInterface } from "@/application/booking/read-queries/GetBookedSlotListByDateQueryInterface.js";
 import { minutesToTimeString, timeToMinutes } from "@noq/shared";
 import { TimeSlot } from "@/domain/shared/value-objects/TimeSlot.js";
-import type { SlotAvailabilityValidator } from "../validators/SlotAvailabilityValidator.js";
 
 export class GetAvailableSlotsUseCase implements GetAvailableSlotsUseCaseInterface {
     constructor(
-        private readonly getBookedTimesQuery: GetBookedSlotListByDateQueryInterface,
+        private readonly getBookingDataQuery: GetBookingDataQueryInterface,
         private readonly scheduleRepository: ShopScheduleRepositoryInterface,
         private readonly serviceRepository: ServiceRepositoryInterface,
         private readonly getEmergencyBlockDataQuery: GetEmergencyBlockListQueryInterface,
@@ -52,7 +57,7 @@ export class GetAvailableSlotsUseCase implements GetAvailableSlotsUseCaseInterfa
             throw new Error("Service is inactive");
         }
 
-        const bookedSlots = await this.getBookedTimesQuery.execute({
+        const bookedSlots = await this.getBookingDataQuery.getBookedSlotList({
             shopId: shopId,
             startTime: selectedDate,
             endTime: selectedDate.addDays(1),

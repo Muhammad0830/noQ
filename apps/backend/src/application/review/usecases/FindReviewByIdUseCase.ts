@@ -1,6 +1,10 @@
+import {
+    GetReviewDataQueryInterface,
+    ReviewDetails
+} from "../interfaces/GetReviewDataQueryInterface.js";
 import { ReviewId } from "@/domain/review/value-objects/ReviewId.js";
-import { FindReviewByIdUseCaseInterface } from "../interfaces/FindReviewByIdUseCaseInterface.js";
-import { GetReviewDataQueryInterface, ReviewDetails } from "../interfaces/GetReviewDataQueryInterface.js";
+import { FindReviewByIdUseCaseInterface } from
+    "../interfaces/FindReviewByIdUseCaseInterface.js";
 
 export class FindReviewByIdUseCase implements FindReviewByIdUseCaseInterface {
     constructor(

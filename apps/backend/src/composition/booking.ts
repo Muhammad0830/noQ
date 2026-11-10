@@ -9,22 +9,16 @@ import { BookingController } from
     "@/http/controllers/BookingController.js";
 import { GetUserBookingListUseCase } from
     "@/application/booking/usecases/GetUserBookingListUseCase.js";
-import { PrismaUserBookingListQuery } from
-    "@/infrastructue/persistence/booking/PrismaUserBookingListQuery.js";
 import { PrismaCustomerRepository } from
     "@/infrastructue/persistence/customer/PrismaCustomerRepository.js";
 import { PrismaShopScheduleRepository } from
     "@/infrastructue/persistence/shop-schedule/PrismaShopScheduleRepository.js";
-import { PrismaBookingAvailabilityCheckerQuery } from
-    "@/infrastructue/persistence/booking/PrismaBookingAvailabiltyCheckerQuery.js";
 import { CancelBookingUseCase } from
     "@/application/booking/usecases/CancelBookingUseCase.js";
 import { ScheduleValidator } from
     "@/application/booking/validators/ScheduleValidator.js";
 import { GetAvailableSlotsUseCase } from
     "@/application/booking/usecases/GetAvailableSlotsUseCase.js";
-import { GetBookedSlotListByDateQuery } from
-    "@/infrastructue/persistence/booking/GetBookedSlotListByDateQuery.js";
 import { GetEmergencyBlockDataQuery } from
     "@/infrastructue/persistence/shop-block/GetEmergencyBlockDataQuery.js";
 import { SlotAvailabilityValidator } from
@@ -42,9 +36,7 @@ import { GetBookingDataQuery } from "@/infrastructue/persistence/booking/GetBook
 const bookingRepository = new PrismaBookingRepository(prisma);
 const shopRepository = new PrismaShopRepository(prisma);
 
-const userBookingListQuery = new PrismaUserBookingListQuery(prisma);
-const availabilityCheckerQuery = new PrismaBookingAvailabilityCheckerQuery(prisma);
-const bookedSlotListQuery = new GetBookedSlotListByDateQuery(prisma);
+const getBookinDataQuery = new GetBookingDataQuery(prisma);
 const blockSlotListQuery = new GetEmergencyBlockDataQuery(prisma);
 const getBookingDataQuery = new GetBookingDataQuery(prisma);
 
@@ -58,10 +50,10 @@ const slotAvailabilityValidator = new SlotAvailabilityValidator();
 
 const bookingCreationPolicy = new BookingCreationPolicy();
 
-const getBookingListUseCase = new GetUserBookingListUseCase(userBookingListQuery);
+const getBookingListUseCase = new GetUserBookingListUseCase(getBookinDataQuery);
 const cancelBookingUseCase = new CancelBookingUseCase(bookingRepository);
 const getAvailableSlotsUseCase = new GetAvailableSlotsUseCase(
-    bookedSlotListQuery,
+    getBookinDataQuery,
     scheduleRepository,
     serviceRepository,
     blockSlotListQuery,
@@ -71,7 +63,7 @@ const createBookingUseCase = new CreateBookingUseCase(
     bookingRepository,
     serviceRepository,
     customerRepository,
-    availabilityCheckerQuery,
+    getBookinDataQuery,
     scheduleRepository,
     scheduleValidator,
     bookingCreationPolicy,

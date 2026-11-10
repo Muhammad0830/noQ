@@ -2,8 +2,9 @@ import {
     AddToFavouriteShopsUseCaseInput,
     AddToFavouriteShopsUseCaseInterface
 } from "@/application/favourite/interfaces/AddToFavouriteShopsUseCaseInterface.js";
+import { PrismaFavouriteShopRepository } from
+    "@/infrastructue/persistence/favourite/PrismaFavouriteShopRepository.js";
 import { FavouriteShopId } from "@/domain/favourite/value-objects/FavouriteShopId.js";
-import { PrismaFavouriteShopRepository } from "@/infrastructue/persistence/favourite/PrismaFavouriteShopRepository.js";
 import { UserId } from "@/domain/user/value-objects/UserId.js";
 import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 import { FavouriteShop } from "@/domain/favourite/entities/FavouriteShop.js";
@@ -21,7 +22,7 @@ export class AddToFavouriteShopsUseCase implements AddToFavouriteShopsUseCaseInt
             shopId,
             userId
         );
-        
+
 
         if (existingFavouriteShop) {
             throw new Error("The shop already in Favourites");

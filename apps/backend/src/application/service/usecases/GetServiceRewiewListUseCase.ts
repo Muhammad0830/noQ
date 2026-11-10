@@ -1,6 +1,10 @@
 import { ServiceId } from "@/domain/service/value-objects/ServiceId.js";
-import { GetServiceDataQueryInterface, ServiceWithReviewsDTO } from "../interfaces/GetServiceDataQueryInterface.js";
-import { GetServiceReviewListUseCaseInterface } from "../interfaces/GetServiceReviewListUseCaseInterface.js";
+import {
+    GetServiceDataQueryInterface,
+    ServiceWithReviewsDTO
+} from "../interfaces/GetServiceDataQueryInterface.js";
+import { GetServiceReviewListUseCaseInterface } from
+    "../interfaces/GetServiceReviewListUseCaseInterface.js";
 
 export class GetServiceReviewListUseCase implements GetServiceReviewListUseCaseInterface {
     constructor(

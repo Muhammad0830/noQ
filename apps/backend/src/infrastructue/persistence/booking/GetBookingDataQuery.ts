@@ -1,8 +1,12 @@
 import {
+    BookingAvailabilityCheckerInput,
     FamousServiceItem,
+    GetBookedSlotListByDateQueryInput,
     GetBookingDataQueryInterface,
     GetCountByTimeInput,
     GetFamousServiceListInput,
+    GetListByUserIdInput,
+    GetListByUserIdOutput,
     GetPeakHourListInput,
     GetPriceByTimeInput,
     GetRevenueByTimeInput,
@@ -11,14 +15,117 @@ import {
     GetShopHistoryBookingListOutput,
     PeakHourItem
 } from "@/application/booking/interfaces/GetBookingDataQueryInterface.js";
+import { BookingStatus } from "@/domain/booking/value-objects/BookingStatus.js";
 import { DateTime } from "@/domain/shared/value-objects/DateTime.js";
-import { BookingStatus } from "@noq/shared";
+import { TimeSlot } from "@/domain/shared/value-objects/TimeSlot.js";
+import { BookingStatus as BookingStatusEnum } from "@noq/shared";
 import { Prisma, PrismaClient } from "@prisma/client";
 
 export class GetBookingDataQuery implements GetBookingDataQueryInterface {
     constructor(
         private readonly prisma: PrismaClient,
     ) { }
+
+    async getBookedSlotList(input: GetBookedSlotListByDateQueryInput): Promise<TimeSlot[]> {
+        const bookings = await this.prisma.booking.findMany({
+            where: {
+                shopId: input.shopId.toString(),
+                startTime: {
+                    gte: input.startTime.getValue(),
+                    lte: input.endTime.getValue(),
+                },
+            },
+            select: {
+                startTime: true,
+                endTime: true
+            },
+        });
+
+        return bookings.map(booking => TimeSlot.create({
+            start: DateTime.from(booking.startTime),
+            end: DateTime.from(booking.endTime),
+        }));
+    }
+
+    async getListByUserId(input: GetListByUserIdInput): Promise<GetListByUserIdOutput> {
+        const now = new Date();
+
+        const statusList = {
+            ongoing: [
+                BookingStatusEnum.PENDING,
+                BookingStatusEnum.IN_PROGRESS,
+                BookingStatusEnum.CONFIRMED,
+            ],
+            completed: [BookingStatusEnum.COMPLETED],
+            cancelled: [BookingStatusEnum.CANCELLED],
+        };
+
+        const bookingList = await this.prisma.booking.findMany({
+            where: {
+                userId: input.customerId.toString(),
+                status: {
+                    in: statusList[input.view],
+                },
+                ...(input.view === "ongoing" && {
+                    startTime: {
+                        gt: now,
+                    }
+                })
+            },
+            include: {
+                service: true,
+                shop: true,
+            },
+        })
+
+        return {
+            bookings: bookingList.map(booking => ({
+                id: booking.id,
+                serviceId: booking.serviceId || null,
+                shopId: booking.shopId,
+                customerId: booking.userId,
+                serviceName: booking.serviceName,
+                servicePrice: Number(booking.servicePrice),
+                startTime: booking.startTime,
+                endTime: booking.endTime,
+                status: BookingStatus.from(booking.status),
+                createdAt: booking.createdAt,
+                shop: {
+                    id: booking.shop.id,
+                    name: booking.shop.name,
+                    address: booking.shop.address,
+                    backgroundImageUrl: booking.shop.backgroundImageUrl
+                },
+                service: booking.service ? {
+                    id: booking.service.id,
+                    name: booking.service.name,
+                    price: Number(booking.service.price),
+                    durationMin: booking.service.durationMin,
+                } : null,
+            }))
+        }
+    }
+
+    async checkAvailability(input: BookingAvailabilityCheckerInput): Promise<boolean> {
+        const conflictBooking = await this.prisma.booking.findFirst({
+            where: {
+                shopId: input.shopId.toString(),
+                status: { notIn: ["CANCELLED", "NO_SHOW"] },
+                startTime: { lt: input.endTime.getValue() },
+                endTime: { gt: input.startTime.getValue() },
+            },
+        });
+
+        const conflictBlock = await this.prisma.shopBlock.findFirst({
+            where: {
+                shopId: input.shopId.toString(),
+                startTime: { lt: input.endTime.getValue() },
+                endTime: { gt: input.startTime.getValue() },
+            },
+        });
+
+        return Boolean(conflictBooking || conflictBlock);
+    }
 
     async getCountByTime(input: GetCountByTimeInput): Promise<number> {
         return await this.prisma.booking.count({
@@ -199,7 +306,7 @@ export class GetBookingDataQuery implements GetBookingDataQueryInterface {
                 servicePrice: Number(booking.servicePrice),
                 startTime: booking.startTime,
                 endTime: booking.endTime,
-                status: BookingStatus[booking.status],
+                status: BookingStatusEnum[booking.status],
                 staffId: booking.staffId,
                 createdAt: booking.createdAt,
                 updatedAt: booking.updatedAt,

@@ -1,7 +1,11 @@
-import type { CancelBookingUseCaseInput, CancelBookingUseCaseInterface } from "@/application/booking/interfaces/CancelBookingUseCaseInterface.js";
+import type {
+    CancelBookingUseCaseInput,
+    CancelBookingUseCaseInterface
+} from "@/application/booking/interfaces/CancelBookingUseCaseInterface.js";
+import type { BookingRepositoryInterface } from
+    "@/domain/booking/repositories/BookingRepositoryInterface.js";
 import { BookingId } from "@/domain/booking/value-objects/BookingId.js";
 import { CustomerId } from "@/domain/customer/value-objects/CustomerId.js";
-import type { BookingRepositoryInterface } from "@/domain/booking/repositories/BookingRepositoryInterface.js";
 
 export class CancelBookingUseCase implements CancelBookingUseCaseInterface {
     constructor(

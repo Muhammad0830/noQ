@@ -1,6 +1,8 @@
 import { Review } from "@/domain/review/entities/Review.js";
-import { ReviewRepositoryInterface } from "@/domain/review/repositories/ReviewRepositoryInterface.js";
-import { GetAllReviewsUseCaseInterface } from "../interfaces/GetAllReviewsUseCaseInterface.js";
+import { ReviewRepositoryInterface } from
+    "@/domain/review/repositories/ReviewRepositoryInterface.js";
+import { GetAllReviewsUseCaseInterface } from
+    "../interfaces/GetAllReviewsUseCaseInterface.js";
 
 export class GetAllReviewUseCase implements GetAllReviewsUseCaseInterface {
     constructor(

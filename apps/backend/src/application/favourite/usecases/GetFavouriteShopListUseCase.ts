@@ -1,4 +1,7 @@
-import { GetFavouriteShopQueryInterface, ShopItem } from "../interfaces/GetFavouriteShopQueryInterface.js";
+import {
+    GetFavouriteShopQueryInterface,
+    ShopItem
+} from "../interfaces/GetFavouriteShopQueryInterface.js";
 import { UserId } from "@/domain/user/value-objects/UserId.js";
 
 export class GetFavouriteShopListUseCase {

@@ -1,22 +1,37 @@
-import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
-import { CreateShopUseCaseInput, CreateShopUseCaseInterface, ScheduleItem, ServiceItem, ShopDetails } from "../interfaces/CreateShopUseCaseInterface.js";
+import {
+    CreateShopUseCaseInput,
+    CreateShopUseCaseInterface,
+    ScheduleItem,
+    ServiceItem,
+    ShopDetails
+} from "../interfaces/CreateShopUseCaseInterface.js";
+import { ShopRepositoryInterface } from
+    "@/domain/shop/repositories/ShopRepositoryInterface.js";
+import { ShopCategoryRepositoryInterface } from
+    "@/domain/shop-category/repositories/ShopCategoryRepositoryInterface.js";
+import { UserRepositoryInterface } from
+    "@/domain/user/repositories/UserRepositoryInterface.js";
+import { StorageServiceInterface } from
+    "@/application/shared/interfaces/StorageServiceInterface.js";
+import { ShopCreationUnitOfWorkInterface } from
+    "../interfaces/ShopCreationUnitOfWorkInterface.js";
+import { ShopScheduleRepositoryInterface } from
+    "@/domain/shop-schedule/repositories/ShopScheduleRepositoryInterface.js";
+import { DayOfWeek } from
+    "@/domain/shop-schedule/value-objects/DayOfWeek.js";
+import { ShopScheduleType } from
+    "@/domain/shop-schedule/value-objects/ShopScheduleType.js";
+import { ServiceRepositoryInterface } from
+    "@/domain/service/repositories/ServiceRepositoryInterface.js";
 import { UserId } from "@/domain/user/value-objects/UserId.js";
 import { ShopCategoryId } from "@/domain/shop-category/value-objects/ShopCategoryId.js";
-import { ShopRepositoryInterface } from "@/domain/shop/repositories/ShopRepositoryInterface.js";
-import { ShopCategoryRepositoryInterface } from "@/domain/shop-category/repositories/ShopCategoryRepositoryInterface.js";
-import { UserRepositoryInterface } from "@/domain/user/repositories/UserRepositoryInterface.js";
 import { UserRole } from "@/domain/shared/value-objects/UserRole.js";
 import { Shop } from "@/domain/shop/entities/Shop.js";
-import { StorageServiceInterface } from "@/application/shared/interfaces/StorageServiceInterface.js";
-import { ShopCreationUnitOfWorkInterface } from "../interfaces/ShopCreationUnitOfWorkInterface.js";
 import { ShopSchedule } from "@/domain/shop-schedule/entities/ShopSchedule.js";
-import { ShopScheduleRepositoryInterface } from "@/domain/shop-schedule/repositories/ShopScheduleRepositoryInterface.js";
-import { DayOfWeek } from "@/domain/shop-schedule/value-objects/DayOfWeek.js";
-import { ShopScheduleType } from "@/domain/shop-schedule/value-objects/ShopScheduleType.js";
 import { Service } from "@/domain/service/entities/Service.js";
-import { ServiceRepositoryInterface } from "@/domain/service/repositories/ServiceRepositoryInterface.js";
 import { Money } from "@/domain/shared/value-objects/Money.js";
 import { User } from "@/domain/user/entities/User.js";
+import { ShopId } from "@/domain/shop/value-objects/ShopId.js";
 
 interface BuildEntitiesInput {
     shopId: ShopId,
