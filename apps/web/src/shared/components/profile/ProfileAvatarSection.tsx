@@ -29,7 +29,7 @@ export default function ProfileAvatarSection({
   const t = useTranslations();
   const locale = useLocale();
 
-  const { isProfileUpdating, isLoading, updateProfile } = useAuth();
+  const { isProfileUpdating, isLoading, updateAvatar } = useAuth();
 
   const memberSince = user?.createdAt
     ? `${t("profile.memberSince")} ${new Date(
@@ -44,7 +44,7 @@ export default function ProfileAvatarSection({
   const handleSaveImage = async () => {
     if (!file || isLoading || isProfileUpdating) return;
 
-    await updateProfile({ file });
+    await updateAvatar(file);
 
     setFile(null);
     setPreview(null);

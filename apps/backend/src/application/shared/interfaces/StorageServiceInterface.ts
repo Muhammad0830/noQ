@@ -2,6 +2,7 @@ import { MulterFile } from "@/types.js";
 
 export interface StorageServiceInterface {
     readonly shopImagesPath: string;
+    readonly userAvatarsPath: string;
 
     uploadImage(
         image: MulterFile,
