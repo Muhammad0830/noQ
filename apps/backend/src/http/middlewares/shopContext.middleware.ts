@@ -12,17 +12,17 @@ export function shopContextMiddleware(
                 ? rawShopId.trim()
                 : "";
 
-            if (!shopId) {
-                return res.status(400).json({
-                    message: "Shop ID is required",
-                });
-            }
-
             if (!req.user) {
                 res.status(401).json({
                     message: "Unauthenticated",
                 });
                 return;
+            }
+
+            if (!shopId) {
+                return res.status(400).json({
+                    message: "Shop ID is required",
+                });
             }
 
             const result = await authorizeShopAccess.execute({

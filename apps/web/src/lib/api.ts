@@ -160,6 +160,8 @@ export const API_ENDPOINTS = {
   // Users
   users: {
     profile: `${API_BASE_URL}/users/profile`,
+    profile_details: `${API_BASE_URL}/users/profile/deatils`,
+    avatar: `${API_BASE_URL}/users/profile/avatar`,
   },
 
   // Admin

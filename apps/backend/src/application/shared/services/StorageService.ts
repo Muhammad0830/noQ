@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 
 export class StorageService implements StorageServiceInterface {
     readonly shopImagesPath = "shop_iamges";
+    readonly userAvatarsPath = "user_avatars";
 
     async uploadImage(image: MulterFile, folderName: string): Promise<string> {
         const fileExt = image.originalname.split(".").pop();

@@ -103,7 +103,7 @@ export class User {
         this.touch();
     }
 
-    updatePhoneNumber(phoneNumber: string): void {
+    updatePhoneNumber(phoneNumber: string | null): void {
         this.props.phoneNumber = phoneNumber;
         this.touch();
     }

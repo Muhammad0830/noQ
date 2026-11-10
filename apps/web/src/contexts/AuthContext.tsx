@@ -30,20 +30,20 @@ interface AuthContextType {
   ) => Promise<void>;
   logout: () => void;
   updateProfile: (data: {
-    name?: string;
-    phoneNumber?: string | null;
-    file?: File | null;
+    name: string;
+    phoneNumber: string | null;
   }) => Promise<void>;
+  updateAvatar: (file: File) => Promise<void>;
 }
 
 interface ApiUserPayload {
   id: string;
   email: string;
   name: string;
-  phoneNumber?: string | null;
-  avatarUrl?: string | null;
-  role?: "USER" | "ADMIN";
-  createdAt?: string;
+  phoneNumber: string | null;
+  avatarUrl: string | null;
+  role: "USER" | "ADMIN";
+  createdAt: string;
   shops?: Shop[];
 };
 
@@ -66,19 +66,18 @@ interface SignUpPayload {
 };
 
 interface UpdateProfileData {
-  name?: string;
-  phoneNumber?: string | null;
-  file?: File | null;
+  name: string;
+  phoneNumber: string | null;
 };
 
 const mapApiUserToUser = (apiUser: ApiUserPayload): User => ({
   id: apiUser.id,
   email: apiUser.email,
-  name: apiUser.name || apiUser.email?.split("@")[0] || "User",
-  phoneNumber: apiUser.phoneNumber || undefined,
-  avatarUrl: apiUser.avatarUrl || undefined,
-  role: apiUser.role || "USER",
-  createdAt: apiUser.createdAt || new Date().toISOString(),
+  name: apiUser.name,
+  phoneNumber: apiUser.phoneNumber,
+  avatarUrl: apiUser.avatarUrl,
+  role: apiUser.role,
+  createdAt: apiUser.createdAt,
   shops: apiUser.shops || [],
 });
 
@@ -98,52 +97,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    initializeAuth();
-  }, []);
+    async function initializeAuth() {
+      const storedAuth = getStoredAuth();
 
-  async function initializeAuth() {
-    const storedAuth = getStoredAuth();
-
-    if (!storedAuth?.token || !storedAuth?.refreshToken) {
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const { data, error } = await supabase.auth.setSession({
-        access_token: storedAuth.token,
-        refresh_token: storedAuth.refreshToken,
-      });
-
-      if (error || !data.session) {
-        throw error;
+      if (!storedAuth?.token || !storedAuth?.refreshToken) {
+        setIsLoading(false);
+        return;
       }
 
-      const newAccessToken = data.session.access_token;
-      const newRefreshToken = data.session.refresh_token;
+      try {
+        const { data, error } = await supabase.auth.setSession({
+          access_token: storedAuth.token,
+          refresh_token: storedAuth.refreshToken,
+        });
 
-      persistAuth(
-        newAccessToken,
-        newRefreshToken,
-        JSON.parse(storedAuth.savedUser || "{}"),
-        storedAuth.source,
-      );
+        if (error || !data.session) {
+          throw error;
+        }
 
-      const profileResponse = await api.get(API_ENDPOINTS.auth.me, {
-        headers: {
-          Authorization: `Bearer ${newAccessToken}`,
-        },
-      });
+        const newAccessToken = data.session.access_token;
+        const newRefreshToken = data.session.refresh_token;
 
-      const mappedUser = mapApiUserToUser(profileResponse.data);
-      setUser(mappedUser);
-    } catch {
-      clearPersistedAuth();
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        persistAuth(
+          newAccessToken,
+          newRefreshToken,
+          JSON.parse(storedAuth.savedUser || "{}"),
+          storedAuth.source,
+        );
+
+        const profileResponse = await api.get(API_ENDPOINTS.auth.me, {
+          headers: {
+            Authorization: `Bearer ${newAccessToken}`,
+          },
+        });
+
+        const mappedUser = mapApiUserToUser(profileResponse.data);
+        setUser(mappedUser);
+      } catch {
+        clearPersistedAuth();
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
+  }, []);
 
   const { mutateAsync: signInAsync } = useApiMutation<SignInResponse, SignInPayload>(
     API_ENDPOINTS.auth.signin,
@@ -152,6 +151,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { mutateAsync: signUpAsync } = useApiMutation<SignUpResponse | null, SignUpPayload>(
     API_ENDPOINTS.auth.signup,
     "post",
+  );
+
+  const { mutateAsync: updateAvatarAsync } = useApiMutation<string>(
+    API_ENDPOINTS.users.avatar,
+    "put"
   );
 
   const login = async (email: string, password: string) => {
@@ -276,10 +280,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         formData.append("phoneNumber", data.phoneNumber ?? "")
       };
 
-      if (data.file) {
-        formData.append("file", data.file)
-      };
-
       const response = await api.put(API_ENDPOINTS.users.profile, formData);
 
       const updatedUser = mapApiUserToUser(response.data);
@@ -301,6 +301,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateAvatar = async (file: File | null) => {
+    if (!file || !user) {
+      return;
+    }
+
+    const storedAuth = getStoredAuth();
+
+    if (!storedAuth) {
+      throw new Error("No active session");
+    }
+
+    const formData = new FormData();
+
+    formData.append("id", user.id);
+    formData.append("file", file);
+
+    await updateAvatarAsync(formData, {
+      onSuccess: (response) => {
+        setUser({
+          ...user,
+          avatarUrl: response.data
+        });
+      }
+    });
+  }
+
   const logout = () => {
     setUser(null);
     clearPersistedAuth();
@@ -318,6 +344,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signup,
         logout,
         updateProfile,
+        updateAvatar,
       }}
     >
       {children}

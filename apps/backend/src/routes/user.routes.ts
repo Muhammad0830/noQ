@@ -1,83 +1,29 @@
 import prisma from "@/db/prisma.js";
 import express from "express";
 import { authMiddleware } from "@/http/middlewares/auth.middleware.js";
-import { adminOnly } from "@/http/middlewares/admin.middleware.js";
-import { uploadImage } from "@/utils/handleImage.js";
 import { upload } from "@/http/middlewares/upload.js";
+import { userController } from "@/composition/user.js";
+import { validateBody } from "@/http/middlewares/validate.middleware.js";
+import { updateUserSchema } from "@/http/validators/user/UpdateUserSchema.js";
+import { updateUserAvatarSchema } from "@/http/validators/user/UpdateUserAvatarSchema.js";
+import { fileUploadMiddleware } from "@/http/middlewares/FileUploadMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", authMiddleware, adminOnly, async (req, res) => {
-  try {
-    const users = await prisma.user.findMany({
-      include: {
-        reviews: true,
-      },
-    });
-
-    res.status(200).json(users);
-  } catch (err) {
-    return res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-router.get('/shops', authMiddleware, async (req: any, res) => {
-  try {
-    const userId = req.user.id;
-
-    const shops = await prisma.shop.findMany({
-      where: {
-        ownerId: userId,
-      },
-      select: {
-        id: true,
-        name: true,
-      }
-    });
-
-    return res.status(200).json(shops)
-  } catch (err) {
-    return res.status(500).json({ error: "Internal server error" })
-  }
-})
+router.put(
+  "/profile/details",
+  authMiddleware,
+  validateBody(updateUserSchema),
+  userController.updateDetails
+);
 
 router.put(
-  "/profile",
+  "/profile/avatar",
   authMiddleware,
   upload.single("file"),
-  async (req: any, res) => {
-    try {
-      const { name, email, phoneNumber } = req.body;
-      const file = req.file;
-      const userId = req.user.id;
-
-      let uploadedFilePath: string | null = null;
-
-      if (file && file.originalname) {
-        uploadedFilePath = await uploadImage(file, "user_avatars");
-      }
-
-      const updateData: any = {};
-      if (name !== undefined) updateData.name = name;
-      if (email !== undefined) updateData.email = email.toLowerCase().trim();
-      if (phoneNumber !== undefined) updateData.phoneNumber = phoneNumber;
-      if (uploadedFilePath !== null) updateData.avatarUrl = uploadedFilePath;
-
-      const updatedUser = await prisma.user.update({
-        where: { id: userId },
-        data: updateData,
-      });
-
-      res.status(200).json(updatedUser);
-    } catch (error: any) {
-      if (error?.code === "P2002") {
-        return res.status(409).json({ error: "Bu email allaqachon mavjud" });
-      }
-
-      console.error("Error updating profile:", error);
-      return res.status(500).json({ error: "Failed to update profile" });
-    }
-  },
+  fileUploadMiddleware({ type: "image" }),
+  validateBody(updateUserAvatarSchema),
+  userController.updateAvatar
 );
 
 router.post("/", authMiddleware, async (req: any, res) => {

@@ -28,7 +28,7 @@ export function validateBody(schema: ZodType): RequestHandler {
         if (!result.success) {
             return res.status(400).json({
                 success: false,
-                message: "Booking Create Validation Failed",
+                message: "Validation Failed",
                 errors: result.error.issues.map(issue => ({
                     field: issue.path.join('.'),
                     message: issue.message
