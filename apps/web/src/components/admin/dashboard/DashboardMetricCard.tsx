@@ -47,7 +47,7 @@ export default function DashboardMetricCard({
                 {value}
               </p>
 
-              {change && (
+              {change !== undefined && (
                 <div
                   className={cn(
                     "mt-3 text-[11px]",

@@ -1,7 +1,7 @@
 "use client"
 
 import { FC, useState } from "react";
-import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "../../ui/dialog";
 import { useTranslations } from "next-intl";
 import { BookingStatus, DashboardBookingItem, formatToTimeString } from "@noq/shared";
 import { CircleCheckBig, CircleX } from "lucide-react";

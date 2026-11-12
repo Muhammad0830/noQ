@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { useShop } from "@/contexts/ShopContext";
 import { useTranslations } from "next-intl";
-import AdminScheduleTimeline from "@/components/admin/AdminScheduleTimeline";
-import DashboardMetricCard from "@/components/admin/DashboardMetricCard";
+import AdminScheduleTimeline from "@/components/admin/dashboard/AdminScheduleTimeline";
+import DashboardMetricCard from "@/components/admin/dashboard/DashboardMetricCard";
 import Link from "next/link";
 import { Route } from "next";
-import DashboardBookingDialog from "@/components/admin/DashboardBookingDialog";
+import DashboardBookingDialog from "@/components/admin/dashboard/DashboardBookingDialog";
 import { useAdminDashboard } from "@/hooks/admin/useAdminDashboard";
 import {
     BarChart3,
