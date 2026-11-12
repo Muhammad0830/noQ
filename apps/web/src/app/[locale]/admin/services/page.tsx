@@ -210,9 +210,9 @@ export default function AdminServicesPage() {
         currentState.map((service) =>
           service.id === id
             ? {
-                ...service,
-                isActive: !service.isActive,
-              }
+              ...service,
+              isActive: !service.isActive,
+            }
             : service,
         ),
       );
@@ -223,9 +223,9 @@ export default function AdminServicesPage() {
         currentState.map((service) =>
           service.id === id
             ? {
-                ...service,
-                isActive: previousIsActive,
-              }
+              ...service,
+              isActive: previousIsActive,
+            }
             : service,
         ),
       );
@@ -256,16 +256,14 @@ export default function AdminServicesPage() {
       type="button"
       onClick={() => void toggleService(id)}
       disabled={pendingIds[id]}
-      className={`relative h-7 w-12 rounded-full transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#22c55e]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
-        enabled ? "bg-[#22c55e]" : "bg-[#d7dbe3]"
-      }`}
+      className={`relative h-7 w-12 rounded-full transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#22c55e]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${enabled ? "bg-[#22c55e]" : "bg-[#d7dbe3]"
+        }`}
       aria-label={t("admin.services.aria.toggleService")}
       aria-pressed={enabled}
     >
       <span
-        className={`absolute top-0.75 h-5 w-5 rounded-full transition-all duration-200 ${
-          enabled ? "left-6 bg-white" : "left-1 bg-white"
-        }`}
+        className={`absolute top-0.75 h-5 w-5 rounded-full transition-all duration-200 ${enabled ? "left-6 bg-white" : "left-1 bg-white"
+          }`}
       />
     </button>
   );
@@ -325,7 +323,7 @@ export default function AdminServicesPage() {
         <main className="px-4 md:px-5 lg:px-6 pt-4 md:pt-5 lg:pt-6">
           <div className="hidden md:flex md:flex-col md:gap-3 lg:gap-4">
             <Link
-              href={asRoute(getAdminHrefWithShopId("/admin/services/new"))}
+              href={"/admin/services/new" as Route}
               className="inline-flex h-12 md:h-12 lg:h-14 w-full shrink-0 items-center justify-center gap-2 rounded-[18px] bg-[#F49B33] px-5 text-xs md:text-sm lg:text-sm font-semibold text-white shadow-[0_10px_24px_rgba(244,155,51,0.24)] transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0"
             >
               <Plus className="h-3.5 w-3.5 md:h-4 md:w-4 lg:h-4 lg:w-4" />
@@ -357,7 +355,7 @@ export default function AdminServicesPage() {
             </div>
 
             <Link
-              href={asRoute(getAdminHrefWithShopId("/admin/services/new"))}
+              href={"/admin/services/new" as Route}
               aria-label={t("admin.services.aria.addService")}
               className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F49B33] text-white shadow-[0_10px_24px_rgba(244,155,51,0.24)] transition-transform duration-200 active:scale-95"
             >
@@ -377,7 +375,7 @@ export default function AdminServicesPage() {
                 typeof error.response?.data === "object" &&
                 "message" in error.response?.data &&
                 typeof (error.response?.data as { message?: unknown }).message ===
-                  "string" &&
+                "string" &&
                 (error.response?.data as { message: string }).message) ||
                 error?.message ||
                 t("admin.services.error.loadFailed")}
@@ -416,9 +414,8 @@ export default function AdminServicesPage() {
                 return (
                   <article
                     key={service.id}
-                    className={`relative overflow-hidden rounded-4xl bg-white p-3 md:p-4 lg:p-5 shadow-[0_10px_25px_rgba(17,24,39,0.04)] ring-1 ring-black/5 transition-transform duration-200 hover:-translate-y-0.5 ${
-                      isCardPending ? "opacity-80" : ""
-                    }`}
+                    className={`relative overflow-hidden rounded-4xl bg-white p-3 md:p-4 lg:p-5 shadow-[0_10px_25px_rgba(17,24,39,0.04)] ring-1 ring-black/5 transition-transform duration-200 hover:-translate-y-0.5 ${isCardPending ? "opacity-80" : ""
+                      }`}
                   >
                     {isCardPending && (
                       <div className="absolute inset-0 z-20 flex items-center justify-center gap-2 bg-white/65 backdrop-blur-[1px]">
@@ -465,8 +462,8 @@ export default function AdminServicesPage() {
                             <span className="text-[9px] md:text-[10px] lg:text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7f8894]">
                               {service.bufferTime
                                 ? t("admin.services.buffer", {
-                                    minutes: service.bufferTime,
-                                  })
+                                  minutes: service.bufferTime,
+                                })
                                 : t("admin.services.noBuffer")}
                             </span>
                           </div>
@@ -525,9 +522,8 @@ export default function AdminServicesPage() {
                 return (
                   <div
                     key={service.id}
-                    className={`relative flex items-center gap-2 md:gap-3 lg:gap-3 rounded-2xl md:rounded-2xl lg:rounded-2xl py-0.5 md:py-1 lg:py-1 ${
-                      isCardPending ? "opacity-80" : ""
-                    }`}
+                    className={`relative flex items-center gap-2 md:gap-3 lg:gap-3 rounded-2xl md:rounded-2xl lg:rounded-2xl py-0.5 md:py-1 lg:py-1 ${isCardPending ? "opacity-80" : ""
+                      }`}
                   >
                     {isCardPending && (
                       <div className="absolute inset-0 z-20 flex items-center justify-center gap-2 rounded-2xl bg-white/65 backdrop-blur-[1px]">
