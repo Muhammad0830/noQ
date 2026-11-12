@@ -36,6 +36,32 @@
       "unknownService": "Nomaʼlum xizmat",
       "notAssigned": "Biriktirilmagan",
       "period7d": "(7d)",
+      "staff_not_found": "Hodim aniqlanmadi",
+      "booking_dialog_title": "Bandlov holatini o'zartirasizmi?",
+      "model_details": "Bandlov haqida batafil",
+      "booking_details": "Bandlov ma'lumotlari",
+      "service_name": "Xizmat nomi",
+      "service_price": "Xizmat narxi",
+      "customer_name": "Mijoz ismi",
+      "customer_phone": "Mijoz tel. raqami",
+      "close": "Yopish",
+      "confirm": "Tasdiqlash",
+      "select_status": "Holatni tanlang",
+      "select_cancellation_reason": "Iltimos, bekor qilish sababini belgilang",
+      "cancellation_reason": {
+        "change_of_plans": "Rejalar o'zgarishi",
+        "booked_by_mistake": "Band qilishda xatolik",
+        "no_longer_need": "Mijozning xizmatga endi ehtiyoji yo'q",
+        "financial_reasons": "Moliyaviy sabablar",
+        "unable_to_contact_customer": "Mijoz bilan aloqa imkonsiz",
+        "other": "Boshqa"
+      },
+      "confirm_modal_title": {
+        "CANCELLED": "Haqiqatan ham bandlovni bekor qilmoqchimisiz?",
+        "COMPLETED": "Haqiqatan ham bandlovni tugallamoqchimisiz?",
+        "CONFIRMED": "Haqiqatan ham bandlovni tasdiqlamoqchimisiz?",
+        "IN_PROGRESS": "Haqiqatan ham xizmatni boshlamoqchimisiz?"
+      },
       "error": {
         "baseInfoPrefix": "Dashboard ma'lumotlarini olishda xatolik: {message}",
         "schedulePrefix": "Jadvalni olishda xatolik: {message}",
@@ -309,6 +335,10 @@
       "exporting": "Eksport qilinmoqda...",
       "exportSuccess": "Eksport muvaffaqiyatli yakunlandi",
       "exportCSV": "CSV sifatida yuklash"
+    },
+    "sidebar": {
+      "quick_actions": "Tezkor harakatlar",
+      "admin_panel": "Admin panel"
     }
   },
   "user": {
@@ -466,20 +496,6 @@
         "days": "Kun",
         "hour": "Soat",
         "min": "Min"
-      },
-      "status": {
-        "completed": "Tugallangan",
-        "COMPLETED": "Tugallangan",
-        "cancelled": "Bekor qilingan",
-        "CANCELLED": "Bekor qilingan",
-        "pending": "Kutilmoqda",
-        "PENDING": "Kutilmoqda",
-        "confirmed": "Tasdiqlangan",
-        "CONFIRMED": "Tasdiqlangan",
-        "in_progress": "Jarayonda",
-        "IN_PROGRESS": "Jarayonda",
-        "noShow": "Kelmagan",
-        "NO_SHOW": "Kelmagan"
       }
     }
   },
@@ -499,7 +515,14 @@
     "success": "Muvaffaqiyatli!",
     "currency": "so'm",
     "userNotFound": "Foydalanuvchi ma'lumotlari topilmadi.",
-    "tryAgain": "Yana urinib ko'ring"
+    "tryAgain": "Yana urinib ko'ring",
+    "continue?": "Davom etasizmi?",
+    "min": "min",
+    "sum": "so'm",
+    "yes": "ha",
+    "no": "yo'q",
+    "now": "hozir",
+    "after": "keyin"
   },
   "profile": {
     "title": "Profil",
@@ -746,5 +769,20 @@
     "Fri": "Ju",
     "Sat": "Sha",
     "Sun": "Yak"
+  },
+  "booking_status": {
+    "status": "Holat",
+    "completed": "Tugallangan",
+    "COMPLETED": "Tugallangan",
+    "cancelled": "Bekor qilingan",
+    "CANCELLED": "Bekor qilingan",
+    "pending": "Kutilmoqda",
+    "PENDING": "Kutilmoqda",
+    "confirmed": "Tasdiqlangan",
+    "CONFIRMED": "Tasdiqlangan",
+    "in_progress": "Jarayonda",
+    "IN_PROGRESS": "Jarayonda",
+    "noShow": "Kelmagan",
+    "NO_SHOW": "Kelmagan"
   }
 }

@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Bell, CalendarDays, Star, Menu } from "lucide-react";
+import { CalendarDays, Star } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
-import AdminSidebar from "@/components/AdminSidebar";
-import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 import { useLocale, useTranslations } from "next-intl";
 
 // function getDiagramInterval(
@@ -333,14 +331,6 @@ export default function ShopAnalytics() {
     return userShops[0]?.id || null;
   }, [hasLoadedPersistedShop, persistedShopId, user?.shops]);
 
-  const {
-    isSidebarVisible,
-    isSidebarClosing,
-    openSidebar,
-    closeSidebar,
-    adminNavItems,
-    getAdminHrefWithShopId,
-  } = useAdminSidebar(activeShopId);
 
   const tabs = useMemo(
     () =>
@@ -544,44 +534,6 @@ export default function ShopAnalytics() {
 
   return (
     <div className="min-h-screen bg-[#f5f4f2] text-[#111111] pb-20">
-      <AdminSidebar
-        isVisible={isSidebarVisible}
-        isClosing={isSidebarClosing}
-        currentShopName={currentShopName}
-        adminNavItems={adminNavItems}
-        onClose={closeSidebar}
-        getAdminHrefWithShopId={getAdminHrefWithShopId}
-      />
-
-      <div className="sticky top-0 z-40 w-full">
-        <div className="flex w-full items-center justify-between border-b bg-orange-50 p-3 md:bg-white md:shadow-sm md:p-4 lg:p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 md:h-11 md:w-11 lg:h-12 lg:w-12 items-center justify-center rounded-full bg-orange-100 text-sm font-bold text-orange-600">
-              {shopInitials}
-            </div>
-            <div>
-              <div className="text-sm font-semibold">{currentShopName}</div>
-              <div className="text-xs font-semibold uppercase text-orange-400">
-                {t("admin.dashboard.panel")}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-gray-600 shadow">
-              <Bell className="h-4 w-4" />
-            </button>
-            <button
-              onClick={openSidebar}
-              className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-gray-600 shadow"
-              aria-label="Open admin sidebar"
-            >
-              <Menu className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-
       <div className="flex w-full flex-col gap-4 md:gap-5 lg:gap-6 px-4 pt-4 md:pt-5 lg:pt-6">
         {!activeShopId && (
           <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-700">

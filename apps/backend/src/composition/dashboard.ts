@@ -1,3 +1,4 @@
+import { GetBookingListByDateTimeUseCase } from "@/application/booking/usecases/GetBookingListByDateTimeUseCase.js";
 import { GetDashboardStatisticsUseCase } from "@/application/dashboard/usecases/GetDashboardStatisticsUseCase.js";
 import prisma from "@/db/prisma.js";
 import { DashboardController } from "@/http/controllers/dashboardController.js";
@@ -15,4 +16,12 @@ const getDashboardStatisticsUseCase = new GetDashboardStatisticsUseCase(
     getStaffDataQuery,
 )
 
-export const dashboardController = new DashboardController(getDashboardStatisticsUseCase);
+const getBookingListByDateTimeUseCase = new GetBookingListByDateTimeUseCase(
+    shopRepository,
+    getBookingDataQuery,
+)
+
+export const dashboardController = new DashboardController(
+    getDashboardStatisticsUseCase,
+    getBookingListByDateTimeUseCase,
+);

@@ -5,6 +5,8 @@ import {
     GetBookingDataQueryInterface,
     GetCountByTimeInput,
     GetFamousServiceListInput,
+    GetListByDateTimeInput,
+    GetListByDateTimeOutput,
     GetListByUserIdInput,
     GetListByUserIdOutput,
     GetPeakHourListInput,
@@ -235,6 +237,64 @@ export class GetBookingDataQuery implements GetBookingDataQueryInterface {
             GROUP BY hour
             ORDER BY hour ASC
         `);
+    }
+
+    async getListByDateTime(input: GetListByDateTimeInput): Promise<GetListByDateTimeOutput> {
+        const bookingList = await this.prisma.booking.findMany({
+            where: {
+                shopId: input.shopId.toString(),
+                startTime: {
+                    gte: input.startTime.getValue(),
+                    lt: input.endTime.getValue(),
+                },
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        phoneNumber: true,
+                        avatarUrl: true,
+                    },
+                },
+                staff: {
+                    select: {
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                            }
+                        }
+                    }
+                }
+            },
+            orderBy: {
+                startTime: "asc",
+            }
+        });
+
+        return {
+            bookingList: bookingList.map(booking => ({
+                id: booking.id,
+                startTime: booking.startTime,
+                endTime: booking.endTime,
+                serviceName: booking.serviceName,
+                servicePrice: Number(booking.servicePrice),
+                staff: booking.staff ? {
+                    id: booking.staff.user.id,
+                    name: booking.staff.user.name,
+                } : null,
+                status: BookingStatusEnum[booking.status],
+                customer: {
+                    id: booking.user.id,
+                    name: booking.user.name,
+                    email: booking.user.email,
+                    phoneNumber: booking.user.phoneNumber,
+                    avatarUrl: booking.user.avatarUrl,
+                }
+            }))
+        }
     }
 
     async getShopHistoryBookingList(input: GetShopHistoryBookingListInput): Promise<GetShopHistoryBookingListOutput> {
