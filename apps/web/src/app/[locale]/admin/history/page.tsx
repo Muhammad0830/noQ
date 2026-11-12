@@ -212,12 +212,12 @@ export default function Page() {
   const canMoveForward = visibleWeekStart < todayDate;
 
   const statusLabels: Record<AdminHistoryBooking["status"], string> = {
-    PENDING: t("user.history.status.pending"),
-    CONFIRMED: t("user.history.status.confirmed"),
-    IN_PROGRESS: t("user.history.status.in_progress"),
-    COMPLETED: t("user.history.status.completed"),
-    CANCELLED: t("user.history.status.cancelled"),
-    NO_SHOW: t("user.history.status.noShow"),
+    PENDING: t("booking_status.pending"),
+    CONFIRMED: t("booking_status.confirmed"),
+    IN_PROGRESS: t("booking_status.in_progress"),
+    COMPLETED: t("booking_status.completed"),
+    CANCELLED: t("booking_status.cancelled"),
+    NO_SHOW: t("booking_status.noShow"),
   };
 
   const normalizedBookings = [...bookings]
@@ -395,7 +395,7 @@ export default function Page() {
                 ) : (
                   <div className="text-sm font-semibold">{currentShopName}</div>
                 )}
-                <div className="text-xs font-semibold uppercase text-orange-400">
+                <div className="text-xs font-semibold uppercase text-[#f49b33]">
                   {t("admin.dashboard.panel")}
                 </div>
               </div>

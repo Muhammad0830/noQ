@@ -448,7 +448,7 @@ export default function AdminNewBookingPage() {
           <button
             type="button"
             onClick={() => router.push("/admin")}
-            className="mt-4 inline-flex items-center rounded-full bg-orange-400 px-4 py-2 text-sm font-semibold text-white"
+            className="mt-4 inline-flex items-center rounded-full bg-[#f49b33] px-4 py-2 text-sm font-semibold text-white"
           >
             {t("admin.newBooking.back")}
           </button>
@@ -551,7 +551,7 @@ export default function AdminNewBookingPage() {
                   event.stopPropagation();
                   setShowServices((prev) => !prev);
                 }}
-                className="text-xs font-semibold rounded-full px-4 py-2 border border-orange-200 bg-white text-orange-500"
+                className="text-xs font-semibold rounded-full px-4 py-2 border border-orange-200 bg-white text-[#f49b33]"
               >
                 {t("user.booking.edit")}
               </button>

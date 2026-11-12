@@ -28,10 +28,9 @@ export default function AdminPanelBottomNav({
           <Link
             key={item.href}
             href={item.href}
-            className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-1 transition-colors ${isActive(item.activePatterns)
-                ? "text-blue-600"
-                : "text-gray-600 hover:text-gray-900"
-              }`}
+            className={cn("flex-1 flex flex-col items-center justify-center gap-1 py-2 px-1 transition-colors",
+              isActive(item.activePatterns) ? "text-blue-600" : "text-gray-600 hover:text-gray-900",
+            )}
           >
             <div
               className={isActive(item.activePatterns) ? "text-blue-600" : ""}
