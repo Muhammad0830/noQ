@@ -3,21 +3,16 @@
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  Bell,
   Check,
   ChevronLeft,
   ChevronRight,
   Search,
   Share2,
   UserRound,
-  Menu,
 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
-import AdminSidebar from "@/components/AdminSidebar";
-import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 import { useLocale, useTranslations } from "next-intl";
 import { BookingStatus, formatToDateString } from "@noq/shared";
 
@@ -105,7 +100,6 @@ const buildWeekDays = (referenceDate: Date) => {
 export default function Page() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
   const t = useTranslations();
   const locale = useLocale();
   const [persistedShopId] = useState<string | null>(typeof window !== "undefined"
@@ -113,14 +107,6 @@ export default function Page() {
   const [search, setSearch] = useState("");
   const [isExporting, setIsExporting] = useState(false);
   const [exportDone, setExportDone] = useState(false);
-  const {
-    isSidebarVisible,
-    isSidebarClosing,
-    adminNavItems,
-    openSidebar,
-    closeSidebar,
-    getAdminHrefWithShopId,
-  } = useAdminSidebar(persistedShopId);
   const todayDate = useMemo(() => normalizeDate(new Date()), []);
   const todayQuery = useMemo(() => formatToDateString(todayDate), [todayDate]);
   // `visibleWeekStart` is actually used as the reference (week end) for building
@@ -130,20 +116,6 @@ export default function Page() {
     return new Date(todayDate);
   }, [todayDate]);
   const [visibleWeekStart, setVisibleWeekStart] = useState(initialWeekStart);
-
-  const isShopNameLoading = !user;
-  const currentShopName = useMemo(() => {
-    if (!user) {
-      return t("admin.dashboard.panel");
-    }
-
-    if (persistedShopId) {
-      const activeShop = user.shops?.find((shop) => shop.id === persistedShopId);
-      return activeShop?.name || t("admin.dashboard.panel");
-    }
-
-    return user.shops?.[0]?.name || t("admin.dashboard.panel");
-  }, [persistedShopId, t, user]);
 
   const selectedDate = useMemo(() => {
     const parsedDate = parseDateQuery(searchParams.get("date"));
@@ -160,7 +132,7 @@ export default function Page() {
   );
 
   const historyUrl = persistedShopId
-    ? `${API_ENDPOINTS.admin.dashboardHistory}?shopId=${encodeURIComponent(persistedShopId)}&date=${encodeURIComponent(selectedDateQuery)}`
+    ? `${API_ENDPOINTS.admin.dashboardBookings}?shopId=${encodeURIComponent(persistedShopId)}&date=${encodeURIComponent(selectedDateQuery)}`
     : null;
 
   const {
@@ -365,58 +337,7 @@ export default function Page() {
 
   return (
     <div className="h-dvh bg-white overflow-hidden">
-      <AdminSidebar
-        isVisible={isSidebarVisible}
-        isClosing={isSidebarClosing}
-        currentShopName={currentShopName}
-        adminNavItems={adminNavItems}
-        onClose={closeSidebar}
-        getAdminHrefWithShopId={getAdminHrefWithShopId}
-      />
-
       <div className="flex h-full w-full flex-col bg-white">
-        <div className="sticky top-0 z-40 w-full">
-          <div className="mx-auto flex w-full items-center justify-between border-b bg-orange-50 p-3 md:bg-white md:shadow-sm">
-            <div className="flex items-center gap-3">
-              {isShopNameLoading ? (
-                <div className="h-12 w-12 animate-pulse rounded-full bg-gray-200 sm:h-10 sm:w-10" />
-              ) : (
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 text-sm font-bold text-orange-600 sm:h-10 sm:w-10">
-                  {(currentShopName || "A")
-                    .split(" ")
-                    .map((s: string) => s[0])
-                    .slice(0, 2)
-                    .join("")}
-                </div>
-              )}
-              <div>
-                {isShopNameLoading ? (
-                  <div className="h-4 w-28 animate-pulse rounded-full bg-gray-200" />
-                ) : (
-                  <div className="text-sm font-semibold">{currentShopName}</div>
-                )}
-                <div className="text-xs font-semibold uppercase text-[#f49b33]">
-                  {t("admin.dashboard.panel")}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-gray-600 shadow">
-                <Bell className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={openSidebar}
-                aria-label="Open admin sidebar"
-                className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-gray-600 shadow transition-colors hover:bg-[#f4f4f4]"
-              >
-                <Menu className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-
         <main className="flex min-h-0 flex-1 flex-col gap-4 px-3 pt-3 pb-32 sm:px-4 md:pb-6">
           {!persistedShopId ? (
             <div className="rounded-2xl border border-[#d7d9dd] bg-[#fafafa] p-4 text-sm text-[#8f949a]">

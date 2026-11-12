@@ -19,8 +19,6 @@ import { useQueryClient, useQuery } from "@tanstack/react-query";
 import useApiQuery from "@/hooks/useApiQuery";
 import { API_ENDPOINTS } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
-import AdminSidebar from "@/components/AdminSidebar";
-import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 import { useApiMutation } from "@/hooks/useApiMutation";
 import { useTranslations } from "next-intl";
 
@@ -93,15 +91,6 @@ export default function AdminServicesPage() {
 
     return userShops[0]?.id || null;
   }, [hasLoadedPersistedShop, persistedShopId, shopIdFromQuery, user?.shops]);
-
-  const {
-    isSidebarVisible,
-    isSidebarClosing,
-    openSidebar,
-    closeSidebar,
-    adminNavItems,
-    getAdminHrefWithShopId,
-  } = useAdminSidebar(activeShopId);
 
   useEffect(() => {
     if (
@@ -308,20 +297,6 @@ export default function AdminServicesPage() {
 
   return (
     <div className="min-h-dvh bg-[#f4f4f4]">
-      <AdminSidebar
-        isVisible={isSidebarVisible}
-        isClosing={isSidebarClosing}
-        currentShopName={
-          activeShopId
-            ? (user?.shops || []).find((s) => s.id === activeShopId)?.name ||
-              t("admin.services.title")
-            : t("admin.services.title")
-        }
-        adminNavItems={adminNavItems}
-        onClose={closeSidebar}
-        getAdminHrefWithShopId={getAdminHrefWithShopId}
-      />
-
       <div className="mx-auto w-full bg-[#f4f4f4] pb-4">
         <header className="sticky top-0 z-20 border-b border-[#dcdcdc] bg-[#f9f9f9]/95 px-4 py-3 backdrop-blur-sm">
           <div className="relative flex items-center justify-center">
@@ -338,7 +313,7 @@ export default function AdminServicesPage() {
 
             <button
               type="button"
-              onClick={openSidebar}
+              // onClick={openSidebar}
               className="absolute right-0 inline-flex h-9 w-9 items-center justify-center rounded-full text-[#b0b0b0] transition-colors duration-200 hover:bg-[#ececec]"
               aria-label={t("admin.services.aria.openSidebar")}
             >
