@@ -51,7 +51,7 @@ export default function ProfileAvatarSection({
   };
 
   return (
-    <>
+    <section className="relative border-slate-200 pb-6 text-center dark:border-white/10">
       <input
         type="file"
         accept="image/*"
@@ -139,6 +139,6 @@ export default function ProfileAvatarSection({
           </p>
         </>
       )}
-    </>
+    </section>
   );
 }

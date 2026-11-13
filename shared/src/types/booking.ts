@@ -37,3 +37,31 @@ export interface CancelBookingRequestBody {
   userId: string;
   reason?: string;
 }
+
+export interface DashboardBookingsResponse {
+  data: DashboardBookingItem[];
+}
+
+export interface DashboardBookingItem {
+  id: string;
+  startTime: string;
+  endTime: string;
+  serviceName: string,
+  servicePrice: number,
+  staff: DashboardBookingStaff | null,
+  status: BookingStatus,
+  customer: DashboardBookingCustomer;
+}
+
+export interface DashboardBookingStaff {
+  id: string;
+  name: string;
+}
+
+export interface DashboardBookingCustomer {
+  id: string;
+  name: string;
+  email: string;
+  phoneNumber: string | null;
+  avatarUrl: string | null;
+}

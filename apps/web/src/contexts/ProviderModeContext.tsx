@@ -21,7 +21,9 @@ export function ProviderModeProvider({
       return false;
     }
 
-    return Boolean(localStorage.getItem("selected_shop_id"));
+    const providerMode = localStorage.getItem("providerMode") ?? 'false';
+
+    return JSON.parse(providerMode);
   });
 
   useEffect(() => {

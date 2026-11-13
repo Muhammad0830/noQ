@@ -5,9 +5,9 @@ export interface Service {
     shopId: string;
     name: string;
     description?: string;
-    price?: number;
-    durationMin?: number;
-    isActive?: boolean;
+    price: number;
+    durationMin: number;
+    isActive: boolean;
     shop?: Shop;
     bufferTime?: number | null;
     assignedToAllStaff?: boolean;
@@ -20,4 +20,12 @@ export type ServiceInBookingData = Pick<Service,
     'name' |
     'price' |
     'durationMin'
+>
+
+export type BasicService = Omit<Service,
+    'description' |
+    'shop' |
+    'assignedToAllStaff' |
+    'assignedToStaffId' |
+    'assignedToStaff'
 >

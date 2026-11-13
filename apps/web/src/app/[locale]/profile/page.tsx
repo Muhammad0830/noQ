@@ -90,17 +90,15 @@ export default function ProfilePage() {
       <Header />
 
       <main className="h-full pt-6 overflow-y-auto relative pb-20 mx-auto w-full px-3 sm:px-6">
-        <section className="relative border-slate-200 pb-6 text-center dark:border-white/10">
-          <ProfileAvatarSection
-            user={user}
-            preview={preview}
-            providerMode={providerMode}
-            file={file}
-            setPreview={setPreview}
-            setFile={setFile}
-            handleChangeFile={handleChangeFile}
-          />
-        </section>
+        <ProfileAvatarSection
+          user={user}
+          preview={preview}
+          providerMode={providerMode}
+          file={file}
+          setPreview={setPreview}
+          setFile={setFile}
+          handleChangeFile={handleChangeFile}
+        />
 
         <PanelChangeAccordion
           isAdmin={user?.role === "ADMIN"}
@@ -110,13 +108,9 @@ export default function ProfilePage() {
           isLoadingShops={isLoading}
         />
 
-        <section className="mb-6">
-          <AccountSettings setIsInfoModalOpen={setIsInfoModalOpen} />
-        </section>
+        <AccountSettings setIsInfoModalOpen={setIsInfoModalOpen} />
 
-        <section className="mb-8">
-          <Preferences setIsLanguageModalOpen={setIsLanguageModalOpen} />
-        </section>
+        <Preferences setIsLanguageModalOpen={setIsLanguageModalOpen} />
 
         <button
           type="button"

@@ -1,12 +1,12 @@
-import { 
-  Home, 
-  Search, 
-  History, 
-  User, 
-  LayoutDashboard, 
-  Scissors, 
-  BarChart2, 
-  type LucideIcon 
+import {
+  Home,
+  Search,
+  History,
+  User,
+  LayoutDashboard,
+  Scissors,
+  BarChart2,
+  type LucideIcon
 } from "lucide-react";
 import { Route } from "next";
 
@@ -20,11 +20,11 @@ export type NavItem = {
 
 export const ADMIN_NAV_ITEMS: NavItem[] = [
   {
-    href: "/admin",
+    href: "/admin/dashboard",
     labelKey: "bottomNav.panel",
     defaultLabel: "Dash",
     icon: LayoutDashboard,
-    activePatterns: ["^/admin$"],
+    activePatterns: ["^/admin/dashboard"],
   },
   {
     href: "/admin/services",
@@ -32,52 +32,52 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     icon: Scissors,
     activePatterns: ["^/admin/services"],
   },
-    {
+  {
     href: "/admin/history",
     labelKey: "bottomNav.history",
     defaultLabel: "History",
     icon: History,
     activePatterns: ["^/admin/history"],
-    },
+  },
   {
     href: "/admin/analytics",
     labelKey: "bottomNav.analytics",
     defaultLabel: "Analytics",
     icon: BarChart2,
-      activePatterns: ["^/admin/analytics"],
+    activePatterns: ["^/admin/analytics"],
   },
-      {
+  {
     href: "/profile",
     labelKey: "bottomNav.profile",
     defaultLabel: "Profile",
     icon: User,
-    activePatterns: ["^/profile"],
-    },
+    activePatterns: ["^/profile", "^/settings"],
+  },
 ];
 
 export const USER_NAV_ITEMS: NavItem[] = [
-    {
+  {
     href: "/home",
     labelKey: "bottomNav.home",
     defaultLabel: "Home",
     icon: Home,
     activePatterns: ["^/$", "^/home"],
   },
-      {
+  {
     href: "/discover",
     labelKey: "bottomNav.discover",
     defaultLabel: "Home",
     icon: Search,
     activePatterns: ["^/discover"],
   },
-        {
+  {
     href: "/bookings",
     labelKey: "bottomNav.history",
     defaultLabel: "Home",
     icon: History,
     activePatterns: ["^/bookings"],
   },
-        {
+  {
     href: "/profile",
     labelKey: "bottomNav.profile",
     defaultLabel: "Profile",

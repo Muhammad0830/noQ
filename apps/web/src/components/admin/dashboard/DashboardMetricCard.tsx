@@ -1,13 +1,14 @@
 "use client";
 
+import { cn } from "cn";
 import type { LucideIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 type DashboardMetricCardProps = {
   label: string;
   value: ReactNode;
-  changeText?: string;
-  changePositive?: boolean;
+  change?: number;
   icon: LucideIcon;
   iconClassName?: string;
   isLoading?: boolean;
@@ -16,12 +17,13 @@ type DashboardMetricCardProps = {
 export default function DashboardMetricCard({
   label,
   value,
-  changeText,
-  changePositive,
+  change,
   icon: Icon,
-  iconClassName = "bg-orange-400",
+  iconClassName = "bg-[#f49b33]",
   isLoading = false,
 }: DashboardMetricCardProps) {
+  const t = useTranslations();
+
   return (
     <div className="relative flex flex-col overflow-visible rounded-2xl bg-white p-4 shadow-lg md:rounded-2xl md:p-5 lg:rounded-3xl lg:p-5">
       <div
@@ -45,15 +47,16 @@ export default function DashboardMetricCard({
                 {value}
               </p>
 
-              {changeText ? (
+              {change !== undefined && (
                 <div
-                  className={`mt-3 text-[11px] ${
-                    changePositive === false ? "text-red-500" : "text-green-600"
-                  }`}
+                  className={cn(
+                    "mt-3 text-[11px]",
+                    change < 0 ? "text-red-500" : "text-green-600"
+                  )}
                 >
-                  {changeText}
+                  {change > 0 && '+'} {change}% {t("admin.dashboard.period7d")}
                 </div>
-              ) : null}
+              )}
             </>
           )}
         </div>

@@ -14,8 +14,8 @@ export default function Preferences({
   const locale = useLocale() as SupportedLocalesType;
 
   return (
-    <>
-      <p className="text-base font-semibold text-slate-900">
+    <section className="mb-8">
+      <p className="text-base font-semibold text-slate-900 mb-1">
         {t("profile.appPreferences")}
       </p>
 
@@ -51,6 +51,6 @@ export default function Preferences({
           border_top
         />
       </div>
-    </>
+    </section>
   );
 }
