@@ -82,7 +82,7 @@ export default function PanelChangeAccordion({
                 {visibleAdminShops.map((shop) => (
                   <PanelChangeListItem
                     key={shop.id}
-                    href={"/admin" as Route}
+                    href={"/admin/dashboard" as Route}
                     icon={categoryIcons[`${shop.category?.icon ?? 'store'}`]}
                     title={shop.name}
                     subtitle={shop.category?.name}

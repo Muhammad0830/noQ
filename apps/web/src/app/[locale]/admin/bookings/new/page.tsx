@@ -134,7 +134,7 @@ export default function AdminNewBookingPage() {
   }, [activeShopId]);
 
   const adminBackHref = useMemo(() => {
-    if (!activeShopId) return "/admin";
+    if (!activeShopId) return "/admin/dashboard";
     return `/admin?shopId=${encodeURIComponent(activeShopId)}`;
   }, [activeShopId]);
 
@@ -447,7 +447,7 @@ export default function AdminNewBookingPage() {
           </p>
           <button
             type="button"
-            onClick={() => router.push("/admin")}
+            onClick={() => router.push("/admin/dashboard")}
             className="mt-4 inline-flex items-center rounded-full bg-[#f49b33] px-4 py-2 text-sm font-semibold text-white"
           >
             {t("admin.newBooking.back")}

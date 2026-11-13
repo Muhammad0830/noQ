@@ -1,5 +1,5 @@
 import { FC } from "react";
-import FieldCard from "./FieldCard";
+import FieldCard from "../../../shared/components/FieldCard";
 import { Check, User, Users } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { mockStaffMembers } from "../utils";

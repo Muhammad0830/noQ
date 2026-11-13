@@ -1,5 +1,5 @@
 import { FC } from "react";
-import FieldCard from "./FieldCard";
+import FieldCard from "../../../shared/components/FieldCard";
 import { Clock3 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { FieldError } from "react-hook-form";
