@@ -70,7 +70,12 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     }, [shopQuery.data, selectedShopId]);
 
     useEffect(() => {
-        if (!providerMode || isLoading) {
+        if (isLoading) {
+            return;
+        }
+
+        if (!providerMode) {
+            router.replace("/profile" as Route);
             return;
         }
 

@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { ChevronDown } from "lucide-react";
-import { Calendar } from "../ui/calendar";
+import { Calendar } from "../../ui/calendar";
 import { cn, monthNames } from "@/lib/utils";
 import { useLocale, useTranslations } from "next-intl";
 import { uz, uzCyrl, ru } from "date-fns/locale"

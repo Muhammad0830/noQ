@@ -1,5 +1,5 @@
 'use client';
-import AdminDashboardHeader from "@/components/admin/AdminDashboardHeader";
+import AdminDashboardHeader from "@/components/admin/dashboard/AdminDashboardHeader";
 import { useShop } from "@/contexts/ShopContext";
 import { AdminSidebar, ConditionalBottomNav } from "@/shared/components";
 import { Loader2 } from "lucide-react";
