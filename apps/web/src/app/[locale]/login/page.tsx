@@ -36,7 +36,7 @@ export default function Login() {
       await login(formData.email, formData.password, formData.remember);
       if (selectedRole === "admin") {
         setProviderMode(true);
-        router.push("/admin");
+        router.push("/admin/dashboard");
       } else {
         router.push("/home");
       }
