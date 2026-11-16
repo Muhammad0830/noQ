@@ -58,7 +58,7 @@ const InactiveServiceCard: FC<InactiveServiceCardProps> = ({
                 </div>
 
                 <Link
-                    href={`/admin/services/edit/${service.id}` as Route}
+                    href={`/admin/services/${service.id}/edit` as Route}
                     className="mt-1 inline-flex items-center gap-1 text-[9px] md:text-[10px] lg:text-[10px] font-semibold uppercase tracking-[0.18em] text-[#9aa1ab] transition-colors hover:text-[#F49B33]"
                 >
                     <PenLine className="h-3 w-3 md:h-3.5 md:w-3.5 lg:h-3.5 lg:w-3.5" />

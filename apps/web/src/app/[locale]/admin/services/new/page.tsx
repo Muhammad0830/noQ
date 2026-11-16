@@ -21,7 +21,7 @@ type CreateServicePayload = {
   name: string;
   price: number;
   durationMin: number;
-  bufferTime: number | null;
+  bufferTime?: number;
   selectedStaffs: string[];
 };
 
@@ -82,7 +82,6 @@ export default function AddNewService() {
       name,
       price,
       durationMin: durationToMinutes(durationMin),
-      bufferTime,
       selectedStaffs,
     }, {
       onSuccess: () => router.push("/admin/services" as Route)
@@ -106,20 +105,30 @@ export default function AddNewService() {
         </h1>
       </header>
 
-      <ServiceAddComponent
-        errors={errors}
-        isLoading={isPending || isSubmitting}
-        onSubmit={handleSubmit(onSubmit)}
-        setValue={setValue}
-        formValues={{
-          name,
-          price,
-          durationMin,
-          bufferTime,
-          selectedStaffs,
-          assignedToAllStaffs
-        }}
-      />
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <ServiceAddComponent
+          errors={errors}
+          setValue={setValue}
+          formValues={{
+            name,
+            price,
+            durationMin,
+            bufferTime,
+            selectedStaffs,
+            assignedToAllStaffs
+          }}
+        />
+
+        <div className="pt-2 flex flex-col gap-2">
+          <button
+            type="submit"
+            disabled={isSubmitting || isPending}
+            className="flex h-14 w-full items-center justify-center rounded-full bg-[#F49B33] text-[16px] font-semibold uppercase tracking-[0.08em] text-white shadow-[0_16px_32px_rgba(244,155,51,0.28)] transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isSubmitting || isPending ? t("newShop.step3.saving") : t("admin.services.save")}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

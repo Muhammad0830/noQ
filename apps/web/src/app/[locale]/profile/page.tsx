@@ -14,6 +14,7 @@ import Preferences from "@/shared/components/profile/Preferences";
 import { Loader2, LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ConditionalBottomNav, Header } from "@/shared/components";
+import { Route } from "next";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -76,13 +77,7 @@ export default function ProfilePage() {
   }
 
   if (!user) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-700">
-        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium shadow-sm">
-          <span>{t("common.userNotFound")}</span>
-        </div>
-      </main>
-    );
+    return router.replace("/home" as Route)
   }
 
   return (

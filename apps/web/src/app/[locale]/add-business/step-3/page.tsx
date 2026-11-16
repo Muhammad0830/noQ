@@ -11,10 +11,12 @@ import { useApiMutation } from "@/hooks/useApiMutation";
 import { API_ENDPOINTS } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import ServiceAddComponent from "@/features/addBusiness/components/ServiceAddComponent";
+import { useTranslations } from "next-intl";
 
 export default function AddBusinessStepThreePage() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
+  const t = useTranslations()
 
   const { mutate, isPending } = useApiMutation<{ shopId: string }>(API_ENDPOINTS.shops, 'post');
 
@@ -97,20 +99,30 @@ export default function AddBusinessStepThreePage() {
 
   return (
     <main className="bg-[#f5f6f8] text-[#111827]">
-      <ServiceAddComponent
-        errors={errors}
-        isLoading={isSubmitting || isPending}
-        onSubmit={() => handleSubmit(onSubmit)}
-        setValue={setValue}
-        formValues={{
-          name,
-          price,
-          durationMin,
-          bufferTime,
-          selectedStaffs,
-          assignedToAllStaffs: enabled
-        }}
-      />
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <ServiceAddComponent
+          errors={errors}
+          setValue={setValue}
+          formValues={{
+            name,
+            price,
+            durationMin,
+            bufferTime,
+            selectedStaffs,
+            assignedToAllStaffs: enabled
+          }}
+        />
+
+        <div className="pt-2 flex flex-col gap-2">
+          <button
+            type="submit"
+            disabled={isSubmitting || isPending}
+            className="flex h-14 w-full items-center justify-center rounded-full bg-[#F49B33] text-[16px] font-semibold uppercase tracking-[0.08em] text-white shadow-[0_16px_32px_rgba(244,155,51,0.28)] transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isSubmitting || isPending ? t("newShop.step3.saving") : t("newShop.step3..next")}
+          </button>
+        </div>
+      </form>
     </main>
   );
 }

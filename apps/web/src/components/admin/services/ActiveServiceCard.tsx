@@ -85,7 +85,7 @@ const ActiveServiceCard: FC<ActiveServiceCardProps> = ({
 
                     <div className="flex items-center gap-1.5 md:gap-2 lg:gap-2">
                         <Link
-                            href={`/admin/services/edit/${service.id}` as Route}
+                            href={`/admin/services/${service.id}/edit` as Route}
                             aria-label={t("admin.services.aria.editService")}
                             className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#8f98a4] transition-colors hover:bg-[#f3f4f6]"
                         >

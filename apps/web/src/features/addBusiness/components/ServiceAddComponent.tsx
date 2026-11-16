@@ -15,16 +15,12 @@ import { mockStaffMembers } from "../utils";
 interface ServiceAddComponentProps {
     errors: FieldErrors<CreateServiceInput>;
     formValues: CreateServiceInput;
-    isLoading: boolean;
-    onSubmit: () => void;
     setValue: UseFormSetValue<CreateServiceInput>;
 }
 
 const ServiceAddComponent: FC<ServiceAddComponentProps> = ({
     errors,
     formValues,
-    isLoading,
-    onSubmit,
     setValue,
 }) => {
     const t = useTranslations();
@@ -75,57 +71,47 @@ const ServiceAddComponent: FC<ServiceAddComponentProps> = ({
 
     return (
         <>
-            <div className="mx-auto max-w-3xl pt-5">
-                <form onSubmit={onSubmit} className="space-y-4">
-                    <FieldCard
-                        label={t("newShop.step3.serviceName")}
-                        icon={<Info className="h-4 w-4 text-[#F49B33]" />}
-                        error={errors.name}
-                    >
-                        <InputField
-                            placeholder={t("newShop.step3.serviceNamePlaceholder")}
-                            value={formValues.name}
-                            onChange={(event) => setValue('name', event.target.value)}
-                        />
-                    </FieldCard>
+            <div className="mx-auto max-w-3xl pt-5 space-y-4">
+                <FieldCard
+                    label={t("newShop.step3.serviceName")}
+                    icon={<Info className="h-4 w-4 text-[#F49B33]" />}
+                    error={errors.name}
+                >
+                    <InputField
+                        placeholder={t("newShop.step3.serviceNamePlaceholder")}
+                        value={formValues.name}
+                        onChange={(event) => setValue('name', event.target.value)}
+                    />
+                </FieldCard>
 
-                    <ServiceAddDurationFields
-                        error={errors.durationMin || errors.bufferTime}
-                        durationMin={formValues.durationMin}
-                        bufferTime={formValues.bufferTime}
-                        handleDrawerOpen={handleDrawerOpen} />
+                <ServiceAddDurationFields
+                    error={errors.durationMin || errors.bufferTime}
+                    durationMin={formValues.durationMin}
+                    bufferTime={formValues.bufferTime ?? 0}
+                    handleDrawerOpen={handleDrawerOpen}
+                />
 
-                    <FieldCard
-                        label={t("newShop.step3.servicePrice")}
-                        icon={<DollarSign className="h-4 w-4 text-[#F49B33]" />}
-                        error={errors.price}
-                    >
-                        <InputField
-                            type="text"
-                            placeholder={t("newShop.step3.servicePricePlaceholder")}
-                            value={formValues.price}
-                            onChange={(event) => setValue('price', Number(event.target.value.replace(/\D/g, '')))}
-                            className="text-start"
-                        />
-                    </FieldCard>
+                <FieldCard
+                    label={t("newShop.step3.servicePrice")}
+                    icon={<DollarSign className="h-4 w-4 text-[#F49B33]" />}
+                    error={errors.price}
+                >
+                    <InputField
+                        type="text"
+                        placeholder={t("newShop.step3.servicePricePlaceholder")}
+                        value={formValues.price}
+                        onChange={(event) => setValue('price', Number(event.target.value.replace(/\D/g, '')))}
+                        className="text-start"
+                    />
+                </FieldCard>
 
-                    <ServiceAddStaffSelect
-                        error={errors.selectedStaffs?.[0] || errors.assignedToAllStaffs}
-                        enabled={formValues.assignedToAllStaffs}
-                        selectedStaffs={formValues.selectedStaffs}
-                        handleSelectAll={handleSelectAll}
-                        toggleStaff={toggleStaff} />
-
-                    <div className="pt-2">
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="flex h-14 w-full items-center justify-center rounded-full bg-[#F49B33] text-[16px] font-semibold uppercase tracking-[0.08em] text-white shadow-[0_16px_32px_rgba(244,155,51,0.28)] transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
-                        >
-                            {isLoading ? t("newShop.step3.saving") : t("newShop.step3.next")}
-                        </button>
-                    </div>
-                </form>
+                <ServiceAddStaffSelect
+                    error={errors.selectedStaffs?.[0] || errors.assignedToAllStaffs}
+                    enabled={formValues.assignedToAllStaffs}
+                    selectedStaffs={formValues.selectedStaffs}
+                    handleSelectAll={handleSelectAll}
+                    toggleStaff={toggleStaff}
+                />
             </div>
 
             <DurationDrawer
@@ -133,7 +119,7 @@ const ServiceAddComponent: FC<ServiceAddComponentProps> = ({
                 setIsOpen={setIsDrawerOpen}
                 value={selectedField === "durationMin"
                     ? formValues.durationMin
-                    : minutesToTimeString(formValues.bufferTime)}
+                    : minutesToTimeString(formValues.bufferTime ?? 0)}
                 onValueChange={(value) => setValue(
                     selectedField,
                     selectedField === 'durationMin' ? value : durationToMinutes(value)

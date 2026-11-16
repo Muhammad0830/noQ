@@ -22,7 +22,8 @@ export const createServiceSchema = (staffs: { id: string }[]) => z.object({
     bufferTime: z
         .number("Invalid value")
         .int("Invalid value")
-        .min(0, "Buffer time cannot be negative"),
+        .min(0, "Buffer time cannot be negative")
+        .optional(),
 
     price: z
         .number("Invalid value")

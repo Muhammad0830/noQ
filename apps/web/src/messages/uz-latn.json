@@ -214,6 +214,8 @@
         "saving": "Saqlanmoqda...",
         "delete": "O'chirish",
         "deleting": "O'chirilmoqda...",
+        "confirm_delete": "Haqiqatan ham xizmatni o'chirmoqchimisiz?",
+        "delete_description": "O'chirilgandan so'ng bu xizmatga aloqador barcha ma'lumotlar ham o'chib ketadi va qaytarib bo'lmaydi. Shunda ham davom etasizmi?",
         "error": {
           "nameRequired": "Xizmat nomi talab qilinadi",
           "invalidDuration": "Vaqt noto'g'ri",
@@ -522,7 +524,8 @@
     "yes": "ha",
     "no": "yo'q",
     "now": "hozir",
-    "after": "keyin"
+    "after": "keyin",
+    "something_went_wrong": "Xatolik aniqlandi, keyenroq urinib ko'ring."
   },
   "profile": {
     "title": "Profil",
@@ -631,6 +634,7 @@
       "saving": "Saqlanmoqda...",
       "next": "KEYINGISI",
       "placeholder": "3-bosqich tez orada qo'shiladi.",
+      "delete": "O'chirish",
       "error": {
         "shopNotFound": "Do'kon topilmadi. Qayta urinib ko'ring.",
         "serviceNameRequired": "Xizmat nomini kiriting",
