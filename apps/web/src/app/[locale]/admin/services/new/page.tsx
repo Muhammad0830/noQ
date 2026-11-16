@@ -7,7 +7,7 @@ import {
 import { API_ENDPOINTS } from "@/lib/api";
 import { useApiMutation } from "@/hooks/useApiMutation";
 import { useTranslations } from "next-intl";
-import ServiceAddComponent from "@/features/addBusiness/components/ServiceAddComponent";
+import ServiceFormComponent from "@/features/addBusiness/components/ServiceFormComponent";
 import { CreateServiceData, CreateServiceInput, createServiceSchema } from "@/features/addBusiness/schemas/service.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { defaultServiceValues, mockStaffMembers } from "@/features/addBusiness/utils";
@@ -21,7 +21,7 @@ type CreateServicePayload = {
   name: string;
   price: number;
   durationMin: number;
-  bufferTime: number | null;
+  bufferTime?: number;
   selectedStaffs: string[];
 };
 
@@ -82,7 +82,6 @@ export default function AddNewService() {
       name,
       price,
       durationMin: durationToMinutes(durationMin),
-      bufferTime,
       selectedStaffs,
     }, {
       onSuccess: () => router.push("/admin/services" as Route)
@@ -106,20 +105,30 @@ export default function AddNewService() {
         </h1>
       </header>
 
-      <ServiceAddComponent
-        errors={errors}
-        isLoading={isPending || isSubmitting}
-        onSubmit={handleSubmit(onSubmit)}
-        setValue={setValue}
-        formValues={{
-          name,
-          price,
-          durationMin,
-          bufferTime,
-          selectedStaffs,
-          assignedToAllStaffs
-        }}
-      />
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <ServiceFormComponent
+          errors={errors}
+          setValue={setValue}
+          formValues={{
+            name,
+            price,
+            durationMin,
+            bufferTime,
+            selectedStaffs,
+            assignedToAllStaffs
+          }}
+        />
+
+        <div className="pt-2 flex flex-col gap-2">
+          <button
+            type="submit"
+            disabled={isSubmitting || isPending}
+            className="flex h-14 w-full items-center justify-center rounded-full bg-[#F49B33] text-[16px] font-semibold uppercase tracking-[0.08em] text-white shadow-[0_16px_32px_rgba(244,155,51,0.28)] transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isSubmitting || isPending ? t("newShop.step3.saving") : t("admin.services.save")}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

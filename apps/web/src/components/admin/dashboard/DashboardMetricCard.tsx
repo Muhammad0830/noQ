@@ -54,7 +54,7 @@ export default function DashboardMetricCard({
                     change < 0 ? "text-red-500" : "text-green-600"
                   )}
                 >
-                  {change > 0 && '+'} {change}% {t("admin.dashboard.period7d")}
+                  {change > 0 && '+'} {change.toFixed(2)}% {t("admin.dashboard.period7d")}
                 </div>
               )}
             </>
