@@ -10,7 +10,7 @@ import { durationToMinutes } from "@/shared/utils/schedule";
 import { useApiMutation } from "@/hooks/useApiMutation";
 import { API_ENDPOINTS } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
-import ServiceAddComponent from "@/features/addBusiness/components/ServiceAddComponent";
+import ServiceFormComponent from "@/features/addBusiness/components/ServiceFormComponent";
 import { useTranslations } from "next-intl";
 
 export default function AddBusinessStepThreePage() {
@@ -100,7 +100,7 @@ export default function AddBusinessStepThreePage() {
   return (
     <main className="bg-[#f5f6f8] text-[#111827]">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <ServiceAddComponent
+        <ServiceFormComponent
           errors={errors}
           setValue={setValue}
           formValues={{

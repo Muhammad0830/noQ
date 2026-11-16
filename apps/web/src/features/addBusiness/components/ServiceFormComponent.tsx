@@ -12,13 +12,13 @@ import { minutesToTimeString } from "@noq/shared";
 import { durationToMinutes } from "@/shared/utils/schedule";
 import { mockStaffMembers } from "../utils";
 
-interface ServiceAddComponentProps {
+interface ServiceFormComponentProps {
     errors: FieldErrors<CreateServiceInput>;
     formValues: CreateServiceInput;
     setValue: UseFormSetValue<CreateServiceInput>;
 }
 
-const ServiceAddComponent: FC<ServiceAddComponentProps> = ({
+const ServiceFormComponent: FC<ServiceFormComponentProps> = ({
     errors,
     formValues,
     setValue,
@@ -128,4 +128,4 @@ const ServiceAddComponent: FC<ServiceAddComponentProps> = ({
     );
 }
 
-export default ServiceAddComponent;
+export default ServiceFormComponent;

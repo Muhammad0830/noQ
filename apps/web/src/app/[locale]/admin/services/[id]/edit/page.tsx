@@ -14,7 +14,7 @@ import { useShop } from "@/contexts/ShopContext";
 import { use, useEffect } from "react";
 import { durationToMinutes } from "@/shared/utils/schedule";
 import { minutesToTimeString } from "@noq/shared";
-import ServiceAddComponent from "@/features/addBusiness/components/ServiceAddComponent";
+import ServiceFormComponent from "@/features/addBusiness/components/ServiceFormComponent";
 import ServiceEditSkeleton from "@/components/admin/services/ServiceEditSkeleton";
 import { useUpdateService } from "@/hooks/admin/useUpdateService";
 import ConfirmDeleteServiceDialog from "@/components/admin/services/ConfirmDeleteServiceDialog";
@@ -86,12 +86,6 @@ export default function EditServicePage({
     ],
   });
 
-  if (!shop) {
-    return (
-      <div>Shop not found</div>
-    )
-  }
-
   const onSubmit = async () => {
     const result = updateServiceSchema(mockStaffMembers).safeParse({
       id: id,
@@ -122,6 +116,12 @@ export default function EditServicePage({
 
   const isButtonsLoading = isSubmitting || isUpdating || isDeleting || isLoading;
 
+  if (!shop) {
+    return (
+      <div>Shop not found</div>
+    )
+  }
+
   return (
     <div className="min-h-dvh bg-[#f5f6f8] px-4 pb-8 text-[#111827]">
       <header className="relative mx-auto flex max-w-3xl items-center justify-center mt-5 mb-3">
@@ -146,7 +146,7 @@ export default function EditServicePage({
       <form onSubmit={handleSubmit(onSubmit)}>
         {isLoading
           ? <ServiceEditSkeleton />
-          : <ServiceAddComponent
+          : <ServiceFormComponent
             errors={errors}
             setValue={setValue}
             formValues={{

@@ -7,7 +7,7 @@ import {
 import { API_ENDPOINTS } from "@/lib/api";
 import { useApiMutation } from "@/hooks/useApiMutation";
 import { useTranslations } from "next-intl";
-import ServiceAddComponent from "@/features/addBusiness/components/ServiceAddComponent";
+import ServiceFormComponent from "@/features/addBusiness/components/ServiceFormComponent";
 import { CreateServiceData, CreateServiceInput, createServiceSchema } from "@/features/addBusiness/schemas/service.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { defaultServiceValues, mockStaffMembers } from "@/features/addBusiness/utils";
@@ -106,7 +106,7 @@ export default function AddNewService() {
       </header>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <ServiceAddComponent
+        <ServiceFormComponent
           errors={errors}
           setValue={setValue}
           formValues={{
