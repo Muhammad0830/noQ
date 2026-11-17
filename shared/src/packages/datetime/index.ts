@@ -16,6 +16,8 @@ export {
     createDateTime,
     formatToDateString,
     subDays,
+    subMonths,
+    subYears,
     startOfDay,
     startOfMonth,
     startOfYear,

@@ -176,7 +176,7 @@ export const API_ENDPOINTS = {
       `${API_BASE_URL}/admin/bookings/${bookingId}/start`,
     bookingConfirm: (bookingId: string) =>
       `${API_BASE_URL}/admin/bookings/${bookingId}/confirm`,
-    analytics: `${API_BASE_URL}/admin/analytics`,
+    analyticsBaseInfo: `${API_BASE_URL}/admin/analytics`,
     analyticsDiagramInfo: `${API_BASE_URL}/admin/analytics/diagram_info`,
     analyticsFamousServices: `${API_BASE_URL}/admin/analytics/famousServices`,
     analyticsPeakHours: `${API_BASE_URL}/admin/analytics/peak-hours`,
