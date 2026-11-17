@@ -3,7 +3,9 @@ import {
     format,
     parse,
     subDays as _subDays,
+    subMonths as _subMonths,
     addMonths as _addMonths,
+    subYears as _subYears,
     addYears as _addYears,
     startOfDay as _startOfDay,
     startOfMonth as _startOfMonth,
@@ -28,6 +30,14 @@ export function addYears(date: string | Date, days: number) {
 
 export function subDays(date: string | Date, days: number) {
     return _subDays(date, days);
+}
+
+export function subMonths(date: string | Date, months: number) {
+    return _subMonths(date, months);
+}
+
+export function subYears(date: string | Date, years: number) {
+    return _subYears(date, years);
 }
 
 export function createDateTime(dateStr: string, timeStr: string): Date {

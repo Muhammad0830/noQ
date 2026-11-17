@@ -13,7 +13,6 @@ import DashboardSelectDate from "./DashboardSelectDate";
 import DashboardDateItems from "./DashboardDateItems";
 import DashboardNowMarker from "./DashboardNowMarker";
 import DashboardBookingItemComponent from "./DashboardBookingItem";
-
 type AdminScheduleTimelineProps = {
   currentDate: Date;
   selectedDate: Date;
