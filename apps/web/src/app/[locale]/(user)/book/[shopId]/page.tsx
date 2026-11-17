@@ -17,7 +17,7 @@ import Header from "@/features/booking/components/Header";
 import SelectedServiceCard from "@/features/booking/components/SelectedServiceCard";
 import SelectStaffSection from "@/features/booking/components/SelectStaffSection";
 import BookingFooter from "@/features/booking/components/BookingFooter";
-import { ShopDetails, BookingSlot, Service } from "@noq/shared";
+import { ShopDetails, BookingSlot, Service, formatToDateString } from "@noq/shared";
 
 interface Props {
   params: Promise<{ shopId: string }>;
@@ -96,7 +96,11 @@ export default function BookingPage({
 
         <SelectStaffSection shop={shop} />
 
-        <ScheduleDatePicker selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
+        <ScheduleDatePicker
+          selectedDate={new Date(selectedDate.date)}
+          setSelectedDate={(date) => setSelectedDate({ time: null, date: formatToDateString(date) })}
+          show="next_only"
+        />
 
         <TimeSlotPicker
           slots={slotsData}

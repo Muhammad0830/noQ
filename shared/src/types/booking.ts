@@ -65,3 +65,29 @@ export interface DashboardBookingCustomer {
   phoneNumber: string | null;
   avatarUrl: string | null;
 }
+
+export type AdminHistoryBooking = {
+  id: string;
+  startTime: string;
+  endTime: string;
+  servicePrice: string;
+  serviceName: string;
+  status: BookingStatus
+  createdAt: string;
+  staffId: string | null;
+  customer: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  staff: {
+    user: {
+      id: string;
+      name: string;
+    };
+  } | null;
+}
+
+export type AdminHistoryBookingData = {
+  data: AdminHistoryBooking[]
+}
