@@ -6,7 +6,7 @@ import {
     HistoryCardData,
     InProgressBookingCardData,
 } from "./types";
-import { BookingItem, formatToDateString, formatToTimeString } from "@noq/shared";
+import { BookingItem, BookingStatus, formatToDateString, formatToTimeString } from "@noq/shared";
 
 const resolveShopImage = (rawImage?: string | null) => {
     if (!rawImage) return null;
@@ -144,3 +144,12 @@ export const defaultSelectedDate = {
     date: new Date().toISOString().split('T')[0],
     time: null
 }
+
+export const statusLabels: Record<BookingStatus, string> = {
+    PENDING: "booking_status.pending",
+    CONFIRMED: "booking_status.confirmed",
+    IN_PROGRESS: "booking_status.in_progress",
+    COMPLETED: "booking_status.completed",
+    CANCELLED: "booking_status.cancelled",
+    NO_SHOW: "booking_status.noShow",
+};

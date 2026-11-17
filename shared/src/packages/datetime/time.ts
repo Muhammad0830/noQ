@@ -49,8 +49,6 @@ export function formatToTimeString(value: Date | string) {
 export function minutesToTimeString(totalMinutes: number) {
     const baseDate = startOfDay(new Date()); // base date for parsing with 00:00
     const targetDate = addMinutes(baseDate, totalMinutes);
-    console.log("baseDate", baseDate)
-    console.log("targetDate", targetDate)
     return formatToTimeString(targetDate);
 }
 
