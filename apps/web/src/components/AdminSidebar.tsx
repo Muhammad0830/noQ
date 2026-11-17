@@ -1,109 +1,51 @@
 "use client";
 
-import { useRef, useEffect } from "react";
 import type { Route } from "next";
-import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
-  BarChart3,
   Users,
   PlusCircle,
-  SquareArrowOutUpRight,
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-const asRoute = (href: string) => href as Route;
-
-type AdminNavItem = {
-  title: string;
-  href: string;
-  icon: typeof BarChart3;
-  exact?: boolean;
-};
+import { ADMIN_NAV_ITEMS } from "@/shared/utils/navigation";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer";
+import { usePathname } from "@/i18n/navigation";
+import { cn } from "cn";
 
 interface AdminSidebarProps {
-  isVisible: boolean;
-  isClosing: boolean;
-  currentShopName: string;
-  adminNavItems: AdminNavItem[];
+  shopName: string;
+  isOpen: boolean;
   onClose: () => void;
-  getAdminHrefWithShopId: (path: string) => string;
 }
 
 export default function AdminSidebar({
-  isVisible,
-  isClosing,
-  currentShopName,
-  adminNavItems,
+  shopName,
+  isOpen,
   onClose,
-  getAdminHrefWithShopId,
 }: AdminSidebarProps) {
   const pathname = usePathname();
   const t = useTranslations();
-  const sidebarRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        isVisible &&
-        !isClosing &&
-        sidebarRef.current &&
-        !sidebarRef.current.contains(e.target as Node) &&
-        (e.target as Element)?.closest(".fixed.inset-0.z-50")
-      ) {
-        onClose();
-      }
-    };
-
-    const handleEscapeKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isVisible && !isClosing) {
-        onClose();
-      }
-    };
-
-    if (isVisible) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("keydown", handleEscapeKey);
-      document.body.style.overflow = isClosing ? "auto" : "hidden";
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEscapeKey);
-      document.body.style.overflow = "auto";
-    };
-  }, [isVisible, isClosing, onClose]);
-
-  if (!isVisible) return null;
+  const isActive = (patterns: string[]) => {
+    return patterns.some((pattern) => {
+      const regex = new RegExp(pattern);
+      return regex.test(pathname);
+    });
+  };
 
   return (
     <>
-      <div
-        className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-[2px]"
-        style={{
-          animation: isClosing
-            ? "fadeOut 0.28s ease-in forwards"
-            : "fadeIn 0.2s ease-out",
-        }}
-      >
-        <div
-          ref={sidebarRef}
-          className="h-full w-[320px] md:w-90 lg:w-100 max-w-[88vw] bg-white shadow-2xl border-l border-gray-200 rounded-l-3xl flex flex-col"
-          style={{
-            animation: isClosing
-              ? "slideOutRight 0.28s ease-in forwards"
-              : "slideInRight 0.28s ease-out",
-          }}
-        >
-          <div className="mx-3 mt-3 overflow-hidden rounded-3xl border border-orange-100 bg-orange-50">
-            <div className="flex items-center justify-between px-4 py-4">
+      <Drawer direction="left" open={isOpen} onOpenChange={onClose}>
+        <DrawerContent className="rounded-r-xl!">
+          <DrawerHeader>
+            <DrawerTitle className="flex items-center justify-between gap-2">
               <div>
-                <div className="text-sm font-bold text-gray-900">
-                  Admin panel
-                </div>
-                <div className="text-xs text-gray-500">{currentShopName}</div>
+                <span>{t("admin.sidebar.admin_panel")}</span>
+
+                <div className="text-xs text-gray-500">{shopName}</div>
               </div>
+
               <button
                 onClick={onClose}
                 className="h-9 w-9 rounded-full bg-white border shadow flex items-center justify-center text-gray-600"
@@ -111,120 +53,88 @@ export default function AdminSidebar({
               >
                 <X className="w-4 h-4" />
               </button>
-            </div>
-          </div>
+            </DrawerTitle>
+          </DrawerHeader>
 
-          <div className="flex-1 px-3 py-4 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            <div className="space-y-1">
-              {adminNavItems.map((item) => {
+          <div className="flex-1 flex flex-col gap-2 justify-between px-3 py-4 overflow-y-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div className="space-y-2">
+              {ADMIN_NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
-                const isActive = item.exact
-                  ? pathname === item.href.replace(/\?.*$/, "")
-                  : pathname.startsWith(item.href.replace(/\?.*$/, ""));
 
                 return (
                   <Link
                     key={item.href}
-                    href={asRoute(item.href)}
+                    href={item.href as Route}
                     onClick={onClose}
-                    className={`flex items-center justify-between rounded-2xl px-4 py-2.5 transition ${
-                      isActive
-                        ? "bg-orange-400 text-white shadow-md"
-                        : "bg-white text-gray-700 hover:bg-orange-50"
-                    }`}
+                    className={cn(
+                      "flex items-center justify-between rounded-2xl px-2 py-1.5 transition",
+                      isActive(item.activePatterns) ? "bg-[#f49b33] text-white shadow-md" : "bg-white text-gray-700 hover:bg-orange-50"
+                    )}
                   >
-                    <span className="flex items-center gap-3">
-                      <span
-                        className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                          isActive
-                            ? "bg-white/20"
-                            : "bg-orange-100 text-orange-500"
-                        }`}
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={cn("flex h-10 w-10 items-center justify-center rounded-full transition-all duration-150",
+                          isActive(item.activePatterns) ? "bg-white/20 rounded-xl" : "bg-orange-100 text-[#f49b33]"
+                        )}
                       >
                         <Icon className="h-4 w-4" />
-                      </span>
+                      </div>
+
                       <span className="text-sm font-semibold">
-                        {item.title}
+                        {t(item.labelKey)}
                       </span>
-                    </span>
-                    <SquareArrowOutUpRight
-                      className={`h-4 w-4 ${
-                        isActive ? "text-white" : "text-gray-400"
-                      }`}
-                    />
+                    </div>
                   </Link>
                 );
               })}
+
+              <Link
+                href={"/admin/staff" as Route}
+                onClick={onClose}
+                className={cn(
+                  "flex items-center justify-between rounded-2xl px-2 py-1.5 transition",
+                  isActive(["^/admin/staff"]) ? "bg-[#f49b33] text-white shadow-md" : "bg-white text-gray-700 hover:bg-orange-50"
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={cn("flex h-10 w-10 items-center justify-center rounded-full transition-all duration-150",
+                      isActive(["^/admin/staff"]) ? "bg-white/20 rounded-xl" : "bg-orange-100 text-[#f49b33]"
+                    )}
+                  >
+                    <Users className="h-4 w-4" />
+                  </div>
+
+                  <span className="text-sm font-semibold">
+                    {t("admin.dashboard.staff")}
+                  </span>
+                </div>
+              </Link>
             </div>
 
-            <div className="mt-4 rounded-3xl border border-dashed border-gray-200 p-3">
-              <div className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                Quick actions
-              </div>
-              <div className="mt-2 space-y-2">
-                <Link
-                  href={asRoute(getAdminHrefWithShopId("/admin/bookings/new"))}
-                  onClick={onClose}
-                  className="flex items-center gap-3 rounded-2xl bg-orange-400 px-4 py-2.5 text-white font-semibold"
+            <div>
+              <Link
+                href={"/admin/bookings/new" as Route}
+                onClick={onClose}
+                className={cn(
+                  "flex items-center gap-3 rounded-2xl bg-[#f49b33] px-1.5 py-1.5 text-white font-semibold",
+                  isActive(["^/admin/bookings/new"]) ? "bg-[#f49b33] text-white shadow-md" : "bg-white text-gray-700 hover:bg-orange-50 border border-[#f49b33]",
+                )}
+              >
+                <div
+                  className={cn("flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-150",
+                    isActive(["^/admin/bookings/new"]) ? "bg-white/20 rounded-xl" : "bg-orange-100 text-[#f49b33]"
+                  )}
                 >
                   <PlusCircle className="h-4 w-4" />
-                  {t("admin.dashboard.newAppointment")}
-                </Link>
-                <Link
-                  href={asRoute(getAdminHrefWithShopId("/admin/staff"))}
-                  onClick={onClose}
-                  className="flex items-center gap-3 rounded-2xl bg-gray-50 px-4 py-2.5 text-gray-700 font-semibold"
-                >
-                  <Users className="h-4 w-4 text-orange-400" />
-                  {t("admin.dashboard.staff")}
-                </Link>
-              </div>
+                </div>
+
+                <span className="text-sm font-semibold">{t("admin.dashboard.newAppointment")}</span>
+              </Link>
             </div>
           </div>
-        </div>
-      </div>
-
-      <style jsx global>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        @keyframes fadeOut {
-          from {
-            opacity: 1;
-          }
-          to {
-            opacity: 0;
-          }
-        }
-
-        @keyframes slideInRight {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-
-        @keyframes slideOutRight {
-          from {
-            transform: translateX(0);
-            opacity: 1;
-          }
-          to {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-        }
-      `}</style>
+        </DrawerContent>
+      </Drawer>
     </>
-  );
+  )
 }

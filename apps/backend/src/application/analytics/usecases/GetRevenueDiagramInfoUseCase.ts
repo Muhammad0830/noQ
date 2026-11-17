@@ -50,11 +50,9 @@ export class GetRevenueDiagramInfoUseCase implements GetRevenueDiagramInfoUseCas
 
             const key = this.formatBucket(bucket, input.interval);
 
-            const revenue = Number(booking.servicePrice);
-
             revenueMap.set(
                 key,
-                (revenueMap.get(key) ?? 0) + revenue
+                (revenueMap.get(key) ?? 0) + Number(booking.servicePrice)
             );
         }
 

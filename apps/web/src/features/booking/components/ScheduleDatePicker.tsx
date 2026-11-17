@@ -1,58 +1,70 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Dispatch, FC, SetStateAction, useCallback, useMemo, useState } from "react";
-import { SelectedDateType } from "../types";
+import { FC, useMemo, useState } from "react";
 import { useTranslations } from "use-intl";
 import { cn } from "cn";
-import { formatToDateString } from "@noq/shared";
+import { addDays, startOfDay } from "@noq/shared";
 
 const VISIBLE_DAYS = 5;
 const MAX_DAYS_AHEAD = 90;
+const MAX_DAYS_BEFORE = 90;
+
+type DatePickerType = "prev_only" | "next_only" | "both";
 
 interface ScheduleDatePickerProps {
-    selectedDate: SelectedDateType;
-    setSelectedDate: Dispatch<SetStateAction<SelectedDateType>>;
+    selectedDate: Date;
+    setSelectedDate: (date: Date) => void;
+    show?: DatePickerType;
+    maxDaysBefore?: number;
+    maxDaysAhead?: number;
+    visibleDays?: number;
 }
 
 const ScheduleDatePicker: FC<ScheduleDatePickerProps> = ({
     selectedDate,
     setSelectedDate,
+    show = "next_only",
+    visibleDays = VISIBLE_DAYS,
+    maxDaysBefore = show === "next_only" ? 0 : MAX_DAYS_BEFORE,
+    maxDaysAhead = show === "prev_only" ? 0 : MAX_DAYS_AHEAD,
 }) => {
     const t = useTranslations();
 
     const [startOffset, setStartOffset] = useState(0);
 
-    const getDateAtOffset = useCallback((offset: number) => {
-        const date = new Date();
-        date.setHours(0, 0, 0, 0);
-        date.setDate(date.getDate() + offset);
-        return date;
-    }, []);
-
     const visibleDates = useMemo(() => {
-        return Array.from({ length: VISIBLE_DAYS }, (_, index) =>
-            getDateAtOffset(startOffset + index)
+        const today = startOfDay(new Date());
+        const baseOffset = show === "prev_only"
+            ? startOffset - visibleDays + 1
+            : startOffset;
+
+        return Array.from({ length: visibleDays }, (_, index) =>
+            addDays(today, baseOffset + index)
         );
-    }, [startOffset, getDateAtOffset]);
+    }, [startOffset, show, visibleDays]);
 
     const maxStartOffset = Math.max(
         0,
-        MAX_DAYS_AHEAD - VISIBLE_DAYS + 1
+        maxDaysAhead - visibleDays + 1
     );
 
-    const canGoPrevious = startOffset > 0;
+    const minStartOffset = Math.min(
+        0, - maxDaysBefore
+    );
+
+    const canGoPrevious = startOffset > minStartOffset;
     const canGoNext = startOffset < maxStartOffset;
 
     const showPreviousDates = () => {
         setStartOffset((current) =>
-            Math.max(0, current - VISIBLE_DAYS)
+            Math.max(minStartOffset, current - visibleDays)
         );
     };
 
     const showNextDates = () => {
         setStartOffset((current) =>
-            Math.min(maxStartOffset, current + VISIBLE_DAYS)
+            Math.min(maxStartOffset, current + visibleDays)
         );
     };
 
@@ -96,13 +108,13 @@ const ScheduleDatePicker: FC<ScheduleDatePickerProps> = ({
 
                 <div className="w-full grid grid-cols-5 gap-2">
                     {visibleDates.map((date) => {
-                        const isSelected = selectedDate.date === formatToDateString(date);
+                        const isSelected = selectedDate.getTime() === date.getTime();
 
                         return (
                             <button
                                 key={date.toISOString()}
                                 type="button"
-                                onClick={() => setSelectedDate({ time: null, date: formatToDateString(date) })}
+                                onClick={() => setSelectedDate(date)}
                                 className={cn(
                                     "rounded-xl py-2 text-center border",
                                     isSelected ? "bg-[#F49B33] text-white border-[#F49B33]" : "bg-white border-[#ead8c3] text-slate-700"

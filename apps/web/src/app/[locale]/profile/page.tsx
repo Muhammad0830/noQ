@@ -64,7 +64,7 @@ export default function ProfilePage() {
     router.replace("/login");
   }
 
-  if (isLoading) {
+  if (isLoading || !isAuthenticated || !user) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-700">
         <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium shadow-sm">
@@ -75,32 +75,20 @@ export default function ProfilePage() {
     );
   }
 
-  if (!user) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-700">
-        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium shadow-sm">
-          <span>{t("common.userNotFound")}</span>
-        </div>
-      </main>
-    );
-  }
-
   return (
     <div className="flex-1 bg-slate-50">
       <Header />
 
       <main className="h-full pt-6 overflow-y-auto relative pb-20 mx-auto w-full px-3 sm:px-6">
-        <section className="relative border-slate-200 pb-6 text-center dark:border-white/10">
-          <ProfileAvatarSection
-            user={user}
-            preview={preview}
-            providerMode={providerMode}
-            file={file}
-            setPreview={setPreview}
-            setFile={setFile}
-            handleChangeFile={handleChangeFile}
-          />
-        </section>
+        <ProfileAvatarSection
+          user={user}
+          preview={preview}
+          providerMode={providerMode}
+          file={file}
+          setPreview={setPreview}
+          setFile={setFile}
+          handleChangeFile={handleChangeFile}
+        />
 
         <PanelChangeAccordion
           isAdmin={user?.role === "ADMIN"}
@@ -110,13 +98,9 @@ export default function ProfilePage() {
           isLoadingShops={isLoading}
         />
 
-        <section className="mb-6">
-          <AccountSettings setIsInfoModalOpen={setIsInfoModalOpen} />
-        </section>
+        <AccountSettings setIsInfoModalOpen={setIsInfoModalOpen} />
 
-        <section className="mb-8">
-          <Preferences setIsLanguageModalOpen={setIsLanguageModalOpen} />
-        </section>
+        <Preferences setIsLanguageModalOpen={setIsLanguageModalOpen} />
 
         <button
           type="button"

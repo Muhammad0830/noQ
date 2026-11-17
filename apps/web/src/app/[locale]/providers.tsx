@@ -6,6 +6,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProviderModeProvider } from "@/contexts/ProviderModeContext";
 import QueryProvider from "@/contexts/ReactQueryProvider";
 import { LogInDialogProvider } from "@/contexts/LogInDialogContext";
+import { ShopProvider } from "@/contexts/ShopContext";
 
 export default function AppProviders({ children }: { children: ReactNode }) {
   return (
@@ -14,7 +15,9 @@ export default function AppProviders({ children }: { children: ReactNode }) {
         <AuthProvider>
           <ProviderModeProvider>
             <LogInDialogProvider>
-              {children}
+              <ShopProvider>
+                {children}
+              </ShopProvider>
             </LogInDialogProvider>
           </ProviderModeProvider>
         </AuthProvider>

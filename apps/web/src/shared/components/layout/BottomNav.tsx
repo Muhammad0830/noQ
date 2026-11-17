@@ -39,6 +39,6 @@ export default function BottomNav() {
 
         <AdminPanelBottomNav isAdmin={isAdmin} isActive={isActive} />
       </div>
-    </nav>
+    </nav >
   );
 }

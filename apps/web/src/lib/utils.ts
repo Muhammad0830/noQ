@@ -1,3 +1,5 @@
+import { BookingStatus } from "@noq/shared"
+
 export { cn } from "cn"
 
 export function formatPrice(
@@ -34,3 +36,43 @@ export function getInitials(name?: string | null) {
     .map((part) => part[0]?.toUpperCase())
     .join("");
 }
+
+export function canTransitionTo(thisStatus: BookingStatus, changeTo: BookingStatus): boolean {
+  const transitions: Record<
+    BookingStatus,
+    BookingStatus[]
+  > = {
+    PENDING: [
+      BookingStatus.CONFIRMED,
+      BookingStatus.CANCELLED
+    ],
+    CONFIRMED: [
+      BookingStatus.IN_PROGRESS,
+      BookingStatus.CANCELLED,
+      BookingStatus.NO_SHOW
+    ],
+    IN_PROGRESS: [BookingStatus.COMPLETED],
+    COMPLETED: [],
+    CANCELLED: [],
+    NO_SHOW: [],
+  }
+
+  return transitions[thisStatus].includes(changeTo);
+}
+
+export const monthNames: string[] = [
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+]
+
+export const weekdayShort: string[] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

@@ -16,6 +16,7 @@ export interface GetBookingDataQueryInterface {
     getFamousServiceList(input: GetFamousServiceListInput): Promise<FamousServiceItem[]>;
     getPeakHourList(input: GetPeakHourListInput): Promise<PeakHourItem[]>;
     getShopHistoryBookingList(input: GetShopHistoryBookingListInput): Promise<GetShopHistoryBookingListOutput>;
+    getListByDateTime(input: GetListByDateTimeInput): Promise<GetListByDateTimeOutput>;
 }
 
 export interface GetCountByTimeInput {
@@ -141,5 +142,33 @@ export interface GetShopHistoryBookingListOutput {
             id: string,
             name: string,
         } | null
+    }[];
+}
+
+export interface GetListByDateTimeInput {
+    shopId: ShopId;
+    startTime: DateTime;
+    endTime: DateTime;
+}
+
+export interface GetListByDateTimeOutput {
+    bookingList: {
+        id: string;
+        startTime: Date;
+        endTime: Date;
+        serviceName: string,
+        servicePrice: number,
+        staff: {
+            id: string;
+            name: string;
+        } | null,
+        status: BookingStatusEnum,
+        customer: {
+            id: string;
+            name: string;
+            email: string;
+            phoneNumber: string | null;
+            avatarUrl: string | null;
+        }
     }[];
 }

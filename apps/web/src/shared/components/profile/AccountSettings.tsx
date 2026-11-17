@@ -12,8 +12,8 @@ export default function AccountSettings({
   const t = useTranslations();
 
   return (
-    <>
-      <p className="text-base font-semibold text-slate-900">
+    <section className="mb-6">
+      <p className="text-base font-semibold text-slate-900 mb-1">
         {t("profile.accountSettings")}
       </p>
 
@@ -42,6 +42,6 @@ export default function AccountSettings({
           border_top
         />
       </div>
-    </>
+    </section>
   );
 }

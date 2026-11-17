@@ -35,7 +35,33 @@
       "unknownCustomer": "Nomaʼlum mijoz",
       "unknownService": "Nomaʼlum xizmat",
       "notAssigned": "Biriktirilmagan",
-      "period7d": "(7d)",
+      "period7d": "(7 kun)",
+      "staff_not_found": "Hodim aniqlanmadi",
+      "booking_dialog_title": "Bandlov holatini o'zartirasizmi?",
+      "model_details": "Bandlov haqida batafil",
+      "booking_details": "Bandlov ma'lumotlari",
+      "service_name": "Xizmat nomi",
+      "service_price": "Xizmat narxi",
+      "customer_name": "Mijoz ismi",
+      "customer_phone": "Mijoz tel. raqami",
+      "close": "Yopish",
+      "confirm": "Tasdiqlash",
+      "select_status": "Holatni tanlang",
+      "select_cancellation_reason": "Iltimos, bekor qilish sababini belgilang",
+      "cancellation_reason": {
+        "change_of_plans": "Rejalar o'zgarishi",
+        "booked_by_mistake": "Band qilishda xatolik",
+        "no_longer_need": "Mijozning xizmatga endi ehtiyoji yo'q",
+        "financial_reasons": "Moliyaviy sabablar",
+        "unable_to_contact_customer": "Mijoz bilan aloqa imkonsiz",
+        "other": "Boshqa"
+      },
+      "confirm_modal_title": {
+        "CANCELLED": "Haqiqatan ham bandlovni bekor qilmoqchimisiz?",
+        "COMPLETED": "Haqiqatan ham bandlovni tugallamoqchimisiz?",
+        "CONFIRMED": "Haqiqatan ham bandlovni tasdiqlamoqchimisiz?",
+        "IN_PROGRESS": "Haqiqatan ham xizmatni boshlamoqchimisiz?"
+      },
       "error": {
         "baseInfoPrefix": "Dashboard ma'lumotlarini olishda xatolik: {message}",
         "schedulePrefix": "Jadvalni olishda xatolik: {message}",
@@ -89,6 +115,7 @@
       "totalRevenue": "Jami daromad",
       "currency": "so'm",
       "bookings": "Bandlovlar",
+      "bookingsCount": "Bandlovlar soni",
       "rating": "Reyting",
       "mostPopularServices": "Eng mashhur xizmatlar",
       "servicesBookings": "{count} ta bandlov",
@@ -96,6 +123,14 @@
       "peakHours": "Eng band soatlar",
       "invalidDateLabel": "--.--",
       "peakHourTitle": "{hour}: {count}",
+      "last_week": "Oxirgi hafta",
+      "last_month": "Oxirgi oy",
+      "last_year": "Oxirgi yil",
+      "DAY": "kunlik",
+      "MONTH": "oylik",
+      "YEAR": "yillik",
+      "latestRevenue": "Oxrgi daromad",
+      "revenue": "Daromad",
       "filter": {
         "week": "Oxirgi hafta",
         "month": "Oxirgi 30 kun",
@@ -188,6 +223,8 @@
         "saving": "Saqlanmoqda...",
         "delete": "O'chirish",
         "deleting": "O'chirilmoqda...",
+        "confirm_delete": "Haqiqatan ham xizmatni o'chirmoqchimisiz?",
+        "delete_description": "O'chirilgandan so'ng bu xizmatga aloqador barcha ma'lumotlar ham o'chib ketadi va qaytarib bo'lmaydi. Shunda ham davom etasizmi?",
         "error": {
           "nameRequired": "Xizmat nomi talab qilinadi",
           "invalidDuration": "Vaqt noto'g'ri",
@@ -301,14 +338,27 @@
       "noShopSelected": "Shop tanlanmagan. Profil bo'limidan admin shopni tanlang.",
       "searchPlaceholder": "Mijoz yoki xodimni qidiring...",
       "dailyBookings": "Kunlik bandlovlar",
-      "recordsCount": "Yozuvlar",
+      "recordsCount": "Bandlovlar soni",
       "loadingError": "Bandlovlarni yuklashda xatolik yuz berdi.",
       "staffColumn": "Xodim",
       "noBookings": "Bu kun uchun bandlovlar topilmadi.",
       "totalRevenue": "Jami daromad",
       "exporting": "Eksport qilinmoqda...",
       "exportSuccess": "Eksport muvaffaqiyatli yakunlandi",
-      "exportCSV": "CSV sifatida yuklash"
+      "exportCSV": "CSV sifatida yuklash",
+      "staff_notFound": "Xodim topilmadi",
+      "startTime": "Boshlanish vaqti",
+      "endTime": "Tugash vaqti",
+      "service": "Xizmat",
+      "customer": "Mijoz",
+      "staff": "Xodim",
+      "status": "Holat",
+      "price_sum": "Narx (so'm)",
+      "durationMin": "Davomiyligi (daqiqa)"
+    },
+    "sidebar": {
+      "quick_actions": "Tezkor harakatlar",
+      "admin_panel": "Admin panel"
     }
   },
   "user": {
@@ -466,20 +516,6 @@
         "days": "Kun",
         "hour": "Soat",
         "min": "Min"
-      },
-      "status": {
-        "completed": "Tugallangan",
-        "COMPLETED": "Tugallangan",
-        "cancelled": "Bekor qilingan",
-        "CANCELLED": "Bekor qilingan",
-        "pending": "Kutilmoqda",
-        "PENDING": "Kutilmoqda",
-        "confirmed": "Tasdiqlangan",
-        "CONFIRMED": "Tasdiqlangan",
-        "in_progress": "Jarayonda",
-        "IN_PROGRESS": "Jarayonda",
-        "noShow": "Kelmagan",
-        "NO_SHOW": "Kelmagan"
       }
     }
   },
@@ -499,7 +535,15 @@
     "success": "Muvaffaqiyatli!",
     "currency": "so'm",
     "userNotFound": "Foydalanuvchi ma'lumotlari topilmadi.",
-    "tryAgain": "Yana urinib ko'ring"
+    "tryAgain": "Yana urinib ko'ring",
+    "continue?": "Davom etasizmi?",
+    "min": "min",
+    "sum": "so'm",
+    "yes": "ha",
+    "no": "yo'q",
+    "now": "hozir",
+    "after": "keyin",
+    "something_went_wrong": "Xatolik aniqlandi, keyenroq urinib ko'ring."
   },
   "profile": {
     "title": "Profil",
@@ -608,6 +652,7 @@
       "saving": "Saqlanmoqda...",
       "next": "KEYINGISI",
       "placeholder": "3-bosqich tez orada qo'shiladi.",
+      "delete": "O'chirish",
       "error": {
         "shopNotFound": "Do'kon topilmadi. Qayta urinib ko'ring.",
         "serviceNameRequired": "Xizmat nomini kiriting",
@@ -746,5 +791,20 @@
     "Fri": "Ju",
     "Sat": "Sha",
     "Sun": "Yak"
+  },
+  "booking_status": {
+    "status": "Holat",
+    "completed": "Tugallangan",
+    "COMPLETED": "Tugallangan",
+    "cancelled": "Bekor qilingan",
+    "CANCELLED": "Bekor qilingan",
+    "pending": "Kutilmoqda",
+    "PENDING": "Kutilmoqda",
+    "confirmed": "Tasdiqlangan",
+    "CONFIRMED": "Tasdiqlangan",
+    "in_progress": "Jarayonda",
+    "IN_PROGRESS": "Jarayonda",
+    "noShow": "Kelmagan",
+    "NO_SHOW": "Kelmagan"
   }
 }

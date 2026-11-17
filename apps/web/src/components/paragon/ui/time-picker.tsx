@@ -139,7 +139,7 @@ function Wheel({
       onScroll={handleScroll}
       onKeyDown={onKeyDown}
       style={{ height: ROW_H * VISIBLE_ROWS }}
-      className="w-20 snap-y snap-mandatory overflow-y-auto overscroll-contain rounded-lg outline-none [scrollbar-width:none] focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-scrollbar]:hidden"
+      className="w-20 snap-y snap-mandatory overflow-y-auto overscroll-contain rounded-lg outline-none scrollbar-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-scrollbar]:hidden"
     >
       <div style={{ height: PAD }} aria-hidden />
       {items.map((it, i) => {

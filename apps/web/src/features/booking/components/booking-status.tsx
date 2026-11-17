@@ -11,10 +11,10 @@ export const STATUS_ICONS: Record<BookingStatus, React.ReactNode> = {
 };
 
 export const STATUS_LABELS: Record<BookingStatus, string> = {
-  [BookingStatus.PENDING]: "user.history.status.pending",
-  [BookingStatus.CONFIRMED]: "user.history.status.confirmed",
-  [BookingStatus.IN_PROGRESS]: "user.history.status.in_progress",
-  [BookingStatus.COMPLETED]: "user.history.status.completed",
-  [BookingStatus.CANCELLED]: "user.history.status.cancelled",
-  [BookingStatus.NO_SHOW]: "user.history.status.noShow",
+  [BookingStatus.PENDING]: "booking_status.pending",
+  [BookingStatus.CONFIRMED]: "booking_status.confirmed",
+  [BookingStatus.IN_PROGRESS]: "booking_status.in_progress",
+  [BookingStatus.COMPLETED]: "booking_status.completed",
+  [BookingStatus.CANCELLED]: "booking_status.cancelled",
+  [BookingStatus.NO_SHOW]: "booking_status.noShow",
 };
