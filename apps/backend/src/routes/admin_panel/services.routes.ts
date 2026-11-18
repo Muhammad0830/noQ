@@ -8,6 +8,8 @@ const serviceRouter = Router();
 
 serviceRouter.get("/", serviceController.getByShopId);
 
+serviceRouter.get("/active", serviceController.getActiveByShopId);
+
 serviceRouter.post(
   "/",
   validateBody(createServiceSchema),

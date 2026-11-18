@@ -26,3 +26,13 @@ export interface SignUpResponse {
     access_token: string,
     refresh_token: string,
 }
+
+export interface UserIdentityListResponse {
+    data: UserIdentity[];
+}
+
+export interface UserIdentity {
+    id: string;
+    name: string;
+    email: string;
+}

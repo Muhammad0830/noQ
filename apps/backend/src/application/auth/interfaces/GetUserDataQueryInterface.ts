@@ -3,6 +3,7 @@ import { UserRoleType } from "@noq/shared";
 
 export interface GetUserDataQueryInterface {
     findUserById(id: UserId): Promise<UserItem>;
+    getByEmail(search: string): Promise<GetByEmailOutput>
 }
 
 export interface UserItem {
@@ -23,4 +24,13 @@ export interface UserItem {
             icon: string | null;
         }
     }[]
+}
+export interface GetByEmailOutput {
+    userList: GetByEmailUserItem[]
+}
+
+export interface GetByEmailUserItem {
+    id: string;
+    name: string;
+    email: string;
 }

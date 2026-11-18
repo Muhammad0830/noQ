@@ -152,4 +152,26 @@ export class GetServiceDataQuery implements GetServiceDataQueryInterface {
             updatedAt: service.updatedAt,
         }))
     }
+
+    async getActiveByShopId(shopId: ShopId): Promise<ServiceDetailsDTO[]> {
+        const serviceList = await this.prisma.service.findMany({
+            where: {
+                shopId: shopId.toString(),
+                isActive: true,
+            },
+        });
+
+        return serviceList.map(service => ({
+            id: service.id,
+            shopId: service.shopId,
+            name: service.name,
+            description: service.description,
+            price: Number(service.price),
+            durationMin: service.durationMin,
+            bufferTime: service.bufferTime,
+            isActive: service.isActive,
+            createdAt: service.createdAt,
+            updatedAt: service.updatedAt,
+        }))
+    }
 }

@@ -12,6 +12,7 @@ import { ActivateServiceUseCaseInterface } from "@/application/service/interface
 import { DeactivateServiceUseCaseInterface } from "@/application/service/interfaces/DeactivateServiceUseCaseInterface.js";
 import { DeleteServiceUseCaseInterface } from "@/application/service/interfaces/DeleteServiceUseCaseInterface.js";
 import { validateShopContext } from "../utils/ValidateShopContext.js";
+import { GetActiveServiceListUseCaseInterface } from "@/application/service/interfaces/GetActiveServiceListUseCaseInterface.js";
 
 export class ServiceController {
     constructor(
@@ -24,6 +25,7 @@ export class ServiceController {
         private readonly activateServiceUseCase: ActivateServiceUseCaseInterface,
         private readonly deactivateServiceUseCase: DeactivateServiceUseCaseInterface,
         private readonly deleteServiceUseCase: DeleteServiceUseCaseInterface,
+        private readonly getActiveServiceListUseCase: GetActiveServiceListUseCaseInterface,
     ) { }
 
     create: RequestHandler = async (req, res, next) => {
@@ -119,6 +121,18 @@ export class ServiceController {
             const output = await this.getServiceReviewListUseCase.execute(id);
 
             res.status(200).json(output);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    getActiveByShopId: RequestHandler = async (req, res, next) => {
+        try {
+            const shopContext = validateShopContext(req);
+
+            const serviceList = await this.getActiveServiceListUseCase.execute(shopContext.shopId);
+
+            res.status(200).json(serviceList);
         } catch (error) {
             next(error);
         }

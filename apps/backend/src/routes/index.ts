@@ -1,6 +1,7 @@
 import categoryRouter from "@/routes/user_panel/categories.routes.js";
 import authRouter from "@/routes/auth.routes.js";
 import userRouter from "@/routes/user.routes.js";
+import adminUserRouter from "@/routes/admin_panel/user.routes.js";
 import bookingRouter from "@/routes/user_panel/bookings.routes.js";
 import favouriteRouter from "@/routes/user_panel/favourites.routes.js";
 import serviceRouter from "@/routes/user_panel/services.routes.js";
@@ -33,6 +34,7 @@ export const adminRoutes = {
   bookingAdminRouter,
   adminShopRouter,
   shopBlockRouter,
+  adminUserRouter,
 };
 
 export const generalRoutes = {

@@ -1,4 +1,4 @@
-import { GetUserDataQueryInterface, UserItem } from "@/application/auth/interfaces/GetUserDataQueryInterface.js";
+import { GetByEmailOutput, GetUserDataQueryInterface, UserItem } from "@/application/auth/interfaces/GetUserDataQueryInterface.js";
 import { UserId } from "@/domain/user/value-objects/UserId.js";
 import { PrismaClient } from "@prisma/client";
 
@@ -6,6 +6,24 @@ export class GetUserDataQuery implements GetUserDataQueryInterface {
     constructor(
         private readonly prisma: PrismaClient,
     ) { }
+
+    async getByEmail(search: string): Promise<GetByEmailOutput> {
+        const userList = await this.prisma.user.findMany({
+            where: {
+                email: {
+                    contains: search,
+                    mode: "insensitive",
+                }
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+            },
+        });
+
+        return { userList };
+    }
 
     async findUserById(userId: UserId): Promise<UserItem> {
         const user = await this.prisma.user.findUnique({

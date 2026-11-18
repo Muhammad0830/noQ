@@ -1,12 +1,18 @@
+import type { UserPositionType, UserRoleType } from "./user.js";
+
 export interface Staff {
   id: string;
-  role?: StaffRole;
-  user?: {
-    id?: string;
-    name?: string | null;
-    email?: string | null;
-    avatarUrl?: string | null;
-  } | null;
+  userId: string;
+  shopId: string;
+  position: UserPositionType;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    phoneNumber: string | null;
+    avatarUrl: string | null;
+    role: UserRoleType;
+  };
 }
-
-export type StaffRole = "OWNER" | "MANAGER" | "STAFF";

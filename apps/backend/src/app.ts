@@ -82,13 +82,19 @@ app.use(
   adminOnly,
   adminRoutes.adminShopRouter,
 );
-
 app.use(
   "/admin/blocks",
   authMiddleware,
   shopContextMiddleware(authorizeShopAcessUseCase),
   adminOnly,
   adminRoutes.shopBlockRouter
-)
+);
+app.use(
+  "/admin/users",
+  authMiddleware,
+  shopContextMiddleware(authorizeShopAcessUseCase),
+  adminOnly,
+  adminRoutes.adminUserRouter
+);
 
 export default app;

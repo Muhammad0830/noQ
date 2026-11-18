@@ -3,13 +3,29 @@ import { RequestHandler } from "express";
 import { validateUser } from "../utils/ValidateUser.js";
 import { UpdateUserSchema } from "../validators/user/UpdateUserSchema.js";
 import { UpdateUserAvatarUseCaseInterface } from "@/application/user/interfaces/UpdateUserAvatarUseCaseInterface.js";
-import { MulterFile } from "@/types.js";
+import { GetBySearchUseCaseInterface } from "@/application/user/interfaces/GetBySearchUseCaseInterface.js";
+import { GetBySearchSchema } from "../validators/user/GetBySearchSchema.js";
 
 export class UserController {
     constructor(
         private readonly updateUserUseCase: UpdateUserUseCaseInterface,
         private readonly updateUserAvatarUseCase: UpdateUserAvatarUseCaseInterface,
+        private readonly getBySearchUseCase: GetBySearchUseCaseInterface,
     ) { }
+
+    getBySearch: RequestHandler = async (req, res, next) => {
+        try {
+            const { search } = res.locals.validatedQuery as GetBySearchSchema;
+
+            const output = await this.getBySearchUseCase.execute(search);
+
+            res.status(200).json({
+                data: output.userList,
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 
     updateDetails: RequestHandler = async (req, res, next) => {
         try {
