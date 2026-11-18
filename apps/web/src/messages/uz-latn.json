@@ -107,7 +107,15 @@
       "selectShopFirst": "Avval admin shopni tanlang",
       "staffAll": "Barcha ustalar",
       "create": "Bandlovni yaratish",
-      "back": "Orqaga qaytish"
+      "back": "Orqaga qaytish",
+      "searchForUsers": "Foydalanuvchilarni qidiruv",
+      "selectCustomer": "Mijozni tanlang",
+      "stepGuide_select_service": "Avval xizmatni tanlang. Keyingi qadamlar shundan keyin ochiladi.",
+      "stepGuide_select_customer": "Mijozni tanlang. Shundan keyin xodim, sana va vaqt tanlash ochiladi.",
+      "stepGuide_select_others": "Endi xodim, sana va vaqtni ketma-ket tanlang.",
+      "staff_not_found": "Hodim aniqlanmadi",
+      "selectService": "Xizmatni tanlang",
+      "selectByPressing": "Bosish orqali mijozni tanlang"
     },
     "analytics": {
       "title": "Analitika",
@@ -467,7 +475,7 @@
       "cancel": "Bekor qilish",
       "success": "Bandlov muvaffaqiyatli amalga oshirildi!",
       "error": "Xatolik yuz berdi",
-      "selectStaff": "Xodimni tanlang",
+      "selectStaff": "Xodimni tanlang (ixtiyoriy)",
       "timeline": "Jadval",
       "liveSelection": "JONLI TANLOV",
       "availableSlot": "bo'sh vaqt",
@@ -481,6 +489,7 @@
       "selected": "tanlandi",
       "break": "tanaffus",
       "defaultShop": "Noma'lum do'kon",
+      "customer": "Mijoz",
       "cancel_confirm": {
         "title": "Bandlovni bekor qilasizmi?",
         "description": "Bandlovni bekor qilsangiz, bu harakatni qaytarish imkoni yo'q. Shunda ham davom etasizmi?"

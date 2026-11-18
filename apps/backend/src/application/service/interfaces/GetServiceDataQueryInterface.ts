@@ -9,6 +9,8 @@ export interface GetServiceDataQueryInterface {
     getServiceReviewList(serviceId: ServiceId): Promise<ServiceWithReviewsDTO>;
 
     getByShopId(shopId: ShopId): Promise<ServiceDetailsDTO[]>;
+
+    getActiveByShopId(shopId: ShopId): Promise<ServiceDetailsDTO[]>;
 }
 
 export interface GetTrendingServiceListDTO {

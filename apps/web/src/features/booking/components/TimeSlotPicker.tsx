@@ -69,7 +69,7 @@ export function TimeSlotPicker({
         return (
             <section className="mb-4">
                 <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-[20px] leading-none font-bold text-slate-900">
+                    <h3 className="text-sm font-bold text-slate-900">
                         {t("user.booking.timeline")}
                     </h3>
                     <p className="text-[10px] tracking-[0.16em] text-[#F49B33] uppercase">
@@ -87,7 +87,7 @@ export function TimeSlotPicker({
     return (
         <section className="mb-4">
             <div className="flex items-center justify-between mb-3">
-                <h3 className="text-[20px] leading-none font-bold text-slate-900">
+                <h3 className="text-sm font-bold text-slate-900">
                     {t("user.booking.timeline")}
                 </h3>
                 <p className="text-[10px] tracking-[0.16em] text-[#F49B33] uppercase">

@@ -18,17 +18,17 @@ const AnalyticsFamousServicesSection: FC<AnalyticsFamousServicesSectionProps> = 
 }) => {
     const t = useTranslations();
 
-      const sortedServices = useMemo(() => {
+    const sortedServices = useMemo(() => {
         const maxBookings = Math.max(...data.map((item) => item.bookingCount), 1);
-    
+
         return data.slice(0, 5).map((service) => ({
-          ...service,
-          width: Math.max(
-            6,
-            Math.round((service.bookingCount / maxBookings) * 100),
-          ),
+            ...service,
+            width: Math.max(
+                6,
+                Math.round((service.bookingCount / maxBookings) * 100),
+            ),
         }));
-      }, [data]);
+    }, [data]);
 
     return (
         <section className="rounded-4xl bg-white p-4 md:p-5 lg:p-6 shadow-[0_10px_30px_rgba(15,17,21,0.06)]">

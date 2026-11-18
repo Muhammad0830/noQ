@@ -24,7 +24,7 @@ export function formatPrice(
     .replace(/[\u00A0\u202F]/g, " ")
 }
 
-export function getInitials(name?: string | null) {
+export function getInitials(name?: string | null, count: number = 2) {
   if (!name) {
     return '';
   }
@@ -32,7 +32,7 @@ export function getInitials(name?: string | null) {
   return name
     .split(" ")
     .filter(Boolean)
-    .slice(0, 2)
+    .slice(0, count)
     .map((part) => part[0]?.toUpperCase())
     .join("");
 }

@@ -181,13 +181,14 @@ export const API_ENDPOINTS = {
     analyticsFamousServices: `${API_BASE_URL}/admin/analytics/famousServices`,
     analyticsPeakHours: `${API_BASE_URL}/admin/analytics/peak-hours`,
     services: `${API_BASE_URL}/admin/services`,
+    active_services: `${API_BASE_URL}/admin/services/active`,
     activateService: (serviceId: string) =>
       `${API_BASE_URL}/admin/services/${serviceId}/activate`,
     deactivateService: (serviceId: string) =>
       `${API_BASE_URL}/admin/services/${serviceId}/deactivate`,
     schedule: `${API_BASE_URL}/admin/schedule`,
     staffs: `${API_BASE_URL}/admin/staffs`,
-    users: `${API_BASE_URL}/users`,
+    users: `${API_BASE_URL}/admin/users`,
   },
 };
 
